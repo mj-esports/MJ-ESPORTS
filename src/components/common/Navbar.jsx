@@ -30,37 +30,37 @@ export default function Navbar() {
   const userDisplayName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Player'
 
   return (
-    <nav className="sticky top-0 z-50 bg-slate-950 border-b border-slate-800">
+    <nav className="sticky top-0 z-50 bg-[#0b0e17]/90 backdrop-blur-md border-b border-cyan-500/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-purple-600 p-[1px] shadow-lg shadow-purple-950">
-              <div className="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-                <Swords className="w-5 h-5 text-purple-400" />
+            <div className="w-10 h-10 rounded-xl bg-cyan-400 p-[1px] shadow-[0_0_15px_rgba(0,240,255,0.5)] group-hover:scale-105 transition-transform">
+              <div className="w-full h-full bg-[#080c14] rounded-[11px] flex items-center justify-center">
+                <Swords className="w-5 h-5 text-cyan-400" />
               </div>
             </div>
             <div>
               <span className="text-xl font-extrabold tracking-wider text-white">
-                MJ ESPORTS
+                MJ <span className="text-cyan-400">ESPORTS</span>
               </span>
-              <span className="block text-[10px] uppercase font-bold tracking-widest text-purple-400/80 -mt-1">
-                Pro Arena
+              <span className="flex items-center gap-1 text-[9px] uppercase font-bold tracking-widest text-amber-400 -mt-1">
+                <span>Free Fire & BGMI Arena</span>
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-full border border-slate-800/60">
+          <div className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-full border border-cyan-500/20 shadow-inner">
             {navLinks.map((link) => (
               <Link
                 key={`nav-desktop-${link.name}`}
                 to={link.path}
-                className={`px-4 py-2 text-xs font-semibold rounded-full transition-colors ${
+                className={`px-4 py-2 text-xs font-bold rounded-full transition-all duration-200 ${
                   isActive(link.path)
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                    ? 'bg-cyan-400 text-slate-950 shadow-[0_0_12px_rgba(0,240,255,0.6)]'
+                    : 'text-slate-300 hover:text-cyan-400 hover:bg-slate-800/60'
                 }`}
               >
                 {link.name}
@@ -74,19 +74,19 @@ export default function Navbar() {
               <div className="flex items-center gap-3">
                 <Link
                   to="/profile"
-                  className="px-3.5 py-1.5 rounded-xl bg-purple-950/60 border border-purple-800/50 hover:bg-purple-900/60 flex items-center gap-2 transition-colors"
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-cyan-500/30 hover:border-cyan-400 flex items-center gap-2 transition-colors shadow-sm"
                 >
-                  <User className="w-3.5 h-3.5 text-purple-400" />
+                  <User className="w-3.5 h-3.5 text-cyan-400" />
                   <span className="text-xs font-bold text-slate-200">{userDisplayName}</span>
                   {isAdmin && (
-                    <span className="px-2 py-0.5 text-[9px] font-extrabold bg-purple-900 text-purple-300 rounded uppercase">
+                    <span className="px-2 py-0.5 text-[9px] font-extrabold bg-amber-500 text-slate-950 rounded uppercase shadow-sm">
                       ADMIN
                     </span>
                   )}
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-400 hover:text-red-400 hover:border-red-500/40 transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-400 hover:text-orange-400 hover:border-orange-500/40 transition-colors flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Logout</span>
@@ -96,15 +96,15 @@ export default function Navbar() {
               <>
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+                  className="px-4 py-2 text-xs font-bold text-slate-300 hover:text-cyan-400 transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="px-5 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 rounded-lg hover:brightness-110 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all"
+                  className="px-5 py-2 text-xs font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 rounded-lg hover:brightness-110 shadow-[0_0_15px_rgba(255,107,0,0.4)] transition-all uppercase tracking-wider"
                 >
-                  Register
+                  Register Now
                 </Link>
               </>
             )}
@@ -114,10 +114,10 @@ export default function Navbar() {
           <div className="md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2.5 rounded-xl bg-slate-900 border border-cyan-500/30 text-slate-300 hover:text-cyan-400 focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Toggle Side Drawer Menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-purple-400" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-6 h-6 text-cyan-400" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
