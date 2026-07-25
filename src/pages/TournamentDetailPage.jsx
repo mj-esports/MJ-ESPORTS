@@ -244,14 +244,36 @@ export default function TournamentDetailPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {tournament.teamsList && tournament.teamsList.length > 0 ? (
               tournament.teamsList.map((t, idx) => (
-                <div key={`squad-${idx}`} className="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between text-xs">
-                  <div className="space-y-1">
-                    <h4 className="font-bold text-white">{t.name}</h4>
-                    <p className="text-slate-400 text-[11px]">Captain: {t.captain}</p>
+                <div key={`squad-${idx}`} className="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3 text-xs shadow-xl">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-purple-950 text-purple-300 border border-purple-800/50 uppercase">
+                      {t.mode || 'Squad'} Mode
+                    </span>
+                    <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
+                      t.status === 'Confirmed' || t.status === 'Approved'
+                        ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
+                        : t.status === 'Pending'
+                        ? 'bg-amber-950 text-amber-400 border-amber-800'
+                        : 'bg-red-950 text-red-400 border-red-800'
+                    }`}>
+                      {t.status || 'Confirmed'}
+                    </span>
                   </div>
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 font-extrabold text-purple-400">
-                    #{idx + 1}
-                  </span>
+
+                  <div className="space-y-1">
+                    <h4 className="font-extrabold text-white text-sm">{t.name}</h4>
+                    <p className="text-slate-400 text-[11px]">Captain: <strong className="text-slate-200">{t.captain}</strong></p>
+                    {t.freeFireUid && (
+                      <p className="text-slate-500 font-mono text-[10px]">UID: <span className="text-cyan-400">{t.freeFireUid}</span></p>
+                    )}
+                  </div>
+
+                  {t.teammates && t.teammates.length > 0 && (
+                    <div className="pt-2 border-t border-slate-800/80 text-[10px] text-slate-400 flex items-center justify-between">
+                      <span>Roster: 1 Captain + {t.teammates.length} Players</span>
+                      <span className="font-extrabold text-purple-400">#{idx + 1}</span>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (

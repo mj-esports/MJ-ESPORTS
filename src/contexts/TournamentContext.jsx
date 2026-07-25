@@ -208,22 +208,41 @@ export function TournamentProvider({ children }) {
       throw new Error('Tournament not found!')
     }
 
-    if (target.registeredTeams >= target.maxTeams) {
+    // 1. Pre-registration status validation
+    if (target.status !== 'Registration Open') {
+      throw new Error('Registration for this tournament is currently closed.')
+    }
+
+    // 2. Pre-registration deadline validation
+    if (target.startDate) {
+      const startDate = new Date(target.startDate)
+      if (!isNaN(startDate.getTime()) && startDate < new Date()) {
+        throw new Error('The registration deadline for this tournament has passed.')
+      }
+    }
+
+    // 3. Available slots validation
+    if ((target.registeredTeams || 0) >= (target.maxTeams || 32)) {
       throw new Error('Tournament slots are full!')
     }
 
-    // Check duplicate registration
+    // 4. Client-side duplicate check
     const isDuplicate = target.teamsList?.some(
       (item) =>
         (item.email && teamInfo.email && item.email.toLowerCase() === teamInfo.email.toLowerCase()) ||
         (item.freeFireUid && teamInfo.freeFireUid && item.freeFireUid === teamInfo.freeFireUid) ||
-        (item.userId && teamInfo.userId && item.userId === teamInfo.userId)
+        (item.userId && teamInfo.userId && item.userId === teamInfo.userId) ||
+        (teamInfo.teammates && item.teammates?.some((tUid) => teamInfo.teammates.includes(tUid)))
     )
 
     if (isDuplicate) {
-      throw new Error('You or your team has already registered for this tournament!')
+      throw new Error('You, your squad, or one of your teammate Game UIDs has already registered for this tournament!')
     }
 
+    const regStatus = teamInfo.status || 'Confirmed'
+    const refId = teamInfo.refId || `REG-MJ-${Date.now().toString(36).toUpperCase()}`
+
+    // 5. Insert into public.tournament_registrations (Primary Source of Truth)
     if (isSupabaseConfigured) {
       const { data: existingRegs } = await supabase
         .from('tournament_registrations')
@@ -244,21 +263,24 @@ export function TournamentProvider({ children }) {
           whatsapp_number: teamInfo.whatsappNumber,
           email: teamInfo.email,
           user_id: teamInfo.userId || null,
-          status: 'Approved',
+          status: regStatus,
           registered_at: new Date().toISOString(),
         },
       ])
 
       if (regError) {
-        console.error('[Supabase Registration Error]:', regError)
+        console.error('[Supabase Registration Insert Error]:', regError)
         throw new Error(regError.message || 'Failed to register team in database.')
       }
     }
 
     const updatedTeamRecord = {
       ...teamInfo,
-      id: 'reg-' + Date.now(),
-      status: 'Approved',
+      id: refId,
+      refId,
+      status: regStatus,
+      mode: teamInfo.mode || 'Squad',
+      teammates: teamInfo.teammates || [],
       rank: (target.teamsList?.length || 0) + 1,
       registeredAt: new Date().toISOString(),
     }
@@ -266,6 +288,7 @@ export function TournamentProvider({ children }) {
     const newTeamsList = [...(target.teamsList || []), updatedTeamRecord]
     const newRegisteredCount = target.registeredTeams + 1
 
+    // 6. Increment registered_teams count on public.tournaments table
     if (isSupabaseConfigured) {
       await supabase
         .from('tournaments')
