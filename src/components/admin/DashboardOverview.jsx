@@ -39,18 +39,18 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
     try {
       if (isSupabaseConfigured) {
         // 1. Fetch Users Count from user_roles
-        const { count: usersCount, error: usersErr } = await supabase
+        const { count: usersCount } = await supabase
           .from('user_roles')
           .select('*', { count: 'exact', head: true })
 
         // 2. Fetch Tournaments List
-        const { data: dbTournaments, error: tournErr } = await supabase
+        const { data: dbTournaments } = await supabase
           .from('tournaments')
           .select('*')
           .order('created_at', { ascending: false })
 
         // 3. Fetch Tournament Registrations List
-        const { data: dbRegistrations, error: regErr } = await supabase
+        const { data: dbRegistrations } = await supabase
           .from('tournament_registrations')
           .select('*')
           .order('registered_at', { ascending: false })
@@ -75,7 +75,7 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
           (r) => r.status === 'Pending' || r.payment_status === 'Pending'
         ).length
 
-        // Total Revenue calculation (entry_fee sum or estimate)
+        // Total Revenue calculation
         const revenue = loadedRegistrations.reduce((acc, r) => {
           const feeStr = r.entry_fee || '0'
           const num = parseInt(feeStr.replace(/[^0-9]/g, ''), 10)
@@ -181,25 +181,25 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
     <div className="space-y-6">
       
       {/* Control Header & Refresh Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
         <div>
-          <h2 className="text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+          <h2 className="font-display-lg text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
             <span>Executive Operations Control</span>
           </h2>
-          <p className="text-xs text-slate-400">Real-time tournament stats & persistence dashboard</p>
+          <p className="text-xs text-[#8e9dae]">Real-time tournament stats & persistence dashboard</p>
         </div>
         <button
           onClick={fetchDashboardData}
           disabled={loading}
-          className="px-3.5 py-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold text-slate-300 hover:text-cyan-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50 min-h-[38px]"
+          className="px-3.5 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] rounded text-xs font-bold text-[#8e9dae] hover:text-[#00f2ff] transition-all flex items-center justify-center gap-2 disabled:opacity-50 min-h-[38px] uppercase tracking-wider"
         >
-          <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 text-[#00f2ff] ${loading ? 'animate-spin' : ''}`} />
           <span>{loading ? 'Refreshing...' : 'Refresh Metrics'}</span>
         </button>
       </div>
 
       {fetchError && (
-        <div className="p-4 bg-red-950/60 border border-red-800 rounded-xl flex items-center gap-3 text-red-300 text-xs">
+        <div className="p-4 bg-red-950/60 border border-[#ff3366] rounded-lg flex items-center gap-3 text-[#ff3366] text-xs">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{fetchError}</span>
         </div>
@@ -209,78 +209,78 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
         
         {/* Total Users */}
-        <div className="bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-4 space-y-2 transition-all shadow-xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00ff9d] rounded-xl p-4 space-y-2 transition-all shadow-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Users</span>
-            <Users className="w-4 h-4 text-emerald-400" />
+            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider">Total Users</span>
+            <Users className="w-4 h-4 text-[#00ff9d]" />
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-emerald-400">
+          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#00ff9d]">
             {loading ? '...' : metrics.totalUsers}
           </div>
         </div>
 
         {/* Total Tournaments */}
-        <div className="bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 rounded-2xl p-4 space-y-2 transition-all shadow-xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff] rounded-xl p-4 space-y-2 transition-all shadow-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Tournaments</span>
-            <Trophy className="w-4 h-4 text-purple-400" />
+            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider">Total Tournaments</span>
+            <Trophy className="w-4 h-4 text-[#00f2ff]" />
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-white">
+          <div className="font-mono text-xl sm:text-2xl font-extrabold text-white">
             {loading ? '...' : metrics.totalTournaments}
           </div>
         </div>
 
         {/* Active Tournaments */}
-        <div className="bg-slate-900/90 border border-slate-800 hover:border-orange-500/50 rounded-2xl p-4 space-y-2 transition-all shadow-xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#fe6b00] rounded-xl p-4 space-y-2 transition-all shadow-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Active Tournaments</span>
-            <Flame className="w-4 h-4 text-orange-400" />
+            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider">Active</span>
+            <Flame className="w-4 h-4 text-[#fe6b00]" />
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-orange-400">
+          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#fe6b00]">
             {loading ? '...' : metrics.activeTournaments}
           </div>
         </div>
 
         {/* Completed Tournaments */}
-        <div className="bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-4 space-y-2 transition-all shadow-xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff] rounded-xl p-4 space-y-2 transition-all shadow-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Completed</span>
-            <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider">Completed</span>
+            <CheckCircle2 className="w-4 h-4 text-[#00f2ff]" />
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-cyan-400">
+          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#00f2ff]">
             {loading ? '...' : metrics.completedTournaments}
           </div>
         </div>
 
         {/* Total Registrations */}
-        <div className="bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-4 space-y-2 transition-all shadow-xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#ffb800] rounded-xl p-4 space-y-2 transition-all shadow-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Registrations</span>
-            <ClipboardList className="w-4 h-4 text-amber-400" />
+            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider">Registrations</span>
+            <ClipboardList className="w-4 h-4 text-[#ffb800]" />
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-amber-400">
+          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#ffb800]">
             {loading ? '...' : metrics.totalRegistrations}
           </div>
         </div>
 
         {/* Pending Payments */}
-        <div className="bg-slate-900/90 border border-slate-800 hover:border-yellow-500/50 rounded-2xl p-4 space-y-2 transition-all shadow-xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#ffb800] rounded-xl p-4 space-y-2 transition-all shadow-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Pending Pay</span>
-            <Clock className="w-4 h-4 text-yellow-400" />
+            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider">Pending Pay</span>
+            <Clock className="w-4 h-4 text-[#ffb800]" />
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-yellow-400">
+          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#ffb800]">
             {loading ? '...' : metrics.pendingPayments}
           </div>
         </div>
 
         {/* Total Revenue */}
-        <div className="bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-4 space-y-2 transition-all shadow-xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00ff9d] rounded-xl p-4 space-y-2 transition-all shadow-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Revenue</span>
-            <IndianRupee className="w-4 h-4 text-emerald-400" />
+            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider">Revenue</span>
+            <IndianRupee className="w-4 h-4 text-[#00ff9d]" />
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-emerald-400">
+          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#00ff9d]">
             {loading ? '...' : `₹${metrics.totalRevenue.toLocaleString()}`}
           </div>
         </div>
@@ -288,43 +288,43 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
       </div>
 
       {/* QUICK OPERATIONS ACTION BAR */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-3 shadow-xl">
-        <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-          <PlusCircle className="w-4 h-4 text-purple-400" />
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 sm:p-6 space-y-3 shadow-xl">
+        <h3 className="font-display-lg text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+          <PlusCircle className="w-4 h-4 text-[#00f2ff]" />
           <span>Quick Operational Controls</span>
         </h3>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <button
             onClick={() => setActiveTab('tournaments')}
-            className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-left hover:border-purple-500/50 transition-colors space-y-1"
+            className="p-3 bg-[#07090c] border border-[#3a494b] rounded text-left hover:border-[#00f2ff] transition-colors space-y-1"
           >
-            <span className="font-bold text-white block">+ Create Tournament</span>
-            <span className="text-[10px] text-slate-400 block">Launch new competition</span>
+            <span className="font-bold text-white block uppercase text-[11px]">+ Create Tournament</span>
+            <span className="text-[10px] text-[#8e9dae] block">Launch new competition</span>
           </button>
 
           <button
             onClick={() => setActiveTab('registrations')}
-            className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-left hover:border-purple-500/50 transition-colors space-y-1"
+            className="p-3 bg-[#07090c] border border-[#3a494b] rounded text-left hover:border-[#00f2ff] transition-colors space-y-1"
           >
-            <span className="font-bold text-white block">Review Registrations</span>
-            <span className="text-[10px] text-slate-400 block">Approve/Reject squad slots</span>
+            <span className="font-bold text-white block uppercase text-[11px]">Review Registrations</span>
+            <span className="text-[10px] text-[#8e9dae] block">Approve/Reject squad slots</span>
           </button>
 
           <button
             onClick={() => setActiveTab('matches')}
-            className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-left hover:border-purple-500/50 transition-colors space-y-1"
+            className="p-3 bg-[#07090c] border border-[#3a494b] rounded text-left hover:border-[#00f2ff] transition-colors space-y-1"
           >
-            <span className="font-bold text-white block">Match Control Lobbies</span>
-            <span className="text-[10px] text-slate-400 block">Publish Custom Room IDs</span>
+            <span className="font-bold text-white block uppercase text-[11px]">Match Control Lobbies</span>
+            <span className="text-[10px] text-[#8e9dae] block">Publish Custom Room IDs</span>
           </button>
 
           <button
             onClick={() => setActiveTab('leaderboards')}
-            className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-left hover:border-purple-500/50 transition-colors space-y-1"
+            className="p-3 bg-[#07090c] border border-[#3a494b] rounded text-left hover:border-[#00f2ff] transition-colors space-y-1"
           >
-            <span className="font-bold text-white block">Publish Points Table</span>
-            <span className="text-[10px] text-slate-400 block">Update live standings</span>
+            <span className="font-bold text-white block uppercase text-[11px]">Publish Points Table</span>
+            <span className="text-[10px] text-[#8e9dae] block">Update live standings</span>
           </button>
         </div>
       </div>
@@ -333,59 +333,59 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* RECENT REGISTRATIONS */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
+          <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
             <div className="flex items-center gap-2">
-              <ClipboardList className="w-4 h-4 text-amber-400" />
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+              <ClipboardList className="w-4 h-4 text-[#ffb800]" />
+              <h3 className="font-display-lg text-xs font-bold text-white uppercase tracking-wider">
                 Recent Registrations
               </h3>
             </div>
             <button
               onClick={() => setActiveTab('registrations')}
-              className="text-[11px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1"
+              className="text-[11px] font-bold text-[#00f2ff] hover:underline flex items-center gap-1 uppercase tracking-wider"
             >
               <span>Queue &rarr;</span>
             </button>
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-slate-500 text-xs space-y-2">
-              <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div className="p-8 text-center text-[#8e9dae] text-xs space-y-2">
+              <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto"></div>
               <span>Fetching latest registrations...</span>
             </div>
           ) : recentRegistrations.length === 0 ? (
-            <div className="p-8 text-center bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-              <ShieldCheck className="w-8 h-8 text-slate-600 mx-auto" />
-              <p className="text-xs font-bold text-slate-400">No Registrations Yet</p>
-              <p className="text-[11px] text-slate-500">Newly registered squad slots will appear here in real-time.</p>
+            <div className="p-8 text-center bg-[#07090c] border border-[#3a494b] rounded-lg space-y-2">
+              <ShieldCheck className="w-8 h-8 text-[#8e9dae] mx-auto" />
+              <p className="text-xs font-bold text-[#e1e2e7]">No Registrations Yet</p>
+              <p className="text-[11px] text-[#8e9dae]">Newly registered squad slots will appear here in real-time.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {recentRegistrations.map((reg) => (
                 <div
                   key={`dash-reg-${reg.id}`}
-                  className="p-3.5 bg-slate-950 border border-slate-800 rounded-xl text-xs flex items-center justify-between gap-3 shadow-md"
+                  className="p-3.5 bg-[#07090c] border border-[#3a494b]/60 rounded-lg text-xs flex items-center justify-between gap-3 shadow-md"
                 >
                   <div className="space-y-1 overflow-hidden">
                     <div className="flex items-center gap-2">
                       <span className="font-extrabold text-white text-sm truncate">{reg.teamName}</span>
                       <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
                         reg.status === 'Confirmed' || reg.status === 'Approved'
-                          ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
+                          ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                           : reg.status === 'Pending'
-                          ? 'bg-amber-950 text-amber-400 border-amber-800'
-                          : 'bg-red-950 text-red-400 border-red-800'
+                          ? 'bg-[#ffb800]/10 text-[#ffb800] border-[#ffb800]/40'
+                          : 'bg-red-950 text-[#ff3366] border-red-800'
                       }`}>
                         {reg.status}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400">
-                      Captain: <strong className="text-slate-200">{reg.captainName}</strong> &bull; UID:{' '}
-                      <span className="font-mono text-cyan-400">{reg.freeFireUid}</span>
+                    <p className="text-[11px] text-[#8e9dae]">
+                      Captain: <strong className="text-white">{reg.captainName}</strong> &bull; UID:{' '}
+                      <span className="font-mono text-[#00f2ff]">{reg.freeFireUid}</span>
                     </p>
                   </div>
-                  <span className="text-[10px] font-semibold text-slate-500 whitespace-nowrap shrink-0">
+                  <span className="font-mono text-[10px] font-semibold text-[#8e9dae] whitespace-nowrap shrink-0">
                     {reg.registeredAt}
                   </span>
                 </div>
@@ -395,58 +395,58 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
         </div>
 
         {/* RECENT TOURNAMENTS */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
+          <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
             <div className="flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-purple-400" />
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+              <Trophy className="w-4 h-4 text-[#00f2ff]" />
+              <h3 className="font-display-lg text-xs font-bold text-white uppercase tracking-wider">
                 Recent Tournaments
               </h3>
             </div>
             <button
               onClick={() => setActiveTab('tournaments')}
-              className="text-[11px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1"
+              className="text-[11px] font-bold text-[#00f2ff] hover:underline flex items-center gap-1 uppercase tracking-wider"
             >
               <span>Manage &rarr;</span>
             </button>
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-slate-500 text-xs space-y-2">
-              <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div className="p-8 text-center text-[#8e9dae] text-xs space-y-2">
+              <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto"></div>
               <span>Loading tournament directory...</span>
             </div>
           ) : recentTournaments.length === 0 ? (
-            <div className="p-8 text-center bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-              <Gamepad2 className="w-8 h-8 text-slate-600 mx-auto" />
-              <p className="text-xs font-bold text-slate-400">No Tournaments Created</p>
-              <p className="text-[11px] text-slate-500">Create your first esports competition to populate live stats.</p>
+            <div className="p-8 text-center bg-[#07090c] border border-[#3a494b] rounded-lg space-y-2">
+              <Gamepad2 className="w-8 h-8 text-[#8e9dae] mx-auto" />
+              <p className="text-xs font-bold text-[#e1e2e7]">No Tournaments Created</p>
+              <p className="text-[11px] text-[#8e9dae]">Create your first esports competition to populate live stats.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {recentTournaments.map((t) => (
                 <div
                   key={`dash-tourn-${t.id}`}
-                  className="p-3.5 bg-slate-950 border border-slate-800 rounded-xl text-xs flex items-center justify-between gap-3 shadow-md"
+                  className="p-3.5 bg-[#07090c] border border-[#3a494b]/60 rounded-lg text-xs flex items-center justify-between gap-3 shadow-md"
                 >
                   <div className="space-y-1 overflow-hidden">
                     <div className="flex items-center gap-2">
                       <h4 className="font-extrabold text-white text-sm truncate">{t.title}</h4>
-                      <span className="px-2 py-0.5 rounded text-[9px] font-extrabold bg-purple-950 text-purple-300 border border-purple-800/50 uppercase">
+                      <span className="px-2 py-0.5 rounded text-[9px] font-extrabold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 uppercase">
                         {t.game}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 text-[11px] text-slate-400">
-                      <span>Prize: <strong className="text-emerald-400">{t.prizePool}</strong></span>
-                      <span>Slots: <strong className="text-cyan-300">{t.registeredTeams}/{t.maxTeams}</strong></span>
+                    <div className="flex items-center gap-3 text-[11px] text-[#8e9dae]">
+                      <span>Prize: <strong className="font-mono text-[#ffb693]">{t.prizePool}</strong></span>
+                      <span>Slots: <strong className="font-mono text-[#00f2ff]">{t.registeredTeams}/{t.maxTeams}</strong></span>
                     </div>
                   </div>
                   <span className={`px-2.5 py-1 rounded text-[10px] font-extrabold uppercase border shrink-0 ${
                     t.status === 'Registration Open'
-                      ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
+                      ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                       : t.status === 'Live Now'
-                      ? 'bg-red-950 text-red-400 border-red-800 animate-pulse'
-                      : 'bg-slate-800 text-slate-400 border-slate-700'
+                      ? 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40 animate-pulse'
+                      : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b]'
                   }`}>
                     {t.status}
                   </span>

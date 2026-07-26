@@ -13,12 +13,13 @@ import {
   Settings,
   ChevronRight,
   Shield,
-  Menu,
+  DollarSign,
   X
 } from 'lucide-react'
 
 export const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+  { id: 'finance', label: 'Finance & Revenue', icon: DollarSign, badge: 'REVENUE', badgeColor: 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40' },
   { id: 'live-ops', label: 'Live Operations', icon: Zap, badge: '2 LIVE', badgeColor: 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40' },
   { id: 'tournaments', label: 'Tournament Center', icon: Trophy, badge: null },
   { id: 'registrations', label: 'Registration Queue', icon: ClipboardList, badge: '5 PENDING', badgeColor: 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40' },
@@ -106,23 +107,23 @@ export default function AdminSidebar({ activeTab, setActiveTab, mobileOpen, setM
                 const isActive = activeTab === item.id
                 return (
                   <button
-                    key={`mobile-sidebar-${item.id}`}
+                    key={`mobile-sidebar-item-${item.id}`}
                     onClick={() => {
                       setActiveTab(item.id)
                       setMobileOpen(false)
                     }}
-                    className={`w-full px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between min-h-[44px] ${
+                    className={`w-full px-3.5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-between min-h-[44px] ${
                       isActive
-                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.4)]'
-                        : 'text-[#b9cacb] hover:bg-[#1d232c]'
+                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
+                        : 'text-[#b9cacb] hover:text-white hover:bg-[#1d232c]'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5">
                       <Icon className="w-4 h-4" />
                       <span>{item.label}</span>
                     </div>
                     {item.badge && (
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-extrabold border ${item.badgeColor}`}>
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-extrabold border ${item.badgeColor || 'bg-[#07090c] text-[#8e9dae] border-[#3a494b]'}`}>
                         {item.badge}
                       </span>
                     )}

@@ -6,6 +6,8 @@ import { useAuth } from '../../contexts/AuthContext'
 export const StitchSidebar: React.FC = () => {
   const { user, isAuthenticated, isAdmin, signOut } = useAuth()
   const userDisplayName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Elite Player'
+  const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.avatarUrl || ''
+  const userRoleDisplay = isAdmin ? 'ADMINISTRATOR' : 'PLAYER'
 
   const links = [
     { label: 'Home', path: '/', icon: Home },
@@ -22,12 +24,16 @@ export const StitchSidebar: React.FC = () => {
       <div className="mb-2 px-2">
         <h3 className="font-label-caps text-[10px] text-[#8e9dae] mb-2">PLAYER STATUS</h3>
         <div className="flex items-center gap-3 bg-[#07090c] p-3 rounded-lg border border-[#3a494b]/60">
-          <div className="w-9 h-9 rounded-full bg-[#fe6b00]/20 border border-[#fe6b00] flex items-center justify-center shrink-0">
-            <User className="w-4 h-4 text-[#fe6b00]" />
+          <div className="w-9 h-9 rounded-full bg-[#fe6b00]/20 border border-[#fe6b00] overflow-hidden flex items-center justify-center shrink-0">
+            {userAvatarUrl ? (
+              <img src={userAvatarUrl} alt={userDisplayName} className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-4 h-4 text-[#fe6b00]" />
+            )}
           </div>
           <div className="overflow-hidden">
             <p className="font-bold text-xs text-[#00f2ff] truncate">{userDisplayName}</p>
-            <p className="font-mono text-[10px] font-bold text-[#8e9dae]">Rank: Diamond IV</p>
+            <p className="font-mono text-[10px] font-bold text-[#8e9dae] uppercase">{userRoleDisplay}</p>
           </div>
         </div>
       </div>

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Swords, Menu, X, User, LogOut, Shield, Info, Mail, ShieldCheck, FileText, Settings, Wallet } from 'lucide-react'
+import { Swords, Menu, X, User, LogOut, Shield, Info, Mail, ShieldCheck, Settings, Wallet } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
-  const { user, isAuthenticated, isAdmin, role, signOut } = useAuth()
+  const { user, isAuthenticated, isAdmin, signOut } = useAuth()
 
   // Primary navigation links (Home, Tournaments, Leaderboard, Admin if admin)
   const navLinks = [
@@ -27,6 +27,8 @@ export default function Navbar() {
   }
 
   const userDisplayName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Player'
+  const userWalletBalance = user?.user_metadata?.wallet_balance ?? 0.0
+  const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.avatarUrl || ''
 
   return (
     <nav className="sticky top-0 z-50 bg-[#0f1318]/90 backdrop-blur-xl border-b border-[#3a494b]/60 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
@@ -71,10 +73,10 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
-                {/* Wallet Balance Display Pill */}
+                {/* Dynamic Wallet Balance Display Pill */}
                 <div className="bg-[#151a21] flex items-center px-3 py-1.5 gap-2 rounded border border-[#3a494b] text-xs font-mono font-bold text-[#fe6b00]">
                   <Wallet className="w-3.5 h-3.5 text-[#fe6b00]" />
-                  <span>₹250.00</span>
+                  <span>Wallet: ₹{Number(userWalletBalance).toFixed(2)}</span>
                 </div>
 
                 {isAdmin && (
@@ -86,11 +88,19 @@ export default function Navbar() {
                     <span>Admin Panel</span>
                   </Link>
                 )}
+                
+                {/* Profile Pill with Avatar */}
                 <Link
                   to="/profile"
                   className="px-3.5 py-1.5 rounded bg-[#151a21] border border-[#3a494b] hover:border-[#00f2ff] flex items-center gap-2 transition-colors shadow-sm"
                 >
-                  <User className="w-3.5 h-3.5 text-[#00f2ff]" />
+                  <div className="w-5 h-5 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff] overflow-hidden flex items-center justify-center shrink-0">
+                    {userAvatarUrl ? (
+                      <img src={userAvatarUrl} alt={userDisplayName} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-3 h-3 text-[#00f2ff]" />
+                    )}
+                  </div>
                   <span className="text-xs font-bold text-[#e1e2e7]">{userDisplayName}</span>
                   {isAdmin && (
                     <span className="px-2 py-0.5 text-[9px] font-extrabold bg-[#fe6b00] text-slate-950 rounded uppercase shadow-sm">
@@ -98,6 +108,7 @@ export default function Navbar() {
                     </span>
                   )}
                 </Link>
+
                 <button
                   onClick={handleSignOut}
                   className="px-3 py-1.5 rounded bg-[#151a21] border border-[#3a494b] text-xs font-bold text-[#8e9dae] hover:text-[#ff3366] hover:border-[#ff3366]/40 transition-colors flex items-center gap-1.5 uppercase"
@@ -145,12 +156,18 @@ export default function Navbar() {
           {isAuthenticated ? (
             <div className="p-3.5 rounded-xl bg-[#151a21] border border-[#3a494b] flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-[#fe6b00]/20 border border-[#fe6b00] flex items-center justify-center">
-                  <User className="w-4 h-4 text-[#fe6b00]" />
+                <div className="w-10 h-10 rounded-full bg-[#fe6b00]/20 border border-[#fe6b00] overflow-hidden flex items-center justify-center shrink-0">
+                  {userAvatarUrl ? (
+                    <img src={userAvatarUrl} alt={userDisplayName} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-5 h-5 text-[#fe6b00]" />
+                  )}
                 </div>
                 <div>
                   <span className="text-xs font-bold text-white block">{userDisplayName}</span>
-                  <span className="text-[10px] text-[#8e9dae]">{user?.email}</span>
+                  <span className="text-[10px] text-[#8e9dae] font-mono">
+                    Wallet: ₹{Number(userWalletBalance).toFixed(2)}
+                  </span>
                 </div>
               </div>
               <span className="text-[10px] font-extrabold uppercase text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/40 px-2 py-0.5 rounded">

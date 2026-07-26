@@ -1,24 +1,23 @@
 import React from 'react'
 import { Flame, Trophy, MapPin, Users, Ticket, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Tournament } from '../../data/mockData'
 
 interface FeaturedTournamentCardProps {
-  tournament?: Tournament
-  onJoin?: (tournament: Tournament) => void
+  tournament?: any
+  onJoin?: (tournament: any) => void
 }
 
 export const FeaturedTournamentCard: React.FC<FeaturedTournamentCardProps> = ({
   tournament,
   onJoin,
 }) => {
-  const title = tournament?.title || 'Night Warriors Championship'
+  const title = tournament?.title || 'No active tournament available'
   const game = tournament?.game || 'Free Fire'
-  const prizePool = tournament?.prizePool || '₹85,000'
-  const entryFee = tournament?.entryFee || '₹350'
-  const filledSlots = tournament?.filledSlots ?? 64
-  const totalSlots = tournament?.totalSlots ?? 100
-  const fillPercent = Math.round((filledSlots / totalSlots) * 100)
+  const prizePool = tournament?.prizePool || '₹0'
+  const entryFee = tournament?.entryFee || 'Free'
+  const filledSlots = Number(tournament?.registeredTeams ?? tournament?.registered_teams ?? 0)
+  const totalSlots = Number(tournament?.maxTeams ?? tournament?.max_teams ?? 32)
+  const fillPercent = totalSlots > 0 ? Math.round((filledSlots / totalSlots) * 100) : 0
   const mapName = tournament?.game?.toLowerCase().includes('free fire') ? 'Bermuda' : 'Erangel'
 
   return (
@@ -96,19 +95,19 @@ export const FeaturedTournamentCard: React.FC<FeaturedTournamentCardProps> = ({
           {tournament ? (
             <Link
               to={`/tournaments/${tournament.id}`}
-              className="w-full bg-[#00f2ff] text-[#00363a] font-extrabold py-3 rounded text-xs tracking-wider flex items-center justify-center gap-1.5 hover:bg-[#74f5ff] active:scale-[0.98] transition-all uppercase shadow-[0_0_12px_rgba(0,242,255,0.3)] mt-1"
+              className="w-full bg-[#00f2ff] text-[#00363a] font-extrabold py-3 rounded text-xs tracking-wider flex items-center justify-center gap-1.5 hover:bg-[#74f5ff] active:scale-[0.98] transition-all uppercase shadow-[0_0_12px_rgba(0,242,255,0.3)] mt-1 min-h-[44px]"
             >
-              <span>ENTER MATCH</span>
+              <span>View Tournament</span>
               <ChevronRight className="w-4 h-4" />
             </Link>
           ) : (
-            <button
-              onClick={() => onJoin && tournament && onJoin(tournament)}
-              className="w-full bg-[#00f2ff] text-[#00363a] font-extrabold py-3 rounded text-xs tracking-wider flex items-center justify-center gap-1.5 hover:bg-[#74f5ff] active:scale-[0.98] transition-all uppercase shadow-[0_0_12px_rgba(0,242,255,0.3)] mt-1"
+            <Link
+              to="/tournaments"
+              className="w-full bg-[#151a21] text-[#8e9dae] font-bold py-3 rounded text-xs tracking-wider flex items-center justify-center gap-1.5 border border-[#3a494b] hover:text-[#00f2ff] transition-all uppercase mt-1 min-h-[44px]"
             >
-              <span>JOIN NOW</span>
+              <span>Browse All Matches</span>
               <ChevronRight className="w-4 h-4" />
-            </button>
+            </Link>
           )}
         </div>
 

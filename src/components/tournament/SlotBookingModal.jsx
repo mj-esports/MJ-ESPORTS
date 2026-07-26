@@ -292,7 +292,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
               name="teamName"
               value={formData.teamName}
               onChange={handleChange}
-              placeholder={mode === 'Solo' ? 'e.g. Phoenix_99' : 'e.g. Total Gaming / Orangutan'}
+              placeholder={mode === 'Solo' ? 'e.g. Phoenix_99' : 'e.g. Phoenix Squad / Alpha Team'}
               required
               icon={Users}
             />
@@ -302,7 +302,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
               name="captainName"
               value={formData.captainName}
               onChange={handleChange}
-              placeholder="e.g. Ajjubhai"
+              placeholder="e.g. Rahul Sharma"
               required
               icon={User}
             />

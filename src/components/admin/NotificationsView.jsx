@@ -98,49 +98,15 @@ export default function NotificationsView() {
     fetchNotificationHistory()
   }, [])
 
-  const templates = [
-    {
-      type: 'Tournament Updates',
-      target: 'Active Tournament Participants',
-      title: 'Custom Room ID Published',
-      body: 'Custom Room ID & Password have been published for your upcoming tournament lobby. Check your match details!',
-    },
-    {
-      type: 'Registration Updates',
-      target: 'Registered Squads',
-      title: 'Registration Approved',
-      body: 'Your squad registration has been verified and approved! Get ready for your scheduled match.',
-    },
-    {
-      type: 'Send Announcement',
-      target: 'Broadcast to All Users',
-      title: 'System Maintenance Alert',
-      body: 'Platform maintenance scheduled for 02:00 AM IST. All tournament lobbies will resume short after.',
-    },
-    {
-      type: 'Tournament Updates',
-      target: 'Active Tournament Participants',
-      title: 'Match Starting in 10 Minutes',
-      body: 'Match starts in 10 minutes! Join the custom room lobby immediately to prevent disqualification.',
-    },
-  ]
-
-  const handleApplyTemplate = (tpl) => {
-    setNotificationType(tpl.type)
-    setTargetAudience(tpl.target)
-    setTitle(tpl.title)
-    setMessage(tpl.body)
-  }
-
-  const handleSendBroadcast = async (e) => {
+  const handleSendNotification = async (e) => {
     e.preventDefault()
     if (!title.trim() || !message.trim()) {
-      setAlert({ type: 'error', message: 'Subject Title and Message Content are required.' })
+      setAlert({ type: 'error', message: 'Notification Headline Title and Message Body are required.' })
       return
     }
 
     setIsSending(true)
-    const newNotif = {
+    const payload = {
       type: notificationType,
       target: targetAudience,
       title: title.trim(),
@@ -150,203 +116,210 @@ export default function NotificationsView() {
 
     try {
       if (isSupabaseConfigured) {
-        const { error } = await supabase
-          .from('notifications')
-          .insert(newNotif)
-
-        if (error) {
-          console.warn('[Supabase Insert Notification Warning]:', error.message)
-        }
+        await supabase.from('notifications').insert([payload])
       }
 
       setSentNotifications((prev) => [
         {
-          id: 'n-' + Date.now(),
+          id: 'n-new-' + Date.now(),
           type: notificationType,
           target: targetAudience,
           title: title.trim(),
           message: message.trim(),
-          createdAt: 'Just now',
+          createdAt: 'Just Now',
         },
         ...prev,
       ])
 
       setAlert({
         type: 'success',
-        message: `Notification "${title}" broadcasted successfully to "${targetAudience}" and saved to Supabase!`,
+        message: `Notification broadcast sent successfully to target: "${targetAudience}"!`,
       })
-
       setTitle('')
       setMessage('')
     } catch (err) {
-      console.error('[Send Notification Error]:', err)
-      setAlert({ type: 'error', message: 'Failed to broadcast notification.' })
+      setAlert({ type: 'error', message: err.message || 'Failed to dispatch notification.' })
     } finally {
       setIsSending(false)
     }
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6">
       
       {/* Header */}
-      <div className="space-y-1 border-b border-slate-800 pb-4">
-        <h2 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-          <Bell className="w-6 h-6 text-purple-400" />
-          <span>NOTIFICATION & BROADCAST CENTER</span>
-        </h2>
-        <p className="text-xs text-slate-400">
-          Send global announcements, tournament room ID updates, registration status alerts, and broadcast messages stored in Supabase.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
+        <div className="space-y-1">
+          <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
+            <Bell className="w-6 h-6 text-[#00f2ff]" />
+            <span>COMMUNICATION & BROADCAST CENTER</span>
+          </h2>
+          <p className="text-xs text-[#8e9dae]">
+            Dispatch platform announcements, tournament room ID alerts, and registration status notifications.
+          </p>
+        </div>
+
+        <button
+          onClick={fetchNotificationHistory}
+          className="px-3.5 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] rounded text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] transition-all flex items-center gap-1.5 uppercase min-h-[44px]"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 text-[#00f2ff] ${loadingHistory ? 'animate-spin' : ''}`} />
+          <span>Sync Log</span>
+        </button>
       </div>
 
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
-      {/* QUICK PRESET TEMPLATES */}
-      <div className="space-y-2">
-        <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">Operational Templates</span>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {templates.map((tpl, i) => (
-            <button
-              key={`tpl-${i}`}
-              onClick={() => handleApplyTemplate(tpl)}
-              className="p-3 bg-slate-900/90 border border-slate-800 rounded-xl text-left hover:border-purple-500/50 transition-colors text-xs font-bold text-white space-y-1 shadow-md"
-            >
-              <div className="text-purple-400 text-[10px] uppercase font-extrabold flex items-center gap-1">
-                <FileText className="w-3 h-3 text-purple-400" />
-                <span>{tpl.title}</span>
+      {/* MAIN LAYOUT: Form + History */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* DISPATCH NOTIFICATION FORM */}
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-5 shadow-xl">
+          <div className="flex items-center gap-2 border-b border-[#3a494b]/60 pb-3">
+            <Megaphone className="w-4 h-4 text-[#fe6b00]" />
+            <h3 className="font-display-lg text-sm font-bold text-white uppercase tracking-wider">
+              Dispatch Broadcast Notification
+            </h3>
+          </div>
+
+          <form onSubmit={handleSendNotification} className="space-y-4 text-xs">
+            {/* Category Type Picker */}
+            <div className="space-y-1.5">
+              <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
+                Notification Category Type
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: 'Send Announcement', icon: Megaphone },
+                  { label: 'Tournament Updates', icon: Trophy },
+                  { label: 'Registration Updates', icon: ClipboardList },
+                ].map((item) => {
+                  const Icon = item.icon
+                  const selected = notificationType === item.label
+                  return (
+                    <button
+                      key={`nt-${item.label}`}
+                      type="button"
+                      onClick={() => setNotificationType(item.label)}
+                      className={`p-2.5 rounded border text-[11px] font-bold uppercase transition-all flex flex-col items-center gap-1.5 min-h-[50px] ${
+                        selected
+                          ? 'bg-[#00f2ff] text-[#00363a] border-[#00f2ff] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.4)]'
+                          : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b] hover:text-white'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="text-[10px] text-center leading-tight">{item.label}</span>
+                    </button>
+                  )
+                })}
               </div>
-              <p className="text-[11px] text-slate-400 font-normal line-clamp-2">{tpl.body}</p>
-            </button>
-          ))}
-        </div>
-      </div>
+            </div>
 
-      {/* MAIN BROADCAST FORM */}
-      <form onSubmit={handleSendBroadcast} className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          
-          {/* Notification Feature Type */}
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">Notification Type</label>
-            <select
-              value={notificationType}
-              onChange={(e) => setNotificationType(e.target.value)}
-              className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500 min-h-[44px]"
-            >
-              <option value="Send Announcement">Send Announcement</option>
-              <option value="Tournament Updates">Tournament Updates</option>
-              <option value="Registration Updates">Registration Updates</option>
-              <option value="General Alert">General Operational Alert</option>
-            </select>
-          </div>
-
-          {/* Audience Target */}
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">Broadcast Target Audience</label>
-            <select
-              value={targetAudience}
-              onChange={(e) => setTargetAudience(e.target.value)}
-              className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500 min-h-[44px]"
-            >
-              <option value="Broadcast to All Users">Broadcast to All Users</option>
-              <option value="Active Tournament Participants">Active Tournament Participants</option>
-              <option value="Registered Squads">Registered Squad Captains</option>
-              <option value="Admin Team Only">Admin Operational Team</option>
-            </select>
-          </div>
-
-        </div>
-
-        {/* Title Subject */}
-        <FormInput
-          label="Notification Subject / Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Free Fire Tournament Room ID Published"
-          required
-          icon={Megaphone}
-        />
-
-        {/* Message Body */}
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">Message Content</label>
-          <textarea
-            rows="4"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type live announcement broadcast message content..."
-            className="w-full p-3.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-            required
-          />
-        </div>
-
-        {/* Submit Broadcast */}
-        <button
-          type="submit"
-          disabled={isSending}
-          className="w-full py-3.5 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 text-slate-950 font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 min-h-[44px] hover:brightness-110 shadow-lg transition-all disabled:opacity-50"
-        >
-          <Send className="w-4 h-4" />
-          <span>{isSending ? 'Storing & Broadcasting to Supabase...' : 'Send Live Broadcast'}</span>
-        </button>
-      </form>
-
-      {/* RECENTLY BROADCASTED NOTIFICATIONS FEED */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <Radio className="w-4 h-4 text-cyan-400" />
-            <span>Sent Broadcast History (Stored in Supabase)</span>
-          </h3>
-          <button
-            onClick={fetchNotificationHistory}
-            disabled={loadingHistory}
-            className="text-[11px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1"
-          >
-            <RefreshCw className={`w-3 h-3 ${loadingHistory ? 'animate-spin' : ''}`} />
-            <span>Refresh Feed</span>
-          </button>
-        </div>
-
-        {loadingHistory ? (
-          <div className="p-8 text-center text-slate-500 text-xs space-y-2">
-            <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <span>Fetching broadcast log...</span>
-          </div>
-        ) : sentNotifications.length === 0 ? (
-          <div className="p-8 text-center bg-slate-950 border border-slate-800 rounded-xl text-slate-500 text-xs">
-            No notification broadcasts sent yet.
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {sentNotifications.map((n) => (
-              <div
-                key={`sent-n-${n.id}`}
-                className="p-4 bg-slate-950 border border-slate-800 rounded-xl text-xs space-y-2 shadow-md"
+            {/* Target Audience Dropdown */}
+            <div className="space-y-1.5">
+              <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
+                Target Recipient Audience
+              </label>
+              <select
+                value={targetAudience}
+                onChange={(e) => setTargetAudience(e.target.value)}
+                className="w-full p-3 bg-[#07090c] border border-[#3a494b] rounded text-white text-xs font-bold focus:outline-none focus:border-[#00f2ff]"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
-                      n.type === 'Tournament Updates'
-                        ? 'bg-red-950 text-red-400 border-red-800'
-                        : n.type === 'Registration Updates'
-                        ? 'bg-amber-950 text-amber-400 border-amber-800'
-                        : 'bg-purple-950 text-purple-300 border-purple-800'
-                    }`}>
-                      {n.type}
-                    </span>
-                    <span className="text-[10px] font-semibold text-slate-400">Target: {n.target}</span>
-                  </div>
-                  <span className="text-[10px] font-semibold text-slate-500">{n.createdAt}</span>
-                </div>
+                <option value="Broadcast to All Users">Broadcast to All Users (Global Announcement)</option>
+                <option value="Active Tournament Participants">Active Tournament Participants Only</option>
+                <option value="Registered Squads">Registered Squad Captains Only</option>
+              </select>
+            </div>
 
-                <h4 className="font-extrabold text-white text-sm">{n.title}</h4>
-                <p className="text-xs text-slate-300 leading-relaxed">{n.message}</p>
+            <FormInput
+              label="Notification Headline / Title"
+              name="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Free Fire Tournament Room Credentials Published"
+              required
+            />
+
+            <div className="space-y-1.5">
+              <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
+                Notification Message Body
+              </label>
+              <textarea
+                rows={4}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Type your notification broadcast message..."
+                required
+                className="w-full p-3 bg-[#07090c] border border-[#3a494b] rounded text-white text-xs placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSending}
+              className="btn-cyber-primary w-full justify-center py-3.5 min-h-[44px]"
+            >
+              {isSending ? (
+                <span>Dispatching Broadcast...</span>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>Send Notification Broadcast</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+
+        {/* BROADCAST LOG & SENT HISTORY */}
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-4 shadow-xl flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
+              <div className="flex items-center gap-2">
+                <Radio className="w-4 h-4 text-[#00ff9d]" />
+                <h3 className="font-display-lg text-sm font-bold text-white uppercase tracking-wider">
+                  Dispatched Broadcast Log
+                </h3>
               </div>
-            ))}
+              <span className="font-mono text-xs text-[#8e9dae] font-bold">{sentNotifications.length} Sent</span>
+            </div>
+
+            {loadingHistory ? (
+              <div className="p-8 text-center text-[#8e9dae] text-xs space-y-2">
+                <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <span>Loading broadcast log history...</span>
+              </div>
+            ) : sentNotifications.length === 0 ? (
+              <div className="p-8 text-center bg-[#07090c] border border-[#3a494b] rounded-lg text-xs text-[#8e9dae] space-y-2">
+                <FileText className="w-8 h-8 text-[#8e9dae] mx-auto" />
+                <p className="font-bold text-white">No Broadcast Logs Found</p>
+                <p>Sent notifications will be recorded here in real-time.</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+                {sentNotifications.map((item) => (
+                  <div key={`n-hist-${item.id}`} className="p-4 bg-[#07090c] border border-[#3a494b]/60 rounded-lg text-xs space-y-2 shadow-md">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
+                        {item.type}
+                      </span>
+                      <span className="font-mono text-[10px] text-[#8e9dae] font-semibold">{item.createdAt}</span>
+                    </div>
+
+                    <h4 className="font-extrabold text-white text-sm">{item.title}</h4>
+                    <p className="text-xs text-[#e1e2e7] leading-relaxed font-mono">{item.message}</p>
+
+                    <div className="pt-2 border-t border-[#3a494b]/40 text-[10px] text-[#8e9dae] flex items-center justify-between">
+                      <span>Target: <strong className="text-white">{item.target}</strong></span>
+                      <span className="text-[#00ff9d] font-bold uppercase">Dispatched</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
       </div>
 
     </div>

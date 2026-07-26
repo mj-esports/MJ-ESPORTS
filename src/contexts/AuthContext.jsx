@@ -3,6 +3,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import {
   signUp as apiSignUp,
   signIn as apiSignIn,
+  signInWithGoogle as apiSignInWithGoogle,
   signOut as apiSignOut,
   getUserRole,
   requestPasswordReset as apiRequestPasswordReset,
@@ -130,6 +131,10 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  const signInWithGoogle = async () => {
+    return await apiSignInWithGoogle()
+  }
+
   const requestPasswordReset = async (email) => {
     return await apiRequestPasswordReset(email)
   }
@@ -158,6 +163,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!user,
     signUp,
     signIn,
+    signInWithGoogle,
     requestPasswordReset,
     updateUserPassword,
     signOut,

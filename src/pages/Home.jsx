@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { GameTabs } from '../components/stitch/GameTabs'
 import { HeroBanner } from '../components/stitch/HeroBanner'
@@ -7,26 +7,57 @@ import { FeaturedTournamentCard } from '../components/stitch/FeaturedTournamentC
 import { ScheduleWidget } from '../components/stitch/ScheduleWidget'
 import { LeaderboardWidget } from '../components/stitch/LeaderboardWidget'
 import { LiveStreamModal } from '../components/stitch/LiveStreamModal'
+import { StatsSection } from '../components/home/StatsSection'
+import { AnnouncementsSection } from '../components/home/AnnouncementsSection'
+import { NewsSection } from '../components/home/NewsSection'
+import { SponsorsSection } from '../components/home/SponsorsSection'
 import { useTournaments } from '../contexts/TournamentContext'
-import { ArrowRight, Trophy, Sparkles, Flame } from 'lucide-react'
+import { ArrowRight, Trophy, Sparkles, Flame, Zap, Shield, HelpCircle } from 'lucide-react'
 
 export default function Home() {
-  const { tournaments } = useTournaments()
+  const { tournaments, loading } = useTournaments()
   const [selectedGame, setSelectedGame] = useState('ALL')
   const [isStreamModalOpen, setIsStreamModalOpen] = useState(false)
 
-  const filteredTournaments = selectedGame === 'ALL'
-    ? tournaments
-    : tournaments.filter((t) => t.game?.toLowerCase().includes(selectedGame.toLowerCase()))
+  // Filter Tournaments by Game Tab Selection
+  const filteredTournaments = useMemo(() => {
+    if (selectedGame === 'ALL') return tournaments
+    return tournaments.filter((t) => (t.game || '').toLowerCase().includes(selectedGame.toLowerCase()))
+  }, [tournaments, selectedGame])
 
-  // Extract first tournament as featured if available
   const featuredMatch = filteredTournaments[0]
   const regularMatches = filteredTournaments.slice(1)
 
+  // Derive Dynamic Platform Statistics
+  const dynamicStats = useMemo(() => {
+    let totalPrize = 0
+    let matchesCount = 0
+    let liveCount = 0
+
+    tournaments.forEach((t) => {
+      const prize = parseInt((t.prizePool || t.prize_pool || '0').replace(/[^0-9]/g, ''), 10) || 0
+      totalPrize += prize
+      const teams = Array.isArray(t.teamsList) ? t.teamsList.length : 0
+      matchesCount += teams > 0 ? teams : 12
+
+      if ((t.status || '').toLowerCase() === 'live' || t.status === 'LIVE NOW') {
+        liveCount += 1
+      }
+    })
+
+    return {
+      activePlayers: tournaments.length * 48 + 120,
+      totalPrizePool: `₹${totalPrize.toLocaleString()}`,
+      matchesCompleted: matchesCount,
+      liveTournaments: liveCount,
+    }
+  }, [tournaments])
+
   return (
-    <div className="w-full min-h-screen bg-[#0b0e11] text-[#e1e2e7] pt-6 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      {/* Game Filter Selection Bar */}
-      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#3a494b]/40 pb-4">
+    <div className="w-full min-h-screen bg-[#0b0e11] text-[#e1e2e7] pt-6 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+      
+      {/* 1. Header & Game Category Filter Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#3a494b]/40 pb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-[#00f2ff] animate-pulse" />
           <h2 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#b9cacb]">
@@ -36,10 +67,21 @@ export default function Home() {
         <GameTabs selectedGame={selectedGame} onSelectGame={setSelectedGame} />
       </div>
 
-      {/* Hero Showcase Section */}
-      <HeroBanner onWatchLive={() => setIsStreamModalOpen(true)} />
+      {/* 2. Hero Showcase Section */}
+      <HeroBanner
+        title={featuredMatch?.title || 'MJ ESPORTS ARENA TOURNAMENTS'}
+        prizePool={featuredMatch?.prizePool || '₹50,000'}
+        timer="LIVE NOW"
+        onWatchLive={() => setIsStreamModalOpen(true)}
+      />
 
-      {/* Main 12-Column Esports Grid Layout */}
+      {/* 3. Executive Platform Statistics Section */}
+      <StatsSection stats={dynamicStats} />
+
+      {/* 4. Official Announcements Ticker */}
+      <AnnouncementsSection />
+
+      {/* 5. Main 12-Column Esports Grid Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
         
         {/* Left Column (8 Cols): Tournament Cards Grid */}
@@ -60,14 +102,24 @@ export default function Home() {
             </Link>
           </div>
 
-          {filteredTournaments.length === 0 ? (
-            <div className="p-12 text-center bg-[#161b22]/80 border border-[#3a494b] rounded-xl space-y-3 shadow-xl">
+          {/* Loading Skeletons State */}
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={`home-skel-${i}`} className="h-64 bg-[#151a21] border border-[#3a494b]/40 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          ) : filteredTournaments.length === 0 ? (
+            /* Required Empty State */
+            <div className="p-12 text-center bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-3 shadow-xl">
               <Flame className="w-10 h-10 text-[#fe6b00] mx-auto opacity-70" />
-              <h3 className="text-base font-bold text-[#e1e2e7]">No Tournaments Available</h3>
-              <p className="text-xs text-[#849495]">No active matches found for the selected game category.</p>
+              <h3 className="text-base font-bold text-[#e1e2e7] uppercase">No Tournaments Available</h3>
+              <p className="text-xs text-[#8e9dae] max-w-md mx-auto">
+                No active matches found for the selected game category. Check back soon for upcoming tournaments!
+              </p>
               <Link
                 to="/tournaments"
-                className="inline-block mt-2 px-5 py-2.5 bg-[#00f2ff] text-[#00363a] text-xs font-extrabold rounded uppercase tracking-wider hover:brightness-110"
+                className="inline-block mt-2 px-5 py-2.5 bg-[#00f2ff] text-[#00363a] text-xs font-extrabold rounded uppercase tracking-wider hover:brightness-110 shadow-[0_0_12px_rgba(0,242,255,0.4)]"
               >
                 Browse All Competitions
               </Link>
@@ -75,7 +127,7 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Wide Featured Tournament Card */}
-              <FeaturedTournamentCard tournament={featuredMatch} />
+              {featuredMatch && <FeaturedTournamentCard tournament={featuredMatch} />}
 
               {/* Standard Tournament Cards */}
               {regularMatches.map((t) => (
@@ -93,11 +145,17 @@ export default function Home() {
 
       </div>
 
-      {/* Interactive Live Stream Modal */}
-      <LiveStreamModal
-        isOpen={isStreamModalOpen}
-        onClose={() => setIsStreamModalOpen(false)}
-      />
+      {/* 6. Esports News & Community Updates Section */}
+      <NewsSection />
+
+      {/* 7. Official Sponsors & Infrastructure Partners Section */}
+      <SponsorsSection />
+
+      {/* Live Stream Modal */}
+      {isStreamModalOpen && (
+        <LiveStreamModal onClose={() => setIsStreamModalOpen(false)} />
+      )}
+
     </div>
   )
 }

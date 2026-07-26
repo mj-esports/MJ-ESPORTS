@@ -99,101 +99,88 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
     })
   }
 
-  // Quick Preset Placement Rank Assignment
-  const handleAssignPlacementRank = (idx, rankPos) => {
-    const pts = STANDARD_PLACEMENT_PTS[rankPos] || 0
-    handleScoreChange(idx, 'placementPoints', pts)
-  }
-
-  // Publish Leaderboard Live
-  const handlePublish = async () => {
+  const handleSavePoints = async () => {
     if (!selectedTournament) return
 
     try {
       if (updateTournamentScores) {
         await updateTournamentScores(selectedTournament.id, teams)
       }
-      setShowPreview(false)
       setAlert({
         type: 'success',
-        message: `Match results published! Leaderboard for "${selectedTournament.title}" updated live across the platform.`,
+        message: `Points table & standings published live for "${selectedTournament.title}"!`,
       })
     } catch (err) {
-      setAlert({ type: 'error', message: 'Failed to publish scores to database.' })
+      setAlert({
+        type: 'error',
+        message: err.message || 'Failed to publish points table updates.',
+      })
     }
   }
 
-  // Declare Winners & Complete Tournament
-  const handleDeclareWinners = async () => {
-    if (!selectedTournament || teams.length === 0) return
+  const handleDeclareWinner = async () => {
+    if (teams.length === 0) return
+    const champion = teams[0]
 
     try {
-      // 1. Publish final scores
-      if (updateTournamentScores) {
-        await updateTournamentScores(selectedTournament.id, teams)
-      }
-
-      // 2. Mark tournament status as Completed
       if (updateTournamentStatus) {
         await updateTournamentStatus(selectedTournament.id, 'Completed')
       }
-
-      setShowWinnerModal(false)
+      setShowWinnerModal(true)
       setAlert({
         type: 'success',
-        message: `🏆 WINNERS DECLARED! "${teams[0]?.name}" crowned Champion for "${selectedTournament.title}". Tournament status set to Completed.`,
+        message: `Official Tournament Winner declared: ${champion.name}! Competition status marked Completed.`,
       })
     } catch (err) {
-      setAlert({ type: 'error', message: 'Failed to declare tournament winners.' })
+      setAlert({ type: 'error', message: err.message || 'Failed to declare official winner.' })
     }
   }
 
   return (
     <div className="space-y-6">
       
-      {/* Header & Controls Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      {/* Header & Tournament Selector */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
         <div className="space-y-1">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-purple-400" />
-            <span>RESULTS & LEADERBOARD MANAGEMENT</span>
+          <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
+            <BarChart3 className="w-6 h-6 text-[#fe6b00]" />
+            <span>POINTS TABLE & STANDINGS EDITOR</span>
           </h2>
-          <p className="text-xs text-slate-400">
-            Enter match kill & placement points, calculate standings automatically, and declare official champions.
+          <p className="text-xs text-[#8e9dae]">
+            Input match kills, placement points, and automatically publish live leaderboard standings.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <select
-            value={selectedId}
-            onChange={(e) => handleSelectTournament(e.target.value)}
-            className="py-2.5 px-4 bg-slate-950 border border-slate-800 rounded-xl text-xs font-bold text-cyan-300 focus:outline-none focus:border-purple-500 max-w-xs min-h-[44px]"
-          >
-            {tournaments.map((t) => (
-              <option key={`lb-opt-${t.id}`} value={t.id}>{t.title}</option>
-            ))}
-          </select>
-        </div>
+        {/* Tournament Picker */}
+        <select
+          value={selectedId}
+          onChange={(e) => handleSelectTournament(e.target.value)}
+          className="py-2.5 px-4 bg-[#07090c] border border-[#3a494b] rounded text-xs font-bold text-[#00f2ff] focus:outline-none"
+        >
+          {tournaments.map((t) => (
+            <option key={`lb-select-${t.id}`} value={t.id}>{t.title} ({t.game})</option>
+          ))}
+        </select>
       </div>
 
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
-      {/* MATCH ROUND CONTROL BAR */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
+      {/* MATCH ROUND CONTROLS & PUBLISH ACTIONS */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-400 uppercase">Match Round:</span>
-          <div className="flex gap-2 text-xs font-bold">
-            {['Overall', 'Match 1', 'Match 2', 'Match 3', 'Finals'].map((m) => (
+          <span className="font-label-caps text-xs text-[#8e9dae] uppercase font-bold">Round Filter:</span>
+          <div className="flex gap-1.5 font-mono text-xs font-bold">
+            {['Overall', 'Match 1', 'Match 2', 'Match 3'].map((r) => (
               <button
-                key={`m-round-${m}`}
-                onClick={() => setMatchRound(m)}
-                className={`px-3 py-1.5 rounded-lg border transition-colors ${
-                  matchRound === m
-                    ? 'bg-purple-600 text-white border-purple-500'
-                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                key={`round-${r}`}
+                onClick={() => setMatchRound(r)}
+                className={`px-3 py-1.5 rounded transition-all ${
+                  matchRound === r
+                    ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_10px_rgba(0,242,255,0.3)]'
+                    : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b] hover:text-white'
                 }`}
               >
-                {m}
+                {r}
               </button>
             ))}
           </div>
@@ -201,254 +188,134 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowWinnerModal(true)}
-            className="px-4 py-2.5 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 text-slate-950 font-extrabold text-xs rounded-xl hover:brightness-110 shadow-lg flex items-center justify-center gap-2 min-h-[40px]"
+            onClick={() => setShowPreview(!showPreview)}
+            className="px-3.5 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] rounded transition-colors flex items-center gap-1.5 uppercase min-h-[40px]"
+          >
+            <Eye className="w-4 h-4 text-[#00f2ff]" />
+            <span>{showPreview ? 'Hide Preview' : 'Public Live Preview'}</span>
+          </button>
+
+          <button
+            onClick={handleDeclareWinner}
+            className="px-3.5 py-2.5 bg-[#fe6b00]/10 hover:bg-[#fe6b00]/20 border border-[#fe6b00]/40 text-[#fe6b00] font-bold text-xs rounded transition-colors flex items-center gap-1.5 uppercase min-h-[40px]"
           >
             <Crown className="w-4 h-4" />
-            <span>Declare Winners</span>
+            <span>Declare Winner</span>
+          </button>
+
+          <button
+            onClick={handleSavePoints}
+            className="btn-cyber-primary text-xs py-2.5 min-h-[40px]"
+          >
+            <Save className="w-4 h-4" />
+            <span>Publish Standings</span>
           </button>
         </div>
       </div>
 
-      {/* MATCH RESULTS ENTRY TABLE */}
-      {teams.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded-3xl space-y-3 text-slate-500 text-xs shadow-xl">
-          <Trophy className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-sm font-bold text-white uppercase">No Teams Registered</h3>
-          <p className="text-xs text-slate-400">Register squad teams for this tournament to calculate match standings.</p>
+      {/* EDITABLE POINTS TABLE */}
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl overflow-hidden shadow-xl">
+        <div className="p-4 bg-[#07090c] border-b border-[#3a494b]/60 flex items-center justify-between">
+          <h3 className="font-display-lg text-sm font-bold text-white uppercase flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-[#00f2ff]" />
+            <span>{selectedTournament?.title} &mdash; Standings Editor</span>
+          </h3>
+          <span className="font-mono text-xs text-[#00ff9d] font-bold">Automatic Formula: Total = Kills + Placement Pts</span>
         </div>
-      ) : (
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-6 shadow-xl">
-          
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <Zap className="w-4 h-4 text-cyan-400" />
-              <span>Live Match Results Matrix ({matchRound})</span>
-            </h3>
-            <span className="text-[10px] font-semibold text-slate-400">Auto-Sorted by Total Points</span>
-          </div>
 
-          <div className="space-y-3">
-            {teams.map((team, idx) => {
-              const rankPos = idx + 1
-              return (
-                <div
-                  key={`lb-edit-${team.id || idx}`}
-                  className="p-4 bg-slate-950 border border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-md hover:border-slate-700 transition-colors"
-                >
-                  {/* Rank Badge & Team Info */}
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-extrabold text-xs shrink-0 ${
-                      rankPos === 1
-                        ? 'bg-amber-400 text-slate-950 shadow-[0_0_12px_rgba(251,191,36,0.6)]'
-                        : rankPos === 2
-                        ? 'bg-slate-300 text-slate-950'
-                        : rankPos === 3
-                        ? 'bg-amber-700 text-white'
-                        : 'bg-slate-900 text-slate-400 border border-slate-800'
-                    }`}>
-                      #{rankPos}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-white text-sm">{team.name}</span>
-                        {rankPos === 1 && (
-                          <span className="px-2 py-0.5 rounded text-[9px] font-extrabold bg-amber-950 text-amber-300 border border-amber-800 uppercase flex items-center gap-1">
-                            <Crown className="w-3 h-3 text-amber-400" />
-                            <span>BOOYAH</span>
+        {teams.length === 0 ? (
+          <div className="p-12 text-center text-[#8e9dae] text-xs space-y-2">
+            <BarChart3 className="w-8 h-8 text-[#8e9dae] mx-auto" />
+            <p className="font-bold text-white">No Registered Teams</p>
+            <p>Approve squad registrations to populate team entries in the points table.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
+                  <th className="p-3.5 pl-4 text-center w-12">Rank</th>
+                  <th className="p-3.5">Squad Team Name</th>
+                  <th className="p-3.5">Captain</th>
+                  <th className="p-3.5 text-center w-28">Kills (1 Pts)</th>
+                  <th className="p-3.5 text-center w-36">Placement Pts</th>
+                  <th className="p-3.5 text-right pr-6 w-32">Total Points</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#3a494b]/40">
+                {teams.map((t, idx) => {
+                  const rank = idx + 1
+                  const isTop1 = rank === 1
+                  const isTop2 = rank === 2
+                  const isTop3 = rank === 3
+
+                  return (
+                    <tr
+                      key={`edit-row-${t.id}`}
+                      className={`hover:bg-[#1d232c] transition-colors ${
+                        isTop1 ? 'bg-[#fe6b00]/5' : isTop2 ? 'bg-[#00f2ff]/5' : isTop3 ? 'bg-[#ffb800]/5' : ''
+                      }`}
+                    >
+                      {/* Rank */}
+                      <td className="p-3.5 pl-4 text-center font-mono font-extrabold text-sm">
+                        {isTop1 ? (
+                          <span className="text-[#fe6b00] flex items-center justify-center gap-1">
+                            <Crown className="w-4 h-4 fill-[#fe6b00]" />
+                            #1
                           </span>
+                        ) : isTop2 ? (
+                          <span className="text-[#00f2ff]">#2</span>
+                        ) : isTop3 ? (
+                          <span className="text-[#ffb800]">#3</span>
+                        ) : (
+                          <span className="text-[#8e9dae]">#{rank}</span>
                         )}
-                      </div>
-                      <p className="text-[11px] text-slate-400">Captain: {team.captain}</p>
-                    </div>
-                  </div>
+                      </td>
 
-                  {/* Points Inputs: Kills + Placement = Total */}
-                  <div className="flex items-center gap-4 self-end sm:self-auto">
-                    
-                    {/* Kill Points */}
-                    <div className="text-center space-y-1">
-                      <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Kills (+1 pt)</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={team.kills || 0}
-                        onChange={(e) => handleScoreChange(idx, 'kills', e.target.value)}
-                        className="w-16 py-1.5 px-2 bg-slate-900 border border-slate-800 rounded-lg text-center font-extrabold text-cyan-400 focus:outline-none focus:border-cyan-400"
-                      />
-                    </div>
+                      {/* Team Name */}
+                      <td className="p-3.5 font-extrabold text-white">
+                        {t.name}
+                      </td>
 
-                    <span className="text-slate-600 font-bold text-sm pt-4">+</span>
+                      {/* Captain */}
+                      <td className="p-3.5 text-[#8e9dae]">
+                        {t.captain}
+                      </td>
 
-                    {/* Placement Points */}
-                    <div className="text-center space-y-1">
-                      <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Placement Pts</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={team.placementPoints || 0}
-                        onChange={(e) => handleScoreChange(idx, 'placementPoints', e.target.value)}
-                        className="w-20 py-1.5 px-2 bg-slate-900 border border-slate-800 rounded-lg text-center font-extrabold text-purple-300 focus:outline-none focus:border-purple-400"
-                      />
-                    </div>
+                      {/* Editable Kills */}
+                      <td className="p-3.5 text-center">
+                        <input
+                          type="number"
+                          min="0"
+                          value={t.kills}
+                          onChange={(e) => handleScoreChange(idx, 'kills', e.target.value)}
+                          className="w-16 py-1.5 px-2 bg-[#07090c] border border-[#3a494b] rounded text-center font-mono text-xs font-bold text-white focus:outline-none focus:border-[#00f2ff]"
+                        />
+                      </td>
 
-                    <span className="text-slate-600 font-bold text-sm pt-4">=</span>
+                      {/* Editable Placement Points */}
+                      <td className="p-3.5 text-center">
+                        <input
+                          type="number"
+                          min="0"
+                          value={t.placementPoints}
+                          onChange={(e) => handleScoreChange(idx, 'placementPoints', e.target.value)}
+                          className="w-20 py-1.5 px-2 bg-[#07090c] border border-[#3a494b] rounded text-center font-mono text-xs font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff]"
+                        />
+                      </td>
 
-                    {/* Total Points (Calculated Automatically) */}
-                    <div className="text-center space-y-1 min-w-[70px]">
-                      <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Total Pts</span>
-                      <div className="py-1.5 px-3 bg-emerald-950 border border-emerald-800/80 rounded-lg text-center font-extrabold text-emerald-400 text-sm shadow-inner">
-                        {team.points || 0}
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-              )
-            })}
+                      {/* Total Points */}
+                      <td className="p-3.5 text-right pr-6 font-mono font-extrabold text-sm text-[#00ff9d]">
+                        {t.points} Pts
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
-
-          {/* Action Buttons: Preview & Publish */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-3 border-t border-slate-800">
-            <button
-              onClick={() => setShowPreview(true)}
-              className="w-full sm:flex-1 py-3.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-cyan-300 font-bold text-xs rounded-xl flex items-center justify-center gap-2 min-h-[44px] transition-colors"
-            >
-              <Eye className="w-4 h-4 text-cyan-400" />
-              <span>Preview Standings</span>
-            </button>
-            <button
-              onClick={handlePublish}
-              className="w-full sm:flex-1 py-3.5 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 text-slate-950 font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 min-h-[44px] hover:brightness-110 shadow-lg transition-all"
-            >
-              <Save className="w-4 h-4" />
-              <span>Publish Standings Live</span>
-            </button>
-          </div>
-
-        </div>
-      )}
-
-      {/* STANDINGS PREVIEW MODAL */}
-      {showPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => setShowPreview(false)}
-              className="absolute top-5 right-5 p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="space-y-1">
-              <span className="text-[11px] font-bold text-purple-400 uppercase tracking-widest block">LIVE PLAYER PREVIEW</span>
-              <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-amber-400" />
-                <span>{selectedTournament?.title}</span>
-              </h3>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              {teams.map((t, i) => (
-                <div
-                  key={`prev-${i}`}
-                  className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="font-extrabold text-amber-400">#{i + 1}</span>
-                    <span className="font-bold text-white">{t.name}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-slate-400">{t.kills || 0} kills</span>
-                    <span className="text-purple-300">{t.placementPoints || 0} place pts</span>
-                    <span className="text-emerald-400 font-extrabold bg-emerald-950 px-2.5 py-0.5 rounded border border-emerald-800">
-                      {t.points || 0} pts
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <button
-              onClick={handlePublish}
-              className="w-full py-3.5 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 text-slate-950 font-extrabold text-xs rounded-xl min-h-[44px] shadow-lg"
-            >
-              Confirm & Publish Live
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* DECLARE WINNERS MODAL */}
-      {showWinnerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
-            <button
-              onClick={() => setShowWinnerModal(false)}
-              className="absolute top-5 right-5 p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="text-center space-y-2">
-              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/40 flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(251,191,36,0.3)]">
-                <Crown className="w-7 h-7 text-amber-400" />
-              </div>
-              <h3 className="text-xl font-extrabold text-white uppercase tracking-tight">Declare Tournament Winners</h3>
-              <p className="text-xs text-slate-400">
-                This will finalize standings and set tournament status to <strong className="text-emerald-400">Completed</strong>.
-              </p>
-            </div>
-
-            {teams.length > 0 && (
-              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3 text-xs">
-                
-                {/* 1st Champion */}
-                <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-xl flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Crown className="w-4 h-4 text-amber-400" />
-                    <span className="font-extrabold text-amber-300">1st Place Champion:</span>
-                  </div>
-                  <strong className="text-white font-bold text-sm">{teams[0]?.name} ({teams[0]?.points || 0} pts)</strong>
-                </div>
-
-                {/* 2nd Runner Up */}
-                {teams[1] && (
-                  <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between">
-                    <span className="font-extrabold text-slate-300">2nd Place Runner Up:</span>
-                    <strong className="text-white font-bold">{teams[1]?.name} ({teams[1]?.points || 0} pts)</strong>
-                  </div>
-                )}
-
-                {/* 3rd Place */}
-                {teams[2] && (
-                  <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between">
-                    <span className="font-extrabold text-amber-700">3rd Place:</span>
-                    <strong className="text-white font-bold">{teams[2]?.name} ({teams[2]?.points || 0} pts)</strong>
-                  </div>
-                )}
-
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowWinnerModal(false)}
-                className="flex-1 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl min-h-[44px]"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeclareWinners}
-                className="flex-1 py-3.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-extrabold text-xs rounded-xl hover:brightness-110 shadow-lg min-h-[44px]"
-              >
-                Confirm & Declare Winners
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
     </div>
   )

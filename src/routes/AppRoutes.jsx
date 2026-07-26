@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import MainLayout from '../layouts/MainLayout'
 import AdminLayout from '../layouts/AdminLayout'
+import AuthLayout from '../layouts/AuthLayout'
 import ProtectedRoute from './ProtectedRoute'
 import AdminRoute from './AdminRoute'
 
@@ -19,6 +20,7 @@ const AboutPage = lazy(() => import('../pages/AboutPage'))
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'))
 const DashboardPage = lazy(() => import('../pages/DashboardPage'))
 const AdminDashboardPage = lazy(() => import('../pages/AdminDashboardPage'))
+const AdminFinancePage = lazy(() => import('../pages/AdminFinancePage'))
 
 function PageFallback() {
   return (
@@ -35,16 +37,20 @@ export default function AppRoutes() {
   return (
     <Suspense fallback={<PageFallback />}>
       <Routes>
-        {/* Public & Player Facing Layout */}
+        {/* Tier 1: Dedicated Standalone Auth Layout (Login, Register, Reset Password) */}
+        <Route element={<AuthLayout />}>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
+          <Route path="reset-password" element={<ResetPasswordPage />} />
+        </Route>
+
+        {/* Tier 2: Public & Player Facing Layout (Public Navbar ONLY) */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="tournaments" element={<TournamentsPage />} />
           <Route path="tournaments/:id" element={<TournamentDetailPage />} />
           <Route path="leaderboard" element={<LeaderboardPage />} />
           <Route path="about" element={<AboutPage />} />
-          <Route path="login" element={<LoginPage />} />
-          <Route path="register" element={<RegisterPage />} />
-          <Route path="reset-password" element={<ResetPasswordPage />} />
           <Route path="403" element={<AccessDeniedPage />} />
           
           {/* Protected Player Routes */}
@@ -54,10 +60,11 @@ export default function AppRoutes() {
           </Route>
         </Route>
 
-        {/* Enterprise Protected Admin Layout (Dedicated Admin Header + Admin Sidebar) */}
+        {/* Tier 3: Enterprise Admin Control Center Layout (Admin Sidebar + Admin Header ONLY) */}
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
             <Route path="admin" element={<AdminDashboardPage />} />
+            <Route path="admin/finance" element={<AdminFinancePage />} />
           </Route>
         </Route>
       </Routes>

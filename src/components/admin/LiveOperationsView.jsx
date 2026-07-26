@@ -34,13 +34,13 @@ export default function LiveOperationsView({ tournaments, setActiveTab }) {
     <div className="space-y-6">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950 border border-red-800 text-red-400 text-xs font-bold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#fe6b00]/10 border border-[#fe6b00]/40 text-[#fe6b00] text-xs font-bold uppercase">
             <Zap className="w-3.5 h-3.5" />
             <span>LIVE TOURNAMENT OPERATIONS</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
+          <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
             ACTIVE MATCH COMMAND CENTER
           </h2>
         </div>
@@ -53,94 +53,131 @@ export default function LiveOperationsView({ tournaments, setActiveTab }) {
         {liveTournaments.map((t) => {
           const room = roomStates[t.id] || { roomId: 'Pending', roomPass: '----', published: false }
           return (
-            <div key={`live-card-${t.id}`} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl">
+            <div key={`live-card-${t.id}`} className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-5 shadow-xl">
               
               {/* Header Badge & Title */}
-              <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-3">
+              <div className="flex items-center justify-between gap-2 border-b border-[#3a494b]/60 pb-3">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-slate-950 text-cyan-300 border border-cyan-500/30">
+                    <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#07090c] text-[#00f2ff] border border-[#00f2ff]/30">
                       {t.game}
                     </span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
+                    <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
                       t.status === 'Live Now'
-                        ? 'bg-red-950 text-red-400 border-red-800'
-                        : 'bg-emerald-950 text-emerald-400 border-emerald-800'
+                        ? 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40 animate-pulse'
+                        : 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                     }`}>
                       {t.status}
                     </span>
                   </div>
-                  <h3 className="font-extrabold text-white text-base sm:text-lg">{t.title}</h3>
+                  <h3 className="font-display-lg font-extrabold text-white text-base sm:text-lg uppercase">{t.title}</h3>
                 </div>
                 
-                <span className="text-[10px] font-bold text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
+                <span className="font-mono text-[10px] font-bold text-[#8e9dae] bg-[#07090c] px-2.5 py-1 rounded border border-[#3a494b]/60">
                   Round 1 of 3
                 </span>
               </div>
 
               {/* Tournament Details List */}
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <span className="text-slate-500 text-[10px] font-bold block uppercase">Registered Players</span>
+                <div className="bg-[#07090c] p-2.5 rounded border border-[#3a494b]/60">
+                  <span className="font-label-caps text-[#8e9dae] text-[10px] font-bold block uppercase">Registered Players</span>
                   <span className="text-white font-extrabold text-xs">{t.registeredTeams * 4} Players ({t.registeredTeams} Squads)</span>
                 </div>
 
-                <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <span className="text-slate-500 text-[10px] font-bold block uppercase">Start Time</span>
-                  <span className="text-purple-300 font-extrabold text-xs">{t.startDate} ({t.startTime || '06:00 PM IST'})</span>
+                <div className="bg-[#07090c] p-2.5 rounded border border-[#3a494b]/60">
+                  <span className="font-label-caps text-[#8e9dae] text-[10px] font-bold block uppercase">Start Time</span>
+                  <span className="text-[#00f2ff] font-extrabold text-xs">{t.startDate} ({t.startTime || '06:00 PM IST'})</span>
                 </div>
 
-                <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <span className="text-slate-500 text-[10px] font-bold block uppercase">Room Status</span>
-                  <span className={`text-xs font-bold ${room.published ? 'text-emerald-400' : 'text-amber-400'}`}>
+                <div className="bg-[#07090c] p-2.5 rounded border border-[#3a494b]/60">
+                  <span className="font-label-caps text-[#8e9dae] text-[10px] font-bold block uppercase">Room Status</span>
+                  <span className={`text-xs font-bold ${room.published ? 'text-[#00ff9d]' : 'text-[#ffb800]'}`}>
                     {room.published ? `Published (ID: ${room.roomId})` : room.roomId !== 'Pending' ? `Generated (Pass: ${room.roomPass})` : 'Pending Generation'}
                   </span>
                 </div>
 
-                <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <span className="text-slate-500 text-[10px] font-bold block uppercase">Results Status</span>
-                  <span className="text-cyan-300 font-bold text-xs">In Progress</span>
+                <div className="bg-[#07090c] p-2.5 rounded border border-[#3a494b]/60">
+                  <span className="font-label-caps text-[#8e9dae] text-[10px] font-bold block uppercase">Stream Broadcast</span>
+                  <span className="text-white font-extrabold text-xs flex items-center gap-1">
+                    <Tv className="w-3 h-3 text-[#fe6b00]" />
+                    <span>MJ ESPORTS YT Live</span>
+                  </span>
                 </div>
               </div>
 
-              {/* Room Actions */}
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-xs">
-                <div className="flex items-center justify-between text-slate-300 font-semibold">
-                  <span>Custom Match Lobby:</span>
-                  <span className="font-extrabold text-white">ID: {room.roomId} | PASS: {room.roomPass}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 pt-1">
+              {/* Room Credential Management */}
+              <div className="p-4 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-label-caps text-xs text-[#00f2ff] uppercase tracking-wider flex items-center gap-1.5">
+                    <Key className="w-4 h-4 text-[#00f2ff]" />
+                    <span>Custom Room Credentials</span>
+                  </span>
+
                   <button
                     onClick={() => handleGenerateRoom(t.id)}
-                    className="py-2 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-purple-300 rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+                    className="px-2.5 py-1 rounded bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[11px] font-bold text-[#e1e2e7] hover:text-[#00f2ff] transition-colors"
                   >
-                    <Key className="w-3.5 h-3.5" />
-                    <span>Generate Room</span>
-                  </button>
-                  <button
-                    onClick={() => handlePublishRoom(t.id)}
-                    disabled={room.published}
-                    className="py-2 px-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold text-xs transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
-                  >
-                    <Tv className="w-3.5 h-3.5" />
-                    <span>{room.published ? 'Room Published' : 'Publish Room'}</span>
+                    Auto-Generate Room
                   </button>
                 </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-[#8e9dae] uppercase font-bold block">Room ID</label>
+                    <input
+                      type="text"
+                      value={room.roomId}
+                      onChange={(e) => setRoomStates((prev) => ({
+                        ...prev,
+                        [t.id]: { ...(prev[t.id] || {}), roomId: e.target.value }
+                      }))}
+                      className="w-full px-3 py-2 bg-[#151a21] border border-[#3a494b] rounded font-mono text-xs text-[#00f2ff] font-bold focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-[#8e9dae] uppercase font-bold block">Room Password</label>
+                    <input
+                      type="text"
+                      value={room.roomPass}
+                      onChange={(e) => setRoomStates((prev) => ({
+                        ...prev,
+                        [t.id]: { ...(prev[t.id] || {}), roomPass: e.target.value }
+                      }))}
+                      className="w-full px-3 py-2 bg-[#151a21] border border-[#3a494b] rounded font-mono text-xs text-[#00f2ff] font-bold focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handlePublishRoom(t.id)}
+                  disabled={room.published}
+                  className={`btn-cyber-primary w-full justify-center py-2.5 min-h-[40px] ${
+                    room.published ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{room.published ? 'Credentials Live on Player Dashboard' : 'Publish Credentials to Registered Teams'}</span>
+                </button>
               </div>
 
-              {/* Quick Actions Footer */}
-              <div className="flex items-center gap-2 pt-2 border-t border-slate-800">
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 pt-2">
                 <button
                   onClick={() => setActiveTab('matches')}
-                  className="flex-1 py-2.5 rounded-xl bg-purple-950 text-purple-300 border border-purple-800 font-bold text-xs hover:bg-purple-900 transition-colors min-h-[40px]"
+                  className="flex-1 py-2.5 rounded bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] transition-colors flex items-center justify-center gap-1.5 uppercase min-h-[38px]"
                 >
-                  Match Control
+                  <Gamepad2 className="w-4 h-4 text-[#00f2ff]" />
+                  <span>Match Control</span>
                 </button>
+
                 <button
                   onClick={() => setActiveTab('leaderboards')}
-                  className="flex-1 py-2.5 rounded-xl bg-slate-950 text-cyan-300 border border-slate-800 font-bold text-xs hover:bg-slate-800 transition-colors min-h-[40px]"
+                  className="flex-1 py-2.5 rounded bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#e1e2e7] hover:text-[#fe6b00] transition-colors flex items-center justify-center gap-1.5 uppercase min-h-[38px]"
                 >
-                  Publish Results
+                  <span>Scores & Standings</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
 

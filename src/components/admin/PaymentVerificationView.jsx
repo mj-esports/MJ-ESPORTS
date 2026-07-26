@@ -95,28 +95,15 @@ export default function PaymentVerificationView({ tournaments = [] }) {
       {
         id: 'p-102',
         tournamentTitle: 'BGMI Champions Cup',
-        teamName: 'Total Gaming Duo',
-        captainName: 'TotalGaming_Fan',
+        teamName: 'Alpha Squad',
+        captainName: 'Alpha_Captain',
         email: 'tgfan@example.com',
-        freeFireUid: '519284012',
+        freeFireUid: '518920413',
         entryFee: '₹50',
-        transactionId: 'UPI-771829041239',
+        transactionId: 'UPI-774102941092',
         screenshotUrl: null,
         status: 'Verified',
-        registeredAt: '2026-07-24 14:15',
-      },
-      {
-        id: 'p-103',
-        tournamentTitle: 'Free Fire Duo Clash',
-        teamName: 'Shadow Hackers',
-        captainName: 'ShadowHacker_X',
-        email: 'shadow@example.com',
-        freeFireUid: '992810412',
-        entryFee: '₹50',
-        transactionId: 'INVALID-TXN-000',
-        screenshotUrl: null,
-        status: 'Rejected',
-        registeredAt: '2026-07-22 11:00',
+        registeredAt: '2026-07-25 17:15',
       },
     ])
   }
@@ -125,312 +112,257 @@ export default function PaymentVerificationView({ tournaments = [] }) {
     fetchPaymentRecords()
   }, [tournaments])
 
-  // Filter payments by active tab and search
+  const handleUpdatePaymentStatus = async (payId, nextStatus) => {
+    try {
+      if (isSupabaseConfigured) {
+        const dbStatus = nextStatus === 'Verified' ? 'Approved' : 'Rejected'
+        await supabase
+          .from('tournament_registrations')
+          .update({ payment_status: dbStatus, status: dbStatus })
+          .eq('id', payId)
+      }
+
+      setPayments((prev) =>
+        prev.map((p) => (p.id === payId ? { ...p, status: nextStatus } : p))
+      )
+      setAlert({ type: 'success', message: `Payment transaction ${payId} status updated to "${nextStatus}".` })
+    } catch (err) {
+      setAlert({ type: 'error', message: err.message || 'Failed to update payment verification.' })
+    }
+  }
+
   const filteredPayments = payments.filter((p) => {
     const matchesTab = activeTab === 'All' || p.status === activeTab
-    const q = search.toLowerCase()
     const matchesSearch =
-      !q ||
-      p.teamName?.toLowerCase().includes(q) ||
-      p.captainName?.toLowerCase().includes(q) ||
-      p.transactionId?.toLowerCase().includes(q) ||
-      p.email?.toLowerCase().includes(q) ||
-      String(p.freeFireUid).includes(q)
+      p.teamName?.toLowerCase().includes(search.toLowerCase()) ||
+      p.captainName?.toLowerCase().includes(search.toLowerCase()) ||
+      p.transactionId?.toLowerCase().includes(search.toLowerCase()) ||
+      p.email?.toLowerCase().includes(search.toLowerCase())
 
     return matchesTab && matchesSearch
   })
 
-  // Verify Payment Action
-  const handleVerifyPayment = async (p) => {
-    try {
-      if (isSupabaseConfigured) {
-        await supabase
-          .from('tournament_registrations')
-          .update({ payment_status: 'Verified', status: 'Approved' })
-          .eq('id', p.id)
-      }
-
-      setPayments((prev) =>
-        prev.map((item) => (item.id === p.id ? { ...item, status: 'Verified' } : item))
-      )
-      if (selectedScreenshot?.id === p.id) {
-        setSelectedScreenshot((prev) => ({ ...prev, status: 'Verified' }))
-      }
-      setAlert({
-        type: 'success',
-        message: `Payment transaction "${p.transactionId}" for team "${p.teamName}" VERIFIED & APPROVED!`,
-      })
-    } catch (err) {
-      setAlert({ type: 'error', message: 'Failed to verify payment.' })
-    }
-  }
-
-  // Reject Payment Action
-  const handleRejectPayment = async (p) => {
-    try {
-      if (isSupabaseConfigured) {
-        await supabase
-          .from('tournament_registrations')
-          .update({ payment_status: 'Rejected', status: 'Rejected' })
-          .eq('id', p.id)
-      }
-
-      setPayments((prev) =>
-        prev.map((item) => (item.id === p.id ? { ...item, status: 'Rejected' } : item))
-      )
-      if (selectedScreenshot?.id === p.id) {
-        setSelectedScreenshot((prev) => ({ ...prev, status: 'Rejected' }))
-      }
-      setAlert({
-        type: 'success',
-        message: `Payment transaction "${p.transactionId}" for team "${p.teamName}" REJECTED.`,
-      })
-    } catch (err) {
-      setAlert({ type: 'error', message: 'Failed to reject payment.' })
-    }
-  }
-
   return (
     <div className="space-y-6">
       
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      {/* Header Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
         <div className="space-y-1">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-            <CreditCard className="w-6 h-6 text-emerald-400" />
+          <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
+            <CreditCard className="w-6 h-6 text-[#00ff9d]" />
             <span>PAYMENT VERIFICATION AUDIT</span>
           </h2>
-          <p className="text-xs text-slate-400">
-            Verify UPI transaction IDs, inspect payment screenshots, approve entry fees, and reject invalid claims.
+          <p className="text-xs text-[#8e9dae]">
+            Verify UPI transaction reference IDs, review payment screenshots, and approve slot registrations.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={fetchPaymentRecords}
-            disabled={loading}
-            className="px-3.5 py-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-cyan-400 rounded-xl text-xs font-bold transition-all flex items-center gap-2 min-h-[44px]"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh Records</span>
-          </button>
+        <button
+          onClick={fetchPaymentRecords}
+          className="px-3.5 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] rounded text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] transition-all flex items-center gap-1.5 uppercase min-h-[44px]"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 text-[#00f2ff] ${loading ? 'animate-spin' : ''}`} />
+          <span>Sync Transactions</span>
+        </button>
+      </div>
 
-          <div className="relative max-w-xs w-full">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {alert && <AuthAlert type={alert.type} message={alert.message} />}
+
+      {/* FILTER TABS & SEARCH */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 border-b border-[#3a494b]/60 pb-2 overflow-x-auto text-xs font-bold">
+          {['Pending', 'Verified', 'Rejected', 'All'].map((tab) => (
+            <button
+              key={`pay-tab-${tab}`}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded text-xs font-bold uppercase transition-all whitespace-nowrap min-h-[38px] ${
+                activeTab === tab
+                  ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
+                  : 'text-[#8e9dae] hover:text-white bg-[#151a21] hover:bg-[#1d232c]'
+              }`}
+            >
+              {tab} Payments ({payments.filter((p) => (tab === 'All' ? true : p.status === tab)).length})
+            </button>
+          ))}
+        </div>
+
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
+          <div className="relative">
+            <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-3.5" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search TXN ID, team, or email..."
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              placeholder="Search team name, captain, or UPI Ref ID..."
+              className="w-full pl-9 pr-3 py-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
             />
           </div>
         </div>
       </div>
 
-      {alert && <AuthAlert type={alert.type} message={alert.message} />}
+      {/* PAYMENTS TABLE (DESKTOP) */}
+      <div className="hidden lg:block bg-[#151a21] border border-[#3a494b]/60 rounded-xl overflow-hidden shadow-xl">
+        <table className="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
+              <th className="p-3.5 pl-4">UPI Reference / Txn ID</th>
+              <th className="p-3.5">Tournament</th>
+              <th className="p-3.5">Team & Captain</th>
+              <th className="p-3.5">Entry Fee</th>
+              <th className="p-3.5 text-center">Status</th>
+              <th className="p-3.5 text-right pr-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#3a494b]/40">
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-[#8e9dae]">
+                  <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                  <span>Fetching payment logs...</span>
+                </td>
+              </tr>
+            ) : filteredPayments.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-[#8e9dae]">
+                  No payment transactions found in this view category.
+                </td>
+              </tr>
+            ) : (
+              filteredPayments.map((p) => (
+                <tr key={`pay-row-${p.id}`} className="hover:bg-[#1d232c] transition-colors">
+                  <td className="p-3.5 pl-4 font-mono font-bold text-[#00f2ff]">{p.transactionId}</td>
+                  <td className="p-3.5 font-bold text-white max-w-[180px] truncate">{p.tournamentTitle}</td>
+                  <td className="p-3.5">
+                    <span className="font-extrabold text-[#e1e2e7] block">{p.teamName}</span>
+                    <span className="text-[11px] text-[#8e9dae]">Capt: {p.captainName}</span>
+                  </td>
+                  <td className="p-3.5 font-mono text-[#ffb693] font-extrabold">{p.entryFee}</td>
+                  <td className="p-3.5 text-center">
+                    <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
+                      p.status === 'Verified'
+                        ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
+                        : p.status === 'Pending'
+                        ? 'bg-[#ffb800]/10 text-[#ffb800] border-[#ffb800]/40'
+                        : 'bg-red-950 text-[#ff3366] border-red-800'
+                    }`}>
+                      {p.status}
+                    </span>
+                  </td>
+                  <td className="p-3.5 text-right pr-4">
+                    <div className="flex items-center justify-end gap-1.5">
+                      {p.screenshotUrl && (
+                        <button
+                          onClick={() => setSelectedScreenshot(p.screenshotUrl)}
+                          className="p-1.5 rounded bg-[#07090c] hover:bg-[#1d232c] text-[#00f2ff] border border-[#3a494b]"
+                          title="View Payment Screenshot"
+                        >
+                          <FileImage className="w-3.5 h-3.5" />
+                        </button>
+                      )}
 
-      {/* FILTER TABS (Pending / Verified / Rejected / All) */}
-      <div className="flex border-b border-slate-800 overflow-x-auto text-xs font-bold uppercase tracking-wider no-scrollbar gap-2 pb-2">
-        {['Pending', 'Verified', 'Rejected', 'All'].map((tab) => {
-          const count = tab === 'All'
-            ? payments.length
-            : payments.filter((p) => p.status === tab).length
+                      {p.status !== 'Verified' && (
+                        <button
+                          onClick={() => handleUpdatePaymentStatus(p.id, 'Verified')}
+                          className="p-1.5 rounded bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40"
+                          title="Mark Verified"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
 
-          return (
-            <button
-              key={`pay-tab-${tab}`}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2.5 rounded-xl border transition-colors shrink-0 flex items-center gap-2 min-h-[40px] ${
-                activeTab === tab
-                  ? 'bg-emerald-600 text-slate-950 font-extrabold border-emerald-500 shadow-md'
-                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
-              }`}
-            >
-              <span>{tab} Payments</span>
-              <span className="px-2 py-0.5 rounded-full text-[9px] bg-slate-950 font-extrabold text-emerald-400 border border-emerald-800">
-                {count}
-              </span>
-            </button>
-          )
-        })}
+                      {p.status !== 'Rejected' && (
+                        <button
+                          onClick={() => handleUpdatePaymentStatus(p.id, 'Rejected')}
+                          className="p-1.5 rounded bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border border-red-800"
+                          title="Reject Payment"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
-      {/* PAYMENTS LIST GRID */}
-      {loading ? (
-        <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded-3xl space-y-3 shadow-xl">
-          <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <span className="text-xs text-slate-400 font-bold block">Loading payment transactions...</span>
-        </div>
-      ) : filteredPayments.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded-3xl space-y-3 shadow-xl text-slate-500 text-xs">
-          <CreditCard className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-sm font-bold text-white uppercase">No Payment Records Found</h3>
-          <p className="text-xs text-slate-400">No transactions match the selected status filter.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPayments.map((p) => (
-            <div
-              key={`pay-card-${p.id}`}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-extrabold uppercase text-purple-300 bg-slate-950 px-2.5 py-0.5 rounded border border-slate-800 truncate">
-                    {p.tournamentTitle}
-                  </span>
-                  <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
-                    p.status === 'Verified'
-                      ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                      : p.status === 'Rejected'
-                      ? 'bg-red-950 text-red-400 border-red-800'
-                      : 'bg-yellow-950 text-yellow-400 border-yellow-800 animate-pulse'
-                  }`}>
-                    {p.status}
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="font-extrabold text-white text-base truncate">{p.teamName}</h3>
-                  <p className="text-xs text-slate-300">Captain: <span className="font-bold text-slate-100">{p.captainName}</span></p>
-                </div>
-
-                {/* Transaction ID & Fee Box */}
-                <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-xs">
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400">Entry Fee:</span>
-                    <span className="font-bold text-emerald-400 text-xs">{p.entryFee}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400">Transaction ID:</span>
-                    <span className="font-mono font-bold text-cyan-400 select-all">{p.transactionId}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400">Registered:</span>
-                    <span className="text-slate-500">{p.registeredAt}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* ACTIONS: Verify, Reject, View Screenshot */}
-              <div className="space-y-2 pt-3 border-t border-slate-800">
-                <button
-                  onClick={() => setSelectedScreenshot(p)}
-                  className="w-full py-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-purple-300 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 min-h-[38px]"
-                >
-                  <FileImage className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Preview Payment Screenshot</span>
-                </button>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <button
-                    onClick={() => handleVerifyPayment(p)}
-                    disabled={p.status === 'Verified'}
-                    className="py-2 bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 rounded-xl font-bold flex items-center justify-center gap-1 min-h-[38px] disabled:opacity-40"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Verify</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleRejectPayment(p)}
-                    disabled={p.status === 'Rejected'}
-                    className="py-2 bg-slate-950 hover:bg-red-950 border border-slate-800 hover:border-red-800 text-red-400 rounded-xl font-bold flex items-center justify-center gap-1 min-h-[38px] disabled:opacity-40"
-                  >
-                    <XCircle className="w-3.5 h-3.5" />
-                    <span>Reject</span>
-                  </button>
-                </div>
-              </div>
+      {/* MOBILE PAYMENT CARDS (< 1024px) */}
+      <div className="block lg:hidden space-y-3">
+        {filteredPayments.map((p) => (
+          <div key={`m-pay-${p.id}`} className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-3 shadow-md text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[#00f2ff] font-bold">{p.transactionId}</span>
+              <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
+                p.status === 'Verified'
+                  ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
+                  : p.status === 'Pending'
+                  ? 'bg-[#ffb800]/10 text-[#ffb800] border-[#ffb800]/40'
+                  : 'bg-red-950 text-[#ff3366] border-red-800'
+              }`}>
+                {p.status}
+              </span>
             </div>
-          ))}
-        </div>
-      )}
 
-      {/* PAYMENT SCREENSHOT & AUDIT MODAL DIALOG */}
+            <div>
+              <h4 className="font-extrabold text-white text-sm">{p.teamName}</h4>
+              <p className="text-[11px] text-[#8e9dae]">{p.tournamentTitle}</p>
+            </div>
+
+            <div className="bg-[#07090c] p-2.5 rounded border border-[#3a494b]/60 space-y-1 font-mono text-[11px]">
+              <p>Captain: <span className="text-white font-bold">{p.captainName}</span></p>
+              <p>Fee: <span className="text-[#ffb693] font-bold">{p.entryFee}</span></p>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              {p.status !== 'Verified' && (
+                <button
+                  onClick={() => handleUpdatePaymentStatus(p.id, 'Verified')}
+                  className="flex-1 py-2 bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 rounded font-bold uppercase text-[10px]"
+                >
+                  Verify
+                </button>
+              )}
+              {p.status !== 'Rejected' && (
+                <button
+                  onClick={() => handleUpdatePaymentStatus(p.id, 'Rejected')}
+                  className="flex-1 py-2 bg-red-950/40 text-[#ff3366] border border-red-800 rounded font-bold uppercase text-[10px]"
+                >
+                  Reject
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* SCREENSHOT PREVIEW MODAL */}
       {selectedScreenshot && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
             <button
               onClick={() => setSelectedScreenshot(null)}
-              className="absolute top-5 right-5 p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white"
+              className="absolute top-5 right-5 p-2 rounded bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="space-y-1">
-              <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest block">PAYMENT AUDIT PROOF</span>
-              <h3 className="text-xl font-extrabold text-white">{selectedScreenshot.teamName}</h3>
-              <p className="text-xs text-slate-400">Tournament: <strong className="text-slate-200">{selectedScreenshot.tournamentTitle}</strong></p>
+            <h3 className="font-display-lg text-base font-bold text-white uppercase flex items-center gap-2">
+              <FileImage className="w-4 h-4 text-[#00f2ff]" />
+              <span>Payment Proof Screenshot</span>
+            </h3>
+
+            <div className="max-h-[60vh] overflow-hidden rounded border border-[#3a494b]/60 flex items-center justify-center bg-[#07090c]">
+              <img src={selectedScreenshot} alt="Payment Screenshot Proof" className="max-h-full max-w-full object-contain" />
             </div>
 
-            {/* SCREENSHOT IMAGE DISPLAY / RECEIPT CARD */}
-            {selectedScreenshot.screenshotUrl ? (
-              <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 p-2 max-h-64 flex items-center justify-center">
-                <img
-                  src={selectedScreenshot.screenshotUrl}
-                  alt="Payment Receipt"
-                  className="max-h-60 w-auto object-contain rounded-xl"
-                />
-              </div>
-            ) : (
-              <div className="p-6 bg-slate-950 rounded-2xl border border-slate-800 text-center space-y-2">
-                <div className="w-12 h-12 rounded-xl bg-purple-950 border border-purple-800 flex items-center justify-center mx-auto">
-                  <CreditCard className="w-6 h-6 text-purple-400" />
-                </div>
-                <h4 className="text-xs font-bold text-white uppercase">Digital Receipt Verified</h4>
-                <p className="text-[11px] text-slate-400 font-mono">Txn ID: {selectedScreenshot.transactionId}</p>
-                <span className="inline-block px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full text-[10px] font-bold">
-                  Amount Fee: {selectedScreenshot.entryFee}
-                </span>
-              </div>
-            )}
-
-            {/* Transaction Metadata */}
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-2 text-xs">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Transaction ID:</span>
-                <strong className="font-mono text-cyan-400">{selectedScreenshot.transactionId}</strong>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Captain Name:</span>
-                <strong className="text-white">{selectedScreenshot.captainName}</strong>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Email:</span>
-                <strong className="text-slate-300">{selectedScreenshot.email}</strong>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Payment Status:</span>
-                <strong className={`px-2 py-0.5 rounded text-[10px] uppercase border ${
-                  selectedScreenshot.status === 'Verified'
-                    ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                    : 'bg-yellow-950 text-yellow-400 border-yellow-800'
-                }`}>
-                  {selectedScreenshot.status}
-                </strong>
-              </div>
-            </div>
-
-            {/* Modal Actions */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleVerifyPayment(selectedScreenshot)}
-                disabled={selectedScreenshot.status === 'Verified'}
-                className="flex-1 py-3 bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 font-bold text-xs rounded-xl min-h-[44px] disabled:opacity-40"
-              >
-                Verify Payment
-              </button>
-              <button
-                onClick={() => handleRejectPayment(selectedScreenshot)}
-                disabled={selectedScreenshot.status === 'Rejected'}
-                className="flex-1 py-3 bg-red-950 hover:bg-red-900 border border-red-800 text-red-400 font-bold text-xs rounded-xl min-h-[44px] disabled:opacity-40"
-              >
-                Reject Payment
-              </button>
-            </div>
-
+            <button
+              onClick={() => setSelectedScreenshot(null)}
+              className="btn-cyber-primary w-full justify-center py-2.5"
+            >
+              Close Preview
+            </button>
           </div>
         </div>
       )}

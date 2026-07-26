@@ -98,7 +98,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
         teammateUids: team.teammateUids || ['789123041', '654321098', '987654321'],
         status: team.status || 'Approved',
         registeredAt: team.registeredAt || 'Today',
-        referenceId: team.refId || 'REG-MJ-OFFICIAL',
+        referenceId: team.refId || `REG-MJ-${Math.floor(1000 + Math.random() * 9000)}`,
       }))
     )
     setLiveRegistrations(all)
@@ -108,358 +108,365 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
     fetchRegistrations()
   }, [tournaments])
 
-  // Filtered registrations
-  const filteredRegistrations = liveRegistrations.filter((reg) => {
-    const matchesTab = activeQueueTab === 'All' || reg.status === activeQueueTab
-    const matchesTournament =
-      selectedTournamentFilter === 'ALL' || String(reg.tournamentId) === String(selectedTournamentFilter)
-    
-    const query = searchQuery.toLowerCase()
-    const matchesSearch =
-      !query ||
-      reg.teamName?.toLowerCase().includes(query) ||
-      reg.captainName?.toLowerCase().includes(query) ||
-      reg.email?.toLowerCase().includes(query) ||
-      String(reg.freeFireUid).includes(query) ||
-      reg.referenceId?.toLowerCase().includes(query)
-
-    return matchesTab && matchesTournament && matchesSearch
-  })
-
-  // Approve action
-  const handleApprove = async (reg) => {
+  const handleUpdateStatus = async (regId, tournamentId, nextStatus) => {
     try {
       if (updateRegistrationStatus) {
-        await updateRegistrationStatus(reg.tournamentId, reg.id, 'Approved')
+        await updateRegistrationStatus(tournamentId, regId, nextStatus)
       }
+
       setLiveRegistrations((prev) =>
-        prev.map((r) => (r.id === reg.id ? { ...r, status: 'Approved' } : r))
+        prev.map((r) => (r.id === regId ? { ...r, status: nextStatus } : r))
       )
-      setAlert({ type: 'success', message: `Registration for team "${reg.teamName}" APPROVED successfully!` })
+      setAlert({ type: 'success', message: `Registration status updated to "${nextStatus}".` })
+      if (selectedDetail && selectedDetail.id === regId) {
+        setSelectedDetail((prev) => ({ ...prev, status: nextStatus }))
+      }
     } catch (err) {
-      setAlert({ type: 'error', message: 'Failed to approve registration.' })
+      setAlert({ type: 'error', message: err.message || 'Failed to update registration status.' })
     }
   }
 
-  // Reject action
-  const handleReject = async (reg) => {
-    try {
-      if (updateRegistrationStatus) {
-        await updateRegistrationStatus(reg.tournamentId, reg.id, 'Rejected')
-      }
-      setLiveRegistrations((prev) =>
-        prev.map((r) => (r.id === reg.id ? { ...r, status: 'Rejected' } : r))
-      )
-      setAlert({ type: 'success', message: `Registration for team "${reg.teamName}" REJECTED.` })
-    } catch (err) {
-      setAlert({ type: 'error', message: 'Failed to reject registration.' })
-    }
-  }
-
-  // Export CSV
-  const handleExportCSV = () => {
-    if (filteredRegistrations.length === 0) {
-      setAlert({ type: 'error', message: 'No registration records available to export.' })
-      return
-    }
-
-    const headers = ['Ref ID', 'Team Name', 'Captain Name', 'Game UID', 'Format', 'Tournament', 'Email', 'WhatsApp', 'Status', 'Registered At']
-    const rows = filteredRegistrations.map((r) => [
-      `"${r.referenceId || r.id || ''}"`,
-      `"${r.teamName || r.name || ''}"`,
-      `"${r.captainName || r.captain || ''}"`,
-      `"${r.freeFireUid || ''}"`,
-      `"${r.format || 'Squad'}"`,
-      `"${r.tournamentTitle || ''}"`,
-      `"${r.email || ''}"`,
-      `"${r.whatsappNumber || ''}"`,
-      `"${r.status || 'Approved'}"`,
-      `"${r.registeredAt || ''}"`,
+  const exportCSV = () => {
+    if (liveRegistrations.length === 0) return
+    const headers = ['Ref ID', 'Tournament', 'Team Name', 'Captain', 'Email', 'Captain UID', 'Status', 'Registered At']
+    const rows = liveRegistrations.map((r) => [
+      r.referenceId,
+      `"${r.tournamentTitle}"`,
+      `"${r.teamName}"`,
+      `"${r.captainName}"`,
+      r.email,
+      r.freeFireUid,
+      r.status,
+      r.registeredAt,
     ])
-
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n')
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `MJ_ESPORTS_Registrations_${new Date().toISOString().split('T')[0]}.csv`)
+    link.setAttribute('download', `mj_esports_registrations_${Date.now()}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-
-    setAlert({ type: 'success', message: `Exported ${filteredRegistrations.length} registration records to CSV!` })
   }
+
+  // Filter Queue Logic
+  const filteredRegistrations = liveRegistrations.filter((r) => {
+    const matchesSearch =
+      r.teamName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.captainName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.freeFireUid?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.email?.toLowerCase().includes(searchQuery.toLowerCase())
+
+    const matchesTourn =
+      selectedTournamentFilter === 'ALL' || String(r.tournamentId) === String(selectedTournamentFilter)
+
+    const matchesTab =
+      activeQueueTab === 'All' ||
+      (activeQueueTab === 'Pending' && (r.status === 'Pending' || r.status === 'Under Review')) ||
+      (activeQueueTab === 'Approved' && (r.status === 'Approved' || r.status === 'Confirmed')) ||
+      (activeQueueTab === 'Rejected' && r.status === 'Rejected')
+
+    return matchesSearch && matchesTourn && matchesTab
+  })
 
   return (
     <div className="space-y-6">
       
-      {/* Header Controls & Export CSV Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      {/* Header & Export CSV Action */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
         <div className="space-y-1">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-            <ClipboardList className="w-6 h-6 text-amber-400" />
-            <span>REGISTRATION MANAGEMENT</span>
+          <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
+            <ClipboardList className="w-6 h-6 text-[#00f2ff]" />
+            <span>REGISTRATION QUEUE MODERATION</span>
           </h2>
-          <p className="text-xs text-slate-400">
-            Audit submitted squad applications, inspect player UIDs & contact info, approve/reject bookings, and export reports.
+          <p className="text-xs text-[#8e9dae]">
+            Review incoming squad registrations, verify in-game character UIDs, and approve slots.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={fetchRegistrations}
-            disabled={loading}
-            className="px-3.5 py-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-cyan-400 rounded-xl text-xs font-bold transition-all flex items-center gap-2 min-h-[44px]"
+            className="px-3.5 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] rounded text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] transition-all flex items-center gap-1.5 uppercase min-h-[44px]"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <RefreshCw className={`w-3.5 h-3.5 text-[#00f2ff] ${loading ? 'animate-spin' : ''}`} />
+            <span>Sync</span>
           </button>
 
           <button
-            onClick={handleExportCSV}
-            className="px-4 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-extrabold text-xs rounded-xl hover:brightness-110 shadow-lg flex items-center justify-center gap-2 min-h-[44px]"
+            onClick={exportCSV}
+            className="btn-cyber-primary text-xs py-2.5 min-h-[44px]"
           >
             <Download className="w-4 h-4" />
-            <span>Export CSV</span>
+            <span>Export Roster CSV</span>
           </button>
         </div>
       </div>
 
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
-      {/* FILTER CONTROLS: Search & Tournament Dropdown */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
-        <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search team name, captain, email, or Game UID..."
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
-          />
-        </div>
-
-        <div>
-          <select
-            value={selectedTournamentFilter}
-            onChange={(e) => setSelectedTournamentFilter(e.target.value)}
-            className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
-          >
-            <option value="ALL">All Tournaments</option>
-            {tournaments.map((t) => (
-              <option key={`t-filter-${t.id}`} value={t.id}>{t.title}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* STATUS QUEUE TABS BAR */}
-      <div className="flex border-b border-slate-800 overflow-x-auto text-xs font-bold uppercase tracking-wider no-scrollbar gap-2 pb-2">
-        {['All', 'Approved', 'Pending', 'Rejected', 'Cancelled', 'Checked-in'].map((tab) => {
-          const count = tab === 'All'
-            ? liveRegistrations.length
-            : liveRegistrations.filter((r) => r.status === tab).length
-
-          return (
+      {/* FILTER CONTROLS & STATUS TABS */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 border-b border-[#3a494b]/60 pb-2 overflow-x-auto text-xs font-bold">
+          {['All', 'Pending', 'Approved', 'Rejected'].map((tab) => (
             <button
-              key={`qtab-${tab}`}
+              key={`q-tab-${tab}`}
               onClick={() => setActiveQueueTab(tab)}
-              className={`px-4 py-2 rounded-xl border transition-colors shrink-0 flex items-center gap-2 min-h-[38px] ${
+              className={`px-4 py-2 rounded text-xs font-bold uppercase transition-all whitespace-nowrap min-h-[38px] ${
                 activeQueueTab === tab
-                  ? 'bg-purple-600 text-white border-purple-500 shadow-md'
-                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                  ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
+                  : 'text-[#8e9dae] hover:text-white bg-[#151a21] hover:bg-[#1d232c]'
               }`}
             >
-              <span>{tab}</span>
-              <span className="px-2 py-0.5 rounded-full text-[9px] bg-slate-950 font-extrabold text-cyan-300">
-                {count}
-              </span>
+              {tab} Registrations ({
+                liveRegistrations.filter((r) =>
+                  tab === 'All'
+                    ? true
+                    : tab === 'Pending'
+                    ? r.status === 'Pending' || r.status === 'Under Review'
+                    : tab === 'Approved'
+                    ? r.status === 'Approved' || r.status === 'Confirmed'
+                    : r.status === 'Rejected'
+                ).length
+              })
             </button>
-          )
-        })}
-      </div>
-
-      {/* REGISTRATION CARDS GRID */}
-      {loading ? (
-        <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded-3xl space-y-3 shadow-xl">
-          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <span className="text-xs text-slate-400 font-bold block">Loading registrations...</span>
-        </div>
-      ) : filteredRegistrations.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded-3xl space-y-3 shadow-xl text-slate-500 text-xs">
-          <ClipboardList className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-sm font-bold text-white uppercase">No Registrations Found</h3>
-          <p className="text-xs text-slate-400">No squad bookings match the selected status or search filter.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRegistrations.map((reg, idx) => (
-            <div
-              key={`reg-card-${reg.id || idx}`}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-extrabold uppercase text-purple-300 bg-slate-950 px-2.5 py-0.5 rounded border border-slate-800 truncate">
-                    {reg.tournamentTitle}
-                  </span>
-                  <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
-                    reg.status === 'Approved'
-                      ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                      : reg.status === 'Rejected'
-                      ? 'bg-red-950 text-red-400 border-red-800'
-                      : 'bg-yellow-950 text-yellow-400 border-yellow-800'
-                  }`}>
-                    {reg.status}
-                  </span>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-extrabold text-cyan-300 text-base truncate">{reg.teamName}</h3>
-                    <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
-                      {reg.format || 'Squad'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-300">Captain: <span className="font-bold text-white">{reg.captainName}</span></p>
-                </div>
-
-                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1.5 text-xs">
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400">Captain Game UID:</span>
-                    <span className="font-mono font-bold text-cyan-400">{reg.freeFireUid || '518920412'}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400">Contact Email:</span>
-                    <span className="font-semibold text-slate-300 truncate max-w-[150px]">{reg.email || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400">Registered:</span>
-                    <span className="text-slate-500">{reg.registeredAt}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* ACTION BUTTONS: Approve, Reject, Details */}
-              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-800 text-xs">
-                <button
-                  onClick={() => handleApprove(reg)}
-                  disabled={reg.status === 'Approved'}
-                  className="py-2 bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 rounded-xl font-bold flex items-center justify-center gap-1 min-h-[38px] disabled:opacity-40"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Approve</span>
-                </button>
-
-                <button
-                  onClick={() => handleReject(reg)}
-                  disabled={reg.status === 'Rejected'}
-                  className="py-2 bg-slate-950 hover:bg-red-950 border border-slate-800 hover:border-red-800 text-red-400 rounded-xl font-bold flex items-center justify-center gap-1 min-h-[38px] disabled:opacity-40"
-                >
-                  <XCircle className="w-3.5 h-3.5" />
-                  <span>Reject</span>
-                </button>
-
-                <button
-                  onClick={() => setSelectedDetail(reg)}
-                  className="py-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-purple-300 rounded-xl font-bold flex items-center justify-center gap-1 min-h-[38px]"
-                >
-                  <Eye className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Details</span>
-                </button>
-              </div>
-            </div>
           ))}
         </div>
-      )}
 
-      {/* PLAYER & TEAM DETAILS MODAL DIALOG */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
+          <div className="relative">
+            <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-3.5" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search team name, captain, UID, or email..."
+              className="w-full pl-9 pr-3 py-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
+            />
+          </div>
+
+          <div>
+            <select
+              value={selectedTournamentFilter}
+              onChange={(e) => setSelectedTournamentFilter(e.target.value)}
+              className="w-full p-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white focus:outline-none focus:border-[#00f2ff]"
+            >
+              <option value="ALL">All Tournaments</option>
+              {tournaments.map((t) => (
+                <option key={`q-tourn-${t.id}`} value={t.id}>{t.title}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* REGISTRATIONS TABLE (DESKTOP) */}
+      <div className="hidden lg:block bg-[#151a21] border border-[#3a494b]/60 rounded-xl overflow-hidden shadow-xl">
+        <table className="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
+              <th className="p-3.5 pl-4">Ref ID</th>
+              <th className="p-3.5">Tournament</th>
+              <th className="p-3.5">Team Name</th>
+              <th className="p-3.5">Captain</th>
+              <th className="p-3.5">Free Fire UID</th>
+              <th className="p-3.5 text-center">Status</th>
+              <th className="p-3.5 text-right pr-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#3a494b]/40">
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="p-8 text-center text-[#8e9dae]">
+                  <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                  <span>Loading queue...</span>
+                </td>
+              </tr>
+            ) : filteredRegistrations.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="p-8 text-center text-[#8e9dae]">
+                  No registrations found matching filter criteria.
+                </td>
+              </tr>
+            ) : (
+              filteredRegistrations.map((r) => (
+                <tr key={`q-row-${r.id}`} className="hover:bg-[#1d232c] transition-colors">
+                  <td className="p-3.5 pl-4 font-mono font-bold text-[#00f2ff]">{r.referenceId}</td>
+                  <td className="p-3.5 font-bold text-white max-w-[180px] truncate">{r.tournamentTitle}</td>
+                  <td className="p-3.5 font-extrabold text-[#e1e2e7]">{r.teamName}</td>
+                  <td className="p-3.5 text-[#8e9dae]">{r.captainName}</td>
+                  <td className="p-3.5 font-mono text-[#00ff9d] font-bold">{r.freeFireUid}</td>
+                  <td className="p-3.5 text-center">
+                    <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
+                      r.status === 'Approved' || r.status === 'Confirmed'
+                        ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
+                        : r.status === 'Pending' || r.status === 'Under Review'
+                        ? 'bg-[#ffb800]/10 text-[#ffb800] border-[#ffb800]/40'
+                        : 'bg-red-950 text-[#ff3366] border-red-800'
+                    }`}>
+                      {r.status}
+                    </span>
+                  </td>
+                  <td className="p-3.5 text-right pr-4">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => setSelectedDetail(r)}
+                        className="p-1.5 rounded bg-[#07090c] hover:bg-[#1d232c] text-[#00f2ff] border border-[#3a494b]"
+                        title="View Roster Details"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+
+                      {r.status !== 'Approved' && r.status !== 'Confirmed' && (
+                        <button
+                          onClick={() => handleUpdateStatus(r.id, r.tournamentId, 'Approved')}
+                          className="p-1.5 rounded bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40"
+                          title="Approve Slot"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
+                      {r.status !== 'Rejected' && (
+                        <button
+                          onClick={() => handleUpdateStatus(r.id, r.tournamentId, 'Rejected')}
+                          className="p-1.5 rounded bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border border-red-800"
+                          title="Reject Slot"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* MOBILE CARD QUEUE (< 1024px) */}
+      <div className="block lg:hidden space-y-3">
+        {filteredRegistrations.map((r) => (
+          <div key={`m-q-${r.id}`} className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-3 shadow-md text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[#00f2ff] font-bold">{r.referenceId}</span>
+              <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
+                r.status === 'Approved' || r.status === 'Confirmed'
+                  ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
+                  : r.status === 'Pending'
+                  ? 'bg-[#ffb800]/10 text-[#ffb800] border-[#ffb800]/40'
+                  : 'bg-red-950 text-[#ff3366] border-red-800'
+              }`}>
+                {r.status}
+              </span>
+            </div>
+
+            <div>
+              <h4 className="font-extrabold text-white text-sm">{r.teamName}</h4>
+              <p className="text-[11px] text-[#8e9dae]">{r.tournamentTitle}</p>
+            </div>
+
+            <div className="bg-[#07090c] p-2.5 rounded border border-[#3a494b]/60 space-y-1 font-mono text-[11px]">
+              <p>Captain: <span className="text-white font-bold">{r.captainName}</span></p>
+              <p>UID: <span className="text-[#00f2ff] font-bold">{r.freeFireUid}</span></p>
+              <p>Contact: <span className="text-[#e1e2e7]">{r.whatsappNumber}</span></p>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => setSelectedDetail(r)}
+                className="flex-1 py-2 bg-[#07090c] text-[#00f2ff] border border-[#3a494b] rounded font-bold uppercase text-[10px]"
+              >
+                Details
+              </button>
+              {r.status !== 'Approved' && (
+                <button
+                  onClick={() => handleUpdateStatus(r.id, r.tournamentId, 'Approved')}
+                  className="flex-1 py-2 bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 rounded font-bold uppercase text-[10px]"
+                >
+                  Approve
+                </button>
+              )}
+              {r.status !== 'Rejected' && (
+                <button
+                  onClick={() => handleUpdateStatus(r.id, r.tournamentId, 'Rejected')}
+                  className="flex-1 py-2 bg-red-950/40 text-[#ff3366] border border-red-800 rounded font-bold uppercase text-[10px]"
+                >
+                  Reject
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ROSTER DETAIL MODAL DIALOG */}
       {selectedDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
             <button
               onClick={() => setSelectedDetail(null)}
-              className="absolute top-5 right-5 p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white"
+              className="absolute top-5 right-5 p-2 rounded bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="space-y-1">
-              <span className="text-[11px] font-bold text-purple-400 uppercase tracking-widest block">REGISTRATION DETAILS</span>
-              <h3 className="text-xl font-extrabold text-white">{selectedDetail.teamName}</h3>
-              <p className="text-xs text-slate-400">Ref ID: <span className="font-mono text-cyan-400 font-bold">{selectedDetail.referenceId}</span></p>
+              <span className="font-mono text-xs font-bold text-[#00f2ff] block">{selectedDetail.referenceId}</span>
+              <h3 className="font-display-lg text-lg font-bold text-white uppercase">{selectedDetail.teamName}</h3>
+              <p className="text-xs text-[#8e9dae]">{selectedDetail.tournamentTitle}</p>
             </div>
 
-            <div className="space-y-3 text-xs text-slate-300">
-              
-              {/* Competition Metadata */}
-              <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-1.5">
-                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tournament Info</h4>
-                <p className="flex justify-between">
-                  <span className="text-slate-400">Tournament:</span>
-                  <strong className="text-white">{selectedDetail.tournamentTitle}</strong>
-                </p>
-                <p className="flex justify-between">
-                  <span className="text-slate-400">Game Format:</span>
-                  <strong className="text-purple-300">{selectedDetail.format || 'Squad'}</strong>
-                </p>
-                <p className="flex justify-between">
-                  <span className="text-slate-400">Status:</span>
-                  <strong className={`px-2 py-0.5 rounded text-[9px] uppercase border ${
-                    selectedDetail.status === 'Approved'
-                      ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                      : 'bg-yellow-950 text-yellow-400 border-yellow-800'
-                  }`}>
-                    {selectedDetail.status}
-                  </strong>
-                </p>
+            <div className="p-4 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-3 text-xs">
+              <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
+                <span className="text-[#8e9dae]">Captain</span>
+                <span className="font-bold text-white">{selectedDetail.captainName}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
+                <span className="text-[#8e9dae]">Free Fire UID</span>
+                <span className="font-mono font-bold text-[#00f2ff]">{selectedDetail.freeFireUid}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
+                <span className="text-[#8e9dae]">Email</span>
+                <span className="text-[#e1e2e7]">{selectedDetail.email}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
+                <span className="text-[#8e9dae]">WhatsApp</span>
+                <span className="font-mono text-[#00ff9d]">{selectedDetail.whatsappNumber}</span>
               </div>
 
-              {/* Captain & Player Info */}
-              <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-1.5">
-                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Captain & Contact Details</h4>
-                <p className="flex justify-between">
-                  <span className="text-slate-400">Captain Name:</span>
-                  <strong className="text-white">{selectedDetail.captainName}</strong>
-                </p>
-                <p className="flex justify-between">
-                  <span className="text-slate-400">Captain Game UID:</span>
-                  <strong className="font-mono text-cyan-400">{selectedDetail.freeFireUid || 'N/A'}</strong>
-                </p>
-                <p className="flex justify-between">
-                  <span className="text-slate-400">Contact Email:</span>
-                  <strong className="text-slate-200">{selectedDetail.email || 'N/A'}</strong>
-                </p>
-                <p className="flex justify-between">
-                  <span className="text-slate-400">WhatsApp / Phone:</span>
-                  <strong className="text-slate-200">{selectedDetail.whatsappNumber || '+91 9876543210'}</strong>
-                </p>
-              </div>
-
-              {/* Teammate Game UIDs */}
               {selectedDetail.teammateUids && selectedDetail.teammateUids.length > 0 && (
-                <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
-                  <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Teammate Game UIDs</h4>
-                  <div className="grid grid-cols-1 gap-1.5">
-                    {selectedDetail.teammateUids.map((uid, i) => (
-                      <div key={`tm-uid-${i}`} className="flex justify-between items-center p-2 bg-slate-900 rounded-lg text-slate-300">
-                        <span className="text-[11px] font-semibold text-slate-400">Teammate #{i + 1} UID:</span>
-                        <span className="font-mono text-xs font-bold text-cyan-400">{uid}</span>
+                <div className="pt-2 space-y-1.5">
+                  <span className="font-label-caps text-[#8e9dae] block">Teammate Character UIDs</span>
+                  <div className="space-y-1">
+                    {selectedDetail.teammateUids.map((uid, idx) => (
+                      <div key={`tm-uid-${idx}`} className="p-2 bg-[#151a21] rounded border border-[#3a494b]/60 flex justify-between font-mono text-[11px]">
+                        <span className="text-[#8e9dae]">Player {idx + 2}</span>
+                        <span className="text-[#00f2ff] font-bold">{uid}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-
             </div>
 
-            <button
-              onClick={() => setSelectedDetail(null)}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl min-h-[44px] shadow-lg transition-colors"
-            >
-              Close Window
-            </button>
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={() => setSelectedDetail(null)}
+                className="flex-1 py-2.5 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded hover:bg-[#1d232c] uppercase min-h-[40px]"
+              >
+                Close
+              </button>
+              {selectedDetail.status !== 'Approved' && (
+                <button
+                  onClick={() => handleUpdateStatus(selectedDetail.id, selectedDetail.tournamentId, 'Approved')}
+                  className="btn-cyber-primary flex-1 justify-center py-2.5 min-h-[40px]"
+                >
+                  Approve Slot
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

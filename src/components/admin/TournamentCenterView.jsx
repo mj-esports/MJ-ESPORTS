@@ -122,16 +122,6 @@ export default function TournamentCenterView({
     }
   }
 
-  const handleTogglePublish = async (t) => {
-    try {
-      const nextStatus = t.status === 'Registration Closed' || t.status === 'Draft' ? 'Registration Open' : 'Registration Closed'
-      await updateTournamentStatus(t.id, nextStatus)
-      setAlert({ type: 'success', message: `Tournament status updated to "${nextStatus}" for ${t.title}` })
-    } catch (err) {
-      setAlert({ type: 'error', message: err.message || 'Failed to update publish state.' })
-    }
-  }
-
   const handleDelete = async (tId, title) => {
     if (!window.confirm(`Are you sure you want to delete tournament "${title}"?`)) return
     try {
@@ -202,20 +192,20 @@ export default function TournamentCenterView({
     <div className="space-y-6">
       
       {/* Header Controls & Create Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
         <div className="space-y-1">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-purple-400" />
+          <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
+            <Trophy className="w-6 h-6 text-[#fe6b00]" />
             <span>TOURNAMENT MANAGEMENT</span>
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#8e9dae]">
             Configure competitions, slots, entry fees, prize pools, and status controls.
           </p>
         </div>
 
         <button
           onClick={handleOpenCreateModal}
-          className="px-4 py-2.5 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 text-slate-950 font-extrabold text-xs rounded-xl hover:brightness-110 shadow-lg flex items-center justify-center gap-2 min-h-[44px]"
+          className="btn-cyber-primary"
         >
           <Plus className="w-4 h-4" />
           <span>+ Create Tournament</span>
@@ -225,15 +215,15 @@ export default function TournamentCenterView({
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
       {/* FILTER BAR: Search, Game Filter, Status Filter */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
         <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+          <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-3.5" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search tournament name..."
-            className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+            className="w-full pl-9 pr-3 py-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
           />
         </div>
 
@@ -241,7 +231,7 @@ export default function TournamentCenterView({
           <select
             value={gameFilter}
             onChange={(e) => setGameFilter(e.target.value)}
-            className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"
+            className="w-full p-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white focus:outline-none focus:border-[#00f2ff]"
           >
             <option value="ALL">All Games</option>
             {SUPPORTED_GAMES.map((g) => (
@@ -254,7 +244,7 @@ export default function TournamentCenterView({
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"
+            className="w-full p-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white focus:outline-none focus:border-[#00f2ff]"
           >
             <option value="ALL">All Statuses</option>
             <option value="Registration Open">Registration Open</option>
@@ -267,47 +257,47 @@ export default function TournamentCenterView({
 
       {/* TOURNAMENT CARDS GRID */}
       {filteredTournaments.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded-2xl space-y-3 shadow-xl">
-          <Trophy className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-sm font-bold text-white uppercase">No Tournaments Found</h3>
-          <p className="text-xs text-slate-400">No competitions match your selected search or filter criteria.</p>
+        <div className="p-12 text-center bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-3 shadow-xl">
+          <Trophy className="w-10 h-10 text-[#8e9dae] mx-auto" />
+          <h3 className="font-display-lg text-sm font-bold text-white uppercase">No Tournaments Found</h3>
+          <p className="text-xs text-[#8e9dae]">No competitions match your selected search or filter criteria.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTournaments.map((t) => (
-            <div key={`tc-card-${t.id}`} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+            <div key={`tc-card-${t.id}`} className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl flex flex-col justify-between hover:border-[#00f2ff] transition-all">
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-slate-950 text-cyan-300 border border-cyan-500/30">
+                  <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#07090c] text-[#00f2ff] border border-[#00f2ff]/30">
                     {t.game}
                   </span>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
+                  <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
                     t.status === 'Registration Open'
-                      ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
+                      ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                       : t.status === 'Live Now'
-                      ? 'bg-red-950 text-red-400 border-red-800 animate-pulse'
-                      : 'bg-slate-950 text-slate-400 border-slate-800'
+                      ? 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40 animate-pulse'
+                      : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b]'
                   }`}>
                     {t.status}
                   </span>
                 </div>
 
-                <h3 className="font-extrabold text-white text-base">{t.title}</h3>
-                <p className="text-xs text-slate-400">{t.format} &bull; Entry: <span className="text-purple-300 font-bold">{t.entryFee || 'Free'}</span> &bull; Prize: <span className="text-emerald-400 font-bold">{t.prizePool}</span></p>
+                <h3 className="font-display-lg font-extrabold text-white text-base uppercase">{t.title}</h3>
+                <p className="text-xs text-[#8e9dae]">{t.format} &bull; Entry: <span className="text-[#00f2ff] font-bold">{t.entryFee || 'Free'}</span> &bull; Prize: <span className="font-mono text-[#ffb693] font-bold">{t.prizePool}</span></p>
 
                 {/* Slots & Progress Bar */}
-                <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <div className="p-3.5 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-2 text-xs">
                   <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400 font-semibold">Slot Progress</span>
-                    <span className="font-bold text-cyan-300">{t.registeredTeams} / {t.maxTeams} Teams</span>
+                    <span className="text-[#8e9dae] font-semibold">Slot Progress</span>
+                    <span className="font-mono font-bold text-[#00f2ff]">{t.registeredTeams} / {t.maxTeams} Teams</span>
                   </div>
-                  <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-[#151a21] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full"
+                      className="h-full bg-[#00f2ff] rounded-full"
                       style={{ width: `${Math.min(100, ((t.registeredTeams || 0) / (t.maxTeams || 32)) * 100)}%` }}
                     />
                   </div>
-                  <div className="flex justify-between items-center text-[10px] text-slate-500 pt-0.5">
+                  <div className="flex justify-between items-center text-[10px] text-[#8e9dae] pt-0.5 font-mono">
                     <span>Date: {t.startDate}</span>
                     <span>Time: {t.startTime}</span>
                   </div>
@@ -315,21 +305,21 @@ export default function TournamentCenterView({
               </div>
 
               {/* ACTION CONTROL BUTTONS */}
-              <div className="space-y-2 pt-3 border-t border-slate-800">
+              <div className="space-y-2 pt-3 border-t border-[#3a494b]/60">
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
                     onClick={() => handleOpenEditModal(t)}
-                    className="py-2 px-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-xl font-bold flex items-center justify-center gap-1.5 min-h-[38px]"
+                    className="py-2 px-3 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#e1e2e7] rounded font-bold flex items-center justify-center gap-1.5 min-h-[38px] uppercase tracking-wider"
                   >
-                    <Edit3 className="w-3.5 h-3.5 text-purple-400" />
+                    <Edit3 className="w-3.5 h-3.5 text-[#00f2ff]" />
                     <span>Edit</span>
                   </button>
 
                   <button
                     onClick={() => handleDuplicate(t)}
-                    className="py-2 px-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-xl font-bold flex items-center justify-center gap-1.5 min-h-[38px]"
+                    className="py-2 px-3 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#e1e2e7] rounded font-bold flex items-center justify-center gap-1.5 min-h-[38px] uppercase tracking-wider"
                   >
-                    <Copy className="w-3.5 h-3.5 text-cyan-400" />
+                    <Copy className="w-3.5 h-3.5 text-[#00f2ff]" />
                     <span>Duplicate</span>
                   </button>
                 </div>
@@ -337,69 +327,64 @@ export default function TournamentCenterView({
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
                     onClick={() => handleToggleRegistration(t)}
-                    className="py-2 px-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-amber-300 rounded-xl font-bold flex items-center justify-center gap-1.5 min-h-[38px]"
+                    className="py-2 px-3 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#ffb800] rounded font-bold flex items-center justify-center gap-1.5 min-h-[38px] uppercase tracking-wider"
                   >
-                    {t.status === 'Registration Open' ? <Lock className="w-3.5 h-3.5 text-amber-400" /> : <Unlock className="w-3.5 h-3.5 text-emerald-400" />}
+                    {t.status === 'Registration Open' ? <Lock className="w-3.5 h-3.5 text-[#ffb800]" /> : <Unlock className="w-3.5 h-3.5 text-[#00ff9d]" />}
                     <span>{t.status === 'Registration Open' ? 'Close Reg' : 'Open Reg'}</span>
                   </button>
 
                   <button
                     onClick={() => handleDelete(t.id, t.title)}
-                    className="py-2 px-3 bg-slate-950 hover:bg-red-950 border border-slate-800 hover:border-red-800 text-red-400 rounded-xl font-bold flex items-center justify-center gap-1.5 min-h-[38px]"
+                    className="py-2 px-3 bg-[#07090c] hover:bg-red-950/40 border border-[#3a494b] hover:border-[#ff3366] text-[#ff3366] rounded font-bold flex items-center justify-center gap-1.5 min-h-[38px] uppercase tracking-wider"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Delete</span>
                   </button>
                 </div>
               </div>
+
             </div>
           ))}
         </div>
       )}
 
-      {/* EDIT / CREATE TOURNAMENT MODAL DIALOG */}
+      {/* CREATE / EDIT MODAL DIALOG */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             
-            {/* Close Modal Button */}
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-5 right-5 p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white"
+              className="absolute top-5 right-5 p-2 rounded bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="space-y-1">
-              <span className="text-[11px] font-bold text-purple-400 uppercase tracking-widest block">
-                {editingId ? 'EDIT CONFIGURATION' : 'NEW COMPETITION'}
-              </span>
-              <h3 className="text-xl font-extrabold text-white uppercase tracking-tight">
-                {editingId ? 'Edit Tournament' : 'Create Tournament'}
+              <h3 className="font-display-lg text-lg font-bold text-white uppercase tracking-tight flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-[#00f2ff]" />
+                <span>{editingId ? 'Edit Tournament Configuration' : 'Create New Tournament'}</span>
               </h3>
+              <p className="text-xs text-[#8e9dae]">Configure parameters and rule sets for competitive play.</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              
-              {/* Name (Title) */}
+            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <FormInput
-                label="Tournament Name"
+                label="Tournament Title"
                 name="title"
                 value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
                 placeholder="e.g. Free Fire India Championship 2026"
                 required
-                icon={Trophy}
               />
 
-              {/* Game & Match Type */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">Game</label>
+                  <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">Game Title</label>
                   <select
                     value={form.game}
-                    onChange={(e) => setForm({ ...form, game: e.target.value })}
-                    className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500 min-h-[44px]"
+                    onChange={(e) => setForm((prev) => ({ ...prev, game: e.target.value }))}
+                    className="w-full p-3 bg-[#07090c] border border-[#3a494b] rounded text-white text-xs focus:outline-none focus:border-[#00f2ff]"
                   >
                     {SUPPORTED_GAMES.map((g) => (
                       <option key={`m-game-${g}`} value={g}>{g}</option>
@@ -408,112 +393,91 @@ export default function TournamentCenterView({
                 </div>
 
                 <FormInput
-                  label="Match Type (Format)"
+                  label="Match Format"
                   name="format"
                   value={form.format}
-                  onChange={(e) => setForm({ ...form, format: e.target.value })}
+                  onChange={(e) => setForm((prev) => ({ ...prev, format: e.target.value }))}
                   placeholder="e.g. Squad Battle Royale"
                   required
                 />
               </div>
 
-              {/* Entry Fee, Prize Pool, Slots */}
               <div className="grid grid-cols-3 gap-3">
-                <FormInput
-                  label="Entry Fee"
-                  name="entryFee"
-                  value={form.entryFee}
-                  onChange={(e) => setForm({ ...form, entryFee: e.target.value })}
-                  placeholder="Free / ₹50"
-                  required
-                />
-
                 <FormInput
                   label="Prize Pool"
                   name="prizePool"
                   value={form.prizePool}
-                  onChange={(e) => setForm({ ...form, prizePool: e.target.value })}
+                  onChange={(e) => setForm((prev) => ({ ...prev, prizePool: e.target.value }))}
                   placeholder="₹1,00,000"
                   required
                 />
 
                 <FormInput
-                  label="Slots (Max Teams)"
+                  label="Entry Fee"
+                  name="entryFee"
+                  value={form.entryFee}
+                  onChange={(e) => setForm((prev) => ({ ...prev, entryFee: e.target.value }))}
+                  placeholder="Free or ₹50"
+                  required
+                />
+
+                <FormInput
+                  label="Max Squad Slots"
                   name="maxTeams"
                   type="number"
                   value={form.maxTeams}
-                  onChange={(e) => setForm({ ...form, maxTeams: e.target.value })}
+                  onChange={(e) => setForm((prev) => ({ ...prev, maxTeams: e.target.value }))}
+                  placeholder="32"
                   required
                 />
               </div>
 
-              {/* Start Date & Time */}
               <div className="grid grid-cols-2 gap-3">
                 <FormInput
                   label="Start Date"
                   name="startDate"
                   type="date"
                   value={form.startDate}
-                  onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                  onChange={(e) => setForm((prev) => ({ ...prev, startDate: e.target.value }))}
                   required
-                  icon={Calendar}
                 />
 
                 <FormInput
                   label="Start Time"
                   name="startTime"
                   value={form.startTime}
-                  onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+                  onChange={(e) => setForm((prev) => ({ ...prev, startTime: e.target.value }))}
                   placeholder="06:00 PM IST"
                   required
-                  icon={Clock}
                 />
               </div>
 
-              {/* Status Select */}
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">Tournament Status</label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500 min-h-[44px]"
-                >
-                  <option value="Registration Open">Registration Open</option>
-                  <option value="Live Now">Live Now</option>
-                  <option value="Registration Closed">Registration Closed</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Bracket Locked">Bracket Locked</option>
-                </select>
-              </div>
-
-              {/* Rules (Multiline) */}
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">Tournament Rules (One per line)</label>
+                <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">Tournament Rulebook (1 rule per line)</label>
                 <textarea
+                  rows={4}
                   value={form.rulesText}
-                  onChange={(e) => setForm({ ...form, rulesText: e.target.value })}
-                  rows={3}
-                  placeholder="1. Rule one...\n2. Rule two..."
-                  className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                  onChange={(e) => setForm((prev) => ({ ...prev, rulesText: e.target.value }))}
+                  placeholder="Enter tournament rules..."
+                  className="w-full p-3 bg-[#07090c] border border-[#3a494b] rounded text-white text-xs placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
                 />
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-3">
+              <div className="pt-2 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  disabled={isSaving}
-                  className="flex-1 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors min-h-[44px] disabled:opacity-50"
+                  className="flex-1 py-3 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded hover:bg-[#1d232c] uppercase min-h-[44px]"
                 >
                   Cancel
                 </button>
+
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 py-3.5 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 text-slate-950 font-bold text-xs rounded-xl hover:brightness-110 shadow-lg transition-all min-h-[44px] disabled:opacity-50"
+                  className="btn-cyber-primary flex-1 justify-center py-3 min-h-[44px]"
                 >
-                  {isSaving ? 'Saving to Database...' : editingId ? 'Update Tournament' : 'Create Tournament'}
+                  {isSaving ? 'Saving Configuration...' : editingId ? 'Update Tournament' : 'Create Competition'}
                 </button>
               </div>
 
