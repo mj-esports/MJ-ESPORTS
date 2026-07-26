@@ -3,18 +3,25 @@ import { Link } from 'react-router-dom'
 import { GameTabs } from '../components/stitch/GameTabs'
 import { HeroBanner } from '../components/stitch/HeroBanner'
 import { TournamentCard } from '../components/stitch/TournamentCard'
+import { FeaturedTournamentCard } from '../components/stitch/FeaturedTournamentCard'
 import { ScheduleWidget } from '../components/stitch/ScheduleWidget'
 import { LeaderboardWidget } from '../components/stitch/LeaderboardWidget'
+import { LiveStreamModal } from '../components/stitch/LiveStreamModal'
 import { useTournaments } from '../contexts/TournamentContext'
 import { ArrowRight, Trophy, Sparkles, Flame } from 'lucide-react'
 
 export default function Home() {
   const { tournaments } = useTournaments()
   const [selectedGame, setSelectedGame] = useState('ALL')
+  const [isStreamModalOpen, setIsStreamModalOpen] = useState(false)
 
   const filteredTournaments = selectedGame === 'ALL'
     ? tournaments
     : tournaments.filter((t) => t.game?.toLowerCase().includes(selectedGame.toLowerCase()))
+
+  // Extract first tournament as featured if available
+  const featuredMatch = filteredTournaments[0]
+  const regularMatches = filteredTournaments.slice(1)
 
   return (
     <div className="w-full min-h-screen bg-[#0b0e11] text-[#e1e2e7] pt-6 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -30,7 +37,7 @@ export default function Home() {
       </div>
 
       {/* Hero Showcase Section */}
-      <HeroBanner />
+      <HeroBanner onWatchLive={() => setIsStreamModalOpen(true)} />
 
       {/* Main 12-Column Esports Grid Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
@@ -67,7 +74,11 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {filteredTournaments.map((t) => (
+              {/* Wide Featured Tournament Card */}
+              <FeaturedTournamentCard tournament={featuredMatch} />
+
+              {/* Standard Tournament Cards */}
+              {regularMatches.map((t) => (
                 <TournamentCard key={`stitch-home-card-${t.id}`} tournament={t} />
               ))}
             </div>
@@ -81,6 +92,12 @@ export default function Home() {
         </div>
 
       </div>
+
+      {/* Interactive Live Stream Modal */}
+      <LiveStreamModal
+        isOpen={isStreamModalOpen}
+        onClose={() => setIsStreamModalOpen(false)}
+      />
     </div>
   )
 }

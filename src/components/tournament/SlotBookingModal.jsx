@@ -127,7 +127,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
         mode,
         teammates: activeTeammates,
         userId: user?.id || null,
-        status: 'Confirmed',
+        status: 'Approved',
       })
 
       setRegistrationSummary({
@@ -137,7 +137,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
         mode,
         freeFireUid: formData.freeFireUid.trim(),
         teammates: activeTeammates,
-        status: 'Confirmed',
+        status: 'Approved',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         registeredRecord,
       })
@@ -157,13 +157,13 @@ export default function SlotBookingModal({ tournament, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white transition-colors"
+          className="absolute top-5 right-5 p-2 rounded bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white transition-colors"
           aria-label="Close Registration Modal"
         >
           <X className="w-4 h-4" />
@@ -171,14 +171,14 @@ export default function SlotBookingModal({ tournament, onClose }) {
 
         {/* Header */}
         <div className="space-y-1">
-          <span className="text-[11px] font-bold text-purple-400 uppercase tracking-widest block">
+          <span className="font-label-caps text-[11px] font-bold text-[#00f2ff] uppercase tracking-widest block">
             SLOT REGISTRATION
           </span>
-          <h2 className="text-xl font-extrabold text-white uppercase tracking-tight">
+          <h2 className="font-display-lg text-xl font-extrabold text-white uppercase tracking-tight">
             {tournament.title}
           </h2>
-          <p className="text-xs text-slate-400">
-            Slots Remaining: <span className="text-emerald-400 font-bold">{Math.max(0, (tournament.maxTeams || 32) - (tournament.registeredTeams || 0))}</span> / {tournament.maxTeams || 32}
+          <p className="text-xs text-[#8e9dae]">
+            Slots Remaining: <span className="font-mono text-[#00ff9d] font-bold">{Math.max(0, (tournament.maxTeams || 32) - (tournament.registeredTeams || 0))}</span> / {tournament.maxTeams || 32}
           </p>
         </div>
 
@@ -187,53 +187,53 @@ export default function SlotBookingModal({ tournament, onClose }) {
         {/* SUCCESS CONFIRMATION DIALOG */}
         {registrationSummary ? (
           <div className="space-y-6 pt-2">
-            <div className="p-5 bg-slate-950 border border-emerald-800/60 rounded-2xl space-y-4 text-center">
-              <div className="w-12 h-12 rounded-full bg-emerald-950 border border-emerald-500/40 flex items-center justify-center mx-auto text-emerald-400 shadow-lg">
+            <div className="p-5 bg-[#07090c] border border-[#00ff9d]/40 rounded-xl space-y-4 text-center">
+              <div className="w-12 h-12 rounded-full bg-[#00ff9d]/20 border border-[#00ff9d] flex items-center justify-center mx-auto text-[#00ff9d] shadow-lg">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white uppercase tracking-wide">Slot Registration Confirmed!</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Your team has been successfully entered into the tournament.</p>
+                <h3 className="font-display-lg text-lg font-bold text-white uppercase tracking-wide">Slot Registration Confirmed!</h3>
+                <p className="text-xs text-[#8e9dae] mt-0.5">Your team has been successfully entered into the tournament.</p>
               </div>
 
               {/* Reference Ticket Card */}
-              <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 text-left space-y-2.5 text-xs">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                  <span className="text-slate-400 font-semibold">Reference ID</span>
-                  <div className="flex items-center gap-1.5 font-mono text-cyan-300 font-bold">
+              <div className="p-4 bg-[#151a21] rounded border border-[#3a494b]/60 text-left space-y-2.5 text-xs">
+                <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2">
+                  <span className="text-[#8e9dae] font-semibold">Reference ID</span>
+                  <div className="flex items-center gap-1.5 font-mono text-[#00f2ff] font-bold">
                     <span>{registrationSummary.refId}</span>
                     <button
                       onClick={handleCopyRef}
-                      className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                      className="p-1 rounded hover:bg-[#1d232c] text-[#8e9dae] hover:text-white transition-colors"
                       title="Copy Reference ID"
                     >
                       <Copy className="w-3.5 h-3.5" />
                     </button>
-                    {copied && <span className="text-[10px] text-emerald-400 font-sans font-bold">Copied!</span>}
+                    {copied && <span className="text-[10px] text-[#00ff9d] font-sans font-bold">Copied!</span>}
                   </div>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-slate-800">
-                  <span className="text-slate-400">Team Name</span>
+                <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
+                  <span className="text-[#8e9dae]">Team Name</span>
                   <span className="font-extrabold text-white">{registrationSummary.teamName}</span>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-slate-800">
-                  <span className="text-slate-400">Format Mode</span>
-                  <span className="font-bold text-purple-300">{registrationSummary.mode} Mode</span>
+                <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
+                  <span className="text-[#8e9dae]">Format Mode</span>
+                  <span className="font-bold text-[#00f2ff]">{registrationSummary.mode} Mode</span>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-slate-800">
-                  <span className="text-slate-400">Captain UID</span>
-                  <span className="font-bold text-cyan-400">{registrationSummary.freeFireUid}</span>
+                <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
+                  <span className="text-[#8e9dae]">Captain UID</span>
+                  <span className="font-mono font-bold text-[#00f2ff]">{registrationSummary.freeFireUid}</span>
                 </div>
 
                 {registrationSummary.teammates.length > 0 && (
-                  <div className="py-1 border-b border-slate-800 space-y-1">
-                    <span className="text-slate-400 block">Teammate UIDs</span>
+                  <div className="py-1 border-b border-[#3a494b]/60 space-y-1">
+                    <span className="text-[#8e9dae] block">Teammate UIDs</span>
                     <div className="flex flex-wrap gap-1.5">
                       {registrationSummary.teammates.map((uid, idx) => (
-                        <span key={`summary-t-${idx}`} className="px-2 py-0.5 rounded bg-slate-950 text-slate-300 font-mono text-[10px] border border-slate-800">
+                        <span key={`summary-t-${idx}`} className="px-2 py-0.5 rounded bg-[#07090c] text-[#e1e2e7] font-mono text-[10px] border border-[#3a494b]/60">
                           P{idx + 2}: {uid}
                         </span>
                       ))}
@@ -242,8 +242,8 @@ export default function SlotBookingModal({ tournament, onClose }) {
                 )}
 
                 <div className="flex justify-between pt-1">
-                  <span className="text-slate-400">Status</span>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase">
+                  <span className="text-[#8e9dae]">Status</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase">
                     {registrationSummary.status}
                   </span>
                 </div>
@@ -252,7 +252,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
 
             <button
               onClick={onClose}
-              className="w-full py-3.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 rounded-xl hover:brightness-110 shadow-lg min-h-[44px]"
+              className="btn-cyber-primary w-full justify-center py-3.5 min-h-[44px]"
             >
               Done & Return
             </button>
@@ -262,7 +262,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
             
             {/* Solo / Duo / Squad Mode Selection */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+              <label className="font-label-caps text-xs text-[#e1e2e7] uppercase tracking-wider block">
                 Select Competition Format Mode
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -271,10 +271,10 @@ export default function SlotBookingModal({ tournament, onClose }) {
                     key={`mode-select-${m}`}
                     type="button"
                     onClick={() => setMode(m)}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all border min-h-[40px] flex items-center justify-center gap-1.5 ${
+                    className={`py-2.5 px-3 rounded text-xs font-bold uppercase transition-all border min-h-[40px] flex items-center justify-center gap-1.5 ${
                       mode === m
-                        ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-600/30'
-                        : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                        ? 'bg-[#00f2ff] text-[#00363a] border-[#00f2ff] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.4)]'
+                        : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b] hover:text-white'
                     }`}
                   >
                     <span>{m}</span>
@@ -341,8 +341,8 @@ export default function SlotBookingModal({ tournament, onClose }) {
 
             {/* DYNAMIC TEAMMATE UID FIELDS BASED ON MODE */}
             {mode === 'Duo' && (
-              <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
-                <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider block">
+              <div className="p-3.5 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-3">
+                <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
                   Duo Teammate Details
                 </span>
                 <FormInput
@@ -358,8 +358,8 @@ export default function SlotBookingModal({ tournament, onClose }) {
             )}
 
             {mode === 'Squad' && (
-              <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
-                <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider block">
+              <div className="p-3.5 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-3">
+                <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
                   Squad Teammates Details (3 Players)
                 </span>
                 <FormInput
@@ -393,14 +393,14 @@ export default function SlotBookingModal({ tournament, onClose }) {
             )}
 
             {/* Accept Rules Checkbox */}
-            <div className="pt-2 flex items-start gap-3 text-xs text-slate-300">
+            <div className="pt-2 flex items-start gap-3 text-xs text-[#e1e2e7]">
               <input
                 type="checkbox"
                 id="acceptRules"
                 name="acceptRules"
                 checked={formData.acceptRules}
                 onChange={handleChange}
-                className="mt-0.5 w-4 h-4 rounded bg-slate-950 border-slate-800 text-purple-600 focus:ring-purple-500 cursor-pointer"
+                className="mt-0.5 w-4 h-4 rounded bg-[#07090c] border-[#3a494b] text-[#00f2ff] focus:ring-[#00f2ff] cursor-pointer"
               />
               <label htmlFor="acceptRules" className="cursor-pointer select-none leading-relaxed">
                 I agree to the tournament rules, fair play guidelines, and device verification requirements.
@@ -412,14 +412,14 @@ export default function SlotBookingModal({ tournament, onClose }) {
                 type="button"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="flex-1 py-3.5 text-xs font-semibold bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 transition-colors min-h-[44px] disabled:opacity-50"
+                className="flex-1 py-3.5 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded hover:bg-[#1d232c] transition-colors min-h-[44px] disabled:opacity-50 uppercase"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 py-3.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 rounded-xl hover:brightness-110 shadow-lg shadow-purple-500/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2 min-h-[44px]"
+                className="btn-cyber-primary flex-1 justify-center py-3.5 disabled:opacity-50 min-h-[44px]"
               >
                 {isSubmitting ? 'Registering...' : 'Confirm Registration'}
               </button>

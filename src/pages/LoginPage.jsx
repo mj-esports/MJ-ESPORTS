@@ -96,21 +96,21 @@ export default function LoginPage() {
         
         {/* Header Branding */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-cyan-400 p-[1px] mx-auto shadow-lg shadow-purple-500/20">
-            <div className="w-full h-full bg-slate-950 rounded-[15px] flex items-center justify-center">
-              <Swords className="w-6 h-6 text-purple-400" />
+          <div className="w-12 h-12 rounded-lg bg-[#00f2ff] p-[1px] mx-auto shadow-[0_0_15px_rgba(0,242,255,0.4)]">
+            <div className="w-full h-full bg-[#07090c] rounded-[7px] flex items-center justify-center">
+              <Swords className="w-6 h-6 text-[#00f2ff]" />
             </div>
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight uppercase">
+          <h1 className="font-display-lg text-2xl font-extrabold text-white tracking-tight uppercase">
             ACCOUNT LOGIN
           </h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#8e9dae]">
             Sign in to access your esports profile, squad rosters, and competitions.
           </p>
         </div>
 
         {/* Card Form */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 sm:p-8 space-y-6 shadow-2xl">
           {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -140,14 +140,14 @@ export default function LoginPage() {
                 error={errors.password}
                 icon={Lock}
               />
-              <div className="text-right">
+              <div className="text-right pt-1">
                 <button
                   type="button"
                   onClick={() => {
                     setForgotEmail(formData.email)
                     setShowForgotModal(true)
                   }}
-                  className="text-xs font-medium text-purple-400 hover:text-purple-300 transition-colors"
+                  className="text-xs font-bold text-[#00f2ff] hover:underline transition-colors uppercase tracking-wider"
                 >
                   Forgot Password?
                 </button>
@@ -157,11 +157,11 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 px-4 text-xs font-bold text-slate-950 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 rounded-xl hover:brightness-110 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 mt-2 min-h-[44px]"
+              className="btn-cyber-primary w-full justify-center py-3.5 mt-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-[#00363a] border-t-transparent rounded-full animate-spin"></div>
                   <span>Signing In...</span>
                 </>
               ) : (
@@ -173,9 +173,9 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
+          <div className="pt-4 border-t border-[#3a494b]/60 text-center text-xs text-[#8e9dae]">
             Don't have an account?{' '}
-            <Link to="/register" className="font-bold text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-1">
+            <Link to="/register" className="font-bold text-[#00f2ff] hover:underline transition-colors inline-flex items-center gap-1 uppercase tracking-wider">
               <span>Register Now</span>
               <ArrowRight className="w-3 h-3" />
             </Link>
@@ -186,10 +186,10 @@ export default function LoginPage() {
 
       {/* Forgot Password Modal */}
       {showForgotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <KeyRound className="w-5 h-5 text-purple-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <h3 className="font-display-lg text-lg font-bold text-white uppercase flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-[#00f2ff]" />
               <span>Reset Password</span>
             </h3>
             {forgotSent ? (
@@ -203,14 +203,14 @@ export default function LoginPage() {
                     setShowForgotModal(false)
                     setForgotSent(false)
                   }}
-                  className="w-full py-2.5 text-xs font-bold bg-slate-800 text-slate-200 rounded-xl hover:bg-slate-700 min-h-[44px]"
+                  className="w-full py-2.5 text-xs font-bold bg-[#07090c] text-[#e1e2e7] border border-[#3a494b] rounded hover:bg-[#1d232c] min-h-[44px] uppercase"
                 >
                   Close
                 </button>
               </div>
             ) : (
               <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-[#8e9dae] leading-relaxed">
                   Enter your registered email address to receive password reset instructions.
                 </p>
                 <FormInput
@@ -226,14 +226,14 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(false)}
-                    className="flex-1 py-2.5 text-xs font-semibold bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 transition-colors min-h-[44px]"
+                    className="flex-1 py-2.5 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded hover:bg-[#1d232c] transition-colors min-h-[44px] uppercase"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={forgotSubmitting}
-                    className="flex-1 py-2.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 rounded-xl hover:brightness-110 shadow-md transition-all flex items-center justify-center gap-1.5 min-h-[44px]"
+                    className="btn-cyber-primary flex-1 justify-center py-2.5 min-h-[44px]"
                   >
                     {forgotSubmitting ? 'Sending...' : 'Send Link'}
                   </button>

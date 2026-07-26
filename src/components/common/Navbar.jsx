@@ -1,18 +1,17 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Swords, Menu, X, User, LogOut, Shield, Info, Mail, ShieldCheck, FileText, Settings } from 'lucide-react'
+import { Swords, Menu, X, User, LogOut, Shield, Info, Mail, ShieldCheck, FileText, Settings, Wallet } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
-  const { user, isAuthenticated, isAdmin, signOut } = useAuth()
+  const { user, isAuthenticated, isAdmin, role, signOut } = useAuth()
 
-  // Desktop primary navigation links
+  // Primary navigation links (Home, Tournaments, Leaderboard, Admin if admin)
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Tournaments', path: '/tournaments' },
-    { name: 'Live Center', path: '/live' },
     { name: 'Leaderboard', path: '/leaderboard' },
     ...(isAdmin ? [{ name: 'Admin', path: '/admin' }] : []),
   ]
@@ -30,37 +29,37 @@ export default function Navbar() {
   const userDisplayName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Player'
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#0b0e17]/90 backdrop-blur-md border-b border-cyan-500/20">
+    <nav className="sticky top-0 z-50 bg-[#0f1318]/90 backdrop-blur-xl border-b border-[#3a494b]/60 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-cyan-400 p-[1px] shadow-[0_0_15px_rgba(0,240,255,0.5)] group-hover:scale-105 transition-transform">
-              <div className="w-full h-full bg-[#080c14] rounded-[11px] flex items-center justify-center">
-                <Swords className="w-5 h-5 text-cyan-400" />
+            <div className="w-10 h-10 rounded-lg bg-[#00f2ff] p-[1px] shadow-[0_0_15px_rgba(0,242,255,0.4)] group-hover:scale-105 transition-transform">
+              <div className="w-full h-full bg-[#07090c] rounded-[7px] flex items-center justify-center">
+                <Swords className="w-5 h-5 text-[#00f2ff]" />
               </div>
             </div>
             <div>
-              <span className="text-xl font-extrabold tracking-wider text-white">
-                MJ <span className="text-cyan-400">ESPORTS</span>
+              <span className="font-display-lg text-xl font-extrabold tracking-wider text-white">
+                MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </span>
-              <span className="flex items-center gap-1 text-[9px] uppercase font-bold tracking-widest text-amber-400 -mt-1">
+              <span className="flex items-center gap-1 text-[9px] uppercase font-bold tracking-widest text-[#fe6b00] -mt-1">
                 <span>Free Fire & BGMI Arena</span>
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-full border border-cyan-500/20 shadow-inner">
+          <div className="hidden md:flex items-center gap-1 bg-[#151a21] p-1.5 rounded-full border border-[#3a494b]/60 shadow-inner">
             {navLinks.map((link) => (
               <Link
                 key={`nav-desktop-${link.name}`}
                 to={link.path}
-                className={`px-4 py-2 text-xs font-bold rounded-full transition-all duration-200 ${
+                className={`px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-200 ${
                   isActive(link.path)
-                    ? 'bg-cyan-400 text-slate-950 shadow-[0_0_12px_rgba(0,240,255,0.6)]'
-                    : 'text-slate-300 hover:text-cyan-400 hover:bg-slate-800/60'
+                    ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.5)]'
+                    : 'text-[#b9cacb] hover:text-[#00f2ff] hover:bg-[#1d232c]'
                 }`}
               >
                 {link.name}
@@ -72,21 +71,36 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
+                {/* Wallet Balance Display Pill */}
+                <div className="bg-[#151a21] flex items-center px-3 py-1.5 gap-2 rounded border border-[#3a494b] text-xs font-mono font-bold text-[#fe6b00]">
+                  <Wallet className="w-3.5 h-3.5 text-[#fe6b00]" />
+                  <span>₹250.00</span>
+                </div>
+
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="px-3.5 py-1.5 rounded bg-[#fe6b00]/10 border border-[#fe6b00]/40 text-[#fe6b00] hover:bg-[#fe6b00]/20 text-xs font-extrabold flex items-center gap-1.5 transition-colors uppercase tracking-wider shadow-sm"
+                  >
+                    <Shield className="w-3.5 h-3.5 text-[#fe6b00]" />
+                    <span>Admin Panel</span>
+                  </Link>
+                )}
                 <Link
                   to="/profile"
-                  className="px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-cyan-500/30 hover:border-cyan-400 flex items-center gap-2 transition-colors shadow-sm"
+                  className="px-3.5 py-1.5 rounded bg-[#151a21] border border-[#3a494b] hover:border-[#00f2ff] flex items-center gap-2 transition-colors shadow-sm"
                 >
-                  <User className="w-3.5 h-3.5 text-cyan-400" />
-                  <span className="text-xs font-bold text-slate-200">{userDisplayName}</span>
+                  <User className="w-3.5 h-3.5 text-[#00f2ff]" />
+                  <span className="text-xs font-bold text-[#e1e2e7]">{userDisplayName}</span>
                   {isAdmin && (
-                    <span className="px-2 py-0.5 text-[9px] font-extrabold bg-amber-500 text-slate-950 rounded uppercase shadow-sm">
+                    <span className="px-2 py-0.5 text-[9px] font-extrabold bg-[#fe6b00] text-slate-950 rounded uppercase shadow-sm">
                       ADMIN
                     </span>
                   )}
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-400 hover:text-orange-400 hover:border-orange-500/40 transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded bg-[#151a21] border border-[#3a494b] text-xs font-bold text-[#8e9dae] hover:text-[#ff3366] hover:border-[#ff3366]/40 transition-colors flex items-center gap-1.5 uppercase"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Logout</span>
@@ -96,13 +110,13 @@ export default function Navbar() {
               <>
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-xs font-bold text-slate-300 hover:text-cyan-400 transition-colors"
+                  className="px-4 py-2 text-xs font-bold text-[#b9cacb] hover:text-[#00f2ff] uppercase tracking-wider transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="px-5 py-2 text-xs font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 rounded-lg hover:brightness-110 shadow-[0_0_15px_rgba(255,107,0,0.4)] transition-all uppercase tracking-wider"
+                  className="btn-cyber-secondary"
                 >
                   Register Now
                 </Link>
@@ -114,10 +128,10 @@ export default function Navbar() {
           <div className="md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2.5 rounded-xl bg-slate-900 border border-cyan-500/30 text-slate-300 hover:text-cyan-400 focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2.5 rounded-lg bg-[#151a21] border border-[#3a494b] text-[#e1e2e7] hover:text-[#00f2ff] focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Toggle Side Drawer Menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-cyan-400" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-6 h-6 text-[#00f2ff]" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
@@ -125,39 +139,39 @@ export default function Navbar() {
 
       {/* Mobile Side Drawer Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-slate-950 border-b border-slate-800 px-4 pt-3 pb-6 space-y-4 shadow-2xl">
+        <div className="md:hidden bg-[#07090c] border-b border-[#3a494b] px-4 pt-3 pb-6 space-y-4 shadow-2xl">
           
           {/* User Status Card inside Drawer */}
           {isAuthenticated ? (
-            <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-[#151a21] border border-[#3a494b] flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-purple-950 border border-purple-800 flex items-center justify-center">
-                  <User className="w-4 h-4 text-purple-400" />
+                <div className="w-9 h-9 rounded-full bg-[#fe6b00]/20 border border-[#fe6b00] flex items-center justify-center">
+                  <User className="w-4 h-4 text-[#fe6b00]" />
                 </div>
                 <div>
                   <span className="text-xs font-bold text-white block">{userDisplayName}</span>
-                  <span className="text-[10px] text-slate-400">{user?.email}</span>
+                  <span className="text-[10px] text-[#8e9dae]">{user?.email}</span>
                 </div>
               </div>
-              <span className="text-[10px] font-extrabold uppercase text-purple-300 bg-purple-950 border border-purple-800/50 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-extrabold uppercase text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/40 px-2 py-0.5 rounded">
                 {isAdmin ? 'ADMIN' : 'PLAYER'}
               </span>
             </div>
           ) : (
-            <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3">
-              <span className="text-xs font-bold text-slate-300">Join MJ ESPORTS</span>
+            <div className="p-3.5 rounded-xl bg-[#151a21] border border-[#3a494b] flex items-center justify-between gap-3">
+              <span className="text-xs font-bold text-[#e1e2e7]">Join MJ ESPORTS</span>
               <div className="flex items-center gap-2">
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-200 bg-slate-950 rounded-lg border border-slate-800"
+                  className="px-3 py-1.5 text-xs font-bold text-[#e1e2e7] bg-[#07090c] rounded border border-[#3a494b] uppercase"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3.5 py-1.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-purple-400 to-cyan-300 rounded-lg shadow-sm"
+                  className="px-3.5 py-1.5 text-xs font-extrabold text-[#00363a] bg-[#00f2ff] rounded uppercase shadow-sm"
                 >
                   Register
                 </Link>
@@ -165,81 +179,72 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Secondary Options Drawer List */}
+          {/* Primary Mobile Navigation Links */}
           <div className="flex flex-col space-y-1 text-xs">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 pt-1">
-              Secondary Options
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#8e9dae] px-3 pt-1">
+              Primary Menu
             </span>
-
-            {/* Host Admin (ONLY rendered for admin users) */}
-            {isAdmin && (
+            {navLinks.map((link) => (
               <Link
-                to="/admin"
+                key={`nav-mobile-${link.name}`}
+                to={link.path}
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-4 py-3 font-bold text-amber-300 bg-amber-950/40 rounded-xl border border-amber-800/50 flex items-center justify-between min-h-[44px]"
+                className={`px-4 py-3 font-bold rounded-lg flex items-center justify-between min-h-[44px] uppercase tracking-wider ${
+                  isActive(link.path)
+                    ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40'
+                    : 'text-[#b9cacb] hover:bg-[#151a21]'
+                }`}
               >
-                <div className="flex items-center gap-2.5">
-                  <Shield className="w-4 h-4 text-amber-400" />
-                  <span>Host Admin Operations</span>
-                </div>
-                <span className="text-[9px] font-extrabold bg-amber-400 text-slate-950 px-2 py-0.5 rounded uppercase">
-                  ADMIN ONLY
-                </span>
+                <span>{link.name}</span>
+                {link.name === 'Admin' && (
+                  <span className="text-[9px] font-extrabold bg-[#fe6b00] text-slate-950 px-2 py-0.5 rounded uppercase">
+                    ADMIN
+                  </span>
+                )}
               </Link>
-            )}
+            ))}
+          </div>
+
+          {/* Secondary Options Drawer List */}
+          <div className="flex flex-col space-y-1 text-xs pt-2 border-t border-[#3a494b]">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#8e9dae] px-3 pt-1">
+              Platform Links
+            </span>
 
             <Link
               to="/about"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 font-semibold text-slate-300 hover:bg-slate-900 rounded-xl flex items-center gap-2.5 min-h-[44px]"
+              className="px-4 py-3 font-semibold text-[#b9cacb] hover:bg-[#151a21] rounded-lg flex items-center gap-2.5 min-h-[44px]"
             >
-              <Info className="w-4 h-4 text-purple-400" />
+              <Info className="w-4 h-4 text-[#00f2ff]" />
               <span>About Platform</span>
             </Link>
 
             <a
               href="mailto:support.mjesports@gmail.com"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 font-semibold text-slate-300 hover:bg-slate-900 rounded-xl flex items-center gap-2.5 min-h-[44px]"
+              className="px-4 py-3 font-semibold text-[#b9cacb] hover:bg-[#151a21] rounded-lg flex items-center gap-2.5 min-h-[44px]"
             >
-              <Mail className="w-4 h-4 text-cyan-400" />
+              <Mail className="w-4 h-4 text-[#00f2ff]" />
               <span>Support & Contact</span>
             </a>
 
             <Link
               to="/tournaments"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 font-semibold text-slate-300 hover:bg-slate-900 rounded-xl flex items-center gap-2.5 min-h-[44px]"
+              className="px-4 py-3 font-semibold text-[#b9cacb] hover:bg-[#151a21] rounded-lg flex items-center gap-2.5 min-h-[44px]"
             >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <ShieldCheck className="w-4 h-4 text-[#00ff9d]" />
               <span>Rules & Guidelines</span>
             </Link>
-
-            <a
-              href="mailto:support.mjesports@gmail.com?subject=Privacy%20Inquiry"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 font-semibold text-slate-300 hover:bg-slate-900 rounded-xl flex items-center gap-2.5 min-h-[44px]"
-            >
-              <FileText className="w-4 h-4 text-slate-400" />
-              <span>Privacy Policy</span>
-            </a>
-
-            <a
-              href="mailto:support.mjesports@gmail.com?subject=Terms%20Inquiry"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 font-semibold text-slate-300 hover:bg-slate-900 rounded-xl flex items-center gap-2.5 min-h-[44px]"
-            >
-              <FileText className="w-4 h-4 text-slate-400" />
-              <span>Terms of Service</span>
-            </a>
 
             {isAuthenticated && (
               <Link
                 to="/profile"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-4 py-3 font-semibold text-slate-300 hover:bg-slate-900 rounded-xl flex items-center gap-2.5 min-h-[44px]"
+                className="px-4 py-3 font-semibold text-[#b9cacb] hover:bg-[#151a21] rounded-lg flex items-center gap-2.5 min-h-[44px]"
               >
-                <Settings className="w-4 h-4 text-slate-400" />
+                <Settings className="w-4 h-4 text-[#8e9dae]" />
                 <span>Account Settings</span>
               </Link>
             )}
@@ -247,13 +252,13 @@ export default function Navbar() {
 
           {/* Logout Action inside Drawer */}
           {isAuthenticated && (
-            <div className="pt-2 border-t border-slate-800">
+            <div className="pt-2 border-t border-[#3a494b]">
               <button
                 onClick={() => {
                   handleSignOut()
                   setMobileMenuOpen(false)
                 }}
-                className="w-full py-3 text-xs font-bold text-red-400 bg-slate-900 hover:bg-red-950/40 rounded-xl border border-slate-800 hover:border-red-800 flex items-center justify-center gap-2 min-h-[44px]"
+                className="w-full py-3 text-xs font-bold text-[#ff3366] bg-[#151a21] hover:bg-red-950/40 rounded-lg border border-[#3a494b] flex items-center justify-center gap-2 min-h-[44px] uppercase"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>

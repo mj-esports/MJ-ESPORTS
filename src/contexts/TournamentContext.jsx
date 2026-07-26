@@ -239,7 +239,7 @@ export function TournamentProvider({ children }) {
       throw new Error('You, your squad, or one of your teammate Game UIDs has already registered for this tournament!')
     }
 
-    const regStatus = teamInfo.status || 'Confirmed'
+    const regStatus = teamInfo.status || 'Approved'
     const refId = teamInfo.refId || `REG-MJ-${Date.now().toString(36).toUpperCase()}`
 
     // 5. Insert into public.tournament_registrations (Primary Source of Truth)

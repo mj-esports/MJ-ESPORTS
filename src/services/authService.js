@@ -20,7 +20,7 @@ function removeStorageItem(key) {
 }
 
 function createMockSession(email, metadata = {}) {
-  const isOwnerAdmin = email === 'mjesports.team@gmail.com'
+  const isOwnerAdmin = email && email.toLowerCase().trim() === 'mjesports.team@gmail.com'
   const assignedRole = isOwnerAdmin ? 'admin' : metadata.role || 'user'
 
   const mockUser = {
@@ -49,7 +49,7 @@ export async function getUserRole(user) {
   if (!user) return null
 
   // Owner admin account fallback check
-  if (user.email === 'mjesports.team@gmail.com') {
+  if (user.email && user.email.toLowerCase().trim() === 'mjesports.team@gmail.com') {
     return 'admin'
   }
 
@@ -85,7 +85,7 @@ export async function signUp(email, password, metadata = {}) {
   }
 
   try {
-    const role = email === 'mjesports.team@gmail.com' ? 'admin' : metadata.role || 'user'
+    const role = email && email.toLowerCase().trim() === 'mjesports.team@gmail.com' ? 'admin' : metadata.role || 'user'
 
     const { data, error } = await supabase.auth.signUp({
       email,

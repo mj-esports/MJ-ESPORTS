@@ -13,6 +13,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   title = 'Elite Pro Invitational 2026',
   prizePool = '₹5,00,000',
   timer = '01:24:55',
+  onWatchLive,
 }) => {
   return (
     <section className="relative h-[360px] sm:h-[400px] w-full mb-8 rounded-xl overflow-hidden border border-[#3a494b] group shadow-[0_0_20px_rgba(0,219,231,0.15)]">
@@ -67,16 +68,26 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
         {/* CTA Watch / Register Buttons */}
         <div className="flex items-center gap-3 pt-2">
-          <Link
-            to="/live"
-            className="bg-[#00f2ff] text-[#00363a] font-extrabold px-6 py-3 rounded text-xs tracking-wider flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shimmer-effect shadow-[0_0_15px_rgba(0,242,255,0.4)] uppercase"
-          >
-            <Radio className="w-4 h-4 text-[#00363a] animate-pulse" />
-            <span>WATCH STREAM NOW</span>
-          </Link>
+          {onWatchLive ? (
+            <button
+              onClick={onWatchLive}
+              className="bg-[#00f2ff] text-[#00363a] font-extrabold px-6 py-3 rounded text-xs tracking-wider flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shimmer-effect shadow-[0_0_15px_rgba(0,242,255,0.4)] uppercase"
+            >
+              <Radio className="w-4 h-4 text-[#00363a] animate-pulse" />
+              <span>WATCH STREAM NOW</span>
+            </button>
+          ) : (
+            <Link
+              to="/live"
+              className="bg-[#00f2ff] text-[#00363a] font-extrabold px-6 py-3 rounded text-xs tracking-wider flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shimmer-effect shadow-[0_0_15px_rgba(0,242,255,0.4)] uppercase"
+            >
+              <Radio className="w-4 h-4 text-[#00363a] animate-pulse" />
+              <span>WATCH STREAM NOW</span>
+            </Link>
+          )}
           <Link
             to="/tournaments"
-            className="bg-[#1d2023] text-[#e1e2e7] font-bold px-6 py-3 rounded text-xs tracking-wider border border-[#3a494b] hover:border-[#00dbe7] hover:text-[#00dbe7] transition-all uppercase"
+            className="bg-[#1d2023] text-[#e1e2e7] font-bold px-6 py-3 rounded text-[#e1e2e7] text-xs tracking-wider border border-[#3a494b] hover:border-[#00dbe7] hover:text-[#00dbe7] transition-all uppercase"
           >
             JOIN TOURNAMENTS
           </Link>

@@ -95,22 +95,20 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
       
       {/* Header Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
         <div className="flex items-center gap-5">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-purple-600 p-[2px] shadow-xl shrink-0">
-            <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-              <User className="w-7 h-7 sm:w-8 sm:h-8 text-purple-400" />
-            </div>
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,242,255,0.3)]">
+            <User className="w-7 h-7 sm:w-8 sm:h-8 text-[#00f2ff]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-3xl font-extrabold text-white">{profileData.username}</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+              <h1 className="font-display-lg text-xl sm:text-3xl font-extrabold text-white uppercase">{profileData.username}</h1>
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase tracking-widest">
                 PRO PLAYER DASHBOARD
               </span>
             </div>
-            <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-1">
-              <Mail className="w-3.5 h-3.5 text-purple-400" />
+            <p className="text-xs text-[#8e9dae] flex items-center gap-1.5 mt-1 font-mono">
+              <Mail className="w-3.5 h-3.5 text-[#00f2ff]" />
               <span>{user?.email || 'player@example.com'}</span>
             </p>
           </div>
@@ -118,7 +116,7 @@ export default function DashboardPage() {
 
         <button
           onClick={() => setIsEditing(!isEditing)}
-          className="px-4 py-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-bold text-purple-300 rounded-xl transition-colors flex items-center gap-2 min-h-[44px]"
+          className="px-4 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#00f2ff] rounded transition-colors flex items-center gap-2 uppercase tracking-wider min-h-[44px]"
         >
           <Edit3 className="w-4 h-4" />
           <span>{isEditing ? 'Cancel Editing' : 'Edit Profile'}</span>
@@ -129,9 +127,9 @@ export default function DashboardPage() {
 
       {/* Inline Profile Editing Form */}
       {isEditing && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-8 space-y-6 shadow-2xl">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <Edit3 className="w-5 h-5 text-purple-400" />
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-8 space-y-6 shadow-2xl">
+          <h3 className="font-display-lg text-lg font-bold text-white flex items-center gap-2 uppercase">
+            <Edit3 className="w-5 h-5 text-[#00f2ff]" />
             <span>Update Player Information</span>
           </h3>
 
@@ -167,7 +165,7 @@ export default function DashboardPage() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-6 py-3.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 ml-auto shadow-lg min-h-[44px]"
+                className="btn-cyber-primary ml-auto shadow-lg"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
@@ -180,26 +178,26 @@ export default function DashboardPage() {
       {/* Profile Details Cards */}
       {!isEditing && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Game Handle</span>
-            <div className="text-sm font-bold text-cyan-400 flex items-center gap-2">
-              <Gamepad2 className="w-4 h-4 text-purple-400" />
+          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2">
+            <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase block">Game Handle</span>
+            <div className="text-sm font-bold text-[#00f2ff] flex items-center gap-2">
+              <Gamepad2 className="w-4 h-4 text-[#00f2ff]" />
               <span>{profileData.username}</span>
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Free Fire Character UID</span>
-            <div className="text-sm font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2">
+            <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase block">Free Fire Character UID</span>
+            <div className="font-mono text-sm font-bold text-white flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#00ff9d]" />
               <span>{profileData.freeFireUid}</span>
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">WhatsApp Contact</span>
-            <div className="text-sm font-bold text-slate-200 flex items-center gap-2">
-              <Phone className="w-4 h-4 text-emerald-400" />
+          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2">
+            <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase block">WhatsApp Contact</span>
+            <div className="font-mono text-sm font-bold text-[#e1e2e7] flex items-center gap-2">
+              <Phone className="w-4 h-4 text-[#00ff9d]" />
               <span>{profileData.whatsappNumber}</span>
             </div>
           </div>
@@ -208,18 +206,18 @@ export default function DashboardPage() {
 
       {/* My Registered Tournaments Section */}
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2.5">
-              <Trophy className="w-6 h-6 text-amber-400" />
+            <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2.5">
+              <Trophy className="w-6 h-6 text-[#fe6b00]" />
               <span>MY REGISTERED TOURNAMENTS</span>
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#8e9dae]">
               Manage your active tournament slot bookings, view upcoming match details, and check your standings.
             </p>
           </div>
 
-          <span className="px-3 py-1 rounded-xl bg-purple-950 text-purple-300 border border-purple-800 text-xs font-bold w-fit">
+          <span className="px-3 py-1 rounded bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-xs font-mono font-bold w-fit">
             {myTournaments.length} Active Bookings
           </span>
         </div>
@@ -228,19 +226,19 @@ export default function DashboardPage() {
 
         {/* Tournament Cards or Friendly Empty State */}
         {myTournaments.length === 0 ? (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center space-y-4 max-w-xl mx-auto shadow-xl">
-            <div className="w-16 h-16 rounded-2xl bg-purple-950 border border-purple-800 flex items-center justify-center mx-auto text-purple-400">
-              <Trophy className="w-8 h-8" />
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-xl p-8 sm:p-12 text-center space-y-4 max-w-xl mx-auto shadow-xl">
+            <div className="w-16 h-16 rounded-full bg-[#07090c] border border-[#3a494b] flex items-center justify-center mx-auto text-[#00f2ff]">
+              <Trophy className="w-8 h-8 text-[#8e9dae]" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-lg sm:text-xl font-bold text-white">No Tournaments Registered Yet</h3>
-              <p className="text-slate-400 text-xs leading-relaxed max-w-md mx-auto">
+              <h3 className="font-display-lg text-lg sm:text-xl font-bold text-white uppercase">No Tournaments Registered Yet</h3>
+              <p className="text-[#8e9dae] text-xs leading-relaxed max-w-md mx-auto">
                 You haven't booked a slot in any active Free Fire tournaments. Explore available competitions and enter your squad today!
               </p>
             </div>
             <Link
               to="/tournaments"
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg hover:brightness-110 transition-all min-h-[44px]"
+              className="btn-cyber-primary"
             >
               <span>Browse Open Tournaments</span>
               <ArrowRight className="w-4 h-4" />
@@ -253,44 +251,44 @@ export default function DashboardPage() {
               return (
                 <div
                   key={`my-tourney-${t.id}`}
-                  className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6 shadow-xl flex flex-col justify-between"
+                  className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-6 shadow-xl flex flex-col justify-between hover:border-[#00f2ff] transition-all"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide bg-slate-950 text-cyan-300 border border-cyan-500/30">
+                      <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wide bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
                         {t.game}
                       </span>
                       
                       {/* Registration Status Indicator */}
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1">
+                      <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3" />
                         <span>Registration Confirmed</span>
                       </span>
                     </div>
 
-                    <h3 className="text-lg sm:text-xl font-bold text-white">{t.title}</h3>
-                    <p className="text-xs text-slate-400">{t.format} &bull; Organized by {t.organizer || 'MJ ESPORTS'}</p>
+                    <h3 className="font-display-lg text-lg sm:text-xl font-bold text-white uppercase">{t.title}</h3>
+                    <p className="text-xs text-[#8e9dae]">{t.format} &bull; Organized by {t.organizer || 'MJ ESPORTS'}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-xs bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <div className="grid grid-cols-2 gap-3 text-xs bg-[#07090c] p-3 rounded border border-[#3a494b]/60">
                     <div>
-                      <span className="text-slate-500 text-[10px] uppercase font-bold block">Start Date</span>
-                      <span className="text-slate-200 font-bold flex items-center gap-1 mt-0.5">
-                        <Calendar className="w-3 h-3 text-purple-400" />
+                      <span className="font-label-caps text-[#8e9dae] text-[10px] uppercase block">Start Date</span>
+                      <span className="text-[#e1e2e7] font-bold flex items-center gap-1 mt-0.5">
+                        <Calendar className="w-3 h-3 text-[#00f2ff]" />
                         {t.startDate}
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500 text-[10px] uppercase font-bold block">Prize Pool</span>
-                      <span className="text-emerald-400 font-extrabold">{t.prizePool}</span>
+                      <span className="font-label-caps text-[#8e9dae] text-[10px] uppercase block">Prize Pool</span>
+                      <span className="font-mono text-[#ffb693] font-extrabold">{t.prizePool}</span>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="pt-2 flex items-center justify-between gap-3 border-t border-slate-800">
+                  <div className="pt-2 flex items-center justify-between gap-3 border-t border-[#3a494b]/60">
                     <Link
                       to={`/tournaments/${t.id}`}
-                      className="px-4 py-2.5 rounded-xl bg-purple-600 text-white font-bold text-xs hover:bg-purple-500 transition-colors flex items-center gap-1.5 min-h-[38px]"
+                      className="px-4 py-2.5 rounded bg-[#00f2ff] text-[#00363a] font-extrabold text-xs hover:bg-[#74f5ff] transition-all flex items-center gap-1.5 uppercase tracking-wider min-h-[38px]"
                     >
                       <span>View Details</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -299,13 +297,13 @@ export default function DashboardPage() {
                     {canWithdraw ? (
                       <button
                         onClick={() => handleWithdraw(t.id, t.title)}
-                        className="px-3.5 py-2.5 rounded-xl bg-slate-950 hover:bg-red-950 border border-slate-800 hover:border-red-800 text-xs font-semibold text-slate-400 hover:text-red-300 transition-colors flex items-center gap-1.5 min-h-[38px]"
+                        className="px-3.5 py-2.5 rounded bg-[#07090c] hover:bg-red-950/40 border border-[#3a494b] hover:border-[#ff3366] text-xs font-bold text-[#8e9dae] hover:text-[#ff3366] transition-colors flex items-center gap-1.5 uppercase min-h-[38px]"
                       >
-                        <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                        <Trash2 className="w-3.5 h-3.5 text-[#ff3366]" />
                         <span>Withdraw</span>
                       </button>
                     ) : (
-                      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                      <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase tracking-wider">
                         Withdraw Closed
                       </span>
                     )}

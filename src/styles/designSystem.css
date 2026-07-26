@@ -1,0 +1,268 @@
+/* 
+  MJ ESPORTS — AAA Cyber Arena Design System
+  Unified Visual Language & Design Tokens
+  Inspired by Riot Games, Apple, Google, Valve, FACEIT & Activision
+*/
+
+:root {
+  /* Surface & Canvas Color Tokens */
+  --color-void-dark: #07090c;
+  --color-surface-base: #0f1318;
+  --color-surface-container: #151a21;
+  --color-surface-high: #1d232c;
+  --color-surface-bright: #262e3a;
+  
+  /* Divider & Border Tokens */
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-accent: #2c3644;
+
+  /* Primary Brand Accent: Neon Energy Cyan */
+  --color-cyan-primary: #00f2ff;
+  --color-cyan-hover: #74f5ff;
+  --color-cyan-active: #00dbe7;
+  --color-cyan-container: rgba(0, 242, 255, 0.12);
+  --color-cyan-glow: rgba(0, 242, 255, 0.35);
+
+  /* Secondary Brand Accent: Blaze Flame Orange */
+  --color-orange-secondary: #ff6b00;
+  --color-orange-hover: #ff8533;
+  --color-orange-active: #e05e00;
+  --color-orange-container: rgba(255, 107, 0, 0.12);
+  --color-orange-glow: rgba(255, 107, 0, 0.35);
+
+  /* Semantic Status Color Tokens */
+  --color-status-live: #00f2ff;
+  --color-status-success: #00ff9d;
+  --color-status-warning: #ffb800;
+  --color-status-danger: #ff3366;
+  --color-status-neutral: #8e9dae;
+
+  /* Typography Scale */
+  --font-headline: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-body: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'Space Mono', monospace;
+
+  /* Border Radii Scale */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Shadows Scale */
+  --shadow-glow-cyan: 0 0 20px rgba(0, 242, 255, 0.35);
+  --shadow-glow-orange: 0 0 20px rgba(255, 107, 0, 0.35);
+  --shadow-card-elevated: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --shadow-glass-panel: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  /* Easing & Timing */
+  --ease-cyber: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+}
+
+/* Base Body System Reset */
+body {
+  background-color: var(--color-void-dark);
+  color: #e1e2e7;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphism System Classes */
+.glass-cyber-base {
+  background: rgba(15, 19, 24, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.glass-cyber-interactive {
+  background: rgba(21, 26, 33, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 242, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
+  transition: all var(--duration-normal) var(--ease-cyber);
+}
+
+.glass-cyber-interactive:hover {
+  border-color: var(--color-cyan-primary);
+  box-shadow: var(--shadow-glow-cyan);
+  transform: translateY(-2px);
+}
+
+.glass-cyber-orange {
+  background: rgba(25, 16, 11, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 107, 0, 0.3);
+  box-shadow: 0 0 20px rgba(255, 107, 0, 0.15);
+}
+
+/* Typography Utility Classes */
+.font-display-xl {
+  font-family: var(--font-headline);
+  font-size: 3.5rem;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.font-display-lg {
+  font-family: var(--font-headline);
+  font-size: 2.5rem;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.font-headline-md {
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.font-label-caps {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.font-data-mono {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Glow & Accent Effects */
+.text-glow-cyan {
+  text-shadow: 0 0 15px rgba(0, 242, 255, 0.7);
+}
+
+.text-glow-orange {
+  text-shadow: 0 0 15px rgba(255, 107, 0, 0.7);
+}
+
+.border-neon-cyan {
+  border: 1px solid var(--color-cyan-primary);
+  box-shadow: 0 0 12px rgba(0, 242, 255, 0.3);
+}
+
+.border-neon-orange {
+  border: 1px solid var(--color-orange-secondary);
+  box-shadow: 0 0 12px rgba(255, 107, 0, 0.3);
+}
+
+/* Button Component Tokens */
+.btn-cyber-primary {
+  background-color: var(--color-cyan-primary);
+  color: #00363a;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1.5rem;
+  transition: all var(--duration-fast) var(--ease-cyber);
+  box-shadow: 0 0 16px rgba(0, 242, 255, 0.35);
+  display: inline-flex;
+  items-center: center;
+  gap: 0.5rem;
+}
+
+.btn-cyber-primary:hover {
+  background-color: var(--color-cyan-hover);
+  box-shadow: 0 0 24px rgba(0, 242, 255, 0.6);
+  transform: scale(1.02);
+}
+
+.btn-cyber-secondary {
+  background-color: var(--color-orange-secondary);
+  color: #351000;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1.5rem;
+  transition: all var(--duration-fast) var(--ease-cyber);
+  box-shadow: 0 0 16px rgba(255, 107, 0, 0.35);
+  display: inline-flex;
+  items-center: center;
+  gap: 0.5rem;
+}
+
+.btn-cyber-secondary:hover {
+  background-color: var(--color-orange-hover);
+  box-shadow: 0 0 24px rgba(255, 107, 0, 0.6);
+  transform: scale(1.02);
+}
+
+.btn-cyber-ghost {
+  background: transparent;
+  color: var(--color-cyan-primary);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-cyan-primary);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1.5rem;
+  transition: all var(--duration-fast) var(--ease-cyber);
+}
+
+.btn-cyber-ghost:hover {
+  background: var(--color-cyan-container);
+  box-shadow: 0 0 16px rgba(0, 242, 255, 0.3);
+}
+
+/* Input & Form Control Tokens */
+.input-cyber {
+  background-color: var(--color-void-dark);
+  border: 1px solid var(--color-border-accent);
+  color: #e1e2e7;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+  padding: 0.625rem 1rem;
+  outline: none;
+  transition: all var(--duration-fast) var(--ease-cyber);
+}
+
+.input-cyber:focus {
+  border-color: var(--color-cyan-primary);
+  box-shadow: 0 0 12px rgba(0, 242, 255, 0.25);
+}
+
+/* Keyframe Animations */
+@keyframes cyberPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.15);
+  }
+}
+
+.animate-cyber-pulse {
+  animation: cyberPulse 2s infinite var(--ease-cyber);
+}

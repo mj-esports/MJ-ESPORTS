@@ -91,21 +91,21 @@ export default function RegisterPage() {
         
         {/* Header Branding */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-400 to-purple-600 p-[1px] mx-auto shadow-lg shadow-cyan-500/20">
-            <div className="w-full h-full bg-slate-950 rounded-[15px] flex items-center justify-center">
-              <Swords className="w-6 h-6 text-cyan-400" />
+          <div className="w-12 h-12 rounded-lg bg-[#00f2ff] p-[1px] mx-auto shadow-[0_0_15px_rgba(0,242,255,0.4)]">
+            <div className="w-full h-full bg-[#07090c] rounded-[7px] flex items-center justify-center">
+              <Swords className="w-6 h-6 text-[#00f2ff]" />
             </div>
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight uppercase">
+          <h1 className="font-display-lg text-2xl font-extrabold text-white tracking-tight uppercase">
             CREATE PLAYER ACCOUNT
           </h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#8e9dae]">
             Join thousands of competitive gamers and enter pro esports tournaments.
           </p>
         </div>
 
         {/* Card Form */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 sm:p-8 space-y-6 shadow-2xl">
           {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -164,11 +164,11 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 px-4 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 via-indigo-300 to-purple-400 rounded-xl hover:brightness-110 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 mt-2 min-h-[44px]"
+              className="btn-cyber-primary w-full justify-center py-3.5 mt-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-[#00363a] border-t-transparent rounded-full animate-spin"></div>
                   <span>Creating Account...</span>
                 </>
               ) : (
@@ -180,9 +180,9 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <div className="pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
+          <div className="pt-4 border-t border-[#3a494b]/60 text-center text-xs text-[#8e9dae]">
             Already have an account?{' '}
-            <Link to="/login" className="font-bold text-cyan-400 hover:text-cyan-300 transition-colors inline-flex items-center gap-1">
+            <Link to="/login" className="font-bold text-[#00f2ff] hover:underline transition-colors inline-flex items-center gap-1 uppercase tracking-wider">
               <span>Login</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>

@@ -6,6 +6,7 @@ import DashboardOverview from '../components/admin/DashboardOverview'
 import LiveOperationsView from '../components/admin/LiveOperationsView'
 import TournamentCenterView from '../components/admin/TournamentCenterView'
 import RegistrationQueueView from '../components/admin/RegistrationQueueView'
+import PaymentVerificationView from '../components/admin/PaymentVerificationView'
 import MatchControlView from '../components/admin/MatchControlView'
 import LeaderboardsView from '../components/admin/LeaderboardsView'
 import PlayerDirectoryView from '../components/admin/PlayerDirectoryView'
@@ -31,7 +32,7 @@ export default function AdminDashboardPage() {
   const activeNavItem = NAV_ITEMS.find((item) => item.id === activeTab) || NAV_ITEMS[0]
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#07090c] text-[#e1e2e7] flex flex-col lg:flex-row">
       
       {/* Sidebar (Desktop Fixed Left + Mobile Drawer) */}
       <AdminSidebar
@@ -44,27 +45,27 @@ export default function AdminDashboardPage() {
       {/* Main Operations Control Area */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
         
-        {/* Top Control Bar with Mobile Drawer Trigger */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-xl">
+        {/* Top View Indicator Bar */}
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 flex items-center justify-between shadow-xl">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="lg:hidden p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white"
+              className="lg:hidden p-2 rounded-lg bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
               aria-label="Open Sidebar Menu"
             >
-              <Menu className="w-5 h-5 text-purple-400" />
+              <Menu className="w-5 h-5 text-[#00f2ff]" />
             </button>
             <div className="flex items-center gap-2">
-              <activeNavItem.icon className="w-5 h-5 text-purple-400" />
-              <h1 className="text-base sm:text-lg font-extrabold text-white uppercase tracking-wider">
+              <activeNavItem.icon className="w-5 h-5 text-[#00f2ff]" />
+              <h1 className="font-display-lg text-base sm:text-lg font-extrabold text-white uppercase tracking-wider">
                 {activeNavItem.label}
               </h1>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-400 text-xs font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded bg-[#00ff9d]/10 border border-[#00ff9d]/40 text-[#00ff9d] text-xs font-mono font-bold">
+              <span className="w-2 h-2 rounded-full bg-[#00ff9d] animate-pulse"></span>
               <span>LIVE OPS CONNECTED</span>
             </span>
           </div>
@@ -95,6 +96,10 @@ export default function AdminDashboardPage() {
               tournaments={tournaments}
               updateRegistrationStatus={updateRegistrationStatus}
             />
+          )}
+
+          {activeTab === 'payments' && (
+            <PaymentVerificationView tournaments={tournaments} />
           )}
 
           {activeTab === 'matches' && (
