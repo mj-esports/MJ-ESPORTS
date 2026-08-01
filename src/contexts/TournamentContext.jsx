@@ -17,11 +17,14 @@ function dedupeTournaments(list) {
 
 function mapTournamentFromDb(row) {
   if (!row) return null
+  const fmt = row.match_format || row.matchFormat || row.format || 'Squad Battle Royale'
   return {
     id: row.id,
     title: row.title,
     game: row.game,
-    format: row.format,
+    format: fmt,
+    match_format: fmt,
+    matchFormat: fmt,
     prizePool: row.prize_pool || row.prizePool || '₹0',
     entryFee: row.entry_fee || row.entryFee || 'Free',
     maxTeams: Number(row.max_teams ?? row.maxTeams ?? 32),
@@ -44,11 +47,13 @@ function mapTournamentFromDb(row) {
 }
 
 function mapTournamentToDb(t) {
+  const fmt = t.match_format || t.matchFormat || t.format || 'Squad Battle Royale'
   return {
     id: t.id,
     title: t.title,
     game: t.game,
-    format: t.format,
+    format: fmt,
+    match_format: fmt,
     prize_pool: t.prizePool || t.prize_pool || '₹0',
     entry_fee: t.entryFee || t.entry_fee || 'Free',
     max_teams: Number(t.maxTeams ?? t.max_teams ?? 32),

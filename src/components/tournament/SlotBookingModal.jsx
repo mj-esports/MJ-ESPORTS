@@ -14,26 +14,65 @@ import {
   sanitizeString,
 } from '../../utils/validationUtils'
 
+// Helper function to resolve tournament format mode
+export function getTournamentMode(tournament) {
+  if (!tournament) {
+    return { mode: 'Squad', requiredPlayers: 4, formatTitle: 'Squad Battle Royale' }
+  }
+
+  const rawFormat = (
+    tournament.match_format ||
+    tournament.matchFormat ||
+    tournament.format ||
+    ''
+  ).trim()
+
+  const lowerFmt = rawFormat.toLowerCase()
+  const teamSize = Number(tournament.team_size ?? tournament.teamSize ?? 0)
+
+  if (teamSize === 1 || lowerFmt.includes('solo')) {
+    return {
+      mode: 'Solo',
+      requiredPlayers: 1,
+      formatTitle: rawFormat || 'Solo Battle Royale',
+    }
+  }
+
+  if (teamSize === 2 || lowerFmt.includes('duo')) {
+    return {
+      mode: 'Duo',
+      requiredPlayers: 2,
+      formatTitle: rawFormat || 'Duo Battle Royale',
+    }
+  }
+
+  return {
+    mode: 'Squad',
+    requiredPlayers: 4,
+    formatTitle: rawFormat || 'Squad Battle Royale',
+  }
+}
+
 export default function SlotBookingModal({ tournament, onClose }) {
   const { registerTeam } = useTournaments()
   const { user } = useAuth()
   const { showSuccess, showError } = useToast()
 
-  // Determine initial mode based on tournament format string
-  const initialMode = tournament?.format?.toLowerCase().includes('solo')
-    ? 'Solo'
-    : tournament?.format?.toLowerCase().includes('duo')
-    ? 'Duo'
-    : 'Squad'
+  // Debugging logs requested in task
+  console.log("REGISTRATION TOURNAMENT DATA", tournament)
+  console.log("Match format:", tournament?.match_format || tournament?.matchFormat || tournament?.format)
 
-  const [mode, setMode] = useState(initialMode)
+  // Read tournament format mode automatically from database/tournament object (non-editable)
+  const modeConfig = getTournamentMode(tournament)
+  const mode = modeConfig.mode
+
   const [formData, setFormData] = useState({
     teamName: '',
     captainName: user?.user_metadata?.username || '',
     email: user?.email || '',
     freeFireUid: user?.user_metadata?.freeFireUid || '',
     whatsappNumber: '',
-    teammates: ['', '', ''], // Up to 3 teammates for Squad
+    teammates: ['', '', ''], // Up to 3 teammates for Squad, 1 for Duo, 0 for Solo
     acceptRules: false,
   })
 
@@ -62,6 +101,9 @@ export default function SlotBookingModal({ tournament, onClose }) {
     if (fieldErrors[fieldKey]) {
       setFieldErrors((prev) => ({ ...prev, [fieldKey]: null }))
     }
+    if (fieldErrors.teammates) {
+      setFieldErrors((prev) => ({ ...prev, teammates: null }))
+    }
   }
 
   const validateForm = () => {
@@ -86,25 +128,25 @@ export default function SlotBookingModal({ tournament, onClose }) {
     const cleanPhone = sanitizeString(formData.whatsappNumber)
 
     if (!cleanTeamName) {
-      newFieldErrors.teamName = 'Team Name (or IGN) is required'
+      newFieldErrors.teamName = mode === 'Solo' ? 'Player Name (or IGN) is required' : 'Team Name is required'
     } else if (!isValidTeamName(cleanTeamName)) {
-      newFieldErrors.teamName = 'Team Name must be between 3 and 30 characters'
+      newFieldErrors.teamName = 'Name must be between 3 and 30 characters'
     }
 
     if (!cleanCaptainName) {
-      newFieldErrors.captainName = 'Captain Name is required'
+      newFieldErrors.captainName = mode === 'Solo' ? 'Player Full Name is required' : 'Captain Name is required'
     }
 
     if (!cleanEmail) {
-      newFieldErrors.email = 'Captain Email is required'
+      newFieldErrors.email = 'Email address is required'
     } else if (!isValidEmail(cleanEmail)) {
       newFieldErrors.email = 'Please enter a valid email address'
     }
 
     if (!cleanCaptainUid) {
-      newFieldErrors.freeFireUid = 'Captain Game Character UID is required'
+      newFieldErrors.freeFireUid = 'Game Character UID is required'
     } else if (!isValidGameUid(cleanCaptainUid)) {
-      newFieldErrors.freeFireUid = 'Captain UID must be 8-12 alphanumeric characters'
+      newFieldErrors.freeFireUid = 'Game UID must be 8-12 alphanumeric characters'
     }
 
     if (!cleanPhone) {
@@ -113,13 +155,13 @@ export default function SlotBookingModal({ tournament, onClose }) {
       newFieldErrors.whatsappNumber = 'Please enter a valid 10-digit WhatsApp number'
     }
 
-    // Teammate validations based on mode
+    // Teammate validations strictly enforced based on tournament format mode
     const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
     for (let i = 0; i < requiredTeammatesCount; i++) {
       const uid = sanitizeString(formData.teammates[i])
       const fieldKey = `teammate_${i}`
       if (!uid) {
-        newFieldErrors[fieldKey] = `Game UID for Teammate ${i + 1} is required`
+        newFieldErrors[fieldKey] = `Game UID for Teammate ${i + 1} is required for ${mode} mode`
       } else if (!isValidGameUid(uid)) {
         newFieldErrors[fieldKey] = `Teammate ${i + 1} Game UID must be 8-12 alphanumeric characters`
       } else if (uid === cleanCaptainUid) {
@@ -127,15 +169,16 @@ export default function SlotBookingModal({ tournament, onClose }) {
       }
     }
 
-    // Check duplicate teammate UIDs among themselves
-    const activeTeammateUids = formData.teammates
-      .slice(0, requiredTeammatesCount)
-      .map((t) => sanitizeString(t))
-      .filter(Boolean)
+    if (requiredTeammatesCount > 1) {
+      const activeTeammateUids = formData.teammates
+        .slice(0, requiredTeammatesCount)
+        .map((t) => sanitizeString(t))
+        .filter(Boolean)
 
-    const uniqueUids = new Set(activeTeammateUids)
-    if (uniqueUids.size !== activeTeammateUids.length) {
-      newFieldErrors.teammates = 'All Teammate Game UIDs must be unique'
+      const uniqueUids = new Set(activeTeammateUids)
+      if (uniqueUids.size !== activeTeammateUids.length) {
+        newFieldErrors.teammates = 'All Teammate Game UIDs must be unique'
+      }
     }
 
     if (!formData.acceptRules) {
@@ -144,7 +187,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
 
     setFieldErrors(newFieldErrors)
     if (Object.keys(newFieldErrors).length > 0) {
-      return 'Please correct highlighted errors in the form.'
+      return 'Please correct highlighted errors in the form before submitting.'
     }
 
     return null
@@ -256,7 +299,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
               </div>
               <div>
                 <h3 className="font-display-lg text-lg font-bold text-white uppercase tracking-wide">Slot Registration Confirmed!</h3>
-                <p className="text-xs text-[#8e9dae] mt-0.5">Your team has been successfully entered into the tournament.</p>
+                <p className="text-xs text-[#8e9dae] mt-0.5">Your entry has been successfully entered into the tournament.</p>
               </div>
 
               {/* Reference Ticket Card */}
@@ -277,7 +320,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
                 </div>
 
                 <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
-                  <span className="text-[#8e9dae]">Team Name</span>
+                  <span className="text-[#8e9dae]">{mode === 'Solo' ? 'Player Name' : 'Team Name'}</span>
                   <span className="font-extrabold text-white">{registrationSummary.teamName}</span>
                 </div>
 
@@ -287,7 +330,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
                 </div>
 
                 <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
-                  <span className="text-[#8e9dae]">Captain UID</span>
+                  <span className="text-[#8e9dae]">{mode === 'Solo' ? 'Player UID' : 'Captain UID'}</span>
                   <span className="font-mono font-bold text-[#00f2ff]">{registrationSummary.freeFireUid}</span>
                 </div>
 
@@ -323,35 +366,34 @@ export default function SlotBookingModal({ tournament, onClose }) {
         ) : (
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             
-            {/* Solo / Duo / Squad Mode Selection */}
-            <div className="space-y-1.5">
-              <label className="font-label-caps text-xs text-[#e1e2e7] uppercase tracking-wider block">
-                Select Competition Format Mode
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {['Solo', 'Duo', 'Squad'].map((m) => (
-                  <button
-                    key={`mode-select-${m}`}
-                    type="button"
-                    onClick={() => setMode(m)}
-                    className={`py-2.5 px-3 rounded text-xs font-bold uppercase transition-all border min-h-[40px] flex items-center justify-center gap-1.5 ${
-                      mode === m
-                        ? 'bg-[#00f2ff] text-[#00363a] border-[#00f2ff] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.4)]'
-                        : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b] hover:text-white'
-                    }`}
-                  >
-                    <span>{m}</span>
-                    {m === 'Solo' && <span className="text-[10px] opacity-75">(1P)</span>}
-                    {m === 'Duo' && <span className="text-[10px] opacity-75">(2P)</span>}
-                    {m === 'Squad' && <span className="text-[10px] opacity-75">(4P)</span>}
-                  </button>
-                ))}
+            {/* Read-Only Premium Tournament Format Card */}
+            <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-2 shadow-inner">
+              <div className="flex items-center justify-between">
+                <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-widest">
+                  COMPETITION FORMAT
+                </span>
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/40 uppercase tracking-widest">
+                  {modeConfig.mode} MODE
+                </span>
+              </div>
+              <div className="flex items-center gap-3 pt-1">
+                <div className="w-9 h-9 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
+                  <Users className="w-5 h-5 text-[#00f2ff]" />
+                </div>
+                <div>
+                  <h4 className="text-sm sm:text-base font-extrabold text-white uppercase tracking-tight">
+                    {modeConfig.formatTitle}
+                  </h4>
+                  <p className="text-xs text-[#00ff9d] font-bold">
+                    {modeConfig.requiredPlayers} {modeConfig.requiredPlayers === 1 ? 'Player Required' : 'Players Required per Squad'}
+                  </p>
+                </div>
               </div>
             </div>
 
             {/* Primary Form Inputs */}
             <FormInput
-              label="Team Name (or IGN for Solo)"
+              label={mode === 'Solo' ? 'Player IGN / Display Name' : 'Team Name'}
               name="teamName"
               value={formData.teamName}
               onChange={handleChange}
@@ -362,7 +404,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
             />
 
             <FormInput
-              label="Captain Name"
+              label={mode === 'Solo' ? 'Player Full Name' : 'Captain Name'}
               name="captainName"
               value={formData.captainName}
               onChange={handleChange}
@@ -373,7 +415,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
             />
 
             <FormInput
-              label="Captain Email (Prefilled)"
+              label={mode === 'Solo' ? 'Player Email (Prefilled)' : 'Captain Email (Prefilled)'}
               name="email"
               type="email"
               value={formData.email}
@@ -385,7 +427,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
             />
 
             <FormInput
-              label="Captain Game Character UID"
+              label={mode === 'Solo' ? 'Game Character UID' : 'Captain Game Character UID'}
               name="freeFireUid"
               value={formData.freeFireUid}
               onChange={handleChange}
@@ -407,11 +449,11 @@ export default function SlotBookingModal({ tournament, onClose }) {
               icon={Phone}
             />
 
-            {/* DYNAMIC TEAMMATE UID FIELDS BASED ON MODE */}
+            {/* DYNAMIC TEAMMATE UID FIELDS BASED ON TOURNAMENT FORMAT MODE */}
             {mode === 'Duo' && (
               <div className="p-3.5 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-3">
                 <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
-                  Duo Teammate Details
+                  Duo Teammate Details (1 Required Teammate)
                 </span>
                 <FormInput
                   label="Teammate 1 Game UID"
@@ -429,7 +471,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
             {mode === 'Squad' && (
               <div className="p-3.5 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-3">
                 <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
-                  Squad Teammates Details (3 Players)
+                  Squad Teammates Details (3 Required Teammates)
                 </span>
                 <FormInput
                   label="Teammate 1 Game UID"
