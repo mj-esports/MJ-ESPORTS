@@ -18,10 +18,16 @@ function dedupeTournaments(list) {
 function mapTournamentFromDb(row) {
   if (!row) return null
   const fmt = row.match_format || row.matchFormat || row.format || 'Squad Battle Royale'
+  const mode = (row.mode || (fmt.toLowerCase().includes('solo') ? 'solo' : fmt.toLowerCase().includes('duo') ? 'duo' : 'squad')).toLowerCase()
+  const teamSize = Number(row.team_size ?? row.teamSize ?? (mode === 'solo' ? 1 : mode === 'duo' ? 2 : 4))
+
   return {
     id: row.id,
     title: row.title,
     game: row.game,
+    mode: mode,
+    teamSize: teamSize,
+    team_size: teamSize,
     format: fmt,
     match_format: fmt,
     matchFormat: fmt,
@@ -48,12 +54,17 @@ function mapTournamentFromDb(row) {
 
 function mapTournamentToDb(t) {
   const fmt = t.match_format || t.matchFormat || t.format || 'Squad Battle Royale'
+  const mode = (t.mode || (fmt.toLowerCase().includes('solo') ? 'solo' : fmt.toLowerCase().includes('duo') ? 'duo' : 'squad')).toLowerCase()
+  const teamSize = Number(t.team_size ?? t.teamSize ?? (mode === 'solo' ? 1 : mode === 'duo' ? 2 : 4))
+
   return {
     id: t.id,
     title: t.title,
     game: t.game,
     format: fmt,
     match_format: fmt,
+    mode: mode,
+    team_size: teamSize,
     prize_pool: t.prizePool || t.prize_pool || '₹0',
     entry_fee: t.entryFee || t.entry_fee || 'Free',
     max_teams: Number(t.maxTeams ?? t.max_teams ?? 32),

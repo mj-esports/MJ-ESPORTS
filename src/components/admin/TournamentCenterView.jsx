@@ -46,7 +46,7 @@ export default function TournamentCenterView({
     title: '',
     bannerUrl: '',
     game: 'Free Fire',
-    format: 'Squad Battle Royale',
+    mode: 'squad',
     prizePool: '₹1,00,000',
     entryFee: 'Free',
     maxTeams: 32,
@@ -65,7 +65,7 @@ export default function TournamentCenterView({
       title: '',
       bannerUrl: '',
       game: 'Free Fire',
-      format: 'Squad Battle Royale',
+      mode: 'squad',
       prizePool: '₹1,00,000',
       entryFee: 'Free',
       maxTeams: 32,
@@ -81,11 +81,20 @@ export default function TournamentCenterView({
 
   const handleOpenEditModal = (t) => {
     setFormErrors({})
+    const fmt = (t.match_format || t.matchFormat || t.format || '').toLowerCase()
+    const resolvedMode = t.mode
+      ? t.mode.toLowerCase()
+      : (t.team_size === 1 || fmt.includes('solo'))
+      ? 'solo'
+      : (t.team_size === 2 || fmt.includes('duo'))
+      ? 'duo'
+      : 'squad'
+
     setForm({
       title: t.title || '',
       bannerUrl: t.bannerUrl || '',
       game: t.game || 'Free Fire',
-      format: t.format || 'Squad Battle Royale',
+      mode: resolvedMode,
       prizePool: t.prizePool || '₹1,00,000',
       entryFee: t.entryFee || 'Free',
       maxTeams: t.maxTeams || 32,
@@ -191,10 +200,23 @@ export default function TournamentCenterView({
       .map((r) => r.trim())
       .filter((r) => r.length > 0)
 
+    const mode = (form.mode || 'squad').toLowerCase()
+    const teamSize = mode === 'solo' ? 1 : mode === 'duo' ? 2 : 4
+    const matchFormat = mode === 'solo'
+      ? 'Solo Battle Royale'
+      : mode === 'duo'
+      ? 'Duo Battle Royale'
+      : 'Squad Battle Royale'
+
     const payload = {
       title: cleanTitle,
       game: form.game,
-      format: form.format.trim(),
+      mode: mode,
+      team_size: teamSize,
+      teamSize: teamSize,
+      match_format: matchFormat,
+      matchFormat: matchFormat,
+      format: matchFormat,
       prizePool: form.prizePool.trim() || '₹0',
       entryFee: form.entryFee.trim() || 'Free',
       maxTeams: slotsNum,
@@ -429,7 +451,7 @@ export default function TournamentCenterView({
                 error={formErrors.title}
               />
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">Game Title</label>
                   <select
@@ -443,18 +465,55 @@ export default function TournamentCenterView({
                   </select>
                 </div>
 
-                <FormInput
-                  label="Match Format"
-                  name="format"
-                  value={form.format}
-                  onChange={(e) => {
-                    setForm((prev) => ({ ...prev, format: e.target.value }))
-                    if (formErrors.format) setFormErrors((prev) => ({ ...prev, format: null }))
-                  }}
-                  placeholder="e.g. Squad Battle Royale"
-                  required
-                  error={formErrors.format}
-                />
+                {/* COMPETITION MODE SELECTION BUTTONS */}
+                <div className="space-y-1">
+                  <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase tracking-wider block">
+                    Competition Mode <span className="text-[#00f2ff]">*</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      { key: 'solo', label: 'SOLO', size: 1 },
+                      { key: 'duo', label: 'DUO', size: 2 },
+                      { key: 'squad', label: 'SQUAD', size: 4 },
+                    ].map((m) => (
+                      <button
+                        key={`create-mode-btn-${m.key}`}
+                        type="button"
+                        onClick={() => setForm((prev) => ({ ...prev, mode: m.key }))}
+                        className={`py-2 px-2 rounded text-xs font-bold uppercase transition-all border flex flex-col items-center justify-center min-h-[40px] ${
+                          form.mode === m.key
+                            ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
+                            : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b] hover:text-white'
+                        }`}
+                      >
+                        <span className="font-extrabold">{m.label}</span>
+                        <span className="text-[9px] opacity-75 font-mono">({m.size}P)</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* COMPETITION MODE PREVIEW CARD */}
+              <div className="p-3.5 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl flex items-center justify-between shadow-inner">
+                <div className="flex items-center gap-2.5">
+                  <Users className="w-4.5 h-4.5 text-[#00f2ff] shrink-0" />
+                  <div>
+                    <span className="font-label-caps text-[9px] font-bold text-[#8e9dae] uppercase tracking-widest block">
+                      Selected Match Format Preview
+                    </span>
+                    <h4 className="text-xs sm:text-sm font-extrabold text-white uppercase tracking-tight">
+                      {form.mode === 'solo'
+                        ? 'Solo Battle Royale'
+                        : form.mode === 'duo'
+                        ? 'Duo Battle Royale'
+                        : 'Squad Battle Royale'}
+                    </h4>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 uppercase font-mono">
+                  {form.mode === 'solo' ? '1 Player Required' : form.mode === 'duo' ? '2 Players Required' : '4 Players Required'}
+                </span>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
