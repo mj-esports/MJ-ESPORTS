@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Users, Mail, User, ShieldCheck, Phone, CheckCircle2, Copy } from 'lucide-react'
+import { X, Users, Mail, User, ShieldCheck, Phone, CheckCircle2, Copy, Shield, Trophy } from 'lucide-react'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
@@ -57,10 +57,6 @@ export default function SlotBookingModal({ tournament, onClose }) {
   const { registerTeam } = useTournaments()
   const { user } = useAuth()
   const { showSuccess, showError } = useToast()
-
-  // Debugging logs requested in task
-  console.log("REGISTRATION TOURNAMENT DATA", tournament)
-  console.log("Match format:", tournament?.match_format || tournament?.matchFormat || tournament?.format)
 
   // Read tournament format mode automatically from database/tournament object (non-editable)
   const modeConfig = getTournamentMode(tournament)
@@ -128,7 +124,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
     const cleanPhone = sanitizeString(formData.whatsappNumber)
 
     if (!cleanTeamName) {
-      newFieldErrors.teamName = mode === 'Solo' ? 'Player Name (or IGN) is required' : 'Team Name is required'
+      newFieldErrors.teamName = mode === 'Solo' ? 'Player IGN / Display Name is required' : 'Team Name is required'
     } else if (!isValidTeamName(cleanTeamName)) {
       newFieldErrors.teamName = 'Name must be between 3 and 30 characters'
     }
@@ -257,35 +253,48 @@ export default function SlotBookingModal({ tournament, onClose }) {
     }
   }
 
+  const remainingSlots = Math.max(0, (tournament.maxTeams || 32) - (tournament.registeredTeams || 0))
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-labelledby="slot-booking-modal-title"
     >
-      <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-[0_0_40px_rgba(0,242,255,0.15)] relative max-h-[90vh] overflow-y-auto">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white transition-colors"
+          className="absolute top-5 right-5 p-2 rounded-lg bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] hover:border-[#00f2ff]/50 transition-all"
           aria-label="Close Registration Modal"
         >
           <X className="w-4 h-4" />
         </button>
 
-        {/* Header */}
-        <div className="space-y-1">
-          <span className="font-label-caps text-[11px] font-bold text-[#00f2ff] uppercase tracking-widest block">
-            SLOT REGISTRATION
-          </span>
-          <h2 id="slot-booking-modal-title" className="font-display-lg text-xl font-extrabold text-white uppercase tracking-tight">
+        {/* Modal Header & Branding */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-[#00f2ff]" />
+            <span className="font-label-caps text-[11px] font-extrabold text-[#00f2ff] uppercase tracking-widest block">
+              MJ ESPORTS ARENA REGISTRATION
+            </span>
+          </div>
+          <h2 id="slot-booking-modal-title" className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight italic">
             {tournament.title}
           </h2>
-          <p className="text-xs text-[#8e9dae]">
-            Slots Remaining: <span className="font-mono text-[#00ff9d] font-bold">{Math.max(0, (tournament.maxTeams || 32) - (tournament.registeredTeams || 0))}</span> / {tournament.maxTeams || 32}
-          </p>
+          <div className="flex items-center gap-3 text-xs text-[#8e9dae] pt-0.5">
+            <span>Game: <strong className="text-white">{tournament.game || 'Esports'}</strong></span>
+            <span className="text-[#3a494b]">•</span>
+            <span>
+              Slots Remaining:{' '}
+              <span className="font-mono text-[#00ff9d] font-bold">
+                {remainingSlots}
+              </span>{' '}
+              / {tournament.maxTeams || 32}
+            </span>
+          </div>
         </div>
 
         {error && <AuthAlert type="error" message={error} />}
@@ -294,16 +303,16 @@ export default function SlotBookingModal({ tournament, onClose }) {
         {registrationSummary ? (
           <div className="space-y-6 pt-2">
             <div className="p-5 bg-[#07090c] border border-[#00ff9d]/40 rounded-xl space-y-4 text-center">
-              <div className="w-12 h-12 rounded-full bg-[#00ff9d]/20 border border-[#00ff9d] flex items-center justify-center mx-auto text-[#00ff9d] shadow-lg">
+              <div className="w-12 h-12 rounded-full bg-[#00ff9d]/20 border border-[#00ff9d] flex items-center justify-center mx-auto text-[#00ff9d] shadow-[0_0_15px_rgba(0,255,157,0.3)]">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-display-lg text-lg font-bold text-white uppercase tracking-wide">Slot Registration Confirmed!</h3>
-                <p className="text-xs text-[#8e9dae] mt-0.5">Your entry has been successfully entered into the tournament.</p>
+                <p className="text-xs text-[#8e9dae] mt-0.5">Your entry has been successfully registered into the official tournament roster.</p>
               </div>
 
               {/* Reference Ticket Card */}
-              <div className="p-4 bg-[#151a21] rounded border border-[#3a494b]/60 text-left space-y-2.5 text-xs">
+              <div className="p-4 bg-[#151a21] rounded-lg border border-[#3a494b]/60 text-left space-y-2.5 text-xs">
                 <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2">
                   <span className="text-[#8e9dae] font-semibold">Reference ID</span>
                   <div className="flex items-center gap-1.5 font-mono text-[#00f2ff] font-bold">
@@ -320,13 +329,13 @@ export default function SlotBookingModal({ tournament, onClose }) {
                 </div>
 
                 <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
-                  <span className="text-[#8e9dae]">{mode === 'Solo' ? 'Player Name' : 'Team Name'}</span>
+                  <span className="text-[#8e9dae]">{mode === 'Solo' ? 'Player IGN' : 'Team Name'}</span>
                   <span className="font-extrabold text-white">{registrationSummary.teamName}</span>
                 </div>
 
                 <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
                   <span className="text-[#8e9dae]">Format Mode</span>
-                  <span className="font-bold text-[#00f2ff]">{registrationSummary.mode} Mode</span>
+                  <span className="font-bold text-[#00f2ff]">{modeConfig.formatTitle} ({registrationSummary.mode})</span>
                 </div>
 
                 <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
@@ -366,18 +375,19 @@ export default function SlotBookingModal({ tournament, onClose }) {
         ) : (
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             
-            {/* Read-Only Premium Tournament Format Card */}
-            <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-2 shadow-inner">
+            {/* Read-Only Premium Tournament Format Information Card */}
+            <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-2.5 shadow-inner">
               <div className="flex items-center justify-between">
-                <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-widest">
-                  COMPETITION FORMAT
+                <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-widest flex items-center gap-1.5">
+                  <Trophy className="w-3.5 h-3.5 text-[#00f2ff]" />
+                  <span>COMPETITION FORMAT</span>
                 </span>
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/40 uppercase tracking-widest">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/40 uppercase tracking-widest">
                   {modeConfig.mode} MODE
                 </span>
               </div>
-              <div className="flex items-center gap-3 pt-1">
-                <div className="w-9 h-9 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
+              <div className="flex items-center gap-3 pt-0.5">
+                <div className="w-9 h-9 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0 shadow-[0_0_12px_rgba(0,242,255,0.2)]">
                   <Users className="w-5 h-5 text-[#00f2ff]" />
                 </div>
                 <div>
@@ -451,7 +461,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
 
             {/* DYNAMIC TEAMMATE UID FIELDS BASED ON TOURNAMENT FORMAT MODE */}
             {mode === 'Duo' && (
-              <div className="p-3.5 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-3">
+              <div className="p-3.5 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-3">
                 <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
                   Duo Teammate Details (1 Required Teammate)
                 </span>
@@ -469,7 +479,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
             )}
 
             {mode === 'Squad' && (
-              <div className="p-3.5 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-3">
+              <div className="p-3.5 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-3">
                 <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
                   Squad Teammates Details (3 Required Teammates)
                 </span>
@@ -539,7 +549,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
                 type="button"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="flex-1 py-3.5 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded hover:bg-[#1d232c] transition-colors min-h-[44px] disabled:opacity-50 uppercase"
+                className="flex-1 py-3.5 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded-lg hover:bg-[#1d232c] transition-colors min-h-[44px] disabled:opacity-50 uppercase"
               >
                 Cancel
               </button>
