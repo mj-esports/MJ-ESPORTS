@@ -46,6 +46,13 @@ export default class ErrorBoundary extends Component {
               <p className="text-[#8e9dae] text-xs sm:text-sm leading-relaxed max-w-md mx-auto">
                 {sanitized.message}
               </p>
+              {/* DEBUG: Real error exposed for diagnosis */}
+              <div className="mt-4 p-3 bg-[#07090c] border border-[#ff3366]/30 rounded text-left overflow-auto max-h-48 text-[10px] font-mono text-[#ff6688]">
+                <p className="font-bold text-white mb-1">RAW ERROR:</p>
+                <p>{this.state.error?.message || String(this.state.error)}</p>
+                <p className="font-bold text-white mt-2 mb-1">STACK:</p>
+                <pre className="whitespace-pre-wrap break-all">{this.state.error?.stack || 'No stack available'}</pre>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">

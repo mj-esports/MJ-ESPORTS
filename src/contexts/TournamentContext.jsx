@@ -18,7 +18,7 @@ function dedupeTournaments(list) {
 function mapTournamentFromDb(row) {
   if (!row) return null
   const fmt = row.match_format || row.matchFormat || row.format || 'Squad Battle Royale'
-  const mode = (row.mode || (fmt.toLowerCase().includes('solo') ? 'solo' : fmt.toLowerCase().includes('duo') ? 'duo' : 'squad')).toLowerCase()
+  const mode = String(row.mode || (fmt.toLowerCase().includes('solo') ? 'solo' : fmt.toLowerCase().includes('duo') ? 'duo' : 'squad')).toLowerCase()
   const teamSize = Number(row.team_size ?? row.teamSize ?? (mode === 'solo' ? 1 : mode === 'duo' ? 2 : 4))
 
   return {
@@ -54,7 +54,7 @@ function mapTournamentFromDb(row) {
 
 function mapTournamentToDb(t) {
   const fmt = t.match_format || t.matchFormat || t.format || 'Squad Battle Royale'
-  const mode = (t.mode || (fmt.toLowerCase().includes('solo') ? 'solo' : fmt.toLowerCase().includes('duo') ? 'duo' : 'squad')).toLowerCase()
+  const mode = String(t.mode || (fmt.toLowerCase().includes('solo') ? 'solo' : fmt.toLowerCase().includes('duo') ? 'duo' : 'squad')).toLowerCase()
   const teamSize = Number(t.team_size ?? t.teamSize ?? (mode === 'solo' ? 1 : mode === 'duo' ? 2 : 4))
 
   return {

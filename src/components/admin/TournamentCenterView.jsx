@@ -83,7 +83,7 @@ export default function TournamentCenterView({
     setFormErrors({})
     const fmt = (t.match_format || t.matchFormat || t.format || '').toLowerCase()
     const resolvedMode = t.mode
-      ? t.mode.toLowerCase()
+      ? String(t.mode).toLowerCase()
       : (t.team_size === 1 || fmt.includes('solo'))
       ? 'solo'
       : (t.team_size === 2 || fmt.includes('duo'))
