@@ -74,21 +74,8 @@ export function AuthProvider({ children }) {
           syncUserAndRole(initialSession?.user ?? null, initialSession)
         }
       })
-      .catch(() => {
-        if (typeof localStorage !== 'undefined') {
-          const storedSession = localStorage.getItem('mj_esports_mock_session')
-          if (storedSession) {
-            try {
-              const parsed = JSON.parse(storedSession)
-              if (isSubscribed) {
-                syncUserAndRole(parsed?.user ?? null, parsed)
-                return
-              }
-            } catch (e) {
-              console.error(e)
-            }
-          }
-        }
+      .catch((err) => {
+        console.error('[Supabase getSession Error]:', err)
         if (isSubscribed) {
           setRole(null)
           setRoleLoading(false)

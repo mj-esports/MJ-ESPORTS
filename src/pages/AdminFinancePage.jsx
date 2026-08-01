@@ -80,38 +80,22 @@ export default function AdminFinancePage() {
           </p>
         </div>
 
-        {/* Sync & Export Actions */}
+        {/* Refresh & Export Actions */}
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={refetch}
-            className="px-3 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#00f2ff] rounded text-xs font-bold uppercase transition-colors flex items-center gap-1.5 min-h-[38px]"
+            className="px-3.5 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#00f2ff] rounded text-xs font-bold uppercase transition-colors flex items-center gap-1.5 min-h-[38px]"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Sync</span>
+            <span>Refresh Data</span>
           </button>
 
           <button
             onClick={handleExportCSV}
-            className="px-3 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-white hover:text-[#00f2ff] rounded text-xs font-bold uppercase transition-colors flex items-center gap-1.5 min-h-[38px]"
+            className="px-3.5 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-white hover:text-[#00f2ff] rounded text-xs font-bold uppercase transition-colors flex items-center gap-1.5 min-h-[38px]"
           >
             <FileText className="w-3.5 h-3.5 text-[#00f2ff]" />
-            <span>CSV</span>
-          </button>
-
-          <button
-            onClick={handleExportExcel}
-            className="px-3 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-white hover:text-[#00ff9d] rounded text-xs font-bold uppercase transition-colors flex items-center gap-1.5 min-h-[38px]"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-[#00ff9d]" />
-            <span>Excel</span>
-          </button>
-
-          <button
-            onClick={handleExportPDF}
-            className="px-3 py-2 bg-[#fe6b00] hover:bg-[#ff8533] text-slate-950 rounded text-xs font-extrabold uppercase transition-colors flex items-center gap-1.5 min-h-[38px] shadow-[0_0_12px_rgba(254,107,0,0.4)]"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Print PDF</span>
+            <span>Export CSV</span>
           </button>
         </div>
       </div>

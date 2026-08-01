@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Swords, Search, Bell, User, LogOut, Shield, Menu } from 'lucide-react'
+import { Swords, User, LogOut, Shield, Menu } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 
@@ -86,21 +86,7 @@ export default function AdminHeader({
         </div>
       </div>
 
-      {/* Center/Middle: Optional Admin Search Bar */}
-      <div className="hidden lg:flex items-center flex-1 max-w-xs mx-6">
-        <div className="relative w-full">
-          <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            placeholder="Search tournaments, teams..."
-            className="w-full pl-9 pr-3 py-1.5 bg-[#07090c] border border-[#3a494b]/60 rounded-lg text-xs text-[#e1e2e7] placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff] focus:shadow-[0_0_10px_rgba(0,242,255,0.2)] transition-all"
-          />
-        </div>
-      </div>
-
-      {/* Right: Notifications, Admin Profile & Logout */}
+      {/* Right: Admin Profile & Logout */}
       <div className="flex items-center gap-2.5 shrink-0">
 
         {/* Live Ops Badge */}
@@ -108,15 +94,6 @@ export default function AdminHeader({
           <span className="w-2 h-2 rounded-full bg-[#00ff9d] animate-pulse"></span>
           <span>LIVE OPS CONNECTED</span>
         </span>
-
-        {/* Notifications Icon Button with Badge */}
-        <button
-          className="relative p-2 rounded-lg bg-[#151a21] border border-[#3a494b]/60 text-[#8e9dae] hover:text-[#00f2ff] hover:border-[#00f2ff]/40 transition-colors"
-          title="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#fe6b00] animate-pulse"></span>
-        </button>
 
         {/* Admin Profile Dropdown Pill */}
         <div className="relative">

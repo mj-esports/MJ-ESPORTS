@@ -57,8 +57,9 @@ export default function TournamentsPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by tournament name or game..."
-              className="w-full pl-10 pr-4 py-3 bg-[#07090c] border border-[#3a494b] rounded-lg text-sm text-[#e1e2e7] placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff] focus:shadow-[0_0_12px_rgba(0,242,255,0.25)] transition-all"
+              disabled={tournaments.length === 0}
+              placeholder={tournaments.length === 0 ? "Search disabled (no tournaments live)..." : "Search by tournament name or game..."}
+              className="w-full pl-10 pr-4 py-3 bg-[#07090c] border border-[#3a494b] rounded-lg text-sm text-[#e1e2e7] placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff] focus:shadow-[0_0_12px_rgba(0,242,255,0.25)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -107,10 +108,12 @@ export default function TournamentsPage() {
       {loading ? (
         <CardSkeleton count={6} />
       ) : uniqueFilteredTournaments.length === 0 ? (
-        <div className="p-12 text-center bg-[#151a21] border border-[#3a494b] rounded-xl space-y-3">
-          <Trophy className="w-10 h-10 text-[#8e9dae] mx-auto opacity-50" />
-          <h3 className="text-base font-bold text-[#e1e2e7]">No Tournaments Found</h3>
-          <p className="text-xs text-[#8e9dae]">Try broadening your search query or reset your category filters.</p>
+        <div className="p-12 text-center bg-[#151a21] border border-[#3a494b] rounded-xl space-y-3 shadow-xl">
+          <Trophy className="w-10 h-10 text-[#00f2ff] mx-auto opacity-75 animate-pulse" />
+          <h3 className="text-base font-bold text-white uppercase tracking-wider">No tournaments are live yet</h3>
+          <p className="text-xs text-[#8e9dae] max-w-md mx-auto">
+            Our first tournament is launching soon. Check back shortly for new competitive registrations.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

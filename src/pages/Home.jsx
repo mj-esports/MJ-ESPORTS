@@ -29,24 +29,28 @@ export default function Home() {
   // Derive Dynamic Platform Statistics
   const dynamicStats = useMemo(() => {
     let totalPrize = 0
-    let matchesCount = 0
+    let totalRegisteredSlots = 0
     let liveCount = 0
+    let completedCount = 0
 
     tournaments.forEach((t) => {
       const prize = parseInt((t.prizePool || t.prize_pool || '0').replace(/[^0-9]/g, ''), 10) || 0
       totalPrize += prize
-      const teams = Array.isArray(t.teamsList) ? t.teamsList.length : 0
-      matchesCount += teams > 0 ? teams : 12
 
-      if ((t.status || '').toLowerCase() === 'live' || t.status === 'LIVE NOW') {
+      const registered = Number(t.registeredTeams ?? t.registered_teams ?? 0)
+      totalRegisteredSlots += registered
+
+      if (t.status === 'Live Now') {
         liveCount += 1
+      } else if (t.status === 'Completed') {
+        completedCount += 1
       }
     })
 
     return {
-      activePlayers: tournaments.length * 48 + 120,
+      activePlayers: totalRegisteredSlots,
       totalPrizePool: `₹${totalPrize.toLocaleString()}`,
-      matchesCompleted: matchesCount,
+      matchesCompleted: completedCount,
       liveTournaments: liveCount,
     }
   }, [tournaments])

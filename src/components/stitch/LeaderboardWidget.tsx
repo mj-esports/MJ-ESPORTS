@@ -22,7 +22,7 @@ export const LeaderboardWidget: React.FC = () => {
       if (isSupabaseConfigured) {
         const { data, error: dbErr } = await supabase
           .from('tournaments')
-          .select('teams_list, teamsList')
+          .select('teams_list')
 
         if (dbErr) throw dbErr
 

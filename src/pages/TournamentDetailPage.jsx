@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { Trophy, Calendar, Clock, Users, ShieldCheck, Swords, Radio, ArrowLeft, Gamepad2, CheckCircle2 } from 'lucide-react'
+import { Trophy, Calendar, Clock, Users, ShieldCheck, Swords, Radio, ArrowLeft, Gamepad2, CheckCircle2, Key, Copy, Lock } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 import { DetailSkeleton } from '../components/common/SkeletonLoader'
 import SlotBookingModal from '../components/tournament/SlotBookingModal'
 import PointsTable from '../components/bracket/PointsTable'
@@ -12,12 +13,19 @@ export default function TournamentDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { getTournamentById, isUserRegistered, loading } = useTournaments()
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, isAdmin } = useAuth()
+  const { showSuccess } = useToast()
 
   const tournament = getTournamentById(id)
 
   const [activeTab, setActiveTab] = useState('overview')
   const [showSlotModal, setShowSlotModal] = useState(false)
+
+  const handleCopy = (text, label) => {
+    if (!text) return
+    navigator.clipboard.writeText(text)
+    showSuccess(`${label} copied to clipboard!`, 'Copied')
+  }
 
   if (loading) {
     return (
@@ -191,6 +199,82 @@ export default function TournamentDetailPage() {
                 <h3 className="font-display-lg text-base sm:text-lg font-bold text-white uppercase">About the Tournament</h3>
                 <p className="text-[#8e9dae] text-xs leading-relaxed">{tournament.description}</p>
               </div>
+
+              {/* Custom Match Room Credentials Section (Authorized Access Only) */}
+              {tournament.roomStatus === 'Published' && (isAlreadyRegistered || isAdmin) ? (
+                <div className="bg-[#151a21] border border-[#00f2ff]/60 rounded-xl p-5 sm:p-6 space-y-4 shadow-[0_0_20px_rgba(0,242,255,0.15)]">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-display-lg text-base sm:text-lg font-bold text-white flex items-center gap-2 uppercase">
+                      <Key className="w-5 h-5 text-[#00f2ff]" />
+                      <span>Custom Match Room Credentials</span>
+                    </h3>
+                    <span className="px-2.5 py-1 rounded bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 text-[10px] font-mono font-bold uppercase">
+                      Broadcast Live
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#07090c] rounded-lg border border-[#3a494b]/60">
+                    {/* Room ID Display */}
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-label-caps text-[#8e9dae] uppercase tracking-wider block">
+                        Room ID
+                      </span>
+                      <div className="flex items-center justify-between bg-[#151a21] px-3 py-2 rounded border border-[#3a494b]">
+                        <span className="font-mono text-base font-extrabold text-[#00f2ff]">
+                          {tournament.roomId || 'Not set'}
+                        </span>
+                        {tournament.roomId && (
+                          <button
+                            onClick={() => handleCopy(tournament.roomId, 'Room ID')}
+                            className="p-1.5 hover:bg-[#3a494b] text-[#00f2ff] rounded transition-colors"
+                            title="Copy Room ID"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Room Password Display */}
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-label-caps text-[#8e9dae] uppercase tracking-wider block">
+                        Password
+                      </span>
+                      <div className="flex items-center justify-between bg-[#151a21] px-3 py-2 rounded border border-[#3a494b]">
+                        <span className="font-mono text-base font-extrabold text-[#fe6b00]">
+                          {tournament.roomPassword || 'Not set'}
+                        </span>
+                        {tournament.roomPassword && (
+                          <button
+                            onClick={() => handleCopy(tournament.roomPassword, 'Password')}
+                            className="p-1.5 hover:bg-[#3a494b] text-[#fe6b00] rounded transition-colors"
+                            title="Copy Password"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {tournament.roomLastUpdated && (
+                    <div className="flex justify-between items-center text-[10px] font-mono text-[#8e9dae]">
+                      <span>Updated: {new Date(tournament.roomLastUpdated).toLocaleTimeString()}</span>
+                      <span>Authorized for approved squad members</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#b9cacb] uppercase">
+                    <Lock className="w-4 h-4 text-[#fe6b00]" />
+                    <span>Room Credentials Protected</span>
+                  </div>
+                  <p className="text-xs text-[#8e9dae] leading-relaxed">
+                    Custom Room ID and Password will be published live to registered squad members prior to match start time.
+                  </p>
+                </div>
+              )}
 
               {/* Tournament Rules List */}
               <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-3">

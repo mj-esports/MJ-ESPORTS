@@ -33,6 +33,11 @@ function mapTournamentFromDb(row) {
     description: row.description || '',
     rules: Array.isArray(row.rules) ? row.rules : [],
     teamsList: Array.isArray(row.teams_list) ? row.teams_list : (Array.isArray(row.teamsList) ? row.teamsList : []),
+    roomId: row.room_id || row.roomId || '',
+    roomPassword: row.room_password || row.roomPassword || '',
+    roomStatus: row.room_status || row.roomStatus || 'Draft',
+    roomLastUpdated: row.room_last_updated || row.roomLastUpdated || null,
+    roomPublishedBy: row.room_published_by || row.roomPublishedBy || null,
     createdAt: row.created_at || row.createdAt,
     updatedAt: row.updated_at || row.updatedAt,
   }
@@ -130,7 +135,40 @@ export function TournamentProvider({ children }) {
     }
 
     if (isSupabaseConfigured) {
+      // 1. Verify authenticated Supabase user session
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+
+      if (authError || !user) {
+        console.error('[Create Tournament Auth Error]: User is not authenticated.', authError)
+        throw new Error('Authentication Error: Active Supabase user session required to create tournaments.')
+      }
+
+      // 2. Check admin privilege in public.user_roles
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      const adminCheckResult = !roleError && roleData?.role === 'admin'
       const dbRow = mapTournamentToDb(created)
+
+      // Debugging logs before insert
+      console.log('[DEBUG] Tournament Insert Pre-check:', {
+        authenticatedUserId: user.id,
+        authenticatedUserEmail: user.email,
+        adminCheckResult: adminCheckResult,
+        insertPayload: dbRow,
+      })
+
+      if (!adminCheckResult) {
+        console.error('[Create Tournament Auth Error]: User is not an admin in user_roles.', { user, roleData })
+        throw new Error('Authorization Error: Your account does not have administrator privileges in user_roles.')
+      }
+
       const { error } = await supabase.from('tournaments').insert([dbRow])
       if (error) {
         console.error('[Supabase Create Tournament Error]:', error)
@@ -425,6 +463,47 @@ export function TournamentProvider({ children }) {
     }
   }
 
+  const updateRoomDetails = async (tournamentId, { roomId, roomPassword, roomStatus, roomPublishedBy }) => {
+    verifyAdminAuth()
+    const nowIso = new Date().toISOString()
+    const updatedPayload = {
+      roomId,
+      roomPassword,
+      roomStatus: roomStatus || 'Draft',
+      roomLastUpdated: nowIso,
+      roomPublishedBy: roomPublishedBy || 'Admin',
+    }
+
+    setTournaments((prev) =>
+      prev.map((t) => {
+        if (t.id === tournamentId) {
+          return { ...t, ...updatedPayload }
+        }
+        return t
+      })
+    )
+
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase
+          .from('tournaments')
+          .update({
+            room_id: roomId,
+            room_password: roomPassword,
+            room_status: roomStatus || 'Draft',
+            room_last_updated: nowIso,
+            room_published_by: roomPublishedBy || 'Admin',
+          })
+          .eq('id', tournamentId)
+        if (error) {
+          console.warn('[Supabase Room Details Update Warning]:', error.message)
+        }
+      } catch (err) {
+        console.warn('[Supabase Room Details Update Catch Notice]:', err)
+      }
+    }
+  }
+
   const value = {
     tournaments,
     loading,
@@ -439,6 +518,7 @@ export function TournamentProvider({ children }) {
     withdrawTeam,
     updateRegistrationStatus,
     updateTournamentScores,
+    updateRoomDetails,
   }
 
   return <TournamentContext.Provider value={value}>{children}</TournamentContext.Provider>

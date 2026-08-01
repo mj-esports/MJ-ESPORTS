@@ -37,9 +37,11 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             <Flame className="w-3.5 h-3.5 fill-slate-950" />
             LIVE NOW
           </span>
-          <span className="font-mono text-[#fe6b00] text-sm font-extrabold tracking-widest bg-black/60 px-2.5 py-1 rounded border border-orange-500/30">
-            {timer}
-          </span>
+          {timer && timer !== 'LIVE NOW' && (
+            <span className="font-mono text-[#fe6b00] text-sm font-extrabold tracking-widest bg-black/60 px-2.5 py-1 rounded border border-orange-500/30">
+              {timer}
+            </span>
+          )}
         </div>
 
         {/* Title */}

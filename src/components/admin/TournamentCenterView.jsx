@@ -251,10 +251,11 @@ export default function TournamentCenterView({
 
         <button
           onClick={handleOpenCreateModal}
-          className="btn-cyber-primary"
+          aria-label="Create New Tournament"
+          className="px-5 sm:px-6 min-h-[44px] sm:min-h-[48px] rounded-xl bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] text-xs sm:text-sm font-extrabold uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-[0_0_16px_rgba(0,242,255,0.4)] hover:shadow-[0_0_24px_rgba(0,242,255,0.65)] transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#00f2ff] focus:ring-offset-2 focus:ring-offset-[#07090c] shrink-0"
         >
-          <Plus className="w-4 h-4" />
-          <span>+ Create Tournament</span>
+          <Plus className="w-5 h-5 text-[#00363a] shrink-0" />
+          <span>Create Tournament</span>
         </button>
       </div>
 

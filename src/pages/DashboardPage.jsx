@@ -398,9 +398,9 @@ export default function DashboardPage() {
               <Trophy className="w-8 h-8 text-[#8e9dae]" />
             </div>
             <div className="space-y-2">
-              <h3 className="font-display-lg text-lg sm:text-xl font-bold text-white uppercase">No registrations found.</h3>
+              <h3 className="font-display-lg text-lg sm:text-xl font-bold text-white uppercase tracking-wider">You haven't participated in any tournaments yet.</h3>
               <p className="text-[#8e9dae] text-xs leading-relaxed max-w-md mx-auto">
-                You haven't booked a slot in any active Free Fire or BGMI tournaments yet. Explore available competitions and enter your squad today!
+                Your tournament journey starts here. Explore available competitions and book your squad slot today!
               </p>
             </div>
             <Link

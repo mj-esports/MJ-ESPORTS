@@ -48,11 +48,6 @@ function createMockSession(email, metadata = {}) {
 export async function getUserRole(user) {
   if (!user) return null
 
-  // Owner admin account fallback check
-  if (user.email && user.email.toLowerCase().trim() === 'mjesports.team@gmail.com') {
-    return 'admin'
-  }
-
   const userId = user.id
 
   // 1. Query Supabase user_roles table if configured
@@ -77,67 +72,52 @@ export async function getUserRole(user) {
 }
 
 /**
- * Register a new user with Email and Password without requiring email confirmation
+ * Register a new user with Email and Password
  */
 export async function signUp(email, password, metadata = {}) {
   if (!isSupabaseConfigured) {
     return createMockSession(email, metadata)
   }
 
-  try {
-    const role = email && email.toLowerCase().trim() === 'mjesports.team@gmail.com' ? 'admin' : metadata.role || 'user'
+  const role = metadata.role || 'user'
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          ...metadata,
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        ...metadata,
+        role,
+      },
+    },
+  })
+  if (error) {
+    if (error.message.includes('already registered')) {
+      throw new Error('An account with this email address already exists.')
+    }
+    throw new Error(error.message)
+  }
+
+  // Insert into user_roles table if session created
+  if (data.user) {
+    try {
+      await supabase.from('user_roles').upsert([
+        {
+          user_id: data.user.id,
+          email: data.user.email,
           role,
         },
-      },
-    })
-    if (error) {
-      if (error.message.includes('already registered')) {
-        throw new Error('An account with this email address already exists.')
-      }
-      throw new Error(error.message)
+      ])
+    } catch (roleErr) {
+      console.warn('[Supabase user_roles Insert Warning]:', roleErr.message)
     }
-
-    // Insert into user_roles table if session created
-    if (data.user) {
-      try {
-        await supabase.from('user_roles').upsert([
-          {
-            user_id: data.user.id,
-            email: data.user.email,
-            role,
-          },
-        ])
-      } catch (roleErr) {
-        console.warn('[Supabase user_roles Insert Warning]:', roleErr.message)
-      }
-    }
-
-    // If session was generated directly, return data
-    if (data?.session) {
-      return data
-    }
-
-    // If email confirmation is enabled on Supabase, automatically generate active session for immediate sign-in
-    return createMockSession(email, { ...metadata, role })
-  } catch (err) {
-    if (err.message === 'Failed to fetch' || err.name === 'AuthRetryableFetchError') {
-      console.warn('[Supabase Fetch Alert]: Falling back to local preview session.')
-      return createMockSession(email, metadata)
-    }
-    throw err
   }
+
+  return data
 }
 
 /**
  * Sign in an existing user with Email and Password
- * Immediately signs in without blocking for email confirmation
  */
 export async function signIn(email, password) {
   if (!isSupabaseConfigured) {
@@ -146,33 +126,20 @@ export async function signIn(email, password) {
     return createMockSession(email, metadata)
   }
 
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        throw new Error('Invalid email address or password.')
-      } else if (error.message.includes('Email not confirmed')) {
-        // Auto sign in user immediately bypassing email confirmation restriction
-        console.warn('[Supabase Auth Alert]: Email confirmation requirement bypassed. Instant sign in allowed.')
-        const storedUser = getStorageItem('mj_esports_mock_user')
-        const metadata = storedUser ? JSON.parse(storedUser).user_metadata : { username: email.split('@')[0] }
-        return createMockSession(email, metadata)
-      }
-      throw new Error(error.message)
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error) {
+    if (error.message.includes('Invalid login credentials')) {
+      throw new Error('Invalid email address or password.')
+    } else if (error.message.includes('Email not confirmed')) {
+      throw new Error('Email address is not confirmed. Please check your inbox or disable email confirmation in Supabase settings.')
     }
-    return data
-  } catch (err) {
-    if (err.message === 'Failed to fetch' || err.name === 'AuthRetryableFetchError') {
-      console.warn('[Supabase Fetch Alert]: Falling back to local preview session.')
-      const storedUser = getStorageItem('mj_esports_mock_user')
-      const metadata = storedUser ? JSON.parse(storedUser).user_metadata : { username: email.split('@')[0] }
-      return createMockSession(email, metadata)
-    }
-    throw err
+    throw new Error(error.message)
   }
+  return data
 }
 
 /**

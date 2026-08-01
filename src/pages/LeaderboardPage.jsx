@@ -21,14 +21,18 @@ export default function LeaderboardPage() {
           .select('*')
           .order('created_at', { ascending: false })
 
-        if (err) throw err
-        setTournamentsList(data || [])
+        if (err) {
+          console.warn('[Leaderboard Supabase Fetch Notice]:', err.message)
+          setTournamentsList([])
+        } else {
+          setTournamentsList(data || [])
+        }
       } else {
         setTournamentsList([])
       }
     } catch (err) {
-      console.error('[Leaderboard Fetch Error]:', err)
-      setError('Failed to fetch latest rankings. Please check network connection.')
+      console.warn('[Leaderboard Fetch Notice]:', err)
+      setTournamentsList([])
     } finally {
       setLoading(false)
     }
@@ -413,10 +417,12 @@ export default function LeaderboardPage() {
               <option value="BGMI">BGMI</option>
             </select>
 
+            {/* Season Filter */}
             <select
               value={selectedSeasonFilter}
               onChange={(e) => setSelectedSeasonFilter(e.target.value)}
-              className="bg-[#151a21] border border-[#3a494b] text-[#e1e2e7] font-mono text-xs py-2 px-3 rounded focus:outline-none focus:border-[#00f2ff] font-bold uppercase flex-1 sm:flex-none min-h-[40px]"
+              disabled={teamRankings.length === 0}
+              className="bg-[#07090c] border border-[#3a494b] text-[#e1e2e7] text-xs font-bold uppercase rounded-lg px-3 py-2 focus:outline-none focus:border-[#00f2ff] min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option value="SEASON 2026">SEASON 2026</option>
               <option value="ALL TIME">ALL TIME</option>
@@ -431,13 +437,13 @@ export default function LeaderboardPage() {
             </div>
           ) : teamRankings.length === 0 ? (
             <div className="p-12 text-center text-[#8e9dae] space-y-3">
-              <Trophy className="w-12 h-12 text-[#8e9dae] mx-auto opacity-40" />
+              <Trophy className="w-12 h-12 text-[#00f2ff] mx-auto opacity-50 animate-pulse" />
               <div className="space-y-1">
-                <h3 className="font-display-lg text-base sm:text-lg font-bold text-white uppercase">
-                  No leaderboard available yet.
+                <h3 className="font-display-lg text-base sm:text-lg font-bold text-white uppercase tracking-wider">
+                  No leaderboard data is available yet
                 </h3>
-                <p className="text-xs text-[#8e9dae]">
-                  Participate in tournaments to appear on the leaderboard.
+                <p className="text-xs text-[#8e9dae] max-w-md mx-auto">
+                  Rankings will appear after completed tournaments. Participate in active competitions to earn placement points and climb the global ladder.
                 </p>
               </div>
             </div>

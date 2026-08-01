@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useParams, useLocation } from 'react-router-dom'
 import { Shield } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import AdminHeader from '../components/admin/AdminHeader'
 import AdminSidebar, { NAV_ITEMS } from '../components/admin/AdminSidebar'
 import DashboardOverview from '../components/admin/DashboardOverview'
 import FinanceDashboardView from '../components/admin/FinanceDashboardView'
-import LiveOperationsView from '../components/admin/LiveOperationsView'
 import TournamentCenterView from '../components/admin/TournamentCenterView'
 import RegistrationQueueView from '../components/admin/RegistrationQueueView'
 import PaymentVerificationView from '../components/admin/PaymentVerificationView'
@@ -13,11 +13,10 @@ import MatchControlView from '../components/admin/MatchControlView'
 import LeaderboardsView from '../components/admin/LeaderboardsView'
 import PlayerDirectoryView from '../components/admin/PlayerDirectoryView'
 import ReportsView from '../components/admin/ReportsView'
-import NotificationsView from '../components/admin/NotificationsView'
 import AnalyticsView from '../components/admin/AnalyticsView'
 import SettingsView from '../components/admin/SettingsView'
 
-export default function AdminDashboardPage() {
+export default function AdminDashboardPage({ defaultTab }) {
   const {
     tournaments,
     createTournament,
@@ -28,9 +27,39 @@ export default function AdminDashboardPage() {
     updateTournamentScores,
   } = useTournaments()
 
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const params = useParams()
+  const location = useLocation()
+
+  // Resolve target tab from defaultTab prop, path param (/admin/:tab), or search param (?tab=...)
+  const resolveTab = () => {
+    if (defaultTab) return defaultTab
+    if (params.tab) {
+      const normalizedParam = params.tab.toLowerCase()
+      if (normalizedParam === 'leaderboard' || normalizedParam === 'leaderboards') return 'leaderboards'
+      const found = NAV_ITEMS.find((item) => item.id === normalizedParam)
+      if (found) return found.id
+    }
+    const searchParams = new URLSearchParams(location.search)
+    const tabQuery = searchParams.get('tab')
+    if (tabQuery) {
+      const normalizedQuery = tabQuery.toLowerCase()
+      if (normalizedQuery === 'leaderboard' || normalizedQuery === 'leaderboards') return 'leaderboards'
+      const found = NAV_ITEMS.find((item) => item.id === normalizedQuery)
+      if (found) return found.id
+    }
+    return 'dashboard'
+  }
+
+  const [activeTab, setActiveTab] = useState(resolveTab)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [adminSearch, setAdminSearch] = useState('')
+
+  useEffect(() => {
+    const target = resolveTab()
+    if (target !== activeTab) {
+      setActiveTab(target)
+    }
+  }, [params.tab, location.search, defaultTab])
 
   const activeNavItem = NAV_ITEMS.find((item) => item.id === activeTab) || NAV_ITEMS[0]
 
@@ -88,10 +117,6 @@ export default function AdminDashboardPage() {
               <FinanceDashboardView tournaments={tournaments} />
             )}
 
-            {activeTab === 'live-ops' && (
-              <LiveOperationsView tournaments={tournaments} setActiveTab={setActiveTab} />
-            )}
-
             {activeTab === 'tournaments' && (
               <TournamentCenterView
                 tournaments={tournaments}
@@ -132,8 +157,6 @@ export default function AdminDashboardPage() {
             )}
 
             {activeTab === 'reports' && <ReportsView />}
-
-            {activeTab === 'notifications' && <NotificationsView />}
 
             {activeTab === 'analytics' && <AnalyticsView tournaments={tournaments} />}
 
