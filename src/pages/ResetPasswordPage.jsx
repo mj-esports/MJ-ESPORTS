@@ -4,6 +4,7 @@ import { KeyRound, Lock, CheckCircle2, ArrowRight } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'
+import { isStrongPassword } from '../utils/validationUtils'
 
 export default function ResetPasswordPage() {
   const { updateUserPassword } = useAuth()
@@ -20,11 +21,13 @@ export default function ResetPasswordPage() {
 
     if (!password) {
       newErrors.password = 'New password is required'
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters long'
+    } else if (!isStrongPassword(password)) {
+      newErrors.password = 'Password must be at least 6 characters with at least 1 letter and 1 number'
     }
 
-    if (password !== confirmPassword) {
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your new password'
+    } else if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match'
     }
 
@@ -91,7 +94,7 @@ export default function ResetPasswordPage() {
               </Link>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <FormInput
                 label="New Password"
                 id="password"

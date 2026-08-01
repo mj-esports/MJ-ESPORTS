@@ -18,29 +18,28 @@ import {
 } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
 import AuthAlert from '../common/AuthAlert'
+import { useToast } from '../../contexts/ToastContext'
+import { TableSkeleton } from '../common/SkeletonLoader'
 
 export default function PlayerDirectoryView() {
+  const { showSuccess, showError } = useToast()
   const [search, setSearch] = useState('')
   const [alert, setAlert] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
   const [users, setUsers] = useState([])
   const [allRegistrations, setAllRegistrations] = useState([])
   const [loading, setLoading] = useState(true)
+  const [updatingUserId, setUpdatingUserId] = useState(null)
 
   const fetchUsersAndHistory = async () => {
     setLoading(true)
     try {
       if (isSupabaseConfigured) {
-        // Fetch User Roles / Profiles from Supabase
-        const { data: dbRoles } = await supabase
-          .from('user_roles')
-          .select('*')
-
-        // Fetch Registrations from Supabase
-        const { data: dbRegs } = await supabase
-          .from('tournament_registrations')
-          .select('*')
-          .order('registered_at', { ascending: false })
+        // Fetch User Roles & Registrations concurrently via Promise.all
+        const [{ data: dbRoles }, { data: dbRegs }] = await Promise.all([
+          supabase.from('user_roles').select('*'),
+          supabase.from('tournament_registrations').select('*').order('registered_at', { ascending: false }),
+        ])
 
         const loadedRegs = dbRegs || []
         setAllRegistrations(loadedRegs)
@@ -62,28 +61,28 @@ export default function PlayerDirectoryView() {
           })
           setUsers(mappedUsers)
         } else {
-          fallbackMockUsers(loadedRegs)
+          fallbackDefaultUsers()
         }
       } else {
-        fallbackMockUsers([])
+        fallbackDefaultUsers()
       }
     } catch (err) {
-      console.error('[User Management Error]:', err)
-      fallbackMockUsers([])
+      console.error('[Fetch Players Error]:', err)
+      fallbackDefaultUsers()
     } finally {
       setLoading(false)
     }
   }
 
-  const fallbackMockUsers = (regs = []) => {
+  const fallbackDefaultUsers = () => {
     const defaultUsers = [
       {
         id: 'u-1',
         userId: 'uid-1',
-        name: 'Phoenix_99',
-        email: 'mjesports.team@gmail.com',
+        name: 'CyberKnight99',
+        email: 'user@example.com',
         uid: '518920412',
-        role: 'admin',
+        role: 'user',
         status: 'Active',
         createdAt: '2026-01-10',
         registrationHistory: [
@@ -123,41 +122,53 @@ export default function PlayerDirectoryView() {
     fetchUsersAndHistory()
   }, [])
 
-  const handleToggleStatus = async (userId, currentStatus) => {
+  const handleToggleStatus = async (targetId, currentStatus) => {
+    if (updatingUserId) return
+    setUpdatingUserId(targetId)
     const nextStatus = currentStatus === 'Banned' ? 'Active' : 'Banned'
     try {
       if (isSupabaseConfigured) {
         await supabase
           .from('user_roles')
           .update({ status: nextStatus })
-          .eq('user_id', userId)
+          .eq('user_id', targetId)
       }
 
       setUsers((prev) =>
-        prev.map((u) => (u.id === userId || u.userId === userId ? { ...u, status: nextStatus } : u))
+        prev.map((u) => (u.id === targetId || u.userId === targetId ? { ...u, status: nextStatus } : u))
       )
       setAlert({ type: 'success', message: `Player status updated to "${nextStatus}".` })
+      showSuccess(`Player status updated to "${nextStatus}".`, 'Account Updated')
     } catch (err) {
       setAlert({ type: 'error', message: err.message || 'Failed to update user status.' })
+      showError(err, 'Status Change Failed')
+    } finally {
+      setUpdatingUserId(null)
     }
   }
 
-  const handleToggleRole = async (userId, currentRole) => {
+  const handleToggleRole = async (targetId, currentRole) => {
+    if (updatingUserId) return
+    setUpdatingUserId(targetId)
     const nextRole = currentRole === 'admin' ? 'user' : 'admin'
     try {
       if (isSupabaseConfigured) {
         await supabase
           .from('user_roles')
           .update({ role: nextRole })
-          .eq('user_id', userId)
+          .eq('user_id', targetId)
       }
 
       setUsers((prev) =>
-        prev.map((u) => (u.id === userId || u.userId === userId ? { ...u, role: nextRole } : u))
+        prev.map((u) => (u.id === targetId || u.userId === targetId ? { ...u, role: nextRole } : u))
       )
       setAlert({ type: 'success', message: `User role updated to "${nextRole.toUpperCase()}".` })
+      showSuccess(`User role updated to "${nextRole.toUpperCase()}".`, 'Role Updated')
     } catch (err) {
       setAlert({ type: 'error', message: err.message || 'Failed to update user role.' })
+      showError(err, 'Role Change Failed')
+    } finally {
+      setUpdatingUserId(null)
     }
   }
 
@@ -268,22 +279,32 @@ export default function PlayerDirectoryView() {
 
                       <button
                         onClick={() => handleToggleRole(u.userId || u.id, u.role)}
-                        className="p-1.5 rounded bg-[#07090c] hover:bg-[#1d232c] text-[#fe6b00] border border-[#3a494b]"
+                        disabled={updatingUserId === (u.userId || u.id)}
+                        className="p-1.5 rounded bg-[#07090c] hover:bg-[#1d232c] text-[#fe6b00] border border-[#3a494b] disabled:opacity-40"
                         title="Toggle Admin Privilege"
                       >
-                        <ShieldCheck className="w-3.5 h-3.5" />
+                        {updatingUserId === (u.userId || u.id) ? (
+                          <div className="w-3.5 h-3.5 border-2 border-[#fe6b00] border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                        )}
                       </button>
 
                       <button
                         onClick={() => handleToggleStatus(u.userId || u.id, u.status)}
-                        className={`p-1.5 rounded border ${
+                        disabled={updatingUserId === (u.userId || u.id)}
+                        className={`p-1.5 rounded border disabled:opacity-40 ${
                           u.status === 'Banned'
                             ? 'bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border-[#00ff9d]/40'
                             : 'bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border-red-800'
                         }`}
                         title={u.status === 'Banned' ? 'Unban Player' : 'Ban Player'}
                       >
-                        <Ban className="w-3.5 h-3.5" />
+                        {updatingUserId === (u.userId || u.id) ? (
+                          <div className="w-3.5 h-3.5 border-2 border-[#ff3366] border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <Ban className="w-3.5 h-3.5" />
+                        )}
                       </button>
                     </div>
                   </td>

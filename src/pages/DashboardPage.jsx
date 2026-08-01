@@ -3,20 +3,24 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTournaments } from '../contexts/TournamentContext'
 import { User, Mail, ShieldCheck, Phone, Trophy, Edit3, Trash2, Calendar, Gamepad2, ArrowRight, Save, CheckCircle2, Camera, Upload } from 'lucide-react'
+import { useToast } from '../contexts/ToastContext'
 import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'
 import AvatarUploadModal from '../components/common/AvatarUploadModal'
-import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
+import LoadingButton from '../components/common/LoadingButton'
+import { isValidUsername, isValidGameUid, isValidPhoneNumber, sanitizeString } from '../utils/validationUtils'
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { tournaments, withdrawTeam } = useTournaments()
+  const { tournaments, withdrawTeam, loading: tournamentsLoading } = useTournaments()
+  const { showSuccess, showError } = useToast()
 
   const [profileData, setProfileData] = useState({
     username: user?.user_metadata?.username || user?.email?.split('@')[0] || 'Esports Player',
     freeFireUid: user?.user_metadata?.freeFireUid || '',
     whatsappNumber: user?.user_metadata?.whatsappNumber || '',
   })
+  const [profileErrors, setProfileErrors] = useState({})
 
   const [avatarUrl, setAvatarUrl] = useState(
     user?.user_metadata?.avatar_url || user?.user_metadata?.avatarUrl || ''
@@ -24,6 +28,7 @@ export default function DashboardPage() {
 
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [withdrawingId, setWithdrawingId] = useState(null)
   const [alert, setAlert] = useState(null)
   const [withdrawAlert, setWithdrawAlert] = useState(null)
 
@@ -34,20 +39,56 @@ export default function DashboardPage() {
   const handleProfileChange = (e) => {
     const { name, value } = e.target
     setProfileData((prev) => ({ ...prev, [name]: value }))
+    if (profileErrors[name]) {
+      setProfileErrors((prev) => ({ ...prev, [name]: null }))
+    }
+  }
+
+  const validateProfile = () => {
+    const newErrors = {}
+    const cleanUsername = sanitizeString(profileData.username)
+    const cleanUid = sanitizeString(profileData.freeFireUid)
+    const cleanPhone = sanitizeString(profileData.whatsappNumber)
+
+    if (!cleanUsername) {
+      newErrors.username = 'Username is required'
+    } else if (cleanUsername.length < 3 || cleanUsername.length > 30) {
+      newErrors.username = 'Username must be between 3 and 30 characters'
+    } else if (!isValidUsername(cleanUsername)) {
+      newErrors.username = 'Username can only contain letters, numbers, underscores, and hyphens'
+    }
+
+    if (cleanUid && !isValidGameUid(cleanUid)) {
+      newErrors.freeFireUid = 'Game UID must be 8 to 12 alphanumeric characters'
+    }
+
+    if (cleanPhone && !isValidPhoneNumber(cleanPhone)) {
+      newErrors.whatsappNumber = 'Please enter a valid 10-digit phone number'
+    }
+
+    setProfileErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSaveProfile = async (e) => {
     e.preventDefault()
     setAlert(null)
+
+    if (!validateProfile() || isSaving) return
+
     setIsSaving(true)
+
+    const cleanUsername = sanitizeString(profileData.username)
+    const cleanUid = sanitizeString(profileData.freeFireUid)
+    const cleanPhone = sanitizeString(profileData.whatsappNumber)
 
     try {
       if (isSupabaseConfigured && user) {
         await supabase.auth.updateUser({
           data: {
-            username: profileData.username,
-            freeFireUid: profileData.freeFireUid,
-            whatsappNumber: profileData.whatsappNumber,
+            username: cleanUsername,
+            freeFireUid: cleanUid,
+            whatsappNumber: cleanPhone,
             avatar_url: avatarUrl,
           },
         })
@@ -58,7 +99,13 @@ export default function DashboardPage() {
       if (storedMockUser) {
         try {
           const parsed = JSON.parse(storedMockUser)
-          parsed.user_metadata = { ...parsed.user_metadata, ...profileData, avatar_url: avatarUrl }
+          parsed.user_metadata = {
+            ...parsed.user_metadata,
+            username: cleanUsername,
+            freeFireUid: cleanUid,
+            whatsappNumber: cleanPhone,
+            avatar_url: avatarUrl,
+          }
           localStorage.setItem('mj_esports_mock_user', JSON.stringify(parsed))
         } catch (err) {
           console.error(err)
@@ -66,9 +113,11 @@ export default function DashboardPage() {
       }
 
       setAlert({ type: 'success', message: 'Profile updated successfully!' })
+      showSuccess('Profile information saved successfully.', 'Profile Updated')
       setIsEditing(false)
     } catch (err) {
       setAlert({ type: 'error', message: err.message || 'Failed to update profile' })
+      showError(err, 'Profile Update Error')
     } finally {
       setIsSaving(false)
     }
@@ -122,10 +171,12 @@ export default function DashboardPage() {
       }
 
       setAlert({ type: 'success', message: 'Profile picture updated successfully!' })
+      showSuccess('Profile photo updated successfully!', 'Avatar Updated')
       setIsAvatarModalOpen(false)
     } catch (err) {
       console.error('[Avatar Upload Error]:', err)
       setAlert({ type: 'error', message: err.message || 'Failed to upload profile picture.' })
+      showError(err, 'Avatar Upload Failed')
     } finally {
       setIsAvatarUploading(false)
     }
@@ -145,16 +196,22 @@ export default function DashboardPage() {
   })
 
   const handleWithdraw = async (tournamentId, tournamentTitle) => {
+    if (withdrawingId) return
     if (!window.confirm(`Are you sure you want to withdraw your registration from "${tournamentTitle}"?`)) {
       return
     }
 
     setWithdrawAlert(null)
+    setWithdrawingId(tournamentId)
     try {
       await withdrawTeam(tournamentId, user?.email || profileData.username)
       setWithdrawAlert({ type: 'success', message: `Successfully withdrew registration from ${tournamentTitle}.` })
+      showSuccess(`Withdrew registration from ${tournamentTitle}.`, 'Registration Withdrawn')
     } catch (err) {
       setWithdrawAlert({ type: 'error', message: err.message || 'Withdrawal failed.' })
+      showError(err, 'Withdrawal Error')
+    } finally {
+      setWithdrawingId(null)
     }
   }
 
@@ -163,12 +220,12 @@ export default function DashboardPage() {
       
       {/* Header Banner with Profile Avatar Upload Trigger */}
       <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4 sm:gap-5 flex-wrap xs:flex-nowrap">
           
           {/* Circular Profile Avatar Image Frame */}
           <div
             onClick={() => setIsAvatarModalOpen(true)}
-            className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#00f2ff]/20 border-2 border-[#00f2ff] flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(0,242,255,0.4)] cursor-pointer group overflow-hidden"
+            className="relative w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#00f2ff]/20 border-2 border-[#00f2ff] flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(0,242,255,0.4)] cursor-pointer group overflow-hidden"
             title="Click to change profile picture"
           >
             {avatarUrl ? (
@@ -178,25 +235,25 @@ export default function DashboardPage() {
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
               />
             ) : (
-              <User className="w-8 h-8 sm:w-10 sm:h-10 text-[#00f2ff]" />
+              <User className="w-7 h-7 sm:w-10 sm:h-10 text-[#00f2ff]" />
             )}
 
             {/* Hover Camera Overlay Badge */}
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
-              <Camera className="w-5 h-5 text-[#00f2ff]" />
-              <span className="text-[9px] font-extrabold uppercase tracking-widest mt-0.5">Edit</span>
+              <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-[#00f2ff]" />
+              <span className="text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest mt-0.5">Edit</span>
             </div>
           </div>
 
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="font-display-lg text-xl sm:text-3xl font-extrabold text-white uppercase">{profileData.username}</h1>
+              <h1 className="font-display-lg text-lg sm:text-3xl font-extrabold text-white uppercase">{profileData.username}</h1>
               <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase tracking-widest">
                 PRO PLAYER DASHBOARD
               </span>
             </div>
-            <p className="text-xs text-[#8e9dae] flex items-center gap-1.5 mt-1 font-mono">
-              <Mail className="w-3.5 h-3.5 text-[#00f2ff]" />
+            <p className="text-xs text-[#8e9dae] flex items-center gap-1.5 mt-1 font-mono break-all">
+              <Mail className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
               <span>{user?.email || 'player@example.com'}</span>
             </p>
           </div>
@@ -239,13 +296,14 @@ export default function DashboardPage() {
             <span>Update Player Information</span>
           </h3>
 
-          <form onSubmit={handleSaveProfile} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <form onSubmit={handleSaveProfile} noValidate className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <FormInput
               label="Player Handle / Username"
               name="username"
               value={profileData.username}
               onChange={handleProfileChange}
               required
+              error={profileErrors.username}
               icon={User}
             />
 
@@ -255,6 +313,7 @@ export default function DashboardPage() {
               value={profileData.freeFireUid}
               onChange={handleProfileChange}
               placeholder="e.g. 518920412"
+              error={profileErrors.freeFireUid}
               icon={ShieldCheck}
             />
 
@@ -263,19 +322,21 @@ export default function DashboardPage() {
               name="whatsappNumber"
               value={profileData.whatsappNumber}
               onChange={handleProfileChange}
-              placeholder="e.g. +91 9876543210"
+              placeholder="e.g. 9876543210"
+              error={profileErrors.whatsappNumber}
               icon={Phone}
             />
 
             <div className="sm:col-span-3 text-right">
-              <button
+              <LoadingButton
                 type="submit"
-                disabled={isSaving}
-                className="btn-cyber-primary ml-auto shadow-lg"
+                loading={isSaving}
+                loadingText="Saving..."
+                icon={Save}
+                className="ml-auto shadow-lg"
               >
-                <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
-              </button>
+                Save Profile Changes
+              </LoadingButton>
             </div>
           </form>
         </div>

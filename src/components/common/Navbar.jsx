@@ -3,10 +3,14 @@ import { Link, useLocation } from 'react-router-dom'
 import { Swords, Menu, X, User, LogOut, Shield, Info, Mail, ShieldCheck, Settings, Wallet } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
+import { useToast } from '../../contexts/ToastContext'
+
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const location = useLocation()
   const { user, isAuthenticated, isAdmin, signOut } = useAuth()
+  const { showSuccess, showError } = useToast()
 
   // Primary navigation links (Home, Tournaments, Leaderboard, Admin if admin)
   const navLinks = [
@@ -19,10 +23,16 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path
 
   const handleSignOut = async () => {
+    if (isSigningOut) return
+    setIsSigningOut(true)
     try {
       await signOut()
+      showSuccess('Signed out successfully.', 'Session Closed')
     } catch (err) {
       console.error('Sign Out Error:', err)
+      showError(err, 'Sign Out Error')
+    } finally {
+      setIsSigningOut(false)
     }
   }
 
@@ -32,21 +42,29 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-[#0f1318]/90 backdrop-blur-xl border-b border-[#3a494b]/60 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+      {/* Skip Navigation Link for Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#00f2ff] focus:text-[#00363a] focus:font-extrabold focus:rounded shadow-lg uppercase text-xs"
+      >
+        Skip to main content
+      </a>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-lg bg-[#00f2ff] p-[1px] shadow-[0_0_15px_rgba(0,242,255,0.4)] group-hover:scale-105 transition-transform">
+          <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#00f2ff] p-[1px] shadow-[0_0_15px_rgba(0,242,255,0.4)] group-hover:scale-105 transition-transform">
               <div className="w-full h-full bg-[#07090c] rounded-[7px] flex items-center justify-center">
-                <Swords className="w-5 h-5 text-[#00f2ff]" />
+                <Swords className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#00f2ff]" />
               </div>
             </div>
             <div>
-              <span className="font-display-lg text-xl font-extrabold tracking-wider text-white">
+              <span className="font-display-lg text-base sm:text-xl font-extrabold tracking-wider text-white">
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </span>
-              <span className="flex items-center gap-1 text-[9px] uppercase font-bold tracking-widest text-[#fe6b00] -mt-1">
+              <span className="flex items-center gap-1 text-[8px] sm:text-[9px] uppercase font-bold tracking-widest text-[#fe6b00] -mt-0.5 sm:-mt-1">
                 <span>Free Fire & BGMI Arena</span>
               </span>
             </div>
@@ -111,10 +129,15 @@ export default function Navbar() {
 
                 <button
                   onClick={handleSignOut}
-                  className="px-3 py-1.5 rounded bg-[#151a21] border border-[#3a494b] text-xs font-bold text-[#8e9dae] hover:text-[#ff3366] hover:border-[#ff3366]/40 transition-colors flex items-center gap-1.5 uppercase"
+                  disabled={isSigningOut}
+                  className="px-3 py-1.5 rounded bg-[#151a21] border border-[#3a494b] text-xs font-bold text-[#8e9dae] hover:text-[#ff3366] hover:border-[#ff3366]/40 transition-colors flex items-center gap-1.5 uppercase disabled:opacity-50 min-h-[36px]"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Logout</span>
+                  {isSigningOut ? (
+                    <div className="w-3.5 h-3.5 border-2 border-[#ff3366] border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <LogOut className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isSigningOut ? 'Signing Out...' : 'Logout'}</span>
                 </button>
               </div>
             ) : (
@@ -139,6 +162,8 @@ export default function Navbar() {
           <div className="md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation-drawer"
               className="p-2.5 rounded-lg bg-[#151a21] border border-[#3a494b] text-[#e1e2e7] hover:text-[#00f2ff] focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Toggle Side Drawer Menu"
             >

@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react'
 import { Upload, X, Check, Image as ImageIcon, ZoomIn, ZoomOut, AlertCircle, RefreshCw } from 'lucide-react'
+import { validateImageFile } from '../../utils/validationUtils'
+import LoadingButton from './LoadingButton'
 
 export default function AvatarUploadModal({ isOpen, onClose, onSave, isUploading }) {
   const [selectedFile, setSelectedFile] = useState(null)
@@ -16,14 +18,9 @@ export default function AvatarUploadModal({ isOpen, onClose, onSave, isUploading
     if (!file) return
 
     setError(null)
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg']
-    if (!validTypes.includes(file.type)) {
-      setError('Please select a valid image format (JPG, PNG, or WebP).')
-      return
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size exceeds 5MB limit. Please choose a smaller file.')
+    const validation = validateImageFile(file, 5)
+    if (!validation.isValid) {
+      setError(validation.message)
       return
     }
 
@@ -84,20 +81,26 @@ export default function AvatarUploadModal({ isOpen, onClose, onSave, isUploading
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="avatar-upload-modal-title"
+    >
       <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
           <div className="flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-[#00f2ff]" />
-            <h3 className="font-display-lg text-lg font-bold text-white uppercase tracking-wider">
+            <h3 id="avatar-upload-modal-title" className="font-display-lg text-lg font-bold text-white uppercase tracking-wider">
               Upload Profile Photo
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close Avatar Modal"
             className="p-1 rounded text-[#8e9dae] hover:text-white hover:bg-[#07090c] transition-colors"
           >
             <X className="w-5 h-5" />
@@ -192,24 +195,17 @@ export default function AvatarUploadModal({ isOpen, onClose, onSave, isUploading
           >
             Cancel
           </button>
-          <button
+          <LoadingButton
             type="button"
             onClick={handleCropAndSave}
-            disabled={!previewUrl || isUploading}
-            className="btn-cyber-primary flex-1 justify-center py-2.5 min-h-[44px] disabled:opacity-50"
+            loading={isUploading}
+            disabled={!previewUrl}
+            loadingText="Uploading..."
+            icon={Check}
+            className="flex-1 py-2.5 min-h-[44px]"
           >
-            {isUploading ? (
-              <>
-                <RefreshCw className="w-4 h-4 text-[#00363a] animate-spin" />
-                <span>Uploading...</span>
-              </>
-            ) : (
-              <>
-                <Check className="w-4 h-4" />
-                <span>Save Profile Photo</span>
-              </>
-            )}
-          </button>
+            Save Profile Photo
+          </LoadingButton>
         </div>
 
       </div>

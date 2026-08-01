@@ -30,8 +30,9 @@ export default function BottomNavigation() {
               key={`bottom-nav-${tab.name}`}
               to={tab.path}
               end={tab.path === '/'}
+              aria-label={tab.name}
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center py-1 flex-1 min-h-[44px] relative transition-all duration-200 ${
+                `flex flex-col items-center justify-center py-1 flex-1 min-h-[44px] relative transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00f2ff] ${
                   isActive
                     ? 'text-[#00f2ff] font-extrabold'
                     : 'text-[#8e9dae] font-medium hover:text-[#e1e2e7]'

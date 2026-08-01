@@ -7,7 +7,7 @@ interface FeaturedTournamentCardProps {
   onJoin?: (tournament: any) => void
 }
 
-export const FeaturedTournamentCard: React.FC<FeaturedTournamentCardProps> = ({
+export const FeaturedTournamentCard: React.FC<FeaturedTournamentCardProps> = React.memo(({
   tournament,
   onJoin,
 }) => {
@@ -54,7 +54,7 @@ export const FeaturedTournamentCard: React.FC<FeaturedTournamentCardProps> = ({
           </div>
 
           {/* Stats Bar */}
-          <div className="grid grid-cols-3 gap-3 pt-2 max-w-md">
+          <div className="grid grid-cols-1 xs:grid-cols-3 gap-2.5 sm:gap-3 pt-2 max-w-md">
             <div className="bg-[#0b0e11] p-2.5 rounded border border-[#3a494b]/60">
               <p className="text-[10px] font-bold tracking-widest text-[#849495] uppercase flex items-center gap-1">
                 <Trophy className="w-3 h-3 text-[#fe6b00]" />
@@ -114,4 +114,4 @@ export const FeaturedTournamentCard: React.FC<FeaturedTournamentCardProps> = ({
       </div>
     </div>
   )
-}
+})

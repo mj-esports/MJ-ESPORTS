@@ -15,12 +15,16 @@ import {
 } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
 import AuthAlert from '../common/AuthAlert'
+import { useToast } from '../../contexts/ToastContext'
+import { TableSkeleton } from '../common/SkeletonLoader'
 
 export default function PaymentVerificationView({ tournaments = [] }) {
+  const { showSuccess, showError } = useToast()
   const [activeTab, setActiveTab] = useState('Pending') // 'Pending' | 'Verified' | 'Rejected' | 'All'
   const [search, setSearch] = useState('')
   const [payments, setPayments] = useState([])
   const [loading, setLoading] = useState(true)
+  const [verifyingId, setVerifyingId] = useState(null)
   const [selectedScreenshot, setSelectedScreenshot] = useState(null)
   const [alert, setAlert] = useState(null)
 
@@ -113,6 +117,8 @@ export default function PaymentVerificationView({ tournaments = [] }) {
   }, [tournaments])
 
   const handleUpdatePaymentStatus = async (payId, nextStatus) => {
+    if (verifyingId) return
+    setVerifyingId(payId)
     try {
       if (isSupabaseConfigured) {
         const dbStatus = nextStatus === 'Verified' ? 'Approved' : 'Rejected'
@@ -126,8 +132,12 @@ export default function PaymentVerificationView({ tournaments = [] }) {
         prev.map((p) => (p.id === payId ? { ...p, status: nextStatus } : p))
       )
       setAlert({ type: 'success', message: `Payment transaction ${payId} status updated to "${nextStatus}".` })
+      showSuccess(`Payment transaction updated to "${nextStatus}".`, 'Payment Verified')
     } catch (err) {
       setAlert({ type: 'error', message: err.message || 'Failed to update payment verification.' })
+      showError(err, 'Verification Error')
+    } finally {
+      setVerifyingId(null)
     }
   }
 
@@ -263,20 +273,30 @@ export default function PaymentVerificationView({ tournaments = [] }) {
                       {p.status !== 'Verified' && (
                         <button
                           onClick={() => handleUpdatePaymentStatus(p.id, 'Verified')}
-                          className="p-1.5 rounded bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40"
+                          disabled={verifyingId === p.id}
+                          className="p-1.5 rounded bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 disabled:opacity-40"
                           title="Mark Verified"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          {verifyingId === p.id ? (
+                            <div className="w-3.5 h-3.5 border-2 border-[#00ff9d] border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          )}
                         </button>
                       )}
 
                       {p.status !== 'Rejected' && (
                         <button
                           onClick={() => handleUpdatePaymentStatus(p.id, 'Rejected')}
-                          className="p-1.5 rounded bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border border-red-800"
+                          disabled={verifyingId === p.id}
+                          className="p-1.5 rounded bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border border-red-800 disabled:opacity-40"
                           title="Reject Payment"
                         >
-                          <XCircle className="w-3.5 h-3.5" />
+                          {verifyingId === p.id ? (
+                            <div className="w-3.5 h-3.5 border-2 border-[#ff3366] border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <XCircle className="w-3.5 h-3.5" />
+                          )}
                         </button>
                       )}
                     </div>

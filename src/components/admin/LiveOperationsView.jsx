@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { Zap, Tv, Key, CheckCircle2, Play, AlertTriangle, ArrowRight, Gamepad2, Shield } from 'lucide-react'
 import AuthAlert from '../common/AuthAlert'
+import LoadingButton from '../common/LoadingButton'
+import { useToast } from '../../contexts/ToastContext'
 
 export default function LiveOperationsView({ tournaments, setActiveTab }) {
+  const { showSuccess } = useToast()
   const liveTournaments = tournaments.filter((t) => t.status === 'Live Now' || t.status === 'Registration Open')
 
   const [roomStates, setRoomStates] = useState({
@@ -11,23 +14,36 @@ export default function LiveOperationsView({ tournaments, setActiveTab }) {
   })
 
   const [alert, setAlert] = useState(null)
+  const [loadingAction, setLoadingAction] = useState(null) // 'gen-id' | 'pub-id'
 
   const handleGenerateRoom = (tId) => {
-    const newRoomId = Math.floor(1000000 + Math.random() * 9000000).toString()
-    const newPass = Math.floor(1000 + Math.random() * 9000).toString()
-    setRoomStates((prev) => ({
-      ...prev,
-      [tId]: { roomId: newRoomId, roomPass: newPass, published: false },
-    }))
-    setAlert({ type: 'success', message: `Generated new custom room credentials: ID ${newRoomId} / Pass ${newPass}` })
+    if (loadingAction) return
+    setLoadingAction(`gen-${tId}`)
+    setTimeout(() => {
+      const newRoomId = Math.floor(1000000 + Math.random() * 9000000).toString()
+      const newPass = Math.floor(1000 + Math.random() * 9000).toString()
+      setRoomStates((prev) => ({
+        ...prev,
+        [tId]: { roomId: newRoomId, roomPass: newPass, published: false },
+      }))
+      setAlert({ type: 'success', message: `Generated new custom room credentials: ID ${newRoomId} / Pass ${newPass}` })
+      showSuccess(`Generated Room ID ${newRoomId} / Pass ${newPass}`, 'Room Credentials Created')
+      setLoadingAction(null)
+    }, 300)
   }
 
   const handlePublishRoom = (tId) => {
-    setRoomStates((prev) => ({
-      ...prev,
-      [tId]: { ...(prev[tId] || {}), published: true },
-    }))
-    setAlert({ type: 'success', message: `Custom Room credentials published live to registered teams for tournament ${tId}!` })
+    if (loadingAction || roomStates[tId]?.published) return
+    setLoadingAction(`pub-${tId}`)
+    setTimeout(() => {
+      setRoomStates((prev) => ({
+        ...prev,
+        [tId]: { ...(prev[tId] || {}), published: true },
+      }))
+      setAlert({ type: 'success', message: `Custom Room credentials published live to registered teams!` })
+      showSuccess(`Room credentials published live!`, 'Broadcast Active')
+      setLoadingAction(null)
+    }, 400)
   }
 
   return (
@@ -52,6 +68,9 @@ export default function LiveOperationsView({ tournaments, setActiveTab }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {liveTournaments.map((t) => {
           const room = roomStates[t.id] || { roomId: 'Pending', roomPass: '----', published: false }
+          const isGenLoading = loadingAction === `gen-${t.id}`
+          const isPubLoading = loadingAction === `pub-${t.id}`
+
           return (
             <div key={`live-card-${t.id}`} className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-5 shadow-xl">
               
@@ -114,12 +133,15 @@ export default function LiveOperationsView({ tournaments, setActiveTab }) {
                     <span>Custom Room Credentials</span>
                   </span>
 
-                  <button
+                  <LoadingButton
                     onClick={() => handleGenerateRoom(t.id)}
-                    className="px-2.5 py-1 rounded bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[11px] font-bold text-[#e1e2e7] hover:text-[#00f2ff] transition-colors"
+                    loading={isGenLoading}
+                    loadingText="Generating..."
+                    variant="secondary"
+                    size="sm"
                   >
                     Auto-Generate Room
-                  </button>
+                  </LoadingButton>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -150,16 +172,16 @@ export default function LiveOperationsView({ tournaments, setActiveTab }) {
                   </div>
                 </div>
 
-                <button
+                <LoadingButton
                   onClick={() => handlePublishRoom(t.id)}
+                  loading={isPubLoading}
                   disabled={room.published}
-                  className={`btn-cyber-primary w-full justify-center py-2.5 min-h-[40px] ${
-                    room.published ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
+                  loadingText="Publishing Credentials..."
+                  icon={CheckCircle2}
+                  className="w-full py-2.5 min-h-[40px]"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{room.published ? 'Credentials Live on Player Dashboard' : 'Publish Credentials to Registered Teams'}</span>
-                </button>
+                  {room.published ? 'Credentials Live on Player Dashboard' : 'Publish Credentials to Registered Teams'}
+                </LoadingButton>
               </div>
 
               {/* Action Buttons */}

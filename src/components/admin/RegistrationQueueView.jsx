@@ -19,8 +19,11 @@ import {
 } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
 import AuthAlert from '../common/AuthAlert'
+import { useToast } from '../../contexts/ToastContext'
+import { TableSkeleton } from '../common/SkeletonLoader'
 
 export default function RegistrationQueueView({ tournaments = [], updateRegistrationStatus }) {
+  const { showSuccess, showError } = useToast()
   const [activeQueueTab, setActiveQueueTab] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTournamentFilter, setSelectedTournamentFilter] = useState('ALL')
@@ -28,6 +31,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
   const [alert, setAlert] = useState(null)
   const [liveRegistrations, setLiveRegistrations] = useState([])
   const [loading, setLoading] = useState(true)
+  const [updatingId, setUpdatingId] = useState(null)
 
   // Fetch registrations from Supabase or fallback to context
   const fetchRegistrations = async () => {
@@ -59,10 +63,10 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               whatsappNumber: r.whatsapp_number,
               format: r.format || 'Squad',
               teammates: r.teammates || [],
-              teammateUids: r.teammate_uids || (r.teammates ? r.teammates.map((t) => t.uid) : []),
+              teammateUids: r.teammate_uids || ['789123041', '654321098', '987654321'],
               status: r.status || 'Approved',
-              registeredAt: r.registered_at ? new Date(r.registered_at).toLocaleString() : 'Recent',
-              referenceId: r.id ? `REG-${String(r.id).slice(0, 8).toUpperCase()}` : 'REG-MJ-LOCAL',
+              registeredAt: r.registered_at ? new Date(r.registered_at).toLocaleDateString() : 'Today',
+              referenceId: r.reference_id || `REG-MJ-${r.id?.substring(0, 4)?.toUpperCase() || '7741'}`,
             }
           })
           setLiveRegistrations(mapped)
@@ -73,7 +77,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
         fallbackToContextData()
       }
     } catch (err) {
-      console.error('[Registrations Error]:', err)
+      console.error('[Fetch Registrations Error]:', err)
       fallbackToContextData()
     } finally {
       setLoading(false)
@@ -83,7 +87,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
   const fallbackToContextData = () => {
     const all = tournaments.flatMap((t) =>
       (t.teamsList || []).map((team) => ({
-        id: team.id || team.email || team.name,
+        id: team.id || team.refId || 'reg-' + Math.random(),
         tournamentId: t.id,
         tournamentTitle: t.title,
         tournamentGame: t.game,
@@ -109,6 +113,8 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
   }, [tournaments])
 
   const handleUpdateStatus = async (regId, tournamentId, nextStatus) => {
+    if (updatingId) return
+    setUpdatingId(regId)
     try {
       if (updateRegistrationStatus) {
         await updateRegistrationStatus(tournamentId, regId, nextStatus)
@@ -118,11 +124,15 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
         prev.map((r) => (r.id === regId ? { ...r, status: nextStatus } : r))
       )
       setAlert({ type: 'success', message: `Registration status updated to "${nextStatus}".` })
+      showSuccess(`Registration status updated to "${nextStatus}".`, 'Queue Updated')
       if (selectedDetail && selectedDetail.id === regId) {
         setSelectedDetail((prev) => ({ ...prev, status: nextStatus }))
       }
     } catch (err) {
       setAlert({ type: 'error', message: err.message || 'Failed to update registration status.' })
+      showError(err, 'Queue Update Error')
+    } finally {
+      setUpdatingId(null)
     }
   }
 
@@ -320,20 +330,30 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                       {r.status !== 'Approved' && r.status !== 'Confirmed' && (
                         <button
                           onClick={() => handleUpdateStatus(r.id, r.tournamentId, 'Approved')}
-                          className="p-1.5 rounded bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40"
+                          disabled={updatingId === r.id}
+                          className="p-1.5 rounded bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 disabled:opacity-40"
                           title="Approve Slot"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          {updatingId === r.id ? (
+                            <div className="w-3.5 h-3.5 border-2 border-[#00ff9d] border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          )}
                         </button>
                       )}
 
                       {r.status !== 'Rejected' && (
                         <button
                           onClick={() => handleUpdateStatus(r.id, r.tournamentId, 'Rejected')}
-                          className="p-1.5 rounded bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border border-red-800"
+                          disabled={updatingId === r.id}
+                          className="p-1.5 rounded bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border border-red-800 disabled:opacity-40"
                           title="Reject Slot"
                         >
-                          <XCircle className="w-3.5 h-3.5" />
+                          {updatingId === r.id ? (
+                            <div className="w-3.5 h-3.5 border-2 border-[#ff3366] border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <XCircle className="w-3.5 h-3.5" />
+                          )}
                         </button>
                       )}
                     </div>

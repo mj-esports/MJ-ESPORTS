@@ -22,6 +22,8 @@ import {
 import { SUPPORTED_GAMES } from '../../data/mockData'
 import FormInput from '../common/FormInput'
 import AuthAlert from '../common/AuthAlert'
+import LoadingButton from '../common/LoadingButton'
+import { useToast } from '../../contexts/ToastContext'
 
 export default function TournamentCenterView({
   tournaments = [],
@@ -30,12 +32,15 @@ export default function TournamentCenterView({
   deleteTournament,
   updateTournamentStatus,
 }) {
+  const { showSuccess, showError } = useToast()
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [gameFilter, setGameFilter] = useState('ALL')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [isSaving, setIsSaving] = useState(false)
+  const [actionId, setActionId] = useState(null)
+  const [formErrors, setFormErrors] = useState({})
 
   const [form, setForm] = useState({
     title: '',
@@ -45,17 +50,17 @@ export default function TournamentCenterView({
     prizePool: '₹1,00,000',
     entryFee: 'Free',
     maxTeams: 32,
-    startDate: new Date().toISOString().split('T')[0],
+    startDate: '',
     startTime: '06:00 PM IST',
-    rulesText: '1. No hacking or third-party emulator cheats allowed.\n2. All team captains must check-in 15 mins prior.\n3. Room ID & Password will be published 10 mins before match start.',
-    description: 'Official MJ ESPORTS tournament showdown.',
+    rulesText: '1. No emulators allowed.\n2. Screen recording mandatory.\n3. Toxic behavior leads to immediate DQ.',
+    description: 'Official high-stakes tournament.',
     status: 'Registration Open',
   })
 
   const [alert, setAlert] = useState(null)
 
   const handleOpenCreateModal = () => {
-    setEditingId(null)
+    setFormErrors({})
     setForm({
       title: '',
       bannerUrl: '',
@@ -64,41 +69,58 @@ export default function TournamentCenterView({
       prizePool: '₹1,00,000',
       entryFee: 'Free',
       maxTeams: 32,
-      startDate: new Date().toISOString().split('T')[0],
+      startDate: '',
       startTime: '06:00 PM IST',
-      rulesText: '1. No hacking or third-party emulator cheats allowed.\n2. All team captains must check-in 15 mins prior.\n3. Room ID & Password will be published 10 mins before match start.',
-      description: '',
+      rulesText: '1. No emulators allowed.\n2. Screen recording mandatory.\n3. Toxic behavior leads to immediate DQ.',
+      description: 'Official high-stakes tournament.',
       status: 'Registration Open',
     })
+    setEditingId(null)
     setShowModal(true)
   }
 
   const handleOpenEditModal = (t) => {
-    setEditingId(t.id)
-    const existingRules = Array.isArray(t.rules)
-      ? t.rules.join('\n')
-      : typeof t.rules === 'string'
-      ? t.rules
-      : ''
-
+    setFormErrors({})
     setForm({
       title: t.title || '',
-      bannerUrl: t.bannerUrl || t.banner_url || '',
+      bannerUrl: t.bannerUrl || '',
       game: t.game || 'Free Fire',
       format: t.format || 'Squad Battle Royale',
-      prizePool: t.prizePool || t.prize_pool || '₹1,00,000',
-      entryFee: t.entryFee || t.entry_fee || 'Free',
-      maxTeams: t.maxTeams || t.max_teams || 32,
-      startDate: t.startDate || t.start_date || new Date().toISOString().split('T')[0],
-      startTime: t.startTime || t.start_time || '06:00 PM IST',
-      rulesText: existingRules,
+      prizePool: t.prizePool || '₹1,00,000',
+      entryFee: t.entryFee || 'Free',
+      maxTeams: t.maxTeams || 32,
+      startDate: t.startDate || '',
+      startTime: t.startTime || '06:00 PM IST',
+      rulesText: Array.isArray(t.rules) ? t.rules.join('\n') : '',
       description: t.description || '',
       status: t.status || 'Registration Open',
     })
+    setEditingId(t.id)
     setShowModal(true)
   }
 
+  const validateForm = () => {
+    const errs = {}
+    if (!form.title.trim()) {
+      errs.title = 'Tournament Name is required'
+    }
+
+    const slotsNum = parseInt(form.maxTeams, 10)
+    if (isNaN(slotsNum) || slotsNum <= 0) {
+      errs.maxTeams = 'Max slots must be a positive integer > 0'
+    }
+
+    if (!form.startDate) {
+      errs.startDate = 'Start date is required'
+    }
+
+    setFormErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
   const handleDuplicate = async (t) => {
+    if (actionId) return
+    setActionId(t.id)
     try {
       await createTournament({
         ...t,
@@ -106,36 +128,60 @@ export default function TournamentCenterView({
         registeredTeams: 0,
         teamsList: [],
       })
-      setAlert({ type: 'success', message: `Tournament "${t.title}" duplicated successfully!` })
+      showSuccess(`Tournament "${t.title}" duplicated successfully!`, 'Tournament Duplicated')
     } catch (err) {
-      setAlert({ type: 'error', message: err.message || 'Failed to duplicate tournament.' })
+      showError(err, 'Duplication Failed')
+    } finally {
+      setActionId(null)
     }
   }
 
   const handleToggleRegistration = async (t) => {
+    if (actionId) return
+    setActionId(t.id)
     try {
       const nextStatus = t.status === 'Registration Open' ? 'Registration Closed' : 'Registration Open'
       await updateTournamentStatus(t.id, nextStatus)
-      setAlert({ type: 'success', message: `Registration status updated to "${nextStatus}" for ${t.title}` })
+      showSuccess(`Registration status updated to "${nextStatus}" for ${t.title}`, 'Status Updated')
     } catch (err) {
-      setAlert({ type: 'error', message: err.message || 'Failed to update status.' })
+      showError(err, 'Status Update Error')
+    } finally {
+      setActionId(null)
     }
   }
 
   const handleDelete = async (tId, title) => {
+    if (actionId) return
     if (!window.confirm(`Are you sure you want to delete tournament "${title}"?`)) return
+    setActionId(tId)
     try {
       await deleteTournament(tId)
-      setAlert({ type: 'success', message: `Tournament "${title}" deleted successfully.` })
+      showSuccess(`Tournament "${title}" deleted successfully.`, 'Tournament Deleted')
     } catch (err) {
-      setAlert({ type: 'error', message: err.message || 'Failed to delete tournament.' })
+      showError(err, 'Deletion Error')
+    } finally {
+      setActionId(null)
     }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.title.trim()) {
+    setAlert(null)
+
+    const cleanTitle = form.title.trim()
+    if (!cleanTitle) {
       setAlert({ type: 'error', message: 'Tournament Name is required.' })
+      return
+    }
+
+    const slotsNum = parseInt(form.maxTeams, 10)
+    if (isNaN(slotsNum) || slotsNum <= 0) {
+      setAlert({ type: 'error', message: 'Max Squad Slots must be a positive integer greater than 0.' })
+      return
+    }
+
+    if (!form.startDate) {
+      setAlert({ type: 'error', message: 'Tournament start date is required.' })
       return
     }
 
@@ -146,12 +192,12 @@ export default function TournamentCenterView({
       .filter((r) => r.length > 0)
 
     const payload = {
-      title: form.title.trim(),
+      title: cleanTitle,
       game: form.game,
       format: form.format.trim(),
-      prizePool: form.prizePool.trim(),
-      entryFee: form.entryFee.trim(),
-      maxTeams: parseInt(form.maxTeams, 10) || 32,
+      prizePool: form.prizePool.trim() || '₹0',
+      entryFee: form.entryFee.trim() || 'Free',
+      maxTeams: slotsNum,
       startDate: form.startDate,
       startTime: form.startTime.trim(),
       rules: rulesArray,
@@ -368,14 +414,18 @@ export default function TournamentCenterView({
               <p className="text-xs text-[#8e9dae]">Configure parameters and rule sets for competitive play.</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4 text-xs">
               <FormInput
                 label="Tournament Title"
                 name="title"
                 value={form.title}
-                onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+                onChange={(e) => {
+                  setForm((prev) => ({ ...prev, title: e.target.value }))
+                  if (formErrors.title) setFormErrors((prev) => ({ ...prev, title: null }))
+                }}
                 placeholder="e.g. Free Fire India Championship 2026"
                 required
+                error={formErrors.title}
               />
 
               <div className="grid grid-cols-2 gap-3">
@@ -396,9 +446,13 @@ export default function TournamentCenterView({
                   label="Match Format"
                   name="format"
                   value={form.format}
-                  onChange={(e) => setForm((prev) => ({ ...prev, format: e.target.value }))}
+                  onChange={(e) => {
+                    setForm((prev) => ({ ...prev, format: e.target.value }))
+                    if (formErrors.format) setFormErrors((prev) => ({ ...prev, format: null }))
+                  }}
                   placeholder="e.g. Squad Battle Royale"
                   required
+                  error={formErrors.format}
                 />
               </div>
 
@@ -426,9 +480,13 @@ export default function TournamentCenterView({
                   name="maxTeams"
                   type="number"
                   value={form.maxTeams}
-                  onChange={(e) => setForm((prev) => ({ ...prev, maxTeams: e.target.value }))}
+                  onChange={(e) => {
+                    setForm((prev) => ({ ...prev, maxTeams: e.target.value }))
+                    if (formErrors.maxTeams) setFormErrors((prev) => ({ ...prev, maxTeams: null }))
+                  }}
                   placeholder="32"
                   required
+                  error={formErrors.maxTeams}
                 />
               </div>
 
@@ -438,8 +496,12 @@ export default function TournamentCenterView({
                   name="startDate"
                   type="date"
                   value={form.startDate}
-                  onChange={(e) => setForm((prev) => ({ ...prev, startDate: e.target.value }))}
+                  onChange={(e) => {
+                    setForm((prev) => ({ ...prev, startDate: e.target.value }))
+                    if (formErrors.startDate) setFormErrors((prev) => ({ ...prev, startDate: null }))
+                  }}
                   required
+                  error={formErrors.startDate}
                 />
 
                 <FormInput
@@ -472,13 +534,14 @@ export default function TournamentCenterView({
                   Cancel
                 </button>
 
-                <button
+                <LoadingButton
                   type="submit"
-                  disabled={isSaving}
-                  className="btn-cyber-primary flex-1 justify-center py-3 min-h-[44px]"
+                  loading={isSaving}
+                  loadingText="Saving Configuration..."
+                  className="flex-1 py-3 min-h-[44px]"
                 >
-                  {isSaving ? 'Saving Configuration...' : editingId ? 'Update Tournament' : 'Create Competition'}
-                </button>
+                  {editingId ? 'Update Tournament' : 'Create Competition'}
+                </LoadingButton>
               </div>
 
             </form>

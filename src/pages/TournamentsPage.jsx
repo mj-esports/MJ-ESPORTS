@@ -2,10 +2,11 @@ import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Trophy, Search, Filter, Gamepad2, Calendar, Users, Flame, ChevronRight } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
+import { CardSkeleton } from '../components/common/SkeletonLoader'
 import { SUPPORTED_GAMES } from '../data/mockData'
 
 export default function TournamentsPage() {
-  const { tournaments } = useTournaments()
+  const { tournaments, loading } = useTournaments()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGame, setSelectedGame] = useState('All')
@@ -103,7 +104,9 @@ export default function TournamentsPage() {
       </div>
 
       {/* Tournament Cards Grid */}
-      {uniqueFilteredTournaments.length === 0 ? (
+      {loading ? (
+        <CardSkeleton count={6} />
+      ) : uniqueFilteredTournaments.length === 0 ? (
         <div className="p-12 text-center bg-[#151a21] border border-[#3a494b] rounded-xl space-y-3">
           <Trophy className="w-10 h-10 text-[#8e9dae] mx-auto opacity-50" />
           <h3 className="text-base font-bold text-[#e1e2e7]">No Tournaments Found</h3>

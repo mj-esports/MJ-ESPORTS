@@ -15,6 +15,8 @@ import {
   Gamepad2
 } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
+import { MetricsSkeleton } from '../common/SkeletonLoader'
+import { useToast } from '../../contexts/ToastContext'
 
 export default function DashboardOverview({ tournaments = [], setActiveTab }) {
   const [metrics, setMetrics] = useState({
@@ -38,22 +40,16 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
 
     try {
       if (isSupabaseConfigured) {
-        // 1. Fetch Users Count from user_roles
-        const { count: usersCount } = await supabase
-          .from('user_roles')
-          .select('*', { count: 'exact', head: true })
-
-        // 2. Fetch Tournaments List
-        const { data: dbTournaments } = await supabase
-          .from('tournaments')
-          .select('*')
-          .order('created_at', { ascending: false })
-
-        // 3. Fetch Tournament Registrations List
-        const { data: dbRegistrations } = await supabase
-          .from('tournament_registrations')
-          .select('*')
-          .order('registered_at', { ascending: false })
+        // Concurrent Promise.all fetching for 3 admin dataset queries
+        const [
+          { count: usersCount },
+          { data: dbTournaments },
+          { data: dbRegistrations },
+        ] = await Promise.all([
+          supabase.from('user_roles').select('*', { count: 'exact', head: true }),
+          supabase.from('tournaments').select('*').order('created_at', { ascending: false }),
+          supabase.from('tournament_registrations').select('*').order('registered_at', { ascending: false }),
+        ])
 
         const loadedTournaments = dbTournaments || []
         const loadedRegistrations = dbRegistrations || []
@@ -206,7 +202,7 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
       )}
 
       {/* 7 DASHBOARD STAT CARDS GRID */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
         
         {/* Total Users */}
         <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00ff9d] rounded-xl p-4 space-y-2 transition-all shadow-xl">

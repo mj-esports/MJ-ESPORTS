@@ -14,6 +14,8 @@ import {
   Sparkles
 } from 'lucide-react'
 import AuthAlert from '../common/AuthAlert'
+import LoadingButton from '../common/LoadingButton'
+import { useToast } from '../../contexts/ToastContext'
 
 // Standard Esports Placement Points Table (FF / BGMI standard)
 const STANDARD_PLACEMENT_PTS = {
@@ -30,6 +32,7 @@ const STANDARD_PLACEMENT_PTS = {
 }
 
 export default function LeaderboardsView({ tournaments = [], updateTournamentScores, updateTournamentStatus }) {
+  const { showSuccess, showError } = useToast()
   const [selectedId, setSelectedId] = useState(tournaments[0]?.id || '')
   const selectedTournament = tournaments.find((t) => String(t.id) === String(selectedId)) || tournaments[0]
 
@@ -38,6 +41,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
   const [showPreview, setShowPreview] = useState(false)
   const [showWinnerModal, setShowWinnerModal] = useState(false)
   const [alert, setAlert] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   // Initialize team scores when selected tournament changes
   useEffect(() => {
@@ -58,22 +62,13 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
         }
       })
 
-      // Sort by total points descending
-      sortAndSetTeams(preparedTeams)
+      // Sort by points desc initially
+      setTeams(preparedTeams.sort((a, b) => b.points - a.points))
     }
-  }, [selectedId, tournaments])
+  }, [selectedTournament])
 
   const handleSelectTournament = (id) => {
     setSelectedId(id)
-  }
-
-  // Sort teams by total points (kills + placementPoints) and assign rank
-  const sortAndSetTeams = (teamArray) => {
-    const sorted = [...teamArray].sort((a, b) => {
-      if (b.points !== a.points) return b.points - a.points
-      return b.kills - a.kills // Tie breaker: Kill count
-    })
-    setTeams(sorted)
   }
 
   // Handle Score Input & Automatic Calculation
@@ -100,7 +95,9 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
   }
 
   const handleSavePoints = async () => {
-    if (!selectedTournament) return
+    if (!selectedTournament || isSaving) return
+    setIsSaving(true)
+    setAlert(null)
 
     try {
       if (updateTournamentScores) {
@@ -110,11 +107,15 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
         type: 'success',
         message: `Points table & standings published live for "${selectedTournament.title}"!`,
       })
+      showSuccess(`Standings published live for ${selectedTournament.title}!`, 'Leaderboard Updated')
     } catch (err) {
       setAlert({
         type: 'error',
         message: err.message || 'Failed to publish points table updates.',
       })
+      showError(err, 'Publication Error')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -203,13 +204,15 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
             <span>Declare Winner</span>
           </button>
 
-          <button
+          <LoadingButton
             onClick={handleSavePoints}
-            className="btn-cyber-primary text-xs py-2.5 min-h-[40px]"
+            loading={isSaving}
+            loadingText="Publishing..."
+            icon={Save}
+            className="text-xs py-2.5 min-h-[40px]"
           >
-            <Save className="w-4 h-4" />
-            <span>Publish Standings</span>
-          </button>
+            Publish Standings
+          </LoadingButton>
         </div>
       </div>
 

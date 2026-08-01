@@ -43,7 +43,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         </div>
 
         {/* Title */}
-        <h1 className="font-display-lg text-3xl sm:text-5xl text-[#00f2ff] uppercase tracking-tight font-extrabold drop-shadow-[0_0_15px_rgba(0,242,255,0.4)]">
+        <h1 className="font-display-lg text-2xl xs:text-3xl sm:text-5xl text-[#00f2ff] uppercase tracking-tight font-extrabold drop-shadow-[0_0_15px_rgba(0,242,255,0.4)]">
           {title}
         </h1>
 
@@ -51,8 +51,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         <div className="flex items-center gap-6 pt-1">
           <div className="flex flex-col">
             <span className="text-[10px] font-bold tracking-widest text-[#b9cacb] uppercase">PRIZE POOL</span>
-            <span className="text-3xl font-extrabold text-[#ffb693] tracking-tight flex items-center gap-1">
-              <Trophy className="w-6 h-6 text-[#fe6b00]" />
+            <span className="text-2xl sm:text-3xl font-extrabold text-[#ffb693] tracking-tight flex items-center gap-1">
+              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-[#fe6b00]" />
               {prizePool}
             </span>
           </div>
@@ -67,27 +67,27 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         </div>
 
         {/* CTA Watch / Register Buttons */}
-        <div className="flex items-center gap-3 pt-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 pt-2">
           {onWatchLive ? (
             <button
               onClick={onWatchLive}
-              className="bg-[#00f2ff] text-[#00363a] font-extrabold px-6 py-3 rounded text-xs tracking-wider flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shimmer-effect shadow-[0_0_15px_rgba(0,242,255,0.4)] uppercase"
+              className="bg-[#00f2ff] text-[#00363a] font-extrabold px-4 sm:px-6 py-3 rounded text-xs tracking-wider flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shimmer-effect shadow-[0_0_15px_rgba(0,242,255,0.4)] uppercase min-h-[44px]"
             >
-              <Radio className="w-4 h-4 text-[#00363a] animate-pulse" />
+              <Radio className="w-4 h-4 text-[#00363a] animate-pulse shrink-0" />
               <span>WATCH STREAM NOW</span>
             </button>
           ) : (
             <Link
               to="/live"
-              className="bg-[#00f2ff] text-[#00363a] font-extrabold px-6 py-3 rounded text-xs tracking-wider flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shimmer-effect shadow-[0_0_15px_rgba(0,242,255,0.4)] uppercase"
+              className="bg-[#00f2ff] text-[#00363a] font-extrabold px-4 sm:px-6 py-3 rounded text-xs tracking-wider flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shimmer-effect shadow-[0_0_15px_rgba(0,242,255,0.4)] uppercase min-h-[44px]"
             >
-              <Radio className="w-4 h-4 text-[#00363a] animate-pulse" />
+              <Radio className="w-4 h-4 text-[#00363a] animate-pulse shrink-0" />
               <span>WATCH STREAM NOW</span>
             </Link>
           )}
           <Link
             to="/tournaments"
-            className="bg-[#1d2023] text-[#e1e2e7] font-bold px-6 py-3 rounded text-[#e1e2e7] text-xs tracking-wider border border-[#3a494b] hover:border-[#00dbe7] hover:text-[#00dbe7] transition-all uppercase"
+            className="bg-[#1d2023] text-[#e1e2e7] font-bold px-4 sm:px-6 py-3 rounded text-[#e1e2e7] text-xs tracking-wider border border-[#3a494b] hover:border-[#00dbe7] hover:text-[#00dbe7] transition-all uppercase min-h-[44px] flex items-center"
           >
             JOIN TOURNAMENTS
           </Link>

@@ -7,7 +7,7 @@ interface TournamentCardProps {
   tournament: TournamentItem
 }
 
-export const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
+export const TournamentCard: React.FC<TournamentCardProps> = React.memo(({ tournament }) => {
   const isUrgent = tournament.status === 'URGENT' || tournament.registeredTeams >= tournament.maxTeams * 0.85
   const isLive = tournament.status === 'Live Now'
   const isFreeFire = tournament.game?.toLowerCase().includes('free fire')
@@ -81,7 +81,7 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) =>
         {/* Join Button */}
         <Link
           to={`/tournaments/${tournament.id}`}
-          className="w-full bg-[#00f2ff] text-[#00363a] font-extrabold py-2.5 rounded text-xs tracking-wider flex items-center justify-center gap-2 hover:bg-[#74f5ff] active:scale-[0.98] transition-all uppercase shadow-[0_0_10px_rgba(0,242,255,0.3)]"
+          className="w-full bg-[#00f2ff] text-[#00363a] font-extrabold py-2.5 rounded text-xs tracking-wider flex items-center justify-center gap-2 hover:bg-[#74f5ff] active:scale-[0.98] transition-all uppercase shadow-[0_0_10px_rgba(0,242,255,0.3)] min-h-[44px]"
         >
           <span>JOIN MATCH</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -89,4 +89,4 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) =>
       </div>
     </div>
   )
-}
+})

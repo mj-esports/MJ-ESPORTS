@@ -1,28 +1,46 @@
 import { useState } from 'react'
-import { Gamepad2, Key, Play, Pause, Square, CheckCircle2, Tv, Upload, Shield } from 'lucide-react'
+import { Gamepad2, Key, Play, Pause, Square, CheckCircle2, Tv, Upload, Shield, RefreshCw } from 'lucide-react'
 import AuthAlert from '../common/AuthAlert'
+import LoadingButton from '../common/LoadingButton'
+import { useToast } from '../../contexts/ToastContext'
 
 export default function MatchControlView({ tournaments }) {
+  const { showSuccess } = useToast()
   const [selectedTourneyId, setSelectedTourneyId] = useState(tournaments[0]?.id || '')
   const [matchStatus, setMatchStatus] = useState('Lobby Waiting') // 'Lobby Waiting' | 'Match Live' | 'Paused' | 'Ended'
   const [roomData, setRoomData] = useState({ id: '8492019', pass: '7741', published: false })
   const [alert, setAlert] = useState(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [isPublishing, setIsPublishing] = useState(false)
 
   const handleGenerate = () => {
-    const id = Math.floor(1000000 + Math.random() * 9000000).toString()
-    const pass = Math.floor(1000 + Math.random() * 9000).toString()
-    setRoomData({ id, pass, published: false })
-    setAlert({ type: 'success', message: `Generated Custom Match Room ID ${id} / Pass ${pass}` })
+    if (isGenerating) return
+    setIsGenerating(true)
+    setTimeout(() => {
+      const id = Math.floor(1000000 + Math.random() * 9000000).toString()
+      const pass = Math.floor(1000 + Math.random() * 9000).toString()
+      setRoomData({ id, pass, published: false })
+      setAlert({ type: 'success', message: `Generated Custom Match Room ID ${id} / Pass ${pass}` })
+      showSuccess(`Room ID ${id} generated!`, 'Credentials Created')
+      setIsGenerating(false)
+    }, 300)
   }
 
   const handlePublish = () => {
-    setRoomData((prev) => ({ ...prev, published: true }))
-    setAlert({ type: 'success', message: `Custom Room ID ${roomData.id} published live to all qualified squad captains!` })
+    if (isPublishing || roomData.published) return
+    setIsPublishing(true)
+    setTimeout(() => {
+      setRoomData((prev) => ({ ...prev, published: true }))
+      setAlert({ type: 'success', message: `Custom Room ID ${roomData.id} published live to all qualified squad captains!` })
+      showSuccess(`Room ID ${roomData.id} published to squad captains!`, 'Broadcast Live')
+      setIsPublishing(false)
+    }, 400)
   }
 
   const handleAction = (status, msg) => {
     setMatchStatus(status)
     setAlert({ type: 'success', message: msg })
+    showSuccess(msg, `State: ${status}`)
   }
 
   return (
@@ -82,19 +100,25 @@ export default function MatchControlView({ tournaments }) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <button
+            <LoadingButton
               onClick={handleGenerate}
-              className="py-3 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#e1e2e7] font-bold text-xs rounded uppercase min-h-[44px]"
+              loading={isGenerating}
+              loadingText="Generating..."
+              variant="secondary"
+              className="py-3"
             >
               Generate New ID
-            </button>
-            <button
+            </LoadingButton>
+
+            <LoadingButton
               onClick={handlePublish}
+              loading={isPublishing}
               disabled={roomData.published}
-              className="btn-cyber-primary text-xs py-3 min-h-[44px] disabled:opacity-50"
+              loadingText="Publishing..."
+              className="py-3"
             >
-              Publish Room ID
-            </button>
+              {roomData.published ? 'Published' : 'Publish Room ID'}
+            </LoadingButton>
           </div>
         </div>
 

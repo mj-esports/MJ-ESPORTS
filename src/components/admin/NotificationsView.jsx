@@ -100,17 +100,37 @@ export default function NotificationsView() {
 
   const handleSendNotification = async (e) => {
     e.preventDefault()
-    if (!title.trim() || !message.trim()) {
-      setAlert({ type: 'error', message: 'Notification Headline Title and Message Body are required.' })
-      return
+    setAlert(null)
+    const errs = {}
+
+    const cleanTitle = (title || '').trim()
+    const cleanMessage = (message || '').trim()
+
+    if (!cleanTitle) {
+      errs.title = 'Notification title is required'
+    } else if (cleanTitle.length < 3) {
+      errs.title = 'Title must be at least 3 characters'
+    } else if (cleanTitle.length > 100) {
+      errs.title = 'Title cannot exceed 100 characters'
     }
+
+    if (!cleanMessage) {
+      errs.message = 'Notification body message is required'
+    } else if (cleanMessage.length < 5) {
+      errs.message = 'Message must be at least 5 characters'
+    } else if (cleanMessage.length > 500) {
+      errs.message = 'Message cannot exceed 500 characters'
+    }
+
+    setFieldErrors(errs)
+    if (Object.keys(errs).length > 0) return
 
     setIsSending(true)
     const payload = {
       type: notificationType,
       target: targetAudience,
-      title: title.trim(),
-      message: message.trim(),
+      title: cleanTitle,
+      message: cleanMessage,
       created_at: new Date().toISOString(),
     }
 
@@ -124,8 +144,8 @@ export default function NotificationsView() {
           id: 'n-new-' + Date.now(),
           type: notificationType,
           target: targetAudience,
-          title: title.trim(),
-          message: message.trim(),
+          title: cleanTitle,
+          message: cleanMessage,
           createdAt: 'Just Now',
         },
         ...prev,
@@ -182,7 +202,7 @@ export default function NotificationsView() {
             </h3>
           </div>
 
-          <form onSubmit={handleSendNotification} className="space-y-4 text-xs">
+          <form onSubmit={handleSendNotification} noValidate className="space-y-4 text-xs">
             {/* Category Type Picker */}
             <div className="space-y-1.5">
               <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
@@ -215,10 +235,10 @@ export default function NotificationsView() {
               </div>
             </div>
 
-            {/* Target Audience Dropdown */}
+            {/* Target Audience Picker */}
             <div className="space-y-1.5">
               <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
-                Target Recipient Audience
+                Target Audience Recipient Group
               </label>
               <select
                 value={targetAudience}
@@ -235,23 +255,37 @@ export default function NotificationsView() {
               label="Notification Headline / Title"
               name="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value)
+                if (fieldErrors.title) setFieldErrors((prev) => ({ ...prev, title: null }))
+              }}
               placeholder="e.g. Free Fire Tournament Room Credentials Published"
               required
+              error={fieldErrors.title}
             />
 
             <div className="space-y-1.5">
               <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
-                Notification Message Body
+                Notification Message Body <span className="text-[#00f2ff]">*</span>
               </label>
               <textarea
                 rows={4}
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={(e) => {
+                  setMessage(e.target.value)
+                  if (fieldErrors.message) setFieldErrors((prev) => ({ ...prev, message: null }))
+                }}
                 placeholder="Type your notification broadcast message..."
                 required
-                className="w-full p-3 bg-[#07090c] border border-[#3a494b] rounded text-white text-xs placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
+                className={`w-full p-3 bg-[#07090c] border ${
+                  fieldErrors.message ? 'border-[#ff3366] focus:border-[#ff3366]' : 'border-[#3a494b] focus:border-[#00f2ff]'
+                } rounded text-white text-xs placeholder-[#8e9dae] focus:outline-none transition-all`}
               />
+              {fieldErrors.message && (
+                <p className="text-xs text-[#ff3366] font-medium pl-1" role="alert">
+                  {fieldErrors.message}
+                </p>
+              )}
             </div>
 
             <button

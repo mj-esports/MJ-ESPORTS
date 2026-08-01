@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { Trophy, Calendar, Clock, Users, ShieldCheck, Swords, Radio, ArrowLeft, Gamepad2, CheckCircle2 } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { useAuth } from '../contexts/AuthContext'
+import { DetailSkeleton } from '../components/common/SkeletonLoader'
 import SlotBookingModal from '../components/tournament/SlotBookingModal'
 import PointsTable from '../components/bracket/PointsTable'
 import BracketViewer from '../components/bracket/BracketViewer'
@@ -10,13 +11,21 @@ import BracketViewer from '../components/bracket/BracketViewer'
 export default function TournamentDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getTournamentById, isUserRegistered } = useTournaments()
+  const { getTournamentById, isUserRegistered, loading } = useTournaments()
   const { user, isAuthenticated } = useAuth()
 
   const tournament = getTournamentById(id)
 
   const [activeTab, setActiveTab] = useState('overview')
   const [showSlotModal, setShowSlotModal] = useState(false)
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        <DetailSkeleton />
+      </div>
+    )
+  }
 
   if (!tournament) {
     return (

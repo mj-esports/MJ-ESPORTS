@@ -2,12 +2,16 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { User, Mail, Lock, UserPlus, Swords, ArrowRight, ShieldCheck, RefreshCw } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'
+import LoadingButton from '../components/common/LoadingButton'
+import { isValidEmail, sanitizeString, isStrongPassword, isValidUsername } from '../utils/validationUtils'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
   const { signUp, signIn } = useAuth()
+  const { showSuccess, showError } = useToast()
 
   const [formData, setFormData] = useState({
     username: '',
@@ -29,26 +33,34 @@ export default function RegisterPage() {
 
   const validate = () => {
     const newErrors = {}
+    const cleanUsername = sanitizeString(formData.username)
+    const cleanEmail = sanitizeString(formData.email)
 
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username is required'
-    } else if (formData.username.trim().length < 3) {
+    if (!cleanUsername) {
+      newErrors.username = 'Player handle / username is required'
+    } else if (cleanUsername.length < 3) {
       newErrors.username = 'Username must be at least 3 characters'
+    } else if (cleanUsername.length > 30) {
+      newErrors.username = 'Username cannot exceed 30 characters'
+    } else if (!isValidUsername(cleanUsername)) {
+      newErrors.username = 'Username can only contain letters, numbers, underscores, and hyphens'
     }
 
-    if (!formData.email.trim()) {
+    if (!cleanEmail) {
       newErrors.email = 'Email address is required'
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Enter a valid email address'
+    } else if (!isValidEmail(cleanEmail)) {
+      newErrors.email = 'Please enter a valid email address'
     }
 
     if (!formData.password) {
       newErrors.password = 'Password is required'
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters'
+    } else if (!isStrongPassword(formData.password)) {
+      newErrors.password = 'Password must be at least 6 characters with at least 1 letter and 1 number'
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password'
+    } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match'
     }
 
@@ -60,22 +72,26 @@ export default function RegisterPage() {
     e.preventDefault()
     setAlert(null)
 
-    if (!validate()) return
+    if (!validate() || isSubmitting) return
+
+    const cleanUsername = sanitizeString(formData.username)
+    const cleanEmail = sanitizeString(formData.email)
 
     setIsSubmitting(true)
     try {
       // 1. Sign up user
-      await signUp(formData.email, formData.password, {
-        username: formData.username,
+      await signUp(cleanEmail, formData.password, {
+        username: cleanUsername,
       })
 
       // 2. Immediately sign in without requiring email confirmation
       try {
-        await signIn(formData.email, formData.password)
+        await signIn(cleanEmail, formData.password)
       } catch (signInErr) {
         console.warn('Auto sign-in fallback:', signInErr.message)
       }
 
+      showSuccess('Account created successfully! Logging you in...', 'Registration Complete')
       setAlert({
         type: 'success',
         message: 'Account created successfully! Signing you in...',
@@ -86,9 +102,10 @@ export default function RegisterPage() {
       }, 800)
     } catch (err) {
       console.error('Registration Error:', err)
+      showError(err, 'Registration Failed')
       setAlert({
         type: 'error',
-        message: err.message || 'Failed to create account. Please try again.',
+        message: err.message || 'Failed to create account. Please check your information and try again.',
       })
       setIsSubmitting(false)
     }
@@ -156,7 +173,7 @@ export default function RegisterPage() {
 
             {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
-            <form onSubmit={handleSubmit} className="space-y-3.5">
+            <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
               <FormInput
                 label="Player Handle / Username"
                 id="username"
@@ -208,23 +225,15 @@ export default function RegisterPage() {
                 icon={Lock}
               />
 
-              <button
+              <LoadingButton
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-[#00f2ff] hover:bg-[#74f5ff] active:bg-[#00dbe7] text-[#00363a] font-display-lg font-extrabold text-sm uppercase italic tracking-wider py-3.5 rounded transition-all shadow-[0_0_20px_rgba(0,242,255,0.4)] hover:shadow-[0_0_25px_rgba(0,242,255,0.6)] flex items-center justify-center gap-2 min-h-[46px] disabled:opacity-50 mt-2"
+                loading={isSubmitting}
+                loadingText="Creating Account..."
+                icon={UserPlus}
+                className="w-full text-sm py-3.5 mt-2"
               >
-                {isSubmitting ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 text-[#00363a] animate-spin" />
-                    <span>Creating Account...</span>
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="w-4 h-4" />
-                    <span>Create Account</span>
-                  </>
-                )}
-              </button>
+                Create Account
+              </LoadingButton>
             </form>
 
           </div>

@@ -10,7 +10,7 @@ export default function MainLayout() {
       <Navbar />
 
       {/* Main Public Page Content */}
-      <main className="flex-1 w-full overflow-x-hidden">
+      <main id="main-content" tabIndex={-1} className="flex-1 w-full overflow-x-hidden outline-none">
         <Outlet />
       </main>
 

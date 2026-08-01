@@ -26,8 +26,11 @@ import {
   BarChart2,
 } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
+import { FinanceLoadingSkeleton } from '../finance/FinanceLoadingSkeleton'
+import { useToast } from '../../contexts/ToastContext'
 
 export default function FinanceDashboardView({ tournaments = [] }) {
+  const { showSuccess } = useToast()
   const [registrations, setRegistrations] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -437,8 +440,13 @@ export default function FinanceDashboardView({ tournaments = [] }) {
         </div>
       </div>
 
-      {/* 2. Executive Dashboard Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 2. Executive Dashboard Content / Skeleton */}
+      {loading ? (
+        <FinanceLoadingSkeleton />
+      ) : (
+        <>
+          {/* Executive Dashboard Metric Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Revenue */}
         <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2 shadow-xl border-l-4 border-l-[#00f2ff]">
           <span className="font-mono text-[10px] text-[#8e9dae] uppercase tracking-widest block">TOTAL REVENUE</span>
@@ -852,6 +860,8 @@ export default function FinanceDashboardView({ tournaments = [] }) {
           </>
         )}
       </div>
+        </>
+      )}
 
     </div>
   )

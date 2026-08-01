@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Swords, Search, Bell, User, LogOut, Shield, Menu } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import { useToast } from '../../contexts/ToastContext'
 
 export default function AdminHeader({
   pageTitle = 'DASHBOARD',
@@ -10,18 +11,26 @@ export default function AdminHeader({
 }) {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
+  const { showSuccess, showError } = useToast()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const adminName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Admin'
   const adminAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.avatarUrl || ''
 
   const handleLogout = async () => {
+    if (isLoggingOut) return
+    setIsLoggingOut(true)
     try {
       await signOut()
+      showSuccess('Admin logged out successfully.', 'Session Closed')
       navigate('/login')
     } catch (err) {
       console.error('Logout error:', err)
+      showError(err, 'Logout Failed')
+    } finally {
+      setIsLoggingOut(false)
     }
   }
 
@@ -35,7 +44,7 @@ export default function AdminHeader({
 
   return (
     <header className="sticky top-0 z-50 bg-[#0f1318] border-b border-[#3a494b]/60 h-16 px-4 sm:px-6 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
-      
+
       {/* Left: Mobile Toggle, Brand Logo & Current Page Title */}
       <div className="flex items-center gap-3 sm:gap-5">
         {/* Mobile Sidebar Hamburger Trigger */}
@@ -71,7 +80,7 @@ export default function AdminHeader({
         {/* Current Page Title */}
         <div className="flex items-center gap-2">
           <Shield className="w-4 h-4 text-[#00f2ff] hidden xs:block" />
-          <h1 className="font-display-lg text-xs sm:text-sm font-extrabold text-white uppercase tracking-wider truncate max-w-[140px] sm:max-w-[220px]">
+          <h1 className="font-display-lg text-[11px] xs:text-xs sm:text-sm font-extrabold text-white uppercase tracking-wider truncate max-w-[100px] xs:max-w-[140px] sm:max-w-[220px]">
             {pageTitle}
           </h1>
         </div>
@@ -93,7 +102,7 @@ export default function AdminHeader({
 
       {/* Right: Notifications, Admin Profile & Logout */}
       <div className="flex items-center gap-2.5 shrink-0">
-        
+
         {/* Live Ops Badge */}
         <span className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#00ff9d]/10 border border-[#00ff9d]/40 text-[#00ff9d] text-[10px] font-mono font-bold uppercase">
           <span className="w-2 h-2 rounded-full bg-[#00ff9d] animate-pulse"></span>
