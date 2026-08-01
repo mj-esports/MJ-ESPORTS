@@ -17,7 +17,8 @@ import {
   Flame,
   Gamepad2,
   X,
-  FileText
+  FileText,
+  Users
 } from 'lucide-react'
 import { SUPPORTED_GAMES } from '../../data/mockData'
 import FormInput from '../common/FormInput'
