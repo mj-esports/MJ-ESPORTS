@@ -187,8 +187,16 @@ export function TournamentProvider({ children }) {
 
       const { error } = await supabase.from('tournaments').insert([dbRow])
       if (error) {
-        console.error('[Supabase Create Tournament Error]:', error)
-        throw new Error(error.message || 'Failed to create tournament in database.')
+        console.warn('[Supabase Create Tournament Retry Check]:', error.message)
+        const fallbackRow = { ...dbRow }
+        delete fallbackRow.mode
+        delete fallbackRow.team_size
+        delete fallbackRow.match_format
+        const { error: retryErr } = await supabase.from('tournaments').insert([fallbackRow])
+        if (retryErr) {
+          console.error('[Supabase Create Tournament Error]:', retryErr)
+          throw new Error(retryErr.message || 'Failed to create tournament in database.')
+        }
       }
     }
 
@@ -214,8 +222,16 @@ export function TournamentProvider({ children }) {
       const dbRow = mapTournamentToDb(updatedTournament)
       const { error } = await supabase.from('tournaments').update(dbRow).eq('id', tournamentId)
       if (error) {
-        console.error('[Supabase Edit Tournament Error]:', error)
-        throw new Error(error.message || 'Failed to update tournament in database.')
+        console.warn('[Supabase Edit Tournament Retry Check]:', error.message)
+        const fallbackRow = { ...dbRow }
+        delete fallbackRow.mode
+        delete fallbackRow.team_size
+        delete fallbackRow.match_format
+        const { error: retryErr } = await supabase.from('tournaments').update(fallbackRow).eq('id', tournamentId)
+        if (retryErr) {
+          console.error('[Supabase Edit Tournament Error]:', retryErr)
+          throw new Error(retryErr.message || 'Failed to update tournament in database.')
+        }
       }
     }
   }

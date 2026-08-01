@@ -227,6 +227,8 @@ export default function TournamentCenterView({
       status: form.status,
     }
 
+    console.log("TOURNAMENT CREATE PAYLOAD", payload)
+
     try {
       if (editingId) {
         await editTournament(editingId, payload)

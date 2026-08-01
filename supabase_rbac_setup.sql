@@ -40,6 +40,19 @@ CREATE TABLE IF NOT EXISTS public.tournaments (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Safe Column Migration for Competition Mode Features
+ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS match_format TEXT;
+ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS mode TEXT;
+ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS team_size INTEGER;
+
+-- Backfill existing records
+UPDATE public.tournaments 
+SET 
+  match_format = COALESCE(match_format, format, 'Squad Battle Royale'),
+  mode = COALESCE(mode, LOWER(CASE WHEN format ILIKE '%solo%' THEN 'solo' WHEN format ILIKE '%duo%' THEN 'duo' ELSE 'squad' END)),
+  team_size = COALESCE(team_size, CASE WHEN format ILIKE '%solo%' THEN 1 WHEN format ILIKE '%duo%' THEN 2 ELSE 4 END)
+WHERE match_format IS NULL OR mode IS NULL OR team_size IS NULL;
+
 -- 1.3 tournament_registrations Table
 CREATE TABLE IF NOT EXISTS public.tournament_registrations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
