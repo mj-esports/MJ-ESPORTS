@@ -58,6 +58,10 @@ export default function SlotBookingModal({ tournament, onClose }) {
   const { user } = useAuth()
   const { showSuccess, showError } = useToast()
 
+  // Temporary Step 5 Debug Logs
+  console.log("Registration tournament data:", tournament)
+  console.log("Registration format:", tournament?.match_format || tournament?.format)
+
   // Read tournament format mode automatically from database/tournament object (non-editable)
   const modeConfig = getTournamentMode(tournament)
   const mode = modeConfig.mode
