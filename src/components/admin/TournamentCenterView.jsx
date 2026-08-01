@@ -515,6 +515,21 @@ export default function TournamentCenterView({
               </div>
 
               <div className="space-y-1">
+                <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">Operational Stage Status</label>
+                <select
+                  value={form.status}
+                  onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}
+                  className="w-full p-3 bg-[#07090c] border border-[#3a494b] rounded text-white text-xs focus:outline-none focus:border-[#00f2ff]"
+                >
+                  <option value="Draft">Stage 1: Draft (Private)</option>
+                  <option value="Registration Open">Stage 2: Registration Open</option>
+                  <option value="Registration Closed">Stage 5: Registration Closed</option>
+                  <option value="Live Now">Stage 8: Live Now</option>
+                  <option value="Completed">Stage 11: Completed</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
                 <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">Tournament Rulebook (1 rule per line)</label>
                 <textarea
                   rows={4}

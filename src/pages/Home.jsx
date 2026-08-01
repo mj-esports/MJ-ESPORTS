@@ -9,8 +9,6 @@ import { LeaderboardWidget } from '../components/stitch/LeaderboardWidget'
 import { LiveStreamModal } from '../components/stitch/LiveStreamModal'
 import { StatsSection } from '../components/home/StatsSection'
 import { AnnouncementsSection } from '../components/home/AnnouncementsSection'
-import { NewsSection } from '../components/home/NewsSection'
-import { SponsorsSection } from '../components/home/SponsorsSection'
 import { useTournaments } from '../contexts/TournamentContext'
 import { ArrowRight, Trophy, Sparkles, Flame, Zap, Shield, HelpCircle } from 'lucide-react'
 
@@ -70,7 +68,7 @@ export default function Home() {
       {/* 2. Hero Showcase Section */}
       <HeroBanner
         title={featuredMatch?.title || 'MJ ESPORTS ARENA TOURNAMENTS'}
-        prizePool={featuredMatch?.prizePool || '₹50,000'}
+        prizePool={featuredMatch?.prizePool || '₹0'}
         timer="LIVE NOW"
         onWatchLive={() => setIsStreamModalOpen(true)}
       />
@@ -144,12 +142,6 @@ export default function Home() {
         </div>
 
       </div>
-
-      {/* 6. Esports News & Community Updates Section */}
-      <NewsSection />
-
-      {/* 7. Official Sponsors & Infrastructure Partners Section */}
-      <SponsorsSection />
 
       {/* Live Stream Modal */}
       {isStreamModalOpen && (
