@@ -12,6 +12,8 @@ import PaymentVerificationView from '../components/admin/PaymentVerificationView
 import MatchControlView from '../components/admin/MatchControlView'
 import LeaderboardsView from '../components/admin/LeaderboardsView'
 import PlayerDirectoryView from '../components/admin/PlayerDirectoryView'
+import TeamsView from '../components/admin/TeamsView'
+import SponsorshipsView from '../components/admin/SponsorshipsView'
 import ReportsView from '../components/admin/ReportsView'
 import AnalyticsView from '../components/admin/AnalyticsView'
 import SettingsView from '../components/admin/SettingsView'
@@ -145,18 +147,32 @@ export default function AdminDashboardPage({ defaultTab }) {
               <MatchControlView
                 tournaments={tournaments}
                 updateTournamentScores={updateTournamentScores}
+                setActiveTab={setActiveTab}
               />
             )}
 
             {activeTab === 'leaderboards' && (
-              <LeaderboardsView tournaments={tournaments} />
+              <LeaderboardsView
+                tournaments={tournaments}
+                updateTournamentScores={updateTournamentScores}
+                updateTournamentStatus={updateTournamentStatus}
+                editTournament={editTournament}
+              />
             )}
 
             {activeTab === 'players' && (
               <PlayerDirectoryView tournaments={tournaments} />
             )}
 
-            {activeTab === 'reports' && <ReportsView />}
+            {activeTab === 'teams' && (
+              <TeamsView tournaments={tournaments} />
+            )}
+
+            {activeTab === 'sponsorships' && (
+              <SponsorshipsView />
+            )}
+
+            {activeTab === 'reports' && <ReportsView tournaments={tournaments} />}
 
             {activeTab === 'analytics' && <AnalyticsView tournaments={tournaments} />}
 

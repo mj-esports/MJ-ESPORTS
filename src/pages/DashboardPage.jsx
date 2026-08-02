@@ -9,6 +9,8 @@ import AuthAlert from '../components/common/AuthAlert'
 import AvatarUploadModal from '../components/common/AvatarUploadModal'
 import LoadingButton from '../components/common/LoadingButton'
 import { isValidUsername, isValidGameUid, isValidPhoneNumber, sanitizeString } from '../utils/validationUtils'
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { uploadAvatarFile } from '../services/avatarService'
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -46,16 +48,14 @@ export default function DashboardPage() {
 
   const validateProfile = () => {
     const newErrors = {}
-    const cleanUsername = sanitizeString(profileData.username)
+    const cleanUsername = (profileData.username || '').trim()
     const cleanUid = sanitizeString(profileData.freeFireUid)
     const cleanPhone = sanitizeString(profileData.whatsappNumber)
 
     if (!cleanUsername) {
-      newErrors.username = 'Username is required'
-    } else if (cleanUsername.length < 3 || cleanUsername.length > 30) {
-      newErrors.username = 'Username must be between 3 and 30 characters'
-    } else if (!isValidUsername(cleanUsername)) {
-      newErrors.username = 'Username can only contain letters, numbers, underscores, and hyphens'
+      newErrors.username = 'Username is required.'
+    } else if (cleanUsername.length > 50) {
+      newErrors.username = 'Username cannot exceed 50 characters.'
     }
 
     if (cleanUid && !isValidGameUid(cleanUid)) {
@@ -78,12 +78,37 @@ export default function DashboardPage() {
 
     setIsSaving(true)
 
-    const cleanUsername = sanitizeString(profileData.username)
+    const cleanUsername = (profileData.username || '').trim()
     const cleanUid = sanitizeString(profileData.freeFireUid)
     const cleanPhone = sanitizeString(profileData.whatsappNumber)
 
     try {
       if (isSupabaseConfigured && user) {
+        // 1. Username uniqueness check: exclude current user's profile ID
+        const { data: existingProfiles, error: checkError } = await supabase
+          .from('profiles')
+          .select('id, username')
+          .eq('username', cleanUsername)
+          .neq('id', user.id)
+
+        if (checkError) {
+          console.warn('[Username Uniqueness Check Warning]:', checkError)
+        }
+
+        if (existingProfiles && existingProfiles.length > 0) {
+          setProfileErrors((prev) => ({
+            ...prev,
+            username: 'Username is already taken by another player.',
+          }))
+          setAlert({
+            type: 'error',
+            message: 'Username is already taken by another player.',
+          })
+          setIsSaving(false)
+          return
+        }
+
+        // 2. Update Supabase Auth user metadata
         await supabase.auth.updateUser({
           data: {
             username: cleanUsername,
@@ -92,6 +117,26 @@ export default function DashboardPage() {
             avatar_url: avatarUrl,
           },
         })
+
+        // 3. Upsert Database `profiles` record safely (ignore PGRST205 if table not yet created)
+        try {
+          const { error: upsertErr } = await supabase.from('profiles').upsert(
+            {
+              id: user.id,
+              username: cleanUsername,
+              game_uid: cleanUid,
+              avatar_url: avatarUrl,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'id' }
+          )
+
+          if (upsertErr && (upsertErr.code === 'PGRST205' || upsertErr.message?.includes('public.profiles'))) {
+            console.warn('[Dashboard Profile DB Notice]: Table public.profiles not in schema cache. Auth user metadata updated.')
+          }
+        } catch (dbEx) {
+          console.warn('[Dashboard Profile DB Exception]:', dbEx)
+        }
       }
 
       // Update mock storage if offline/mock
@@ -116,6 +161,7 @@ export default function DashboardPage() {
       showSuccess('Profile information saved successfully.', 'Profile Updated')
       setIsEditing(false)
     } catch (err) {
+      console.error('[Profile Update Error]:', err)
       setAlert({ type: 'error', message: err.message || 'Failed to update profile' })
       showError(err, 'Profile Update Error')
     } finally {
@@ -131,30 +177,11 @@ export default function DashboardPage() {
 
     try {
       if (isSupabaseConfigured && user) {
-        const fileExt = croppedFile.name.split('.').pop()
-        const filePath = `${user.id}/${Date.now()}.${fileExt}`
-
-        // 1. Try uploading to Supabase Storage bucket 'avatars'
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(filePath, croppedFile, { upsert: true })
-
-        if (!uploadError) {
-          const { data: publicUrlData } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(filePath)
-
-          if (publicUrlData?.publicUrl) {
-            finalUrl = publicUrlData.publicUrl
-          }
-        } else {
-          console.warn('[Supabase Storage Avatar Warning]: Bucket upload failed, falling back to base64 payload.', uploadError.message)
+        const result = await uploadAvatarFile(croppedFile, user.id, croppedDataUrl)
+        finalUrl = result.publicUrl
+        if (result.warning) {
+          console.warn('[Avatar Warning]:', result.warning)
         }
-
-        // 2. Persist avatar_url in auth user metadata
-        await supabase.auth.updateUser({
-          data: { avatar_url: finalUrl },
-        })
       }
 
       // Update local state and mock storage
@@ -174,9 +201,10 @@ export default function DashboardPage() {
       showSuccess('Profile photo updated successfully!', 'Avatar Updated')
       setIsAvatarModalOpen(false)
     } catch (err) {
-      console.error('[Avatar Upload Error]:', err)
-      setAlert({ type: 'error', message: err.message || 'Failed to upload profile picture.' })
-      showError(err, 'Avatar Upload Failed')
+      const rawErrorMessage = err?.message || String(err)
+      console.error('AVATAR UPLOAD ERROR', err)
+      setAlert({ type: 'error', message: rawErrorMessage })
+      showError(rawErrorMessage, 'Avatar Upload Error')
     } finally {
       setIsAvatarUploading(false)
     }

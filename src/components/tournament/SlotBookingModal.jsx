@@ -267,7 +267,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
       aria-labelledby="slot-booking-modal-title"
     >
       <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-[0_0_40px_rgba(0,242,255,0.15)] relative max-h-[90vh] overflow-y-auto">
-        
+
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -378,7 +378,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
-            
+
             {/* Read-Only Premium Tournament Format Information Card */}
             <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-2.5 shadow-inner">
               <div className="flex items-center justify-between">

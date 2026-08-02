@@ -113,13 +113,15 @@ export function isEndDateAfterStartDate(startDateStr, endDateStr) {
 }
 
 /**
- * Validates player username/handle (3 to 30 characters, alphanumeric, underscores or hyphens allowed).
+ * Validates player username/handle.
+ * Accepts ANY character set (including symbols, emojis, unicode, international scripts).
+ * Rules: Cannot be empty or only whitespace, automatically trimmed, maximum 50 characters.
  */
 export function isValidUsername(name) {
   if (!name || typeof name !== 'string') return false
   const trimmed = name.trim()
-  if (trimmed.length < 3 || trimmed.length > 30) return false
-  return /^[a-zA-Z0-9_\-]+$/.test(trimmed)
+  if (!trimmed) return false
+  return trimmed.length <= 50
 }
 
 /**

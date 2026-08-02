@@ -42,3 +42,5 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 })
 
+export const AVATAR_BUCKET = 'avatars'
+

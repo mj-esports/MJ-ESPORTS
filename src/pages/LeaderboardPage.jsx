@@ -2,11 +2,14 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Trophy, Award, Shield, User, RefreshCw, AlertCircle, Sparkles, Gamepad2, CheckCircle2, TrendingUp, Filter } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import { TableSkeleton } from '../components/common/SkeletonLoader.jsx'
+import PublicTeamProfileModal from '../components/team/PublicTeamProfileModal.jsx'
 
 export default function LeaderboardPage() {
   const [tournamentsList, setTournamentsList] = useState([])
+  const [activeView, setActiveView] = useState('TEAMS') // 'TEAMS' | 'PLAYERS' | 'TOURNAMENTS'
   const [selectedGameFilter, setSelectedGameFilter] = useState('ALL GAMES')
   const [selectedSeasonFilter, setSelectedSeasonFilter] = useState('SEASON 2026')
+  const [selectedTeamModal, setSelectedTeamModal] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -400,10 +403,39 @@ export default function LeaderboardPage() {
       {/* 4. GLOBAL RANKING TABLE */}
       <section className="space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h3 className="font-display-lg text-xl sm:text-2xl font-extrabold uppercase text-[#00f2ff] tracking-wider flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-[#00f2ff]" />
-            <span>GLOBAL RANKING</span>
-          </h3>
+          <div className="space-y-2">
+            <h3 className="font-display-lg text-xl sm:text-2xl font-extrabold uppercase text-[#00f2ff] tracking-wider flex items-center gap-2">
+              <Trophy className="w-6 h-6 text-[#00f2ff]" />
+              <span>GLOBAL RANKING</span>
+            </h3>
+            {/* View Switcher: Team Ranking, Player Ranking, Tournament Ranking */}
+            <div className="flex bg-[#07090c] border border-[#3a494b] rounded-lg p-1 text-xs font-bold font-mono">
+              <button
+                onClick={() => setActiveView('TEAMS')}
+                className={`px-3 py-1.5 rounded transition-all ${
+                  activeView === 'TEAMS' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                }`}
+              >
+                Team Rankings
+              </button>
+              <button
+                onClick={() => setActiveView('PLAYERS')}
+                className={`px-3 py-1.5 rounded transition-all ${
+                  activeView === 'PLAYERS' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                }`}
+              >
+                Player Rankings
+              </button>
+              <button
+                onClick={() => setActiveView('TOURNAMENTS')}
+                className={`px-3 py-1.5 rounded transition-all ${
+                  activeView === 'TOURNAMENTS' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                }`}
+              >
+                Tournament Standings
+              </button>
+            </div>
+          </div>
 
           {/* Interactive Game & Season Filter Selectors */}
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
@@ -440,7 +472,7 @@ export default function LeaderboardPage() {
               <Trophy className="w-12 h-12 text-[#00f2ff] mx-auto opacity-50 animate-pulse" />
               <div className="space-y-1">
                 <h3 className="font-display-lg text-base sm:text-lg font-bold text-white uppercase tracking-wider">
-                  No leaderboard data is available yet
+                  No tournament results available yet.
                 </h3>
                 <p className="text-xs text-[#8e9dae] max-w-md mx-auto">
                   Rankings will appear after completed tournaments. Participate in active competitions to earn placement points and climb the global ladder.
@@ -466,7 +498,7 @@ export default function LeaderboardPage() {
                   </thead>
                   <tbody className="divide-y divide-[#3a494b]/40 font-mono text-xs">
                     {teamRankings.map((team) => (
-                      <tr key={`stitch-rank-${team.rank}`} className="hover:bg-[#1d232c] transition-colors">
+                      <tr key={`stitch-rank-${team.rank}`} onClick={() => setSelectedTeamModal(team)} className="hover:bg-[#1d232c] transition-colors cursor-pointer" title="Click to view squad profile">
                         <td className="px-6 py-4">
                           <div
                             className={`w-7 h-7 flex items-center justify-center font-extrabold rounded text-xs ${
@@ -564,6 +596,13 @@ export default function LeaderboardPage() {
           )}
         </div>
       </section>
+
+      {selectedTeamModal && (
+        <PublicTeamProfileModal
+          team={selectedTeamModal}
+          onClose={() => setSelectedTeamModal(null)}
+        />
+      )}
 
     </div>
   )

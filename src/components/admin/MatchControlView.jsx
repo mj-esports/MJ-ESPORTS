@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   Gamepad2,
   Key,
@@ -22,26 +22,49 @@ import {
   ListFilter,
   ArrowRight,
   Zap,
-  RotateCcw
+  RotateCcw,
+  Lock,
+  Unlock,
+  Check,
+  Ban
 } from 'lucide-react'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
 import { useToast } from '../../contexts/ToastContext'
+import MatchControlCommandCenter from './match-control/MatchControlCommandCenter'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useAuth } from '../../contexts/AuthContext'
 
-export default function MatchControlView({ tournaments, setActiveTab }) {
+export default function MatchControlView({ tournaments = [], setActiveTab }) {
   const { showSuccess, showError } = useToast()
-  const { updateRoomDetails } = useTournaments()
+  const { updateRoomDetails, updateTournamentStatus } = useTournaments()
   const { user } = useAuth()
 
+  const [activeSubTab, setActiveSubTab] = useState('COMMAND_CENTER') // 'COMMAND_CENTER' | 'UPCOMING' | 'LIVE' | 'ROOM_MANAGEMENT' | 'RESULTS' | 'MATCH_HISTORY'
+  const [matchFilter, setMatchFilter] = useState('ALL') // 'ALL' | 'UPCOMING' | 'LIVE' | 'COMPLETED'
   const [selectedTourneyId, setSelectedTourneyId] = useState(tournaments[0]?.id || '')
-  const selectedTourney = tournaments.find((t) => t.id === selectedTourneyId) || tournaments[0]
+  
+  // Filtered tournament match list
+  const filteredMatches = useMemo(() => {
+    if (matchFilter === 'UPCOMING' || activeSubTab === 'UPCOMING') {
+      return tournaments.filter((t) => t.status === 'Registration Open' || t.status === 'Scheduled' || t.status === 'Check-in')
+    }
+    if (matchFilter === 'LIVE' || activeSubTab === 'LIVE') {
+      return tournaments.filter((t) => t.status === 'Live Now' || t.status === 'Bracket Locked')
+    }
+    if (matchFilter === 'COMPLETED' || activeSubTab === 'MATCH_HISTORY') {
+      return tournaments.filter((t) => t.status === 'Completed' || t.status === 'Registration Closed')
+    }
+    return tournaments
+  }, [tournaments, matchFilter, activeSubTab])
+
+  const selectedTourney = tournaments.find((t) => t.id === selectedTourneyId) || filteredMatches[0] || tournaments[0]
 
   // Section 1: Room Management State
   const [roomIdInput, setRoomIdInput] = useState('')
   const [roomPasswordInput, setRoomPasswordInput] = useState('')
   const [roomStatus, setRoomStatus] = useState('Draft')
+  const [isLocked, setIsLocked] = useState(false)
 
   // Section 2: Match Controls State
   const [matchStatus, setMatchStatus] = useState('Lobby Waiting') // 'Lobby Waiting' | 'Match Live' | 'Paused' | 'Ended'
@@ -67,6 +90,7 @@ export default function MatchControlView({ tournaments, setActiveTab }) {
       setRoomIdInput(selectedTourney.roomId || '')
       setRoomPasswordInput(selectedTourney.roomPassword || '')
       setRoomStatus(selectedTourney.roomStatus || 'Draft')
+      setIsLocked(selectedTourney.status === 'Bracket Locked' || selectedTourney.status === 'Completed')
       setAlert(null)
     }
   }, [selectedTourneyId, selectedTourney])
@@ -80,6 +104,10 @@ export default function MatchControlView({ tournaments, setActiveTab }) {
   // Section 1 Handlers: Room Details & Publishing
   const handleSaveDraft = async () => {
     if (!selectedTourney) return
+    if (isLocked) {
+      setAlert({ type: 'error', message: 'Match is currently locked. Unlock match to modify room details.' })
+      return
+    }
     setIsSaving(true)
     setAlert(null)
     try {
@@ -101,6 +129,10 @@ export default function MatchControlView({ tournaments, setActiveTab }) {
 
   const handlePublishRoom = async () => {
     if (!selectedTourney) return
+    if (isLocked) {
+      setAlert({ type: 'error', message: 'Match is locked! Unlock match before publishing new room details.' })
+      return
+    }
     setAlert(null)
 
     // Validation requirement: Room ID and Password required before publishing
@@ -135,6 +167,10 @@ export default function MatchControlView({ tournaments, setActiveTab }) {
 
   const handleStatusChange = async (newStatus) => {
     if (!selectedTourney) return
+    if (isLocked) {
+      setAlert({ type: 'error', message: 'Match is locked. Unlock match to change room status.' })
+      return
+    }
     try {
       await updateRoomDetails(selectedTourney.id, {
         roomId: roomIdInput.trim(),
@@ -147,6 +183,41 @@ export default function MatchControlView({ tournaments, setActiveTab }) {
       showSuccess(`Room status updated to ${newStatus}`, 'Status Updated')
     } catch (err) {
       setAlert({ type: 'error', message: err.message || 'Failed to update status.' })
+    }
+  }
+
+  // Toggle Lock/Unlock match state
+  const handleToggleLock = async () => {
+    if (!selectedTourney) return
+    const newLockState = !isLocked
+    const targetStatus = newLockState ? 'Bracket Locked' : 'Live Now'
+    
+    try {
+      if (updateTournamentStatus) {
+        await updateTournamentStatus(selectedTourney.id, targetStatus)
+      }
+      setIsLocked(newLockState)
+      setAlert({
+        type: 'success',
+        message: newLockState ? `Match locked! Roster and room details frozen.` : `Match unlocked! Administrative edits allowed.`,
+      })
+      showSuccess(newLockState ? 'Match locked successfully' : 'Match unlocked', 'Match Lock State')
+    } catch (err) {
+      setAlert({ type: 'error', message: err.message || 'Failed to toggle match lock state.' })
+    }
+  }
+
+  // Open match (Check-in state)
+  const handleOpenMatch = async () => {
+    if (!selectedTourney) return
+    try {
+      if (updateTournamentStatus) {
+        await updateTournamentStatus(selectedTourney.id, 'Live Now')
+      }
+      setAlert({ type: 'success', message: `Match status set to Live Now. Room dispatch enabled!` })
+      showSuccess(`Match opened for ${selectedTourney.title}`, 'Match Opened')
+    } catch (err) {
+      setAlert({ type: 'error', message: err.message || 'Failed to open match.' })
     }
   }
 
@@ -197,19 +268,70 @@ export default function MatchControlView({ tournaments, setActiveTab }) {
           </h2>
         </div>
 
-        {/* Select Active Tournament */}
-        <select
-          value={selectedTourneyId}
-          onChange={(e) => setSelectedTourneyId(e.target.value)}
-          className="py-2.5 px-4 bg-[#07090c] border border-[#3a494b] rounded-lg text-xs font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff]"
-        >
-          {tournaments.map((t) => (
-            <option key={`mc-opt-${t.id}`} value={t.id}>{t.title} ({t.game})</option>
-          ))}
-        </select>
+        {/* Filter & Select Active Tournament */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex bg-[#07090c] border border-[#3a494b] rounded-lg p-1 text-xs font-bold font-mono">
+            {['ALL', 'UPCOMING', 'LIVE', 'COMPLETED'].map((f) => (
+              <button
+                key={`m-filter-${f}`}
+                onClick={() => setMatchFilter(f)}
+                className={`px-2.5 py-1 rounded transition-colors ${
+                  matchFilter === f ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+
+          <select
+            value={selectedTourneyId}
+            onChange={(e) => setSelectedTourneyId(e.target.value)}
+            className="py-2 px-3 bg-[#07090c] border border-[#3a494b] rounded-lg text-xs font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff]"
+          >
+            {filteredMatches.map((t) => (
+              <option key={`mc-opt-${t.id}`} value={t.id}>{t.title} ({t.status})</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Match Control Sub-Navigation Foundation */}
+      <div className="flex border-b border-[#3a494b]/60 overflow-x-auto text-xs font-bold uppercase tracking-wider scrollbar-hide">
+        {[
+          { id: 'COMMAND_CENTER', label: 'Command Center' },
+          { id: 'UPCOMING', label: 'Upcoming Matches' },
+          { id: 'LIVE', label: 'Live Matches' },
+          { id: 'ROOM_MANAGEMENT', label: 'Room Management' },
+          { id: 'RESULTS', label: 'Results' },
+          { id: 'MATCH_HISTORY', label: 'Match History' },
+        ].map((tab) => (
+          <button
+            key={`mc-subtab-${tab.id}`}
+            onClick={() => setActiveSubTab(tab.id)}
+            className={`px-4 py-2.5 border-b-2 transition-all shrink-0 font-mono ${
+              activeSubTab === tab.id
+                ? 'border-[#00f2ff] text-[#00f2ff] bg-[#00f2ff]/10 font-extrabold'
+                : 'border-transparent text-[#8e9dae] hover:text-white'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
+
+      {/* COMMAND CENTER SUB-TAB DASHBOARD */}
+      {activeSubTab === 'COMMAND_CENTER' && (
+        <MatchControlCommandCenter
+          tournaments={tournaments}
+          selectedTourney={selectedTourney}
+          onOpenMatch={handleOpenMatch}
+          onToggleLock={handleToggleLock}
+          onNavigateSubTab={setActiveSubTab}
+        />
+      )}
 
       {/* SECTION 1: ROOM MANAGEMENT & SECTION 2: MATCH CONTROLS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -296,15 +418,16 @@ export default function MatchControlView({ tournaments, setActiveTab }) {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             <LoadingButton
               onClick={handleSaveDraft}
               loading={isSaving}
               loadingText="Saving..."
               variant="secondary"
-              className="py-3"
+              className="py-3 text-xs"
+              disabled={isLocked}
             >
-              <Save className="w-4 h-4 inline mr-1" />
+              <Save className="w-3.5 h-3.5 inline mr-1" />
               <span>Save Draft</span>
             </LoadingButton>
 
@@ -312,42 +435,69 @@ export default function MatchControlView({ tournaments, setActiveTab }) {
               onClick={handlePublishRoom}
               loading={isPublishing}
               loadingText="Publishing..."
-              className="py-3 bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] font-extrabold"
+              className="py-3 bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] font-extrabold text-xs"
+              disabled={isLocked}
             >
-              <Globe className="w-4 h-4 inline mr-1" />
+              <Globe className="w-3.5 h-3.5 inline mr-1" />
               <span>Publish Room</span>
             </LoadingButton>
+
+            <button
+              onClick={handleToggleLock}
+              className={`py-3 font-extrabold text-xs rounded-lg flex items-center justify-center gap-1 uppercase transition-colors ${
+                isLocked
+                  ? 'bg-red-950/60 text-[#ff3366] border border-red-800 hover:bg-red-900'
+                  : 'bg-[#07090c] text-[#00ff9d] border border-[#00ff9d]/40 hover:bg-[#151a21]'
+              }`}
+            >
+              {isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+              <span>{isLocked ? 'Unlock Match' : 'Lock Match'}</span>
+            </button>
           </div>
 
-          {/* Room Status Controls */}
-          <div className="pt-2 flex items-center justify-between gap-2 text-xs">
-            <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase font-bold">Room Status:</span>
-            <div className="flex gap-1.5">
-              <button
-                onClick={() => handleStatusChange('Draft')}
-                className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-colors ${roomStatus === 'Draft' ? 'bg-[#fe6b00] text-slate-950 font-extrabold' : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b]'}`}
-              >
-                Draft
-              </button>
-              <button
-                onClick={() => handleStatusChange('Published')}
-                className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-colors ${roomStatus === 'Published' ? 'bg-[#00ff9d] text-slate-950 font-extrabold' : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b]'}`}
-              >
-                Published
-              </button>
-              <button
-                onClick={() => handleStatusChange('Hidden')}
-                className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-colors ${roomStatus === 'Hidden' ? 'bg-red-800 text-white font-extrabold' : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b]'}`}
-              >
-                Hidden
-              </button>
-              <button
-                onClick={() => handleStatusChange('Completed')}
-                className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-colors ${roomStatus === 'Completed' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b]'}`}
-              >
-                Completed
-              </button>
+          {/* Room Status Controls & Open Match */}
+          <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase font-bold">Room Status:</span>
+              <div className="flex gap-1.5">
+                <button
+                  onClick={() => handleStatusChange('Draft')}
+                  disabled={isLocked}
+                  className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-colors disabled:opacity-50 ${roomStatus === 'Draft' ? 'bg-[#fe6b00] text-slate-950 font-extrabold' : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b]'}`}
+                >
+                  Draft
+                </button>
+                <button
+                  onClick={() => handleStatusChange('Published')}
+                  disabled={isLocked}
+                  className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-colors disabled:opacity-50 ${roomStatus === 'Published' ? 'bg-[#00ff9d] text-slate-950 font-extrabold' : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b]'}`}
+                >
+                  Published
+                </button>
+                <button
+                  onClick={() => handleStatusChange('Hidden')}
+                  disabled={isLocked}
+                  className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-colors disabled:opacity-50 ${roomStatus === 'Hidden' ? 'bg-red-800 text-white font-extrabold' : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b]'}`}
+                >
+                  Hidden
+                </button>
+                <button
+                  onClick={() => handleStatusChange('Completed')}
+                  disabled={isLocked}
+                  className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-colors disabled:opacity-50 ${roomStatus === 'Completed' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b]'}`}
+                >
+                  Completed
+                </button>
+              </div>
             </div>
+
+            <button
+              onClick={handleOpenMatch}
+              className="px-3 py-1.5 bg-[#00f2ff]/10 hover:bg-[#00f2ff]/20 text-[#00f2ff] border border-[#00f2ff]/40 text-[10px] font-extrabold uppercase rounded flex items-center gap-1"
+            >
+              <Play className="w-3 h-3" />
+              <span>Open Match Lobby</span>
+            </button>
           </div>
         </div>
 

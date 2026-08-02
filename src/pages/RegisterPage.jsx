@@ -33,17 +33,13 @@ export default function RegisterPage() {
 
   const validate = () => {
     const newErrors = {}
-    const cleanUsername = sanitizeString(formData.username)
+    const cleanUsername = (formData.username || '').trim()
     const cleanEmail = sanitizeString(formData.email)
 
     if (!cleanUsername) {
-      newErrors.username = 'Player handle / username is required'
-    } else if (cleanUsername.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters'
-    } else if (cleanUsername.length > 30) {
-      newErrors.username = 'Username cannot exceed 30 characters'
-    } else if (!isValidUsername(cleanUsername)) {
-      newErrors.username = 'Username can only contain letters, numbers, underscores, and hyphens'
+      newErrors.username = 'Username is required.'
+    } else if (cleanUsername.length > 50) {
+      newErrors.username = 'Username cannot exceed 50 characters.'
     }
 
     if (!cleanEmail) {

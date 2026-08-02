@@ -31,7 +31,7 @@ const STANDARD_PLACEMENT_PTS = {
   10: 1,
 }
 
-export default function LeaderboardsView({ tournaments = [], updateTournamentScores, updateTournamentStatus }) {
+export default function LeaderboardsView({ tournaments = [], updateTournamentScores, updateTournamentStatus, editTournament }) {
   const { showSuccess, showError } = useToast()
   const [selectedId, setSelectedId] = useState(tournaments[0]?.id || '')
   const selectedTournament = tournaments.find((t) => String(t.id) === String(selectedId)) || tournaments[0]
@@ -120,18 +120,26 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
   }
 
   const handleDeclareWinner = async () => {
-    if (teams.length === 0) return
+    if (teams.length === 0 || !selectedTournament) return
     const champion = teams[0]
 
     try {
-      if (updateTournamentStatus) {
+      if (editTournament) {
+        await editTournament(selectedTournament.id, {
+          status: 'Completed',
+          winnerTeam: champion.name,
+          winnerCaptain: champion.captain,
+          teamsList: teams,
+        })
+      } else if (updateTournamentStatus) {
         await updateTournamentStatus(selectedTournament.id, 'Completed')
       }
       setShowWinnerModal(true)
       setAlert({
         type: 'success',
-        message: `Official Tournament Winner declared: ${champion.name}! Competition status marked Completed.`,
+        message: `Official Tournament Winner declared: ${champion.name} (Captain: ${champion.captain})! Status updated to Completed.`,
       })
+      showSuccess(`Official Winner ${champion.name} declared for ${selectedTournament.title}!`, 'Winner Declared')
     } catch (err) {
       setAlert({ type: 'error', message: err.message || 'Failed to declare official winner.' })
     }

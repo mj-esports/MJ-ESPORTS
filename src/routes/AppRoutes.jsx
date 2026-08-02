@@ -21,6 +21,8 @@ const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'))
 const DashboardPage = lazy(() => import('../pages/DashboardPage'))
 const AdminDashboardPage = lazy(() => import('../pages/AdminDashboardPage'))
 const AdminFinancePage = lazy(() => import('../pages/AdminFinancePage'))
+const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
+const ServerErrorPage = lazy(() => import('../pages/ServerErrorPage'))
 
 function PageFallback() {
   return (
@@ -52,12 +54,15 @@ export default function AppRoutes() {
           <Route path="leaderboard" element={<LeaderboardPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="403" element={<AccessDeniedPage />} />
+          <Route path="500" element={<ServerErrorPage />} />
           
           {/* Protected Player Routes */}
           <Route element={<ProtectedRoute redirectTo="/login" />}>
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="profile" element={<DashboardPage />} />
           </Route>
+          {/* 404 Wildcard Fallback Route */}
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
 
         {/* Tier 3: Enterprise Admin Control Center Layout (Admin Sidebar + Admin Header ONLY) */}
