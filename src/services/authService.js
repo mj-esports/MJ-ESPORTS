@@ -48,16 +48,30 @@ function createMockSession(email, metadata = {}) {
 export async function getUserRole(user) {
   if (!user) return null
 
+  // 1. Owner admin account check for primary admin account
+  if (user.email && user.email.toLowerCase().trim() === 'mjesports.team@gmail.com') {
+    return 'admin'
+  }
+
   const userId = user.id
 
-  // 1. Query Supabase user_roles table if configured
+  // 2. Query Supabase user_roles table if configured
   if (isSupabaseConfigured && userId && !userId.startsWith('mock-')) {
     try {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .maybeSingle()
+      const userEmail = user.email ? user.email.toLowerCase().trim() : ''
+      const query = userEmail
+        ? supabase
+            .from('user_roles')
+            .select('role')
+            .or(`user_id.eq.${userId},email.eq.${userEmail}`)
+            .maybeSingle()
+        : supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', userId)
+            .maybeSingle()
+
+      const { data, error } = await query
 
       if (!error && data?.role) {
         return data.role
@@ -67,7 +81,7 @@ export async function getUserRole(user) {
     }
   }
 
-  // 2. Return role from authenticated user metadata or fallback 'user'
+  // 3. Return role from authenticated user metadata or fallback 'user'
   return user.user_metadata?.role || 'user'
 }
 

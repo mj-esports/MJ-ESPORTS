@@ -28,6 +28,11 @@ export function AuthProvider({ children }) {
     if (currentUser) {
       try {
         const resolvedRole = await getUserRole(currentUser)
+        console.log('[AUTH DEBUG] Current User Email:', currentUser.email)
+        console.log('[AUTH DEBUG] Current User ID:', currentUser.id)
+        console.log('[AUTH DEBUG] Role from database/service:', resolvedRole)
+        console.log('[AUTH DEBUG] user_roles query result / resolved role:', resolvedRole)
+        console.log('[AUTH DEBUG] isAdmin value:', resolvedRole === 'admin')
         setRole(resolvedRole)
       } catch (err) {
         console.error('[Role Resolution Error]:', err)

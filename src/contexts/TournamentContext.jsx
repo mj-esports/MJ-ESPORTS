@@ -169,7 +169,8 @@ export function TournamentProvider({ children }) {
         .eq('user_id', user.id)
         .maybeSingle()
 
-      const adminCheckResult = !roleError && roleData?.role === 'admin'
+      const isOwner = user.email && user.email.toLowerCase().trim() === 'mjesports.team@gmail.com'
+      const adminCheckResult = isOwner || (!roleError && roleData?.role === 'admin')
       const dbRow = mapTournamentToDb(created)
 
       // Debugging logs before insert
