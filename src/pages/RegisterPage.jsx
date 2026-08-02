@@ -111,7 +111,7 @@ export default function RegisterPage() {
     <div className="min-h-[85vh] flex items-center justify-center py-8 px-4 sm:px-6">
       
       {/* 2-Column Split Authentication Arena Container */}
-      <div className="w-full max-w-5xl bg-[#151a21] border border-[#3a494b]/60 rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[640px]">
+      <div className="w-full max-w-5xl bg-[#151a21] border border-[#3a494b]/60 rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-0 md:min-h-[640px]">
         
         {/* Left Column: Brand Visual (Desktop >= md) */}
         <div className="hidden md:flex md:w-1/2 relative overflow-hidden bg-[#07090c] items-center justify-center p-8 border-r border-[#3a494b]/60">

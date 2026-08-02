@@ -3,9 +3,9 @@ import { Swords, MessageSquare, Mail, ShieldCheck, Video, Tv, Globe, Share2 } fr
 
 export default function Footer() {
   return (
-    <footer className="bg-[#07090c] border-t border-[#3a494b]/60 pt-16 pb-8 text-[#b9cacb] lg:pl-64">
+    <footer className="bg-[#07090c] border-t border-[#3a494b]/60 pt-12 sm:pt-16 pb-24 md:pb-8 text-[#b9cacb]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-[#3a494b]/40">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 pb-10 sm:pb-12 border-b border-[#3a494b]/40">
           
           {/* Brand Info */}
           <div className="space-y-4 md:col-span-1">

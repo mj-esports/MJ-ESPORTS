@@ -54,26 +54,26 @@ export const FeaturedTournamentCard: React.FC<FeaturedTournamentCardProps> = Rea
           </div>
 
           {/* Stats Bar */}
-          <div className="grid grid-cols-1 xs:grid-cols-3 gap-2.5 sm:gap-3 pt-2 max-w-md">
-            <div className="bg-[#0b0e11] p-2.5 rounded border border-[#3a494b]/60">
-              <p className="text-[10px] font-bold tracking-widest text-[#849495] uppercase flex items-center gap-1">
-                <Trophy className="w-3 h-3 text-[#fe6b00]" />
-                PRIZE POOL
+          <div className="grid grid-cols-1 xs:grid-cols-3 gap-2.5 sm:gap-3 pt-2 max-w-md w-full">
+            <div className="bg-[#0b0e11] p-2.5 rounded border border-[#3a494b]/60 min-w-0 w-full">
+              <p className="text-[9px] xs:text-[10px] font-bold tracking-widest text-[#849495] uppercase flex items-center gap-1 truncate">
+                <Trophy className="w-3 h-3 text-[#fe6b00] shrink-0" />
+                <span className="truncate">PRIZE POOL</span>
               </p>
-              <p className="font-mono text-base sm:text-lg font-extrabold text-[#ffb693]">{prizePool}</p>
+              <p className="font-mono text-sm xs:text-base sm:text-lg font-extrabold text-[#ffb693] truncate">{prizePool}</p>
             </div>
             
-            <div className="bg-[#0b0e11] p-2.5 rounded border border-[#3a494b]/60">
-              <p className="text-[10px] font-bold tracking-widest text-[#849495] uppercase flex items-center gap-1">
-                <Ticket className="w-3 h-3 text-[#00f2ff]" />
-                ENTRY FEE
+            <div className="bg-[#0b0e11] p-2.5 rounded border border-[#3a494b]/60 min-w-0 w-full">
+              <p className="text-[9px] xs:text-[10px] font-bold tracking-widest text-[#849495] uppercase flex items-center gap-1 truncate">
+                <Ticket className="w-3 h-3 text-[#00f2ff] shrink-0" />
+                <span className="truncate">ENTRY FEE</span>
               </p>
-              <p className="font-mono text-base sm:text-lg font-extrabold text-[#00f2ff]">{entryFee}</p>
+              <p className="font-mono text-sm xs:text-base sm:text-lg font-extrabold text-[#00f2ff] truncate">{entryFee}</p>
             </div>
 
-            <div className="bg-[#0b0e11] p-2.5 rounded border border-[#3a494b]/60">
-              <p className="text-[10px] font-bold tracking-widest text-[#849495] uppercase">SLOTS</p>
-              <p className="font-mono text-base sm:text-lg font-extrabold text-[#e1e2e7]">{filledSlots}/{totalSlots}</p>
+            <div className="bg-[#0b0e11] p-2.5 rounded border border-[#3a494b]/60 min-w-0 w-full">
+              <p className="text-[9px] xs:text-[10px] font-bold tracking-widest text-[#849495] uppercase truncate">SLOTS</p>
+              <p className="font-mono text-sm xs:text-base sm:text-lg font-extrabold text-[#e1e2e7] truncate">{filledSlots}/{totalSlots}</p>
             </div>
           </div>
         </div>

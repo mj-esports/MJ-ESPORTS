@@ -82,10 +82,10 @@ export default function ProfilePage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
       
       {/* 1. PLAYER HERO PROFILE HEADER */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
         
         {/* Profile Avatar & Primary Info */}
-        <div className="flex items-center gap-5">
+        <div className="flex flex-col xs:flex-row items-start xs:items-center gap-4 sm:gap-5 w-full">
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#00f2ff]/20 border-2 border-[#00f2ff] flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(0,242,255,0.4)] overflow-hidden">
             {avatarUrl ? (
               <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
@@ -94,34 +94,34 @@ export default function ProfilePage() {
             )}
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1 min-w-0 flex-1">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="font-display-lg text-2xl sm:text-4xl font-extrabold text-white uppercase tracking-tight">
+              <h1 className="font-display-lg text-xl xs:text-2xl sm:text-4xl font-extrabold text-white uppercase tracking-tight truncate max-w-full">
                 {displayName}
               </h1>
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase tracking-widest flex items-center gap-1">
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase tracking-widest flex items-center gap-1 shrink-0">
                 <CheckCircle2 className="w-3 h-3" />
                 VERIFIED PLAYER
               </span>
             </div>
 
-            <div className="flex items-center gap-3 text-xs text-[#8e9dae] font-mono flex-wrap">
+            <div className="flex items-center gap-2.5 sm:gap-3 text-xs text-[#8e9dae] font-mono flex-wrap">
               <span className="flex items-center gap-1 text-[#e1e2e7]">
-                <Globe className="w-3.5 h-3.5 text-[#00f2ff]" />
+                <Globe className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
                 <span>{country}</span>
               </span>
-              <span>&bull;</span>
-              <span className="flex items-center gap-1">
-                <Mail className="w-3.5 h-3.5 text-[#00f2ff]" />
-                <span>{email}</span>
+              <span className="hidden xs:inline">&bull;</span>
+              <span className="flex items-center gap-1 truncate max-w-full">
+                <Mail className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+                <span className="truncate">{email}</span>
               </span>
             </div>
           </div>
         </div>
 
         {/* Global Rank Pill */}
-        <div className="flex items-center gap-3">
-          <div className="px-4 py-2.5 bg-[#07090c] rounded-xl border border-[#3a494b] text-center space-y-0.5">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="px-4 py-2.5 bg-[#07090c] rounded-xl border border-[#3a494b] text-center space-y-0.5 w-full sm:w-auto">
             <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block">GLOBAL RANKING</span>
             <span className="font-display-lg text-base font-extrabold text-[#00f2ff] block">{careerStats.globalRank}</span>
           </div>
@@ -129,36 +129,36 @@ export default function ProfilePage() {
       </div>
 
       {/* 2. CAREER STATISTICS HEADER CARDS */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 text-center space-y-1 shadow-lg">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
+        <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 text-center space-y-1 shadow-lg min-w-0 w-full">
           <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center justify-center gap-1">
             <Swords className="w-3.5 h-3.5 text-[#00f2ff]" /> Matches
           </span>
           <span className="font-display-lg text-2xl font-extrabold text-white block">{careerStats.matchesPlayed}</span>
         </div>
 
-        <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 text-center space-y-1 shadow-lg">
+        <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 text-center space-y-1 shadow-lg min-w-0 w-full">
           <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center justify-center gap-1">
             <Trophy className="w-3.5 h-3.5 text-[#00ff9d]" /> Wins
           </span>
           <span className="font-display-lg text-2xl font-extrabold text-[#00ff9d] block">{careerStats.wins}</span>
         </div>
 
-        <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 text-center space-y-1 shadow-lg">
+        <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 text-center space-y-1 shadow-lg min-w-0 w-full">
           <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center justify-center gap-1">
             <Flame className="w-3.5 h-3.5 text-[#fe6b00]" /> Kills
           </span>
           <span className="font-display-lg text-2xl font-extrabold text-[#fe6b00] block">{careerStats.kills}</span>
         </div>
 
-        <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 text-center space-y-1 shadow-lg">
+        <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 text-center space-y-1 shadow-lg min-w-0 w-full">
           <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center justify-center gap-1">
             <Target className="w-3.5 h-3.5 text-[#00f2ff]" /> Win Rate
           </span>
           <span className="font-display-lg text-2xl font-extrabold text-[#00f2ff] block">{careerStats.winRate}</span>
         </div>
 
-        <div className="col-span-2 sm:col-span-1 bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 text-center space-y-1 shadow-lg">
+        <div className="col-span-1 xs:col-span-2 sm:col-span-1 bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 text-center space-y-1 shadow-lg min-w-0 w-full">
           <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center justify-center gap-1">
             <DollarSign className="w-3.5 h-3.5 text-[#ffb693]" /> Total Earnings
           </span>
@@ -167,18 +167,18 @@ export default function ProfilePage() {
       </div>
 
       {/* 3. ACHIEVEMENTS BADGES MATRIX */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 space-y-4 shadow-xl">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-4 shadow-xl">
         <h3 className="font-display-lg text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
           <Medal className="w-5 h-5 text-[#ffb693]" />
           <span>Player Achievements & Badges</span>
         </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {achievementBadges.map((badge, idx) => {
             const Icon = badge.icon
             return (
-              <div key={`badge-${idx}`} className={`p-3.5 rounded-xl border ${badge.color} flex items-center gap-3`}>
+              <div key={`badge-${idx}`} className={`p-3.5 rounded-xl border ${badge.color} flex items-center gap-3 min-w-0 w-full`}>
                 <Icon className="w-5 h-5 shrink-0" />
-                <span className="text-xs font-extrabold uppercase font-mono">{badge.name}</span>
+                <span className="text-xs font-extrabold uppercase font-mono truncate">{badge.name}</span>
               </div>
             )
           })}
@@ -198,10 +198,10 @@ export default function ProfilePage() {
             <div className="space-y-3 text-xs">
               <div className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/60 space-y-1">
                 <span className="text-[#8e9dae] font-semibold text-[10px] uppercase block">Free Fire UID</span>
-                <div className="flex items-center justify-between font-mono">
-                  <span className="text-[#00f2ff] font-extrabold text-sm">{freeFireUid}</span>
+                <div className="flex items-center justify-between font-mono gap-2 min-w-0">
+                  <span className="text-[#00f2ff] font-extrabold text-sm truncate">{freeFireUid}</span>
                   {freeFireUid !== 'Not Linked' && (
-                    <button onClick={() => handleCopy(freeFireUid, 'Free Fire UID')} className="p-1 text-[#00f2ff] hover:bg-[#151a21] rounded">
+                    <button onClick={() => handleCopy(freeFireUid, 'Free Fire UID')} className="p-1 text-[#00f2ff] hover:bg-[#151a21] rounded shrink-0">
                       <Copy className="w-4 h-4" />
                     </button>
                   )}
@@ -210,10 +210,10 @@ export default function ProfilePage() {
 
               <div className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/60 space-y-1">
                 <span className="text-[#8e9dae] font-semibold text-[10px] uppercase block">BGMI Character UID</span>
-                <div className="flex items-center justify-between font-mono">
-                  <span className="text-[#00f2ff] font-extrabold text-sm">{bgmiUid}</span>
+                <div className="flex items-center justify-between font-mono gap-2 min-w-0">
+                  <span className="text-[#00f2ff] font-extrabold text-sm truncate">{bgmiUid}</span>
                   {bgmiUid !== 'Not Linked' && (
-                    <button onClick={() => handleCopy(bgmiUid, 'BGMI Character UID')} className="p-1 text-[#00f2ff] hover:bg-[#151a21] rounded">
+                    <button onClick={() => handleCopy(bgmiUid, 'BGMI Character UID')} className="p-1 text-[#00f2ff] hover:bg-[#151a21] rounded shrink-0">
                       <Copy className="w-4 h-4" />
                     </button>
                   )}
@@ -239,7 +239,7 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full min-w-[500px] text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
                       <th className="p-3 pl-4">Tournament</th>

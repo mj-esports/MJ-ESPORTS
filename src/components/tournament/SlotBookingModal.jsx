@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Users, Mail, User, ShieldCheck, Phone, CheckCircle2, Copy, Shield, Trophy } from 'lucide-react'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useAuth } from '../../contexts/AuthContext'
@@ -57,6 +57,14 @@ export default function SlotBookingModal({ tournament, onClose }) {
   const { registerTeam } = useTournaments()
   const { user } = useAuth()
   const { showSuccess, showError } = useToast()
+
+  // Lock body scrolling when modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [])
 
   // Temporary Step 5 Debug Logs
   console.log("Registration tournament data:", tournament)
@@ -261,12 +269,16 @@ export default function SlotBookingModal({ tournament, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
       role="dialog"
       aria-modal="true"
       aria-labelledby="slot-booking-modal-title"
     >
-      <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-[0_0_40px_rgba(0,242,255,0.15)] relative max-h-[90vh] overflow-y-auto">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-4 sm:p-8 space-y-5 sm:space-y-6 shadow-[0_0_40px_rgba(0,242,255,0.15)] relative max-h-[92vh] overflow-y-auto"
+      >
 
         {/* Close Button */}
         <button

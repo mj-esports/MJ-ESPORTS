@@ -51,14 +51,14 @@ export const TournamentCard: React.FC<TournamentCardProps> = React.memo(({ tourn
       </div>
 
       {/* Prize & Entry Stat Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="bg-[#191c1f] p-3 rounded border border-slate-800">
-          <p className="text-[10px] font-bold text-[#b9cacb] uppercase tracking-wider">PRIZE POOL</p>
-          <p className="font-mono text-base font-extrabold text-[#fe6b00] tracking-tight mt-0.5">{tournament.prizePool}</p>
+      <div className="grid grid-cols-2 gap-3 mb-4 w-full">
+        <div className="bg-[#191c1f] p-3 rounded border border-slate-800 min-w-0 w-full">
+          <p className="text-[10px] font-bold text-[#b9cacb] uppercase tracking-wider truncate">PRIZE POOL</p>
+          <p className="font-mono text-sm sm:text-base font-extrabold text-[#fe6b00] tracking-tight mt-0.5 truncate">{tournament.prizePool}</p>
         </div>
-        <div className="bg-[#191c1f] p-3 rounded border border-slate-800">
-          <p className="text-[10px] font-bold text-[#b9cacb] uppercase tracking-wider">ENTRY FEE</p>
-          <p className="font-mono text-base font-extrabold text-[#00f2ff] tracking-tight mt-0.5">{tournament.entryFee}</p>
+        <div className="bg-[#191c1f] p-3 rounded border border-slate-800 min-w-0 w-full">
+          <p className="text-[10px] font-bold text-[#b9cacb] uppercase tracking-wider truncate">ENTRY FEE</p>
+          <p className="font-mono text-sm sm:text-base font-extrabold text-[#00f2ff] tracking-tight mt-0.5 truncate">{tournament.entryFee}</p>
         </div>
       </div>
 

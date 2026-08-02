@@ -56,7 +56,7 @@ export default function Home() {
   }, [tournaments])
 
   return (
-    <div className="w-full min-h-screen bg-[#0b0e11] text-[#e1e2e7] pt-6 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+    <div className="w-full min-h-screen bg-[#0b0e11] text-[#e1e2e7] pt-6 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl 2xl:max-w-[1536px] mx-auto space-y-8">
       
       {/* 1. Header & Game Category Filter Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#3a494b]/40 pb-4">

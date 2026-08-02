@@ -30,7 +30,7 @@ export default function TournamentsPage() {
   }, [tournaments, searchQuery, selectedGame, selectedStatus])
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
+    <div className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
       
       {/* Header Banner */}
       <div className="space-y-3">
@@ -116,7 +116,7 @@ export default function TournamentsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
           {uniqueFilteredTournaments.map((t) => {
             const filled = t.registeredTeams || 0
             const total = t.maxTeams || 100
@@ -181,14 +181,14 @@ export default function TournamentsPage() {
                     </div>
                   </div>
 
-                  <div className="pt-3 flex items-center justify-between text-xs text-[#8e9dae] border-t border-[#3a494b]/60 gap-2">
+                  <div className="pt-3 flex flex-col xs:flex-row items-start xs:items-center justify-between text-xs text-[#8e9dae] border-t border-[#3a494b]/60 gap-2.5 w-full">
                     <div className="flex items-center gap-1.5 shrink-0">
                       <Calendar className="w-3.5 h-3.5 text-[#00f2ff]" />
                       <span>Starts {t.startDate}</span>
                     </div>
                     <Link
                       to={`/tournaments/${t.id}`}
-                      className="px-4 py-2.5 rounded bg-[#00f2ff] text-[#00363a] font-extrabold hover:bg-[#74f5ff] transition-all text-xs shrink-0 flex items-center justify-center gap-1 uppercase tracking-wider"
+                      className="w-full xs:w-auto px-4 py-2.5 rounded bg-[#00f2ff] text-[#00363a] font-extrabold hover:bg-[#74f5ff] transition-all text-xs shrink-0 flex items-center justify-center gap-1 uppercase tracking-wider min-h-[38px]"
                     >
                       <span>VIEW DETAILS</span>
                       <ChevronRight className="w-3.5 h-3.5" />

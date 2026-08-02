@@ -78,16 +78,16 @@ export default function AdminHeader({
         <div className="h-6 w-[1px] bg-[#3a494b]/60 hidden md:block"></div>
 
         {/* Current Page Title */}
-        <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-[#00f2ff] hidden xs:block" />
-          <h1 className="font-display-lg text-[11px] xs:text-xs sm:text-sm font-extrabold text-white uppercase tracking-wider truncate max-w-[100px] xs:max-w-[140px] sm:max-w-[220px]">
+        <div className="flex items-center gap-2 min-w-0">
+          <Shield className="w-4 h-4 text-[#00f2ff] hidden xs:block shrink-0" />
+          <h1 className="font-display-lg text-[11px] xs:text-xs sm:text-sm font-extrabold text-white uppercase tracking-wider truncate max-w-[75px] xs:max-w-[130px] sm:max-w-[220px]">
             {pageTitle}
           </h1>
         </div>
       </div>
 
       {/* Right: Admin Profile & Logout */}
-      <div className="flex items-center gap-2.5 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
 
         {/* Live Ops Badge */}
         <span className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#00ff9d]/10 border border-[#00ff9d]/40 text-[#00ff9d] text-[10px] font-mono font-bold uppercase">
@@ -99,7 +99,7 @@ export default function AdminHeader({
         <div className="relative">
           <button
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff] text-xs font-bold transition-colors"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff] text-xs font-bold transition-colors"
           >
             <div className="w-5 h-5 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff] overflow-hidden flex items-center justify-center shrink-0">
               {adminAvatarUrl ? (
@@ -108,8 +108,8 @@ export default function AdminHeader({
                 <User className="w-3 h-3 text-[#00f2ff]" />
               )}
             </div>
-            <span className="text-[#e1e2e7] truncate max-w-[80px] sm:max-w-[120px]">{adminName}</span>
-            <span className="px-1.5 py-0.5 text-[9px] font-extrabold bg-[#fe6b00] text-slate-950 rounded uppercase shadow-sm">
+            <span className="text-[#e1e2e7] truncate max-w-[60px] xs:max-w-[90px] sm:max-w-[120px]">{adminName}</span>
+            <span className="px-1.5 py-0.5 text-[9px] font-extrabold bg-[#fe6b00] text-slate-950 rounded uppercase shadow-sm shrink-0">
               ADMIN
             </span>
           </button>

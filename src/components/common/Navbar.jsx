@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Swords, Menu, X, User, LogOut, Shield, Info, Mail, ShieldCheck, Settings, Wallet } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
@@ -11,6 +11,18 @@ export default function Navbar() {
   const location = useLocation()
   const { user, isAuthenticated, isAdmin, signOut } = useAuth()
   const { showSuccess, showError } = useToast()
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileMenuOpen])
 
   // Primary navigation links (Home, Tournaments, Leaderboard, Admin if admin)
   const navLinks = [
@@ -179,8 +191,8 @@ export default function Navbar() {
           
           {/* User Status Card inside Drawer */}
           {isAuthenticated ? (
-            <div className="p-3.5 rounded-xl bg-[#151a21] border border-[#3a494b] flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
+            <div className="p-3.5 rounded-xl bg-[#151a21] border border-[#3a494b] flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-10 h-10 rounded-full bg-[#fe6b00]/20 border border-[#fe6b00] overflow-hidden flex items-center justify-center shrink-0">
                   {userAvatarUrl ? (
                     <img src={userAvatarUrl} alt={userDisplayName} className="w-full h-full object-cover" />
@@ -188,14 +200,14 @@ export default function Navbar() {
                     <User className="w-5 h-5 text-[#fe6b00]" />
                   )}
                 </div>
-                <div>
-                  <span className="text-xs font-bold text-white block">{userDisplayName}</span>
-                  <span className="text-[10px] text-[#8e9dae] font-mono">
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-white block truncate max-w-[110px] xs:max-w-[160px]">{userDisplayName}</span>
+                  <span className="text-[10px] text-[#8e9dae] font-mono block truncate">
                     Wallet: ₹{Number(userWalletBalance).toFixed(2)}
                   </span>
                 </div>
               </div>
-              <span className="text-[10px] font-extrabold uppercase text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/40 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-extrabold uppercase text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/40 px-2 py-0.5 rounded shrink-0">
                 {isAdmin ? 'ADMIN' : 'PLAYER'}
               </span>
             </div>

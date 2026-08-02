@@ -248,7 +248,7 @@ export default function DashboardPage() {
       
       {/* Header Banner with Profile Avatar Upload Trigger */}
       <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
-        <div className="flex items-center gap-4 sm:gap-5 flex-wrap xs:flex-nowrap">
+        <div className="flex flex-col xs:flex-row items-start xs:items-center gap-4 sm:gap-5 w-full md:w-auto">
           
           {/* Circular Profile Avatar Image Frame */}
           <div
@@ -273,24 +273,24 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-1 min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="font-display-lg text-lg sm:text-3xl font-extrabold text-white uppercase">{profileData.username}</h1>
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase tracking-widest">
+              <h1 className="font-display-lg text-lg sm:text-3xl font-extrabold text-white uppercase truncate max-w-full">{profileData.username}</h1>
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase tracking-widest shrink-0">
                 PRO PLAYER DASHBOARD
               </span>
             </div>
-            <p className="text-xs text-[#8e9dae] flex items-center gap-1.5 mt-1 font-mono break-all">
+            <p className="text-xs text-[#8e9dae] flex items-center gap-1.5 mt-1 font-mono break-all truncate max-w-full">
               <Mail className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
-              <span>{user?.email || 'player@example.com'}</span>
+              <span className="truncate">{user?.email || 'player@example.com'}</span>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="flex flex-col xs:flex-row items-center gap-2.5 sm:gap-3 w-full md:w-auto">
           <button
             onClick={() => setIsAvatarModalOpen(true)}
-            className="flex-1 md:flex-initial px-4 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] rounded transition-colors flex items-center justify-center gap-2 uppercase tracking-wider min-h-[44px]"
+            className="w-full xs:w-auto flex-1 md:flex-initial px-4 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] rounded transition-colors flex items-center justify-center gap-2 uppercase tracking-wider min-h-[44px]"
           >
             <Upload className="w-4 h-4 text-[#00f2ff]" />
             <span>Upload Photo</span>
@@ -298,7 +298,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="flex-1 md:flex-initial px-4 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#00f2ff] rounded transition-colors flex items-center justify-center gap-2 uppercase tracking-wider min-h-[44px]"
+            className="w-full xs:w-auto flex-1 md:flex-initial px-4 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#00f2ff] rounded transition-colors flex items-center justify-center gap-2 uppercase tracking-wider min-h-[44px]"
           >
             <Edit3 className="w-4 h-4" />
             <span>{isEditing ? 'Cancel Editing' : 'Edit Profile'}</span>
@@ -372,28 +372,28 @@ export default function DashboardPage() {
 
       {/* Profile Details Cards */}
       {!isEditing && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2 min-w-0 w-full">
             <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase block">Game Handle</span>
-            <div className="text-sm font-bold text-[#00f2ff] flex items-center gap-2">
-              <Gamepad2 className="w-4 h-4 text-[#00f2ff]" />
-              <span>{profileData.username}</span>
+            <div className="text-sm font-bold text-[#00f2ff] flex items-center gap-2 truncate">
+              <Gamepad2 className="w-4 h-4 text-[#00f2ff] shrink-0" />
+              <span className="truncate">{profileData.username}</span>
             </div>
           </div>
 
-          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2">
+          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2 min-w-0 w-full">
             <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase block">Free Fire Character UID</span>
-            <div className="font-mono text-sm font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#00ff9d]" />
-              <span>{profileData.freeFireUid || 'Not configured'}</span>
+            <div className="font-mono text-sm font-bold text-white flex items-center gap-2 truncate">
+              <ShieldCheck className="w-4 h-4 text-[#00ff9d] shrink-0" />
+              <span className="truncate">{profileData.freeFireUid || 'Not configured'}</span>
             </div>
           </div>
 
-          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2">
+          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2 min-w-0 w-full col-span-1 sm:col-span-2 lg:col-span-1">
             <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase block">WhatsApp Contact</span>
-            <div className="font-mono text-sm font-bold text-[#e1e2e7] flex items-center gap-2">
-              <Phone className="w-4 h-4 text-[#00ff9d]" />
-              <span>{profileData.whatsappNumber || 'Not configured'}</span>
+            <div className="font-mono text-sm font-bold text-[#e1e2e7] flex items-center gap-2 truncate">
+              <Phone className="w-4 h-4 text-[#00ff9d] shrink-0" />
+              <span className="truncate">{profileData.whatsappNumber || 'Not configured'}</span>
             </div>
           </div>
         </div>

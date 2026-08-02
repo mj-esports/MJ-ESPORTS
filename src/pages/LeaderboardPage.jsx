@@ -215,7 +215,7 @@ export default function LeaderboardPage() {
         )}
 
         {/* Podium Area */}
-        <div className="relative z-10 flex flex-col md:flex-row justify-center items-end gap-6 md:gap-8 min-h-[380px] pt-4">
+        <div className="relative z-10 flex flex-col md:flex-row justify-center items-stretch md:items-end gap-6 md:gap-8 min-h-0 pt-4">
           
           {/* Rank 2 Podium Card (Left) */}
           <div className="w-full md:w-1/3 flex flex-col items-center order-2 md:order-1">
@@ -244,7 +244,7 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Rank 1: Grand Champion Podium Card (Center, Elevated) */}
-          <div className="w-full md:w-1/3 flex flex-col items-center transform md:-translate-y-8 order-1 md:order-2">
+          <div className="w-full md:w-1/3 flex flex-col items-center md:transform md:-translate-y-8 order-1 md:order-2">
             <div className="flex items-center justify-center gap-1.5 mb-2 text-[#fe6b00] animate-bounce">
               <Trophy className="w-8 h-8 text-[#fe6b00]" />
               <span className="font-display-lg text-xs font-extrabold uppercase tracking-widest text-[#fe6b00]">CHAMPION</span>

@@ -118,6 +118,18 @@ export default function AdminSidebar({ activeTab, setActiveTab, mobileOpen, setM
     })
   }, [activeTab])
 
+  // Lock body scroll when mobile sidebar drawer is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileOpen])
+
   const toggleGroup = (groupId) => {
     setOpenGroups((prev) => {
       const next = { ...prev, [groupId]: !prev[groupId] }
@@ -253,8 +265,14 @@ export default function AdminSidebar({ activeTab, setActiveTab, mobileOpen, setM
 
       {/* Mobile Drawer (Overlay <= 1024px) */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex">
-          <div className="w-72 bg-[#151a21] border-r border-[#3a494b] p-4 space-y-6 flex flex-col h-full overflow-y-auto">
+        <div
+          onClick={() => setMobileOpen(false)}
+          className="lg:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex animate-fadeIn"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-72 bg-[#151a21] border-r border-[#3a494b] p-4 space-y-6 flex flex-col h-full overflow-y-auto shadow-2xl"
+          >
             <div className="flex items-center justify-between pb-3 border-b border-[#3a494b]/60">
               <div className="flex items-center gap-2.5">
                 <Shield className="w-5 h-5 text-[#00f2ff]" />
@@ -263,6 +281,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, mobileOpen, setM
               <button
                 onClick={() => setMobileOpen(false)}
                 className="p-2 rounded-lg bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
+                aria-label="Close Mobile Sidebar"
               >
                 <X className="w-5 h-5" />
               </button>

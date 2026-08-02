@@ -7,8 +7,8 @@ export default function BottomNavigation() {
 
   const tabs = [
     { name: 'Home', path: '/', icon: Home },
-    { name: 'Tournaments', path: '/tournaments', icon: Trophy },
-    { name: 'Leaderboard', path: '/leaderboard', icon: BarChart3 },
+    { name: 'Tourneys', path: '/tournaments', icon: Trophy },
+    { name: 'Ranks', path: '/leaderboard', icon: BarChart3 },
     ...(isAdmin
       ? [{ name: 'Admin', path: '/admin', icon: Shield }]
       : []),
@@ -19,10 +19,10 @@ export default function BottomNavigation() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#07090c]/95 backdrop-blur-xl border-t border-[#3a494b]/60 shadow-[0_-8px_30px_rgba(0,0,0,0.9)] pb-[env(safe-area-inset-bottom,0px)]"
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#07090c]/95 backdrop-blur-xl border-t border-[#3a494b]/60 shadow-[0_-8px_30px_rgba(0,0,0,0.9)] pb-[env(safe-area-inset-bottom,0px)] select-none"
       aria-label="Mobile Bottom Navigation"
     >
-      <div className="flex items-center justify-around h-16 max-w-md mx-auto px-2">
+      <div className="flex items-center justify-around h-[60px] w-full max-w-lg mx-auto px-1">
         {tabs.map((tab) => {
           const Icon = tab.icon
           return (
@@ -32,24 +32,37 @@ export default function BottomNavigation() {
               end={tab.path === '/'}
               aria-label={tab.name}
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center py-1 flex-1 min-h-[44px] relative transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00f2ff] ${
+                `flex flex-col items-center justify-center flex-1 min-w-0 h-full relative transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00f2ff] px-0.5 ${
                   isActive
-                    ? 'text-[#00f2ff] font-extrabold'
-                    : 'text-[#8e9dae] font-medium hover:text-[#e1e2e7]'
+                    ? 'text-[#00f2ff]'
+                    : 'text-[#8e9dae] hover:text-[#e1e2e7]'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
+                  {/* Top Active Bar Glow */}
                   {isActive && (
-                    <span className="absolute top-0 w-8 h-1 bg-gradient-to-r from-[#00dbe7] via-[#00f2ff] to-[#fe6b00] rounded-b-full shadow-[0_0_12px_rgba(0,242,255,0.8)]" />
+                    <span className="absolute top-0 w-8 h-[2.5px] bg-[#00f2ff] rounded-b-full shadow-[0_0_10px_rgba(0,242,255,0.9)]" />
                   )}
-                  <Icon
-                    className={`w-5 h-5 transition-transform duration-200 ${
-                      isActive ? 'scale-110 text-[#00f2ff]' : 'text-[#8e9dae]'
-                    }`}
-                  />
-                  <span className="text-[10px] tracking-tight mt-1 font-semibold uppercase">{tab.name}</span>
+                  
+                  {/* Icon Container */}
+                  <div className={`p-1 rounded-full transition-all duration-200 flex items-center justify-center ${
+                    isActive ? 'bg-[#00f2ff]/10' : ''
+                  }`}>
+                    <Icon
+                      className={`w-5 h-5 transition-transform duration-200 ${
+                        isActive ? 'scale-110 text-[#00f2ff]' : 'text-[#8e9dae]'
+                      }`}
+                    />
+                  </div>
+
+                  {/* Shortened Label */}
+                  <span className={`text-[10px] sm:text-[11px] tracking-tight font-extrabold uppercase text-center truncate w-full block leading-none mt-0.5 ${
+                    isActive ? 'text-[#00f2ff]' : 'text-[#8e9dae]'
+                  }`}>
+                    {tab.name}
+                  </span>
                 </>
               )}
             </NavLink>

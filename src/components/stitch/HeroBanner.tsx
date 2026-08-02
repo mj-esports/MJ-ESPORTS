@@ -16,7 +16,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   onWatchLive,
 }) => {
   return (
-    <section className="relative h-[360px] sm:h-[400px] w-full mb-8 rounded-xl overflow-hidden border border-[#3a494b] group shadow-[0_0_20px_rgba(0,219,231,0.15)]">
+    <section className="relative min-h-[360px] h-auto py-8 sm:py-0 sm:h-[400px] w-full mb-8 rounded-xl overflow-hidden border border-[#3a494b] group shadow-[0_0_20px_rgba(0,219,231,0.15)] flex flex-col justify-center">
       {/* Dark Ambient Overlay Gradients */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0b0e11] via-[#0b0e11]/80 to-transparent z-10"></div>
       <div className="absolute inset-0 bg-gradient-to-t from-[#0b0e11] via-transparent to-transparent z-10"></div>
@@ -30,7 +30,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
       ></div>
 
       {/* Content Content Container */}
-      <div className="relative z-20 h-full flex flex-col justify-center px-6 sm:px-10 max-w-3xl space-y-4">
+      <div className="relative z-20 h-full flex flex-col justify-center px-4 sm:px-10 max-w-3xl space-y-4">
         {/* Status Tag */}
         <div className="flex items-center gap-3">
           <span className="bg-[#fe6b00] text-slate-950 px-3 py-1 font-bold text-xs rounded uppercase tracking-wider animate-pulse flex items-center gap-1.5 shadow-[0_0_12px_rgba(254,107,0,0.5)]">

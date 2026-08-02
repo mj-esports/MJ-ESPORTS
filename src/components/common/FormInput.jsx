@@ -51,7 +51,7 @@ export default function FormInput({
           aria-invalid={Boolean(error)}
           aria-describedby={errorId}
           aria-required={required}
-          className={`w-full py-3 ${
+          className={`w-full py-3 min-h-[44px] ${
             Icon ? 'pl-10' : 'pl-4'
           } ${
             isPassword ? 'pr-10' : 'pr-4'
