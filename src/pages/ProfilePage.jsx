@@ -79,7 +79,7 @@ export default function ProfilePage() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10 w-full min-w-0 max-w-full overflow-hidden">
       
       {/* 1. PLAYER HERO PROFILE HEADER */}
       <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
@@ -238,7 +238,7 @@ export default function ProfilePage() {
                 <p>Register for active competitions to track your match history.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="w-full max-w-full min-w-0 overflow-x-auto rounded-lg border border-[#3a494b]/60">
                 <table className="w-full min-w-[500px] text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">

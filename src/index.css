@@ -1,4 +1,8 @@
 @import "tailwindcss";
+
+@theme {
+  --breakpoint-xs: 380px;
+}
 @import "./styles/designSystem.css";
 
 @layer base {

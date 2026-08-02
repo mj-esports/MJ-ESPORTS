@@ -171,7 +171,7 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
 
   useEffect(() => {
     fetchDashboardData()
-  }, [tournaments])
+  }, [tournaments.length])
 
   return (
     <div className="space-y-6">
