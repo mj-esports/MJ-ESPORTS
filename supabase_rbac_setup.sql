@@ -49,6 +49,30 @@ ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS room_published_by TEXT;
 ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS winner_team TEXT;
 ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS winner_captain TEXT;
 
+-- 1.3 tournament_registrations Table
+CREATE TABLE IF NOT EXISTS public.tournament_registrations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tournament_id TEXT NOT NULL REFERENCES public.tournaments(id) ON DELETE CASCADE,
+  team_name TEXT NOT NULL,
+  captain_name TEXT NOT NULL,
+  free_fire_uid TEXT,
+  whatsapp_number TEXT,
+  email TEXT NOT NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'Approved' CHECK (status IN ('Pending', 'Approved', 'Confirmed', 'Rejected')),
+  payment_status TEXT DEFAULT 'Pending',
+  payment_id TEXT,
+  transaction_id TEXT,
+  screenshot_url TEXT,
+  registered_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Safe Column Migration for tournament_registrations registered_at
+ALTER TABLE public.tournament_registrations ADD COLUMN IF NOT EXISTS registered_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.tournament_registrations ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
 -- 1.4 profiles Table (Player Profile Foundation)
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,

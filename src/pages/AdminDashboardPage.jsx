@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
-import { Shield } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import AdminHeader from '../components/admin/AdminHeader'
 import AdminSidebar, { NAV_ITEMS } from '../components/admin/AdminSidebar'
@@ -10,10 +9,8 @@ import TournamentCenterView from '../components/admin/TournamentCenterView'
 import RegistrationQueueView from '../components/admin/RegistrationQueueView'
 import PaymentVerificationView from '../components/admin/PaymentVerificationView'
 import MatchControlView from '../components/admin/MatchControlView'
-import LeaderboardsView from '../components/admin/LeaderboardsView'
 import PlayerDirectoryView from '../components/admin/PlayerDirectoryView'
 import TeamsView from '../components/admin/TeamsView'
-import SponsorshipsView from '../components/admin/SponsorshipsView'
 import ReportsView from '../components/admin/ReportsView'
 import AnalyticsView from '../components/admin/AnalyticsView'
 import SettingsView from '../components/admin/SettingsView'
@@ -32,12 +29,14 @@ export default function AdminDashboardPage({ defaultTab }) {
   const params = useParams()
   const location = useLocation()
 
-  // Resolve target tab from defaultTab prop, path param (/admin/:tab), or search param (?tab=...)
+  // Primary 6 Tabs: dashboard, tournaments, players, payments, analytics, settings
   const resolveTab = () => {
     if (defaultTab) return defaultTab
     if (params.tab) {
       const normalizedParam = params.tab.toLowerCase()
-      if (normalizedParam === 'leaderboard' || normalizedParam === 'leaderboards') return 'leaderboards'
+      if (normalizedParam === 'finance' || normalizedParam === 'reports') return 'analytics'
+      if (normalizedParam === 'matches' || normalizedParam === 'registrations') return 'tournaments'
+      if (normalizedParam === 'teams') return 'players'
       const found = NAV_ITEMS.find((item) => item.id === normalizedParam)
       if (found) return found.id
     }
@@ -45,7 +44,9 @@ export default function AdminDashboardPage({ defaultTab }) {
     const tabQuery = searchParams.get('tab')
     if (tabQuery) {
       const normalizedQuery = tabQuery.toLowerCase()
-      if (normalizedQuery === 'leaderboard' || normalizedQuery === 'leaderboards') return 'leaderboards'
+      if (normalizedQuery === 'finance' || normalizedQuery === 'reports') return 'analytics'
+      if (normalizedQuery === 'matches' || normalizedQuery === 'registrations') return 'tournaments'
+      if (normalizedQuery === 'teams') return 'players'
       const found = NAV_ITEMS.find((item) => item.id === normalizedQuery)
       if (found) return found.id
     }
@@ -55,6 +56,11 @@ export default function AdminDashboardPage({ defaultTab }) {
   const [activeTab, setActiveTab] = useState(resolveTab)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [adminSearch, setAdminSearch] = useState('')
+
+  // Sub-tab states for advanced options inside pages
+  const [tournamentsSubTab, setTournamentsSubTab] = useState('center') // 'center' | 'matches' | 'queue'
+  const [playersSubTab, setPlayersSubTab] = useState('directory') // 'directory' | 'teams'
+  const [analyticsSubTab, setAnalyticsSubTab] = useState('telemetry') // 'telemetry' | 'finance' | 'reports'
 
   useEffect(() => {
     const target = resolveTab()
@@ -68,7 +74,7 @@ export default function AdminDashboardPage({ defaultTab }) {
   return (
     <div className="min-h-screen bg-[#07090c] text-[#e1e2e7] flex flex-col">
       
-      {/* Compact Admin Header (Logo, Dynamic Page Title, Search, Notifications, Admin Profile, Logout) */}
+      {/* Compact Admin Header */}
       <AdminHeader
         pageTitle={activeNavItem.label}
         onSearch={(query) => setAdminSearch(query)}
@@ -76,7 +82,7 @@ export default function AdminDashboardPage({ defaultTab }) {
       />
 
       <div className="flex flex-1">
-        {/* Primary Left Sidebar Navigation */}
+        {/* Simplified 6-Item Sidebar */}
         <AdminSidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -84,56 +90,139 @@ export default function AdminDashboardPage({ defaultTab }) {
           setMobileOpen={setMobileOpen}
         />
 
-        {/* Main Admin Operations Content Area */}
+        {/* Main Admin Content Area */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
           
-          {/* Active Tab Sub-Header Banner */}
-          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 flex items-center justify-between shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
-                <activeNavItem.icon className="w-4 h-4" />
+          {/* Compact Active Tab Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 sm:p-3.5 shadow-md">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+                <activeNavItem.icon className="w-3.5 h-3.5" />
               </div>
-              <div>
-                <h2 className="font-display-lg text-base sm:text-lg font-extrabold text-white uppercase tracking-wider">
-                  {activeNavItem.label} Operations
-                </h2>
-                <p className="text-[11px] text-[#8e9dae]">Manage live esports tournaments, rosters, and match schedules</p>
-              </div>
+              <h2 className="font-display-lg text-sm sm:text-base font-extrabold text-white uppercase tracking-wider">
+                {activeNavItem.label} Console
+              </h2>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded bg-[#00ff9d]/10 border border-[#00ff9d]/40 text-[#00ff9d] text-xs font-mono font-bold">
-                <span className="w-2 h-2 rounded-full bg-[#00ff9d] animate-pulse"></span>
-                <span>SYSTEM ONLINE</span>
-              </span>
-            </div>
+            {/* Sub-Tab Navigation for Advanced Options */}
+            {activeTab === 'tournaments' && (
+              <div className="flex items-center bg-[#07090c] p-1 rounded-lg border border-[#3a494b]/60 text-xs font-mono font-bold">
+                <button
+                  onClick={() => setTournamentsSubTab('center')}
+                  className={`px-3 py-1.5 rounded-md transition-all ${
+                    tournamentsSubTab === 'center' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                  }`}
+                >
+                  Tournament Center
+                </button>
+                <button
+                  onClick={() => setTournamentsSubTab('matches')}
+                  className={`px-3 py-1.5 rounded-md transition-all ${
+                    tournamentsSubTab === 'matches' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                  }`}
+                >
+                  Match Control
+                </button>
+                <button
+                  onClick={() => setTournamentsSubTab('queue')}
+                  className={`px-3 py-1.5 rounded-md transition-all ${
+                    tournamentsSubTab === 'queue' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                  }`}
+                >
+                  Queue
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'players' && (
+              <div className="flex items-center bg-[#07090c] p-1 rounded-lg border border-[#3a494b]/60 text-xs font-mono font-bold">
+                <button
+                  onClick={() => setPlayersSubTab('directory')}
+                  className={`px-3 py-1.5 rounded-md transition-all ${
+                    playersSubTab === 'directory' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                  }`}
+                >
+                  Player Directory
+                </button>
+                <button
+                  onClick={() => setPlayersSubTab('teams')}
+                  className={`px-3 py-1.5 rounded-md transition-all ${
+                    playersSubTab === 'teams' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                  }`}
+                >
+                  Teams Roster
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'analytics' && (
+              <div className="flex items-center bg-[#07090c] p-1 rounded-lg border border-[#3a494b]/60 text-xs font-mono font-bold">
+                <button
+                  onClick={() => setAnalyticsSubTab('telemetry')}
+                  className={`px-3 py-1.5 rounded-md transition-all ${
+                    analyticsSubTab === 'telemetry' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                  }`}
+                >
+                  Telemetry
+                </button>
+                <button
+                  onClick={() => setAnalyticsSubTab('finance')}
+                  className={`px-3 py-1.5 rounded-md transition-all ${
+                    analyticsSubTab === 'finance' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                  }`}
+                >
+                  Finance
+                </button>
+                <button
+                  onClick={() => setAnalyticsSubTab('reports')}
+                  className={`px-3 py-1.5 rounded-md transition-all ${
+                    analyticsSubTab === 'reports' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                  }`}
+                >
+                  Reports
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Tab Content Views */}
+          {/* Main 6 View Pages */}
           <div className="space-y-6">
             {activeTab === 'dashboard' && (
               <DashboardOverview tournaments={tournaments} setActiveTab={setActiveTab} />
             )}
 
-            {activeTab === 'finance' && (
-              <FinanceDashboardView tournaments={tournaments} />
-            )}
-
             {activeTab === 'tournaments' && (
-              <TournamentCenterView
-                tournaments={tournaments}
-                createTournament={createTournament}
-                editTournament={editTournament}
-                deleteTournament={deleteTournament}
-                updateTournamentStatus={updateTournamentStatus}
-              />
+              <>
+                {tournamentsSubTab === 'center' && (
+                  <TournamentCenterView
+                    tournaments={tournaments}
+                    createTournament={createTournament}
+                    editTournament={editTournament}
+                    deleteTournament={deleteTournament}
+                    updateTournamentStatus={updateTournamentStatus}
+                  />
+                )}
+                {tournamentsSubTab === 'matches' && (
+                  <MatchControlView
+                    tournaments={tournaments}
+                    updateTournamentScores={updateTournamentScores}
+                    setActiveTab={setActiveTab}
+                  />
+                )}
+                {tournamentsSubTab === 'queue' && (
+                  <RegistrationQueueView
+                    tournaments={tournaments}
+                    updateRegistrationStatus={updateRegistrationStatus}
+                  />
+                )}
+              </>
             )}
 
-            {activeTab === 'registrations' && (
-              <RegistrationQueueView
-                tournaments={tournaments}
-                updateRegistrationStatus={updateRegistrationStatus}
-              />
+            {activeTab === 'players' && (
+              <>
+                {playersSubTab === 'directory' && <PlayerDirectoryView tournaments={tournaments} />}
+                {playersSubTab === 'teams' && <TeamsView tournaments={tournaments} />}
+              </>
             )}
 
             {activeTab === 'payments' && (
@@ -143,38 +232,13 @@ export default function AdminDashboardPage({ defaultTab }) {
               />
             )}
 
-            {activeTab === 'matches' && (
-              <MatchControlView
-                tournaments={tournaments}
-                updateTournamentScores={updateTournamentScores}
-                setActiveTab={setActiveTab}
-              />
+            {activeTab === 'analytics' && (
+              <>
+                {analyticsSubTab === 'telemetry' && <AnalyticsView tournaments={tournaments} />}
+                {analyticsSubTab === 'finance' && <FinanceDashboardView tournaments={tournaments} />}
+                {analyticsSubTab === 'reports' && <ReportsView tournaments={tournaments} />}
+              </>
             )}
-
-            {activeTab === 'leaderboards' && (
-              <LeaderboardsView
-                tournaments={tournaments}
-                updateTournamentScores={updateTournamentScores}
-                updateTournamentStatus={updateTournamentStatus}
-                editTournament={editTournament}
-              />
-            )}
-
-            {activeTab === 'players' && (
-              <PlayerDirectoryView tournaments={tournaments} />
-            )}
-
-            {activeTab === 'teams' && (
-              <TeamsView tournaments={tournaments} />
-            )}
-
-            {activeTab === 'sponsorships' && (
-              <SponsorshipsView />
-            )}
-
-            {activeTab === 'reports' && <ReportsView tournaments={tournaments} />}
-
-            {activeTab === 'analytics' && <AnalyticsView tournaments={tournaments} />}
 
             {activeTab === 'settings' && <SettingsView />}
           </div>

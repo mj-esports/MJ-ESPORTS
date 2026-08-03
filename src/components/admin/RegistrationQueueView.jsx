@@ -41,7 +41,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
         const { data, error } = await supabase
           .from('tournament_registrations')
           .select('*')
-          .order('registered_at', { ascending: false })
+          .order('created_at', { ascending: false })
 
         if (error) {
           console.warn('[Supabase Registrations Fetch Warning]:', error.message)

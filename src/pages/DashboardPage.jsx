@@ -244,10 +244,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10 w-full min-w-0 max-w-full overflow-hidden isolate relative">
       
       {/* Header Banner with Profile Avatar Upload Trigger */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl relative overflow-hidden isolate">
         <div className="flex flex-col xs:flex-row items-start xs:items-center gap-4 sm:gap-5 w-full md:w-auto">
           
           {/* Circular Profile Avatar Image Frame */}

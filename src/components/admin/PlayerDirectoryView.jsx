@@ -45,7 +45,7 @@ export default function PlayerDirectoryView() {
         const [{ data: dbRoles }, { data: dbProfiles }, { data: dbRegs }] = await Promise.all([
           supabase.from('user_roles').select('*'),
           supabase.from('profiles').select('*'),
-          supabase.from('tournament_registrations').select('*').order('registered_at', { ascending: false }),
+          supabase.from('tournament_registrations').select('*').order('created_at', { ascending: false }),
         ])
 
         const loadedRegs = dbRegs || []

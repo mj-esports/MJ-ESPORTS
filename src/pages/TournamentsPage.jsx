@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Trophy, Search, Filter, Gamepad2, Calendar, Users, Flame, ChevronRight } from 'lucide-react'
+import { Search, Trophy, ArrowRight, Clock } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { CardSkeleton } from '../components/common/SkeletonLoader'
+import EmptyState from '../components/common/EmptyState'
 import { SUPPORTED_GAMES } from '../data/mockData'
 
 export default function TournamentsPage() {
@@ -10,19 +11,24 @@ export default function TournamentsPage() {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGame, setSelectedGame] = useState('All')
-  const [selectedStatus, setSelectedStatus] = useState('All')
+  const [selectedStatus, setSelectedStatus] = useState('ALL') // 'ALL' | 'LIVE' | 'UPCOMING' | 'COMPLETED'
 
   const gamesList = ['All', ...SUPPORTED_GAMES]
-  const statusList = ['All', 'Live Now', 'Registration Open', 'Bracket Locked']
+  const statusChips = ['ALL', 'LIVE NOW', 'REGISTRATION OPEN', 'COMPLETED']
 
-  // Memoized & deduplicated tournaments list
-  const uniqueFilteredTournaments = useMemo(() => {
+  // Filter tournaments by search, game tab, & status chip
+  const filteredTournaments = useMemo(() => {
     const filtered = tournaments.filter((t) => {
       const matchesSearch =
-        t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.game.toLowerCase().includes(searchQuery.toLowerCase())
+        (t.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (t.game || '').toLowerCase().includes(searchQuery.toLowerCase())
       const matchesGame = selectedGame === 'All' || t.game === selectedGame
-      const matchesStatus = selectedStatus === 'All' || t.status === selectedStatus
+      
+      let matchesStatus = true
+      if (selectedStatus === 'LIVE NOW') matchesStatus = t.status === 'Live Now'
+      else if (selectedStatus === 'REGISTRATION OPEN') matchesStatus = t.status === 'Registration Open' || t.status === 'Upcoming'
+      else if (selectedStatus === 'COMPLETED') matchesStatus = t.status === 'Completed'
+
       return matchesSearch && matchesGame && matchesStatus
     })
 
@@ -30,171 +36,123 @@ export default function TournamentsPage() {
   }, [tournaments, searchQuery, selectedGame, selectedStatus])
 
   return (
-    <div className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
-      
-      {/* Header Banner */}
-      <div className="space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-xs font-bold uppercase tracking-widest">
-          <Trophy className="w-3.5 h-3.5" />
-          <span>Esports Competitions Hub</span>
-        </div>
-        <h1 className="font-display-lg text-3xl sm:text-5xl font-extrabold text-white tracking-tight uppercase">
-          TOURNAMENT DIRECTORY
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 space-y-3.5 isolate relative">
+
+      {/* 1. COMPACT SEARCH BAR & GAME TITLE */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <h1 className="font-display-lg text-lg font-extrabold text-white uppercase tracking-tight shrink-0">
+          TOURNAMENTS
         </h1>
-        <p className="text-[#8e9dae] text-xs sm:text-sm max-w-xl leading-relaxed">
-          Browse upcoming tournaments, register your squad, compete in live matches, and win real prize pools.
-        </p>
-      </div>
-
-      {/* Search & Filter Bar */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 sm:p-6 space-y-4 shadow-2xl">
-        <div className="flex flex-col md:flex-row items-center gap-4">
-          
-          {/* Search Input */}
-          <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 text-[#8e9dae] absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              disabled={tournaments.length === 0}
-              placeholder={tournaments.length === 0 ? "Search disabled (no tournaments live)..." : "Search by tournament name or game..."}
-              className="w-full pl-10 pr-4 py-3 bg-[#07090c] border border-[#3a494b] rounded-lg text-sm text-[#e1e2e7] placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff] focus:shadow-[0_0_12px_rgba(0,242,255,0.25)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
-
-          {/* Game Filter Buttons */}
-          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
-            <Filter className="w-4 h-4 text-[#00f2ff] shrink-0 hidden md:block" />
-            {gamesList.map((game) => (
-              <button
-                key={`game-filter-${game}`}
-                onClick={() => setSelectedGame(game)}
-                className={`px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all shrink-0 min-h-[40px] flex items-center ${
-                  selectedGame === game
-                    ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.4)]'
-                    : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b] hover:text-[#00f2ff] hover:border-[#00f2ff]/40'
-                }`}
-              >
-                {game}
-              </button>
-            ))}
-          </div>
-
-        </div>
-
-        {/* Status Filters */}
-        <div className="flex items-center gap-2 pt-3 border-t border-[#3a494b]/60 overflow-x-auto text-xs scrollbar-hide">
-          <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase tracking-widest shrink-0 mr-1">
-            Status Filter:
-          </span>
-          {statusList.map((status) => (
-            <button
-              key={`status-filter-${status}`}
-              onClick={() => setSelectedStatus(status)}
-              className={`px-3 py-1.5 rounded-md font-bold uppercase tracking-wider transition-colors shrink-0 ${
-                selectedStatus === status
-                  ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40'
-                  : 'text-[#8e9dae] hover:text-white bg-[#07090c] border border-[#3a494b]'
-              }`}
-            >
-              {status}
-            </button>
-          ))}
+        <div className="relative w-full sm:w-72">
+          <Search className="w-3.5 h-3.5 text-[#8e9dae] absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search tournament..."
+            className="input-cyber w-full pl-9 pr-3 py-1.5 h-9 text-xs text-[#e1e2e7] placeholder-[#8e9dae] focus:border-[#00f2ff]"
+          />
         </div>
       </div>
 
-      {/* Tournament Cards Grid */}
+      {/* 2. HORIZONTALLY SCROLLABLE FILTER CHIPS (GAME & STATUS) */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+        {gamesList.map((game) => (
+          <button
+            key={`game-tab-${game}`}
+            onClick={() => setSelectedGame(game)}
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-extrabold uppercase tracking-wider whitespace-nowrap transition-all shrink-0 min-h-[38px] flex items-center ${
+              selectedGame === game
+                ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-sm'
+                : 'bg-[#151a21] text-[#8e9dae] border border-[#3a494b]/60 hover:text-white'
+            }`}
+          >
+            {game}
+          </button>
+        ))}
+
+        <div className="w-[1px] h-5 bg-[#3a494b]/60 shrink-0 mx-1" />
+
+        {statusChips.map((st) => (
+          <button
+            key={`status-chip-${st}`}
+            onClick={() => setSelectedStatus(st)}
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-extrabold uppercase tracking-wider whitespace-nowrap transition-all shrink-0 min-h-[38px] flex items-center ${
+              selectedStatus === st
+                ? 'bg-[#fe6b00] text-slate-950 font-extrabold shadow-sm'
+                : 'bg-[#151a21] text-[#8e9dae] border border-[#3a494b]/60 hover:text-white'
+            }`}
+          >
+            {st}
+          </button>
+        ))}
+      </div>
+
+      {/* 3. TOURNAMENT CARDS GRID */}
       {loading ? (
         <CardSkeleton count={6} />
-      ) : uniqueFilteredTournaments.length === 0 ? (
-        <div className="p-12 text-center bg-[#151a21] border border-[#3a494b] rounded-xl space-y-3 shadow-xl">
-          <Trophy className="w-10 h-10 text-[#00f2ff] mx-auto opacity-75 animate-pulse" />
-          <h3 className="text-base font-bold text-white uppercase tracking-wider">No tournaments are live yet</h3>
-          <p className="text-xs text-[#8e9dae] max-w-md mx-auto">
-            Our first tournament is launching soon. Check back shortly for new competitive registrations.
-          </p>
-        </div>
+      ) : filteredTournaments.length === 0 ? (
+        <EmptyState
+          type="search"
+          sentence="No tournaments matched your search query."
+          ctaText="Clear Search"
+          onCtaClick={() => {
+            setSearchQuery('')
+            setSelectedGame('All')
+          }}
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
-          {uniqueFilteredTournaments.map((t) => {
-            const filled = t.registeredTeams || 0
-            const total = t.maxTeams || 100
-            const pct = Math.round((filled / total) * 100)
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredTournaments.map((t) => {
+            const filled = Number(t.registeredTeams || t.registered_teams || 0)
+            const total = Number(t.maxTeams || t.max_teams || 32)
+            const slotsLeft = Math.max(0, total - filled)
+            const entryFee = t.entryFee || t.entry_fee || 'Free'
+            const startTime = t.startDate || t.start_date || 'Today 8:00 PM'
 
             return (
               <div
-                key={`tournament-card-${t.id}`}
-                className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff] rounded-xl overflow-hidden flex flex-col justify-between shadow-xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,242,255,0.15)] group"
+                key={`tourn-card-${t.id}`}
+                className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff] rounded-xl p-4 space-y-3 shadow-lg transition-all duration-200 flex flex-col justify-between"
               >
-                {/* Card Header */}
-                <div className="p-5 sm:p-6 bg-[#07090c] border-b border-[#3a494b]/60 space-y-3">
-                  <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
-                    <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 flex items-center gap-1.5 shrink-0">
-                      <Gamepad2 className="w-3.5 h-3.5" />
+                {/* Header: Title & Game Badge */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
                       {t.game}
                     </span>
-                    <span className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border shrink-0 ${
-                      t.status === 'Live Now'
-                        ? 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40 animate-pulse'
-                        : t.status === 'Registration Open'
-                        ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
-                        : 'bg-[#8e9dae]/10 text-[#8e9dae] border-[#8e9dae]/40'
-                    }`}>
-                      {t.status}
+                    <span className="text-[10px] font-mono text-[#8e9dae] flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-[#00f2ff]" />
+                      <span>{startTime}</span>
                     </span>
                   </div>
+                  <h3 className="font-extrabold text-white text-base truncate uppercase">{t.title}</h3>
+                </div>
+
+                {/* Metrics Row: Prize, Entry Fee, Slots Left */}
+                <div className="grid grid-cols-3 gap-2 bg-[#07090c] p-2.5 rounded-lg border border-[#3a494b]/40 text-[11px] text-center">
                   <div>
-                    <h3 className="font-display-lg text-lg sm:text-xl font-bold text-white group-hover:text-[#00f2ff] transition-colors uppercase">
-                      {t.title}
-                    </h3>
-                    <p className="text-xs text-[#8e9dae] mt-1 font-semibold">{t.format}</p>
+                    <span className="text-[9px] text-[#8e9dae] uppercase font-mono block">Prize</span>
+                    <strong className="text-[#ffb693] font-mono">{t.prizePool}</strong>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-[#8e9dae] uppercase font-mono block">Entry</span>
+                    <strong className="text-white font-mono">{entryFee}</strong>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-[#8e9dae] uppercase font-mono block">Slots Left</span>
+                    <strong className="text-[#00ff9d] font-mono">{slotsLeft} Slots</strong>
                   </div>
                 </div>
 
-                {/* Card Details */}
-                <div className="p-5 sm:p-6 space-y-4 flex-1 flex flex-col justify-between">
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="bg-[#07090c] p-3 rounded border border-[#3a494b]/60">
-                      <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase block">Prize Pool</span>
-                      <span className="font-mono text-sm font-extrabold text-[#ffb693]">{t.prizePool}</span>
-                    </div>
-                    <div className="bg-[#07090c] p-3 rounded border border-[#3a494b]/60">
-                      <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase block">Slots</span>
-                      <span className="font-mono text-sm font-bold text-[#e1e2e7]">
-                        {filled} / {total}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] font-mono text-[#8e9dae]">
-                      <span>CAPACITY</span>
-                      <span>{pct}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-[#07090c] rounded-full overflow-hidden border border-[#3a494b]/40">
-                      <div
-                        className="bg-gradient-to-r from-[#00dbe7] to-[#00f2ff] h-full"
-                        style={{ width: `${pct}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 flex flex-col xs:flex-row items-start xs:items-center justify-between text-xs text-[#8e9dae] border-t border-[#3a494b]/60 gap-2.5 w-full">
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <Calendar className="w-3.5 h-3.5 text-[#00f2ff]" />
-                      <span>Starts {t.startDate}</span>
-                    </div>
-                    <Link
-                      to={`/tournaments/${t.id}`}
-                      className="w-full xs:w-auto px-4 py-2.5 rounded bg-[#00f2ff] text-[#00363a] font-extrabold hover:bg-[#74f5ff] transition-all text-xs shrink-0 flex items-center justify-center gap-1 uppercase tracking-wider min-h-[38px]"
-                    >
-                      <span>VIEW DETAILS</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
+                {/* Join Button CTA */}
+                <Link
+                  to={`/tournaments/${t.id}`}
+                  className="w-full py-2.5 rounded-xl bg-[#00f2ff] text-[#00363a] font-extrabold text-xs hover:bg-[#74f5ff] transition-all flex items-center justify-center gap-1.5 uppercase min-h-[44px] tracking-wider shadow-sm"
+                >
+                  <span>Join Tournament</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
             )
           })}

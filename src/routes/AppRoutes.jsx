@@ -19,6 +19,7 @@ const LeaderboardPage = lazy(() => import('../pages/LeaderboardPage'))
 const AboutPage = lazy(() => import('../pages/AboutPage'))
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'))
 const DashboardPage = lazy(() => import('../pages/DashboardPage'))
+const ProfilePage = lazy(() => import('../pages/ProfilePage'))
 const AdminDashboardPage = lazy(() => import('../pages/AdminDashboardPage'))
 const AdminFinancePage = lazy(() => import('../pages/AdminFinancePage'))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
@@ -59,7 +60,7 @@ export default function AppRoutes() {
           {/* Protected Player Routes */}
           <Route element={<ProtectedRoute redirectTo="/login" />}>
             <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="profile" element={<DashboardPage />} />
+            <Route path="profile" element={<ProfilePage />} />
           </Route>
           {/* 404 Wildcard Fallback Route */}
           <Route path="*" element={<NotFoundPage />} />

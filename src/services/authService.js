@@ -48,33 +48,39 @@ function createMockSession(email, metadata = {}) {
 export async function getUserRole(user) {
   if (!user) return null
 
-  // 1. Owner admin account check for primary admin account
+  // 1. Primary owner admin check
   if (user.email && user.email.toLowerCase().trim() === 'mjesports.team@gmail.com') {
     return 'admin'
   }
 
   const userId = user.id
+  const isUuid = typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId)
 
-  // 2. Query Supabase user_roles table if configured
-  if (isSupabaseConfigured && userId && !userId.startsWith('mock-')) {
+  // 2. Query Supabase user_roles table if configured and userId is a valid UUID
+  if (isSupabaseConfigured) {
     try {
       const userEmail = user.email ? user.email.toLowerCase().trim() : ''
-      const query = userEmail
-        ? supabase
-            .from('user_roles')
-            .select('role')
-            .or(`user_id.eq.${userId},email.eq.${userEmail}`)
-            .maybeSingle()
-        : supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', userId)
-            .maybeSingle()
+      let query = null
 
-      const { data, error } = await query
+      if (isUuid) {
+        query = supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .maybeSingle()
+      } else if (userEmail) {
+        query = supabase
+          .from('user_roles')
+          .select('role')
+          .eq('email', userEmail)
+          .maybeSingle()
+      }
 
-      if (!error && data?.role) {
-        return data.role
+      if (query) {
+        const { data, error } = await query
+        if (!error && data?.role) {
+          return data.role
+        }
       }
     } catch (err) {
       console.warn('[getUserRole Supabase Warning]:', err.message)

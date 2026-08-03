@@ -20,6 +20,7 @@ export const rawSupabaseAnonKey = envKey || ''
 export const isSupabaseConfigured =
   Boolean(rawSupabaseUrl) &&
   Boolean(rawSupabaseAnonKey) &&
+  rawSupabaseAnonKey.trim().startsWith('eyJ') &&
   !rawSupabaseUrl.includes('placeholder') &&
   !rawSupabaseUrl.includes('your-supabase') &&
   !rawSupabaseAnonKey.includes('placeholder') &&

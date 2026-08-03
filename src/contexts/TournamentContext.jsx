@@ -54,26 +54,21 @@ function mapTournamentFromDb(row) {
 
 function mapTournamentToDb(t) {
   const fmt = t.match_format || t.matchFormat || t.format || 'Squad Battle Royale'
-  const mode = String(t.mode || (fmt.toLowerCase().includes('solo') ? 'solo' : fmt.toLowerCase().includes('duo') ? 'duo' : 'squad')).toLowerCase()
-  const teamSize = Number(t.team_size ?? t.teamSize ?? (mode === 'solo' ? 1 : mode === 'duo' ? 2 : 4))
 
   return {
-    id: t.id,
-    title: t.title,
-    game: t.game,
-    format: fmt,
-    match_format: fmt,
-    mode: mode,
-    team_size: teamSize,
-    prize_pool: t.prizePool || t.prize_pool || '₹0',
-    entry_fee: t.entryFee || t.entry_fee || 'Free',
+    id: String(t.id),
+    title: String(t.title || '').trim(),
+    game: String(t.game || 'Free Fire').trim(),
+    format: String(fmt).trim(),
+    prize_pool: String(t.prizePool || t.prize_pool || '₹0').trim(),
+    entry_fee: String(t.entryFee || t.entry_fee || 'Free').trim(),
     max_teams: Number(t.maxTeams ?? t.max_teams ?? 32),
     registered_teams: Number(t.registeredTeams ?? t.registered_teams ?? 0),
-    start_date: t.startDate || t.start_date || '',
-    start_time: t.startTime || t.start_time || '',
-    status: t.status || 'Registration Open',
-    organizer: t.organizer || 'MJ ESPORTS Official',
-    description: t.description || '',
+    start_date: String(t.startDate || t.start_date || '').trim(),
+    start_time: String(t.startTime || t.start_time || '').trim(),
+    status: String(t.status || 'Registration Open').trim(),
+    organizer: String(t.organizer || 'MJ ESPORTS Official').trim(),
+    description: String(t.description || '').trim(),
     rules: Array.isArray(t.rules) ? t.rules : [],
     teams_list: Array.isArray(t.teamsList) ? t.teamsList : (Array.isArray(t.teams_list) ? t.teams_list : []),
   }
@@ -84,25 +79,52 @@ export function TournamentProvider({ children }) {
   const [tournaments, setTournaments] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const fetchTournaments = useCallback(async () => {
+  const fetchTournaments = useCallback(async (params = {}) => {
     if (!isSupabaseConfigured) {
       setLoading(false)
       return
     }
 
+    const { game, status, search } = params
+    const cleanGame = game && game !== 'All Games' && game !== 'ALL' ? game : undefined
+    const cleanStatus = status && status !== 'All Statuses' && status !== 'ALL' ? status : undefined
+    const cleanSearch = search || undefined
+
     try {
-      const { data, error } = await supabase
+      const tableName = 'tournaments'
+      const query = 'SELECT * FROM tournaments ORDER BY created_at DESC'
+      const payload = params
+
+      const { data, error, status, statusText } = await supabase
         .from('tournaments')
         .select('*')
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.warn('[Supabase Fetch Tournaments Warning]:', error.message)
+        console.log("TABLE:", tableName)
+        console.log("QUERY:", query)
+        console.log("PAYLOAD:", payload)
+        console.log("ERROR:", JSON.stringify(error, null, 2))
+        console.log("error.message:", error?.message)
+        console.log("error.details:", error?.details)
+        console.log("error.hint:", error?.hint)
+        console.log("error.code:", error?.code)
+        console.log("status:", status || error?.status)
+        console.log("statusText:", statusText || error?.statusText)
       } else if (data) {
         setTournaments(dedupeTournaments(data.map(mapTournamentFromDb)))
       }
     } catch (err) {
-      console.warn('[Supabase Fetch Tournaments Error]:', err.message)
+      console.log("TABLE:", 'tournaments')
+      console.log("QUERY:", 'SELECT * FROM tournaments')
+      console.log("PAYLOAD:", params)
+      console.log("ERROR:", JSON.stringify(err, null, 2))
+      console.log("error.message:", err?.message)
+      console.log("error.details:", err?.details)
+      console.log("error.hint:", err?.hint)
+      console.log("error.code:", err?.code)
+      console.log("status:", err?.status)
+      console.log("statusText:", err?.statusText)
     } finally {
       setLoading(false)
     }
@@ -162,42 +184,68 @@ export function TournamentProvider({ children }) {
         throw new Error('Authentication Error: Active Supabase user session required to create tournaments.')
       }
 
-      // 2. Check admin privilege in public.user_roles
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .maybeSingle()
+      // 2. Check admin privilege in public.user_roles (with UUID safety check)
+      const isValidUuid = (str) =>
+        typeof str === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str)
+
+      let roleData = null
+      let roleError = null
+
+      if (isValidUuid(user.id)) {
+        const res = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .maybeSingle()
+        roleData = res.data
+        roleError = res.error
+      }
 
       const isOwner = user.email && user.email.toLowerCase().trim() === 'mjesports.team@gmail.com'
       const adminCheckResult = isOwner || (!roleError && roleData?.role === 'admin')
-      const dbRow = mapTournamentToDb(created)
+      const tableName = 'tournaments'
+      const query = 'INSERT INTO tournaments VALUES (...)'
+      const payload = dbRow
 
-      // Debugging logs before insert
-      console.log('[DEBUG] Tournament Insert Pre-check:', {
-        authenticatedUserId: user.id,
-        authenticatedUserEmail: user.email,
-        adminCheckResult: adminCheckResult,
-        insertPayload: dbRow,
-      })
+      console.log("TABLE:", tableName)
+      console.log("QUERY:", query)
+      console.log("PAYLOAD:", payload)
 
-      if (!adminCheckResult) {
-        console.error('[Create Tournament Auth Error]: User is not an admin in user_roles.', { user, roleData })
-        throw new Error('Authorization Error: Your account does not have administrator privileges in user_roles.')
-      }
+      try {
+        const res = await supabase
+          .from('tournaments')
+          .insert([dbRow])
+          .select('*')
 
-      const { error } = await supabase.from('tournaments').insert([dbRow])
-      if (error) {
-        console.warn('[Supabase Create Tournament Retry Check]:', error.message)
-        const fallbackRow = { ...dbRow }
-        delete fallbackRow.mode
-        delete fallbackRow.team_size
-        delete fallbackRow.match_format
-        const { error: retryErr } = await supabase.from('tournaments').insert([fallbackRow])
-        if (retryErr) {
-          console.error('[Supabase Create Tournament Error]:', retryErr)
-          throw new Error(retryErr.message || 'Failed to create tournament in database.')
+        const error = res.error
+        const status = res.status
+        const statusText = res.statusText
+
+        if (error) {
+          console.log("TABLE:", tableName)
+          console.log("QUERY:", query)
+          console.log("PAYLOAD:", payload)
+          console.log("ERROR:", JSON.stringify(error, null, 2))
+          console.log("error.message:", error?.message)
+          console.log("error.details:", error?.details)
+          console.log("error.hint:", error?.hint)
+          console.log("error.code:", error?.code)
+          console.log("status:", status || error?.status)
+          console.log("statusText:", statusText || error?.statusText)
+          return
         }
+      } catch (catchedErr) {
+        console.log("TABLE:", tableName)
+        console.log("QUERY:", query)
+        console.log("PAYLOAD:", payload)
+        console.log("ERROR:", JSON.stringify(catchedErr, null, 2))
+        console.log("error.message:", catchedErr?.message)
+        console.log("error.details:", catchedErr?.details)
+        console.log("error.hint:", catchedErr?.hint)
+        console.log("error.code:", catchedErr?.code)
+        console.log("status:", catchedErr?.status)
+        console.log("statusText:", catchedErr?.statusText)
+        return
       }
     }
 

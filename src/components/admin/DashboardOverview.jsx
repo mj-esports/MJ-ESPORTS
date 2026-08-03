@@ -42,14 +42,17 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
       if (isSupabaseConfigured) {
         // Concurrent Promise.all fetching for 3 admin dataset queries
         const [
-          { count: usersCount },
-          { data: dbTournaments },
-          { data: dbRegistrations },
+          { count: usersCount, error: usersErr },
+          { data: dbTournaments, error: tournsErr },
+          { data: dbRegistrations, error: regsErr },
         ] = await Promise.all([
           supabase.from('user_roles').select('*', { count: 'exact', head: true }),
           supabase.from('tournaments').select('*').order('created_at', { ascending: false }),
-          supabase.from('tournament_registrations').select('*').order('registered_at', { ascending: false }),
+          supabase.from('tournament_registrations').select('*').order('created_at', { ascending: false }),
         ])
+
+        if (tournsErr) console.warn('[Dashboard Fetch Tournaments Warning]:', tournsErr.message || tournsErr)
+        if (regsErr) console.warn('[Dashboard Fetch Registrations Warning]:', regsErr.message || regsErr)
 
         const loadedTournaments = dbTournaments || []
         const loadedRegistrations = dbRegistrations || []
@@ -174,155 +177,97 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
   }, [tournaments.length])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       
-      {/* Control Header & Refresh Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
-        <div>
-          <h2 className="font-display-lg text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-            <span>Executive Operations Control</span>
-          </h2>
-          <p className="text-xs text-[#8e9dae]">Real-time tournament stats & persistence dashboard</p>
-        </div>
-        <button
-          onClick={fetchDashboardData}
-          disabled={loading}
-          className="px-3.5 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] rounded text-xs font-bold text-[#8e9dae] hover:text-[#00f2ff] transition-all flex items-center justify-center gap-2 disabled:opacity-50 min-h-[38px] uppercase tracking-wider"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 text-[#00f2ff] ${loading ? 'animate-spin' : ''}`} />
-          <span>{loading ? 'Refreshing...' : 'Refresh Metrics'}</span>
-        </button>
-      </div>
-
       {fetchError && (
-        <div className="p-4 bg-red-950/60 border border-[#ff3366] rounded-lg flex items-center gap-3 text-[#ff3366] text-xs">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-3 bg-red-950/60 border border-[#ff3366] rounded-xl flex items-center gap-3 text-[#ff3366] text-xs">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{fetchError}</span>
         </div>
       )}
 
-      {/* 7 DASHBOARD STAT CARDS GRID */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4">
+      {/* COMPACT 4-CARD STATS GRID */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 isolate relative min-w-0 w-full">
         
         {/* Total Users */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00ff9d] rounded-xl p-4 space-y-2 transition-all shadow-xl min-w-0 w-full">
-          <div className="flex items-center justify-between">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 sm:p-3.5 space-y-1 transition-all shadow-md flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-1">
             <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider truncate">Total Users</span>
-            <Users className="w-4 h-4 text-[#00ff9d] shrink-0" />
+            <Users className="w-3.5 h-3.5 text-[#00ff9d] shrink-0" />
           </div>
-          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#00ff9d]">
+          <div className="font-mono text-base sm:text-xl font-extrabold text-[#00ff9d] truncate">
             {loading ? '...' : metrics.totalUsers}
           </div>
         </div>
 
         {/* Total Tournaments */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff] rounded-xl p-4 space-y-2 transition-all shadow-xl min-w-0 w-full">
-          <div className="flex items-center justify-between">
-            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider truncate">Total Tournaments</span>
-            <Trophy className="w-4 h-4 text-[#00f2ff] shrink-0" />
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 sm:p-3.5 space-y-1 transition-all shadow-md flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-1">
+            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider truncate">Tournaments</span>
+            <Trophy className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
           </div>
-          <div className="font-mono text-xl sm:text-2xl font-extrabold text-white">
+          <div className="font-mono text-base sm:text-xl font-extrabold text-white truncate">
             {loading ? '...' : metrics.totalTournaments}
           </div>
         </div>
 
-        {/* Active Tournaments */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#fe6b00] rounded-xl p-4 space-y-2 transition-all shadow-xl min-w-0 w-full">
-          <div className="flex items-center justify-between">
-            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider truncate">Active</span>
-            <Flame className="w-4 h-4 text-[#fe6b00] shrink-0" />
-          </div>
-          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#fe6b00]">
-            {loading ? '...' : metrics.activeTournaments}
-          </div>
-        </div>
-
-        {/* Completed Tournaments */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff] rounded-xl p-4 space-y-2 transition-all shadow-xl min-w-0 w-full">
-          <div className="flex items-center justify-between">
-            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider truncate">Completed</span>
-            <CheckCircle2 className="w-4 h-4 text-[#00f2ff] shrink-0" />
-          </div>
-          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#00f2ff]">
-            {loading ? '...' : metrics.completedTournaments}
-          </div>
-        </div>
-
         {/* Total Registrations */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#ffb800] rounded-xl p-4 space-y-2 transition-all shadow-xl min-w-0 w-full">
-          <div className="flex items-center justify-between">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 sm:p-3.5 space-y-1 transition-all shadow-md flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-1">
             <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider truncate">Registrations</span>
-            <ClipboardList className="w-4 h-4 text-[#ffb800] shrink-0" />
+            <ClipboardList className="w-3.5 h-3.5 text-[#ffb800] shrink-0" />
           </div>
-          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#ffb800]">
+          <div className="font-mono text-base sm:text-xl font-extrabold text-[#ffb800] truncate">
             {loading ? '...' : metrics.totalRegistrations}
           </div>
         </div>
 
-        {/* Pending Payments */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#ffb800] rounded-xl p-4 space-y-2 transition-all shadow-xl min-w-0 w-full">
-          <div className="flex items-center justify-between">
-            <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider truncate">Pending Pay</span>
-            <Clock className="w-4 h-4 text-[#ffb800] shrink-0" />
-          </div>
-          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#ffb800]">
-            {loading ? '...' : metrics.pendingPayments}
-          </div>
-        </div>
-
         {/* Total Revenue */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00ff9d] rounded-xl p-4 space-y-2 transition-all shadow-xl min-w-0 w-full col-span-1 xs:col-span-2 sm:col-span-1">
-          <div className="flex items-center justify-between">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 sm:p-3.5 space-y-1 transition-all shadow-md flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-1">
             <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-wider truncate">Revenue</span>
-            <IndianRupee className="w-4 h-4 text-[#00ff9d] shrink-0" />
+            <IndianRupee className="w-3.5 h-3.5 text-[#00ff9d] shrink-0" />
           </div>
-          <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#00ff9d]">
+          <div className="font-mono text-base sm:text-xl font-extrabold text-[#00ff9d] truncate">
             {loading ? '...' : `₹${metrics.totalRevenue.toLocaleString()}`}
           </div>
         </div>
 
       </div>
 
-      {/* QUICK OPERATIONS ACTION BAR */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 sm:p-6 space-y-3 shadow-xl">
-        <h3 className="font-display-lg text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-          <PlusCircle className="w-4 h-4 text-[#00f2ff]" />
-          <span>Quick Operational Controls</span>
-        </h3>
+      {/* 4 ESSENTIAL QUICK ACTION CARDS */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+        <button
+          onClick={() => setActiveTab('tournaments')}
+          className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl text-left hover:border-[#00f2ff] transition-colors space-y-0.5 min-w-0 w-full min-h-[44px] flex flex-col justify-center"
+        >
+          <span className="font-bold text-white block uppercase text-[11px] truncate">+ Create Tournament</span>
+          <span className="text-[9px] text-[#8e9dae] block truncate">Launch competition</span>
+        </button>
 
-        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <button
-            onClick={() => setActiveTab('tournaments')}
-            className="p-3 bg-[#07090c] border border-[#3a494b] rounded text-left hover:border-[#00f2ff] transition-colors space-y-1 min-w-0 w-full"
-          >
-            <span className="font-bold text-white block uppercase text-[11px] truncate">+ Create Tournament</span>
-            <span className="text-[10px] text-[#8e9dae] block truncate">Launch new competition</span>
-          </button>
+        <button
+          onClick={() => setActiveTab('registrations')}
+          className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl text-left hover:border-[#00f2ff] transition-colors space-y-0.5 min-w-0 w-full min-h-[44px] flex flex-col justify-center"
+        >
+          <span className="font-bold text-white block uppercase text-[11px] truncate">Review Registrations</span>
+          <span className="text-[9px] text-[#8e9dae] block truncate">Approve squad slots</span>
+        </button>
 
-          <button
-            onClick={() => setActiveTab('registrations')}
-            className="p-3 bg-[#07090c] border border-[#3a494b] rounded text-left hover:border-[#00f2ff] transition-colors space-y-1 min-w-0 w-full"
-          >
-            <span className="font-bold text-white block uppercase text-[11px] truncate">Review Registrations</span>
-            <span className="text-[10px] text-[#8e9dae] block truncate">Approve/Reject squad slots</span>
-          </button>
+        <button
+          onClick={() => setActiveTab('tournaments')}
+          className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl text-left hover:border-[#00f2ff] transition-colors space-y-0.5 min-w-0 w-full min-h-[44px] flex flex-col justify-center"
+        >
+          <span className="font-bold text-white block uppercase text-[11px] truncate">Match Control</span>
+          <span className="text-[9px] text-[#8e9dae] block truncate">Manage custom rooms</span>
+        </button>
 
-          <button
-            onClick={() => setActiveTab('matches')}
-            className="p-3 bg-[#07090c] border border-[#3a494b] rounded text-left hover:border-[#00f2ff] transition-colors space-y-1 min-w-0 w-full"
-          >
-            <span className="font-bold text-white block uppercase text-[11px] truncate">Match Control Lobbies</span>
-            <span className="text-[10px] text-[#8e9dae] block truncate">Publish Custom Room IDs</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('leaderboards')}
-            className="p-3 bg-[#07090c] border border-[#3a494b] rounded text-left hover:border-[#00f2ff] transition-colors space-y-1 min-w-0 w-full"
-          >
-            <span className="font-bold text-white block uppercase text-[11px] truncate">Publish Points Table</span>
-            <span className="text-[10px] text-[#8e9dae] block truncate">Update live standings</span>
-          </button>
-        </div>
+        <button
+          onClick={() => setActiveTab('tournaments')}
+          className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl text-left hover:border-[#00f2ff] transition-colors space-y-0.5 min-w-0 w-full min-h-[44px] flex flex-col justify-center"
+        >
+          <span className="font-bold text-white block uppercase text-[11px] truncate">Publish Leaderboard</span>
+          <span className="text-[9px] text-[#8e9dae] block truncate">Update standings</span>
+        </button>
       </div>
 
       {/* BELOW CARDS: RECENT REGISTRATIONS & RECENT TOURNAMENTS */}

@@ -37,8 +37,8 @@ export default function TournamentCenterView({
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [gameFilter, setGameFilter] = useState('ALL')
-  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [gameFilter, setGameFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [actionId, setActionId] = useState(null)
   const [formErrors, setFormErrors] = useState({})
@@ -249,12 +249,17 @@ export default function TournamentCenterView({
     }
   }
 
-  // Filter tournaments list
+  // Filter tournaments list with sanitized parameter checks
   const filteredTournaments = tournaments.filter((t) => {
-    const matchesSearch = t.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.game?.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesGame = gameFilter === 'ALL' || t.game?.toLowerCase() === gameFilter.toLowerCase()
-    const matchesStatus = statusFilter === 'ALL' || t.status === statusFilter
+    const cleanGame = gameFilter && gameFilter !== 'ALL' && gameFilter !== 'All Games' ? gameFilter.toLowerCase() : undefined
+    const cleanStatus = statusFilter && statusFilter !== 'ALL' && statusFilter !== 'All Statuses' ? statusFilter : undefined
+    const cleanSearch = searchQuery ? searchQuery.trim().toLowerCase() : undefined
+
+    const matchesGame = !cleanGame || t.game?.toLowerCase() === cleanGame
+    const matchesStatus = !cleanStatus || t.status === cleanStatus
+    const matchesSearch = !cleanSearch ||
+      t.title?.toLowerCase().includes(cleanSearch) ||
+      t.game?.toLowerCase().includes(cleanSearch)
 
     return matchesSearch && matchesGame && matchesStatus
   })
@@ -277,9 +282,9 @@ export default function TournamentCenterView({
         <button
           onClick={handleOpenCreateModal}
           aria-label="Create New Tournament"
-          className="px-5 sm:px-6 min-h-[44px] sm:min-h-[48px] rounded-xl bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] text-xs sm:text-sm font-extrabold uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-[0_0_16px_rgba(0,242,255,0.4)] hover:shadow-[0_0_24px_rgba(0,242,255,0.65)] transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#00f2ff] focus:ring-offset-2 focus:ring-offset-[#07090c] shrink-0"
+          className="btn-cyber-primary text-xs shrink-0"
         >
-          <Plus className="w-5 h-5 text-[#00363a] shrink-0" />
+          <Plus className="w-4 h-4 shrink-0" />
           <span>Create Tournament</span>
         </button>
       </div>
@@ -305,7 +310,7 @@ export default function TournamentCenterView({
             onChange={(e) => setGameFilter(e.target.value)}
             className="w-full p-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white focus:outline-none focus:border-[#00f2ff]"
           >
-            <option value="ALL">All Games</option>
+            <option value="">All Games</option>
             {SUPPORTED_GAMES.map((g) => (
               <option key={`game-f-${g}`} value={g}>{g}</option>
             ))}
@@ -318,7 +323,7 @@ export default function TournamentCenterView({
             onChange={(e) => setStatusFilter(e.target.value)}
             className="w-full p-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white focus:outline-none focus:border-[#00f2ff]"
           >
-            <option value="ALL">All Statuses</option>
+            <option value="">All Statuses</option>
             <option value="Registration Open">Registration Open</option>
             <option value="Live Now">Live Now</option>
             <option value="Registration Closed">Registration Closed</option>
@@ -381,7 +386,7 @@ export default function TournamentCenterView({
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
                     onClick={() => handleOpenEditModal(t)}
-                    className="py-2 px-3 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#e1e2e7] rounded font-bold flex items-center justify-center gap-1.5 min-h-[38px] uppercase tracking-wider"
+                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5"
                   >
                     <Edit3 className="w-3.5 h-3.5 text-[#00f2ff]" />
                     <span>Edit</span>
@@ -389,7 +394,7 @@ export default function TournamentCenterView({
 
                   <button
                     onClick={() => handleDuplicate(t)}
-                    className="py-2 px-3 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#e1e2e7] rounded font-bold flex items-center justify-center gap-1.5 min-h-[38px] uppercase tracking-wider"
+                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5"
                   >
                     <Copy className="w-3.5 h-3.5 text-[#00f2ff]" />
                     <span>Duplicate</span>
@@ -399,7 +404,7 @@ export default function TournamentCenterView({
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
                     onClick={() => handleToggleRegistration(t)}
-                    className="py-2 px-3 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#ffb800] rounded font-bold flex items-center justify-center gap-1.5 min-h-[38px] uppercase tracking-wider"
+                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5 text-[#ffb800]"
                   >
                     {t.status === 'Registration Open' ? <Lock className="w-3.5 h-3.5 text-[#ffb800]" /> : <Unlock className="w-3.5 h-3.5 text-[#00ff9d]" />}
                     <span>{t.status === 'Registration Open' ? 'Close Reg' : 'Open Reg'}</span>
@@ -407,7 +412,7 @@ export default function TournamentCenterView({
 
                   <button
                     onClick={() => handleDelete(t.id, t.title)}
-                    className="py-2 px-3 bg-[#07090c] hover:bg-red-950/40 border border-[#3a494b] hover:border-[#ff3366] text-[#ff3366] rounded font-bold flex items-center justify-center gap-1.5 min-h-[38px] uppercase tracking-wider"
+                    className="btn-cyber-danger text-[11px] min-h-[38px] py-1.5 px-2.5"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Delete</span>

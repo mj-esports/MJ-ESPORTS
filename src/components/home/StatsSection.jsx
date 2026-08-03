@@ -41,21 +41,21 @@ export const StatsSection = ({ stats }) => {
   ]
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 py-1">
       {statItems.map((item, idx) => {
         const Icon = item.icon
         return (
           <div
             key={`stat-card-${idx}`}
-            className={`bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 sm:p-5 space-y-2 shadow-xl border-l-4 ${item.borderColor} hover:border-[#00f2ff] transition-all hover:scale-[1.02]`}
+            className={`bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 sm:p-3.5 space-y-1 shadow-md border-l-4 ${item.borderColor} flex flex-col justify-center min-h-[76px] sm:min-h-[84px]`}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-[10px] sm:text-xs text-[#8e9dae] uppercase tracking-widest font-bold">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-mono text-[9px] sm:text-[10px] text-[#8e9dae] uppercase tracking-wider font-bold truncate">
                 {item.label}
               </span>
-              <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.color}`} />
+              <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${item.color} shrink-0`} />
             </div>
-            <div className={`font-mono text-xl sm:text-2xl font-extrabold ${item.color}`}>
+            <div className={`font-mono text-base sm:text-lg font-extrabold ${item.color} truncate`}>
               {item.value}
             </div>
           </div>

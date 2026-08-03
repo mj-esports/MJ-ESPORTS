@@ -9,90 +9,79 @@ import {
   Calendar,
   CreditCard,
   SearchX,
-  ShieldAlert,
-  ArrowRight,
+  ArrowRight
 } from 'lucide-react'
 
-// Pre-defined variants for key empty states
 export const EMPTY_STATE_VARIANTS = {
   tournaments: {
     icon: Trophy,
-    title: 'No Tournaments Available',
-    subtitle: 'There are no active tournaments matching your filter. Check back soon or browse open competitions!',
+    sentence: 'No tournaments are currently open for registration.',
     ctaText: 'Browse Open Tournaments',
     ctaLink: '/tournaments',
     accentColor: 'text-[#00f2ff]',
-    borderColor: 'border-[#00f2ff]/30',
+    borderColor: 'border-[#00f2ff]/40',
   },
   registrations: {
     icon: ClipboardList,
-    title: 'No Registrations Found',
-    subtitle: "You haven't registered your squad for any active tournaments yet. Enter a competition to compete!",
+    sentence: 'You have not registered for any active tournament match yet.',
     ctaText: 'Explore Competitions',
     ctaLink: '/tournaments',
     accentColor: 'text-[#fe6b00]',
-    borderColor: 'border-[#fe6b00]/30',
+    borderColor: 'border-[#fe6b00]/40',
   },
   notifications: {
     icon: Bell,
-    title: 'No Notifications Yet',
-    subtitle: "You're all caught up! Official tournament alerts, match room credentials, and updates will appear here.",
-    ctaText: null,
-    ctaLink: null,
+    sentence: 'No official announcements or alerts at this time.',
+    ctaText: 'Check Schedule',
+    ctaLink: '/tournaments',
     accentColor: 'text-[#00ff9d]',
-    borderColor: 'border-[#00ff9d]/30',
+    borderColor: 'border-[#00ff9d]/40',
   },
   results: {
     icon: BarChart3,
-    title: 'No Match Results Available Yet',
-    subtitle: 'Match standings and placement scores will automatically populate here once tournament results are published.',
-    ctaText: null,
-    ctaLink: null,
+    sentence: 'Match standings will appear here once results are published.',
+    ctaText: 'View Leaderboard',
+    ctaLink: '/leaderboard',
     accentColor: 'text-[#ffe173]',
-    borderColor: 'border-[#ffe173]/30',
+    borderColor: 'border-[#ffe173]/40',
   },
   leaderboard: {
     icon: Trophy,
-    title: 'No Leaderboard Available Yet',
-    subtitle: 'Participate in official Free Fire MAX or BGMI tournaments to gain points and rank on the global leaderboard.',
+    sentence: 'Leaderboard rankings will populate after completed matches.',
     ctaText: 'Join Tournament',
     ctaLink: '/tournaments',
     accentColor: 'text-[#00f2ff]',
-    borderColor: 'border-[#00f2ff]/30',
+    borderColor: 'border-[#00f2ff]/40',
   },
   announcements: {
     icon: Flame,
-    title: 'No Announcements At This Time',
-    subtitle: 'Stay tuned! Important rules, tournament season announcements, and patch notes will be posted here.',
-    ctaText: null,
-    ctaLink: null,
+    sentence: 'No official announcements published at this time.',
+    ctaText: 'View Competitions',
+    ctaLink: '/tournaments',
     accentColor: 'text-[#fe6b00]',
-    borderColor: 'border-[#fe6b00]/30',
+    borderColor: 'border-[#fe6b00]/40',
   },
   matches: {
     icon: Calendar,
-    title: 'No Matches Scheduled Today',
-    subtitle: "Today's tournament schedule will appear here once match times are published by the tournament admin.",
-    ctaText: null,
-    ctaLink: null,
+    sentence: 'No live matches currently in progress.',
+    ctaText: 'Browse Schedule',
+    ctaLink: '/tournaments',
     accentColor: 'text-[#00f2ff]',
-    borderColor: 'border-[#00f2ff]/30',
+    borderColor: 'border-[#00f2ff]/40',
   },
   finance: {
     icon: CreditCard,
-    title: 'No Payment Data Available Yet',
-    subtitle: 'Verified Razorpay tournament slot registrations will automatically populate here in real time.',
-    ctaText: null,
+    sentence: 'No pending payment data available.',
+    ctaText: 'Refresh View',
     ctaLink: null,
     accentColor: 'text-[#00ff9d]',
-    borderColor: 'border-[#00ff9d]/30',
+    borderColor: 'border-[#00ff9d]/40',
   },
   search: {
     icon: SearchX,
-    title: 'No Search Results Found',
-    subtitle: 'No records matched your search query. Try searching with a different term or clearing your filters.',
-    ctaText: null,
-    ctaLink: null,
+    sentence: 'No tournament matched your search query.',
+    ctaText: 'Clear Filters',
+    ctaLink: '/tournaments',
     accentColor: 'text-[#8e9dae]',
     borderColor: 'border-[#3a494b]',
   },
@@ -100,8 +89,7 @@ export const EMPTY_STATE_VARIANTS = {
 
 export default function EmptyState({
   type = 'search',
-  title,
-  subtitle,
+  sentence,
   ctaText,
   ctaLink,
   onCtaClick,
@@ -109,44 +97,41 @@ export default function EmptyState({
 }) {
   const config = EMPTY_STATE_VARIANTS[type] || EMPTY_STATE_VARIANTS.search
   const IconComponent = CustomIcon || config.icon
-  const displayTitle = title || config.title
-  const displaySubtitle = subtitle || config.subtitle
+  const displaySentence = sentence || config.sentence
   const displayCtaText = ctaText !== undefined ? ctaText : config.ctaText
   const displayCtaLink = ctaLink !== undefined ? ctaLink : config.ctaLink
 
   return (
-    <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-8 sm:p-12 text-center space-y-4 max-w-xl mx-auto shadow-2xl my-4 relative overflow-hidden">
-      {/* Glow aura background */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#00f2ff]/5 rounded-full blur-2xl pointer-events-none" />
-
-      {/* Vector Icon Container */}
-      <div className={`w-16 h-16 rounded-2xl bg-[#07090c] border ${config.borderColor} flex items-center justify-center mx-auto text-white shadow-lg shrink-0 relative z-10`}>
-        <IconComponent className={`w-8 h-8 ${config.accentColor}`} />
+    <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 sm:p-3.5 text-center space-y-2 max-w-md mx-auto shadow-md max-h-[160px] overflow-hidden flex flex-col items-center justify-center isolate relative my-2">
+      {/* Icon */}
+      <div className={`w-8 h-8 rounded-lg bg-[#07090c] border ${config.borderColor} flex items-center justify-center text-white shrink-0`}>
+        <IconComponent className={`w-4 h-4 ${config.accentColor}`} />
       </div>
 
-      {/* Title & Description */}
-      <div className="space-y-2 relative z-10">
-        <h3 className="font-display-lg text-lg sm:text-xl font-extrabold text-white uppercase tracking-tight">
-          {displayTitle}
-        </h3>
-        <p className="text-[#8e9dae] text-xs sm:text-sm leading-relaxed max-w-md mx-auto">
-          {displaySubtitle}
-        </p>
-      </div>
+      {/* One short sentence */}
+      <p className="text-[11px] font-semibold text-[#8e9dae] leading-snug max-w-xs text-center truncate">
+        {displaySentence}
+      </p>
 
-      {/* Optional CTA Button */}
+      {/* One primary action button */}
       {displayCtaText && (
-        <div className="pt-2 relative z-10">
+        <div>
           {displayCtaLink ? (
-            <Link to={displayCtaLink} className="btn-cyber-primary inline-flex">
+            <Link
+              to={displayCtaLink}
+              className="btn-cyber-primary text-[11px] px-3 py-1.5 min-h-[38px] inline-flex items-center justify-center gap-1.5"
+            >
               <span>{displayCtaText}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3 h-3" />
             </Link>
-          ) : onCtaClick ? (
-            <button onClick={onCtaClick} className="btn-cyber-primary inline-flex">
+          ) : (
+            <button
+              onClick={onCtaClick}
+              className="btn-cyber-primary text-[11px] px-3 py-1.5 min-h-[38px] inline-flex items-center justify-center gap-1.5"
+            >
               <span>{displayCtaText}</span>
             </button>
-          ) : null}
+          )}
         </div>
       )}
     </div>
