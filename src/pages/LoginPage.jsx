@@ -147,11 +147,18 @@ export default function LoginPage() {
     setIsGoogleSubmitting(true)
     try {
       await signInWithGoogle()
+      if (!isSupabaseConfigured) {
+        showSuccess('Signed in with Google (Dev Mode)! Accessing dashboard...', 'Google Sign-In')
+        setTimeout(() => {
+          navigate(from, { replace: true })
+          setIsGoogleSubmitting(false)
+        }, 500)
+      }
     } catch (err) {
       console.error('Google Sign-In Error:', err)
       setAlert({
         type: 'error',
-        message: 'Unable to connect to Google Sign-In. Please try again.',
+        message: err.message || 'Unable to connect to Google Sign-In. Please check Google Provider settings in Supabase.',
       })
       showError(err, 'Google Sign-In Failed')
       setIsGoogleSubmitting(false)
