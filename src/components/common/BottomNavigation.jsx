@@ -19,10 +19,10 @@ export default function BottomNavigation() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#07090c]/95 backdrop-blur-xl border-t border-[#3a494b]/60 shadow-[0_-8px_30px_rgba(0,0,0,0.9)] pb-[env(safe-area-inset-bottom,0px)] select-none"
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#111417]/90 backdrop-blur-md border-t border-[#3a494b]/60 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] pb-[env(safe-area-inset-bottom,0px)] select-none"
       aria-label="Mobile Bottom Navigation"
     >
-      <div className="flex items-center justify-around h-[60px] w-full max-w-lg mx-auto px-1">
+      <div className="flex items-center justify-around h-[64px] w-full max-w-lg mx-auto px-1">
         {tabs.map((tab) => {
           const Icon = tab.icon
           return (
@@ -32,18 +32,18 @@ export default function BottomNavigation() {
               end={tab.path === '/'}
               aria-label={tab.name}
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center flex-1 min-w-0 h-full relative transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00f2ff] px-0.5 ${
+                `flex flex-col items-center justify-center flex-1 min-w-0 h-full relative transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00f2ff] px-0.5 min-h-[44px] ${
                   isActive
                     ? 'text-[#00f2ff]'
-                    : 'text-[#8e9dae] hover:text-[#e1e2e7]'
+                    : 'text-[#b9cacb] hover:text-[#e1e2e7]'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  {/* Top Active Bar Glow */}
+                  {/* Top Active Bar Cyan Indicator */}
                   {isActive && (
-                    <span className="absolute top-0 w-8 h-[2.5px] bg-[#00f2ff] rounded-b-full shadow-[0_0_10px_rgba(0,242,255,0.9)]" />
+                    <span className="absolute top-0 w-8 h-[3px] bg-[#00f2ff] rounded-b-full shadow-[0_0_12px_rgba(0,242,255,0.9)]" />
                   )}
                   
                   {/* Icon Container */}
@@ -52,14 +52,14 @@ export default function BottomNavigation() {
                   }`}>
                     <Icon
                       className={`w-5 h-5 transition-transform duration-200 ${
-                        isActive ? 'scale-110 text-[#00f2ff]' : 'text-[#8e9dae]'
+                        isActive ? 'scale-110 text-[#00f2ff]' : 'text-[#b9cacb]'
                       }`}
                     />
                   </div>
 
-                  {/* Shortened Label */}
-                  <span className={`text-[10px] sm:text-[11px] tracking-tight font-extrabold uppercase text-center truncate w-full block leading-none mt-0.5 ${
-                    isActive ? 'text-[#00f2ff]' : 'text-[#8e9dae]'
+                  {/* Label */}
+                  <span className={`text-[10px] tracking-tight font-headline font-bold uppercase text-center truncate w-full block leading-none mt-0.5 ${
+                    isActive ? 'text-[#00f2ff]' : 'text-[#b9cacb]'
                   }`}>
                     {tab.name}
                   </span>

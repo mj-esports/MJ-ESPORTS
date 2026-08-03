@@ -24,22 +24,24 @@ export default function LoadingButton({
   const baseStyles = 'inline-flex items-center justify-center font-bold tracking-wider transition-all select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00f2ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07090c] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
 
   const sizeStyles = {
-    sm: 'px-3 py-1.5 text-xs min-h-[36px] rounded',
-    md: 'px-4 py-2.5 text-xs min-h-[44px] rounded',
-    lg: 'px-6 py-3.5 text-sm min-h-[48px] rounded-lg',
+    sm: 'px-3 py-1.5 text-xs min-h-[36px] rounded-md font-headline',
+    md: 'px-4 py-2.5 text-xs min-h-[44px] rounded-md font-headline',
+    lg: 'px-6 py-3.5 text-sm min-h-[48px] rounded-md font-headline',
   }
 
   const variantStyles = {
     primary:
-      'bg-[#00f2ff] hover:bg-[#74f5ff] active:bg-[#00dbe7] text-[#00363a] font-display-lg font-extrabold uppercase italic shadow-[0_0_15px_rgba(0,242,255,0.3)] hover:shadow-[0_0_20px_rgba(0,242,255,0.5)]',
+      'bg-[#00f2ff] hover:bg-[#74f5ff] active:bg-[#00dbe7] text-[#00363a] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(0,242,255,0.35)] hover:shadow-[0_0_24px_rgba(0,242,255,0.5)] transition-all',
     secondary:
-      'bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] hover:border-[#00f2ff] text-white uppercase',
-    danger:
-      'bg-[#ff3366]/20 hover:bg-[#ff3366]/30 border border-[#ff3366] text-[#ff3366] uppercase shadow-[0_0_15px_rgba(255,51,102,0.3)]',
+      'bg-[#fe6b00] hover:bg-[#ff8533] active:bg-[#e05e00] text-[#170700] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(254,107,0,0.35)] hover:shadow-[0_0_24px_rgba(254,107,0,0.5)] transition-all',
+    outline:
+      'bg-[#1d2023] hover:bg-[#1c232b] border border-[#3a494b] hover:border-[#00f2ff] text-[#e1e2e7] hover:text-[#00f2ff] font-headline font-semibold uppercase tracking-wider transition-all',
     ghost:
-      'bg-transparent hover:bg-[#1d232c] text-[#8e9dae] hover:text-white uppercase',
+      'bg-transparent hover:bg-[#00f2ff]/10 text-[#00f2ff] font-headline font-semibold uppercase tracking-wider transition-all',
+    danger:
+      'bg-[#ef4444]/15 hover:bg-[#ef4444]/25 border border-[#ef4444] text-[#ef4444] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all',
     emerald:
-      'bg-[#00ff9d] hover:bg-[#52ffb8] active:bg-[#00d482] text-[#003622] font-display-lg font-extrabold uppercase italic shadow-[0_0_15px_rgba(0,255,157,0.3)]',
+      'bg-[#10b981] hover:bg-[#34d399] active:bg-[#059669] text-[#003622] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all',
   }
 
   const defaultSpinnerVariant =

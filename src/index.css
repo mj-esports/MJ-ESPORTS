@@ -26,7 +26,7 @@
   body {
     background-color: #0b0e11;
     color: #e1e2e7;
-    font-family: 'Space Grotesk', 'Geist', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', 'Geist', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
     margin: 0;
     -webkit-tap-highlight-color: transparent;
