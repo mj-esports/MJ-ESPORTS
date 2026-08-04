@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Trophy, ArrowLeft, Home, FileQuestion } from 'lucide-react'
+import { Trophy, Home, FileQuestion } from 'lucide-react'
 
 export default function NotFoundPage() {
   return (

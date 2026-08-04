@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Radio, Tv, Flame, Trophy, Shield, Play, ArrowRight, Calendar, Gamepad2 } from 'lucide-react'
+import { Radio, Tv, Flame, Shield, Play, ArrowRight } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { SUPPORTED_GAMES } from '../data/mockData'
 
@@ -16,13 +16,16 @@ export default function LiveCenterPage() {
     return isLive && isV1SupportedGame
   })
 
-  const [selectedMatch, setSelectedMatch] = useState(liveTournaments[0] || null)
+  const [selectedMatch, setSelectedMatch] = useState(() => liveTournaments[0] || null)
 
   useEffect(() => {
     if (liveTournaments.length > 0) {
-      if (!selectedMatch || !liveTournaments.some((t) => t.id === selectedMatch.id)) {
-        setSelectedMatch(liveTournaments[0])
-      }
+      setSelectedMatch((prev) => {
+        if (!prev || !liveTournaments.some((t) => t.id === prev.id)) {
+          return liveTournaments[0]
+        }
+        return prev
+      })
     } else {
       setSelectedMatch(null)
     }

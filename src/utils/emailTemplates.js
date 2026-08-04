@@ -27,12 +27,12 @@ export function getRegistrationConfirmationEmailHTML({ username, teamName, tourn
   `
 }
 
-export function getResultAnnouncementEmailHTML({ tournamentTitle, winnerTeam, placement }) {
+export function getResultAnnouncementEmailHTML({ tournamentTitle, winnerTeam, placement = '1st Place Champion' }) {
   return `
     <div style="font-family: Arial, sans-serif; background-color: #0b0e11; color: #ffffff; padding: 30px; border-radius: 10px;">
       <h2 style="color: #fe6b00;">OFFICIAL MATCH RESULTS PUBLISHED</h2>
       <p style="font-size: 14px;">The official results for <strong>${tournamentTitle}</strong> are locked!</p>
-      <p style="color: #00ff9d; font-size: 16px; font-weight: bold;">1st Place Champion: ${winnerTeam}</p>
+      <p style="color: #00ff9d; font-size: 16px; font-weight: bold;">Result (${placement}): ${winnerTeam}</p>
       <p style="font-size: 12px; color: #8e9dae;">Log into MJ ESPORTS to view full leaderboard points and prize distributions.</p>
     </div>
   `

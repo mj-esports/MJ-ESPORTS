@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Mail, Lock, LogIn, ShieldCheck, KeyRound, ArrowRight, RefreshCw } from 'lucide-react'
+import { Mail, Lock, LogIn, ShieldCheck, KeyRound, ArrowRight } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import FormInput from '../components/common/FormInput'

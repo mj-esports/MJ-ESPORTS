@@ -87,7 +87,7 @@ export default function ResetPasswordPage() {
             <div className="space-y-4 pt-2">
               <Link
                 to="/login"
-                className="btn-cyber-primary w-full justify-center py-3.5"
+                className="btn-stitch-primary w-full justify-center py-3.5"
               >
                 <span>Proceed to Sign In</span>
                 <ArrowRight className="w-4 h-4" />
@@ -130,7 +130,7 @@ export default function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="btn-cyber-primary w-full justify-center py-3.5 mt-2 disabled:opacity-50"
+                className="btn-stitch-primary w-full justify-center py-3.5 mt-2 disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>

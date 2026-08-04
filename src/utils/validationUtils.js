@@ -58,7 +58,7 @@ export function isValidGameUid(uid) {
  */
 export function isValidPhoneNumber(phone) {
   if (!phone || typeof phone !== 'string') return false
-  const cleanPhone = phone.trim().replace(/[\s\-\(\)\+]/g, '')
+  const cleanPhone = phone.trim().replace(/[\s\-()+]/g, '')
   return /^[0-9]{10}$/.test(cleanPhone)
 }
 

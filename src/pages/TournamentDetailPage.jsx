@@ -4,9 +4,6 @@ import {
   Trophy,
   Calendar,
   Clock,
-  Users,
-  ShieldCheck,
-  Swords,
   Radio,
   ArrowLeft,
   Gamepad2,
@@ -17,14 +14,8 @@ import {
   Award,
   ChevronDown,
   ChevronUp,
-  Sparkles,
-  Flame,
-  Check,
   Building2,
-  HelpCircle,
-  Layers,
-  MapPin,
-  Share2
+  HelpCircle
 } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { useAuth } from '../contexts/AuthContext'

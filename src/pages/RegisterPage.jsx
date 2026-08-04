@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, Mail, Lock, UserPlus, Swords, ArrowRight, ShieldCheck, RefreshCw } from 'lucide-react'
+import { User, Mail, Lock, UserPlus, ArrowRight, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'
 import LoadingButton from '../components/common/LoadingButton'
-import { isValidEmail, sanitizeString, isStrongPassword, isValidUsername } from '../utils/validationUtils'
+import { isValidEmail, sanitizeString, isStrongPassword } from '../utils/validationUtils'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
