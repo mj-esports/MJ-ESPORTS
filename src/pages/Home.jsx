@@ -10,11 +10,7 @@ import {
   Radio,
   Eye,
   Calendar,
-  ArrowRight,
-  Sparkles,
-  Flame,
-  Search,
-  Bell
+  ArrowRight
 } from 'lucide-react'
 
 const LiveStreamModal = lazy(() => import('../components/stitch/LiveStreamModal'))
