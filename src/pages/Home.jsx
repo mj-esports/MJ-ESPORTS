@@ -29,18 +29,18 @@ export default function Home() {
       
       {/* 1. HERO SECTION (STITCH SCREEN c10bc5e9f31f497593ec2ad21cbe1504) */}
       <section className="relative w-full h-[500px] md:h-[600px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 transform-gpu">
           <img
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full object-cover opacity-60 transform-gpu"
             alt="Two esports characters facing off in a dark arena with dramatic cyan spotlighting"
             src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=2000&q=80"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E11] via-[#0B0E11]/60 to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0E11] via-transparent to-[#0B0E11] hidden md:block"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E11] via-[#0B0E11]/60 to-transparent transform-gpu"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0E11] via-transparent to-[#0B0E11] hidden md:block transform-gpu"></div>
         </div>
 
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
-          <span className="px-3 sm:px-4 py-1.5 rounded-full bg-[#1C232B]/80 border border-[#00F2FF]/30 text-[#00F2FF] font-label text-xs sm:text-sm font-semibold tracking-wide mb-6 uppercase flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm max-w-full text-center flex-wrap">
+          <span className="px-3 sm:px-4 py-1.5 rounded-full bg-[#1C232B]/80 border border-[#00F2FF]/30 text-[#00F2FF] font-label text-xs sm:text-sm font-semibold tracking-wide mb-6 uppercase flex items-center justify-center gap-1.5 sm:gap-2 md:backdrop-blur-sm max-w-full text-center flex-wrap">
             <span className="w-2 h-2 rounded-full bg-[#00F2FF] animate-pulse shrink-0"></span>
             <span className="truncate max-w-[240px] xs:max-w-none">Season 4 Registrations Open &bull; Welcome {displayName}</span>
           </span>
@@ -73,7 +73,7 @@ export default function Home() {
       </section>
 
       {/* 2. MAIN CONTAINER GRID (STITCH SCREEN c10bc5e9f31f497593ec2ad21cbe1504) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-16 relative z-20 pb-20 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6 md:-mt-16 relative z-20 pb-20 space-y-12">
 
         {/* Quick Actions */}
         <section className="grid grid-cols-4 gap-2 sm:gap-4 md:gap-8">
@@ -143,7 +143,7 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="rounded-2xl p-1 relative overflow-hidden group bg-[#1C232B]/60 backdrop-blur-md border border-white/5">
+          <div className="rounded-2xl p-1 relative overflow-hidden group bg-[#1C232B]/60 md:backdrop-blur-md border border-white/5">
             <div className="absolute inset-0 bg-gradient-to-r from-[#FE6B00]/20 to-[#00F2FF]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
 
             <div className="bg-[#1C232B] rounded-xl p-6 relative z-10 flex flex-col md:flex-row items-center gap-8 border border-[#374151]/30">
@@ -242,8 +242,8 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1C232B] to-transparent"></div>
                   <div className="absolute bottom-3 left-4 flex gap-2">
-                    <span className="px-2 py-0.5 bg-[#00F2FF]/20 text-[#00F2FF] border border-[#00F2FF]/30 text-[10px] font-bold uppercase rounded backdrop-blur">Squad</span>
-                    <span className="px-2 py-0.5 bg-[#FE6B00]/20 text-[#FE6B00] border border-[#FE6B00]/30 text-[10px] font-bold uppercase rounded backdrop-blur">Erangel</span>
+                    <span className="px-2 py-0.5 bg-[#00F2FF]/20 text-[#00F2FF] border border-[#00F2FF]/30 text-[10px] font-bold uppercase rounded md:backdrop-blur">Squad</span>
+                    <span className="px-2 py-0.5 bg-[#FE6B00]/20 text-[#FE6B00] border border-[#FE6B00]/30 text-[10px] font-bold uppercase rounded md:backdrop-blur">Erangel</span>
                   </div>
                 </div>
 
@@ -295,8 +295,8 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1C232B] to-transparent"></div>
                   <div className="absolute bottom-3 left-4 flex gap-2">
-                    <span className="px-2 py-0.5 bg-[#00F2FF]/20 text-[#00F2FF] border border-[#00F2FF]/30 text-[10px] font-bold uppercase rounded backdrop-blur">Solo</span>
-                    <span className="px-2 py-0.5 bg-[#FE6B00]/20 text-[#FE6B00] border border-[#FE6B00]/30 text-[10px] font-bold uppercase rounded backdrop-blur">Miramar</span>
+                    <span className="px-2 py-0.5 bg-[#00F2FF]/20 text-[#00F2FF] border border-[#00F2FF]/30 text-[10px] font-bold uppercase rounded md:backdrop-blur">Solo</span>
+                    <span className="px-2 py-0.5 bg-[#FE6B00]/20 text-[#FE6B00] border border-[#FE6B00]/30 text-[10px] font-bold uppercase rounded md:backdrop-blur">Miramar</span>
                   </div>
                 </div>
 

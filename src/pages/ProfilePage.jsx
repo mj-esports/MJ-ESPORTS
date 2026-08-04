@@ -175,15 +175,15 @@ export default function ProfilePage() {
         <div className="relative w-full rounded-2xl overflow-hidden border border-[#00f2ff]/20 shadow-[0_0_20px_rgba(0,242,255,0.1)] bg-[#0A0A0A]">
           {/* Cover Background Image */}
           <div
-            className="h-64 sm:h-80 w-full bg-cover bg-center opacity-60"
+            className="h-64 sm:h-80 w-full bg-cover bg-center opacity-60 transform-gpu"
             style={{
               backgroundImage: `url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80')`,
             }}
           ></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent transform-gpu"></div>
 
           {/* Avatar & Primary Info Floating Overlay */}
-          <div className="p-6 sm:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10 -mt-24 sm:-mt-28">
+          <div className="p-6 sm:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10 mt-4 sm:-mt-28">
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 text-center sm:text-left">
               <div className="relative">
                 <img
@@ -510,7 +510,7 @@ export default function ProfilePage() {
 
       {/* EDIT PROFILE MODAL */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 md:backdrop-blur-md">
           <div className="bg-[#141414] border border-[#00f2ff]/40 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
             <div className="flex items-center justify-between border-b border-[#242424] pb-3">
               <h3 className="font-headline text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
