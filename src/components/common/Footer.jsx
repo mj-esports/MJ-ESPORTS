@@ -88,9 +88,9 @@ export default function Footer() {
           <div className="space-y-3">
             <h4 className="font-label-md text-xs text-[#e1e2e7]">Support</h4>
             <div className="space-y-2 text-xs font-body">
-              <p className="flex items-center gap-2">
+              <p className="flex items-center gap-2 min-w-0">
                 <Mail className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
-                <a href="mailto:support.mjesports@gmail.com" className="hover:text-[#00f2ff] transition-colors">
+                <a href="mailto:support.mjesports@gmail.com" className="hover:text-[#00f2ff] transition-colors truncate text-[11px] xs:text-xs">
                   support.mjesports@gmail.com
                 </a>
               </p>

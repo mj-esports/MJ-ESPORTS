@@ -40,30 +40,30 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
-          <span className="px-4 py-1.5 rounded-full bg-[#1C232B]/80 border border-[#00F2FF]/30 text-[#00F2FF] font-label text-sm font-semibold tracking-wide mb-6 uppercase flex items-center gap-2 backdrop-blur-sm">
-            <span className="w-2 h-2 rounded-full bg-[#00F2FF] animate-pulse"></span>
-            Season 4 Registrations Open &bull; Welcome {displayName}
+          <span className="px-3 sm:px-4 py-1.5 rounded-full bg-[#1C232B]/80 border border-[#00F2FF]/30 text-[#00F2FF] font-label text-xs sm:text-sm font-semibold tracking-wide mb-6 uppercase flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm max-w-full text-center flex-wrap">
+            <span className="w-2 h-2 rounded-full bg-[#00F2FF] animate-pulse shrink-0"></span>
+            <span className="truncate max-w-[240px] xs:max-w-none">Season 4 Registrations Open &bull; Welcome {displayName}</span>
           </span>
 
-          <h1 className="font-headline font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-white mb-4 uppercase drop-shadow-2xl leading-none">
+          <h1 className="font-headline font-black text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tighter text-white mb-4 uppercase drop-shadow-2xl leading-none">
             Elevate Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F2FF] to-[#00C2CC]">Game</span>
           </h1>
 
-          <p className="font-body text-[#9CA3AF] text-lg md:text-xl max-w-2xl mx-auto mb-8 font-medium">
+          <p className="font-body text-[#9CA3AF] text-sm xs:text-base md:text-xl max-w-2xl mx-auto mb-8 font-medium">
             Compete in daily tournaments. Climb the ranks. Claim your share of the <span className="text-[#FE6B00] font-bold">₹50,000+</span> monthly prize pool.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
             <Link
               to="/tournaments"
-              className="px-8 py-4 bg-[#00F2FF] text-[#0B0E11] font-headline font-bold text-lg rounded-lg hover:bg-[#00C2CC] transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_20px_rgba(0,242,255,0.4)] flex items-center justify-center gap-2 uppercase tracking-wider"
+              className="px-6 sm:px-8 py-3.5 sm:py-4 bg-[#00F2FF] text-[#0B0E11] font-headline font-bold text-base sm:text-lg rounded-lg hover:bg-[#00C2CC] transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_20px_rgba(0,242,255,0.4)] flex items-center justify-center gap-2 uppercase tracking-wider min-h-[44px]"
             >
               <span>Browse Tournaments</span>
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
               to="/leaderboard"
-              className="px-8 py-4 bg-[#2A3441] text-white font-headline font-bold text-lg rounded-lg hover:bg-[#1C232B] transition-all duration-300 border border-[#374151] flex items-center justify-center gap-2 uppercase tracking-wider"
+              className="px-6 sm:px-8 py-3.5 sm:py-4 bg-[#2A3441] text-white font-headline font-bold text-base sm:text-lg rounded-lg hover:bg-[#1C232B] transition-all duration-300 border border-[#374151] flex items-center justify-center gap-2 uppercase tracking-wider min-h-[44px]"
             >
               <span>View Leaderboard</span>
               <Trophy className="w-5 h-5 text-[#FE6B00]" />
@@ -76,46 +76,46 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-16 relative z-20 pb-20 space-y-12">
 
         {/* Quick Actions */}
-        <section className="grid grid-cols-4 gap-4 md:gap-8">
-          <Link to="/tournaments" className="flex flex-col items-center gap-3 group">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#1C232B] border border-[#374151]/50 flex items-center justify-center group-hover:bg-[#00F2FF]/10 group-hover:border-[#00F2FF]/50 transition-all duration-300 shadow-lg">
-              <Swords className="w-8 h-8 md:w-10 md:h-10 text-[#00F2FF] group-hover:scale-110 transition-transform" />
+        <section className="grid grid-cols-4 gap-2 sm:gap-4 md:gap-8">
+          <Link to="/tournaments" className="flex flex-col items-center gap-2 sm:gap-3 group">
+            <div className="w-13 h-13 xs:w-16 xs:h-16 md:w-20 md:h-20 rounded-xl xs:rounded-2xl bg-[#1C232B] border border-[#374151]/50 flex items-center justify-center group-hover:bg-[#00F2FF]/10 group-hover:border-[#00F2FF]/50 transition-all duration-300 shadow-lg">
+              <Swords className="w-6 h-6 xs:w-8 xs:h-8 md:w-10 md:h-10 text-[#00F2FF] group-hover:scale-110 transition-transform" />
             </div>
-            <span className="font-label text-sm font-semibold text-[#9CA3AF] group-hover:text-white transition-colors text-center leading-tight">
+            <span className="font-label text-[10px] xs:text-xs sm:text-sm font-semibold text-[#9CA3AF] group-hover:text-white transition-colors text-center leading-tight">
               Join<br />Tournament
             </span>
           </Link>
 
-          <Link to="/dashboard" className="flex flex-col items-center gap-3 group">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#1C232B] border border-[#374151]/50 flex items-center justify-center group-hover:bg-[#FE6B00]/10 group-hover:border-[#FE6B00]/50 transition-all duration-300 shadow-lg">
-              <Gamepad2 className="w-8 h-8 md:w-10 md:h-10 text-[#FE6B00] group-hover:scale-110 transition-transform" />
+          <Link to="/dashboard" className="flex flex-col items-center gap-2 sm:gap-3 group">
+            <div className="w-13 h-13 xs:w-16 xs:h-16 md:w-20 md:h-20 rounded-xl xs:rounded-2xl bg-[#1C232B] border border-[#374151]/50 flex items-center justify-center group-hover:bg-[#FE6B00]/10 group-hover:border-[#FE6B00]/50 transition-all duration-300 shadow-lg">
+              <Gamepad2 className="w-6 h-6 xs:w-8 xs:h-8 md:w-10 md:h-10 text-[#FE6B00] group-hover:scale-110 transition-transform" />
             </div>
-            <span className="font-label text-sm font-semibold text-[#9CA3AF] group-hover:text-white transition-colors text-center leading-tight">
+            <span className="font-label text-[10px] xs:text-xs sm:text-sm font-semibold text-[#9CA3AF] group-hover:text-white transition-colors text-center leading-tight">
               My<br />Matches
             </span>
           </Link>
 
-          <Link to="/dashboard" className="flex flex-col items-center gap-3 group">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#1C232B] border border-[#374151]/50 flex items-center justify-center group-hover:bg-[#00F2FF]/10 group-hover:border-[#00F2FF]/50 transition-all duration-300 shadow-lg">
-              <Wallet className="w-8 h-8 md:w-10 md:h-10 text-[#00F2FF] group-hover:scale-110 transition-transform" />
+          <Link to="/dashboard" className="flex flex-col items-center gap-2 sm:gap-3 group">
+            <div className="w-13 h-13 xs:w-16 xs:h-16 md:w-20 md:h-20 rounded-xl xs:rounded-2xl bg-[#1C232B] border border-[#374151]/50 flex items-center justify-center group-hover:bg-[#00F2FF]/10 group-hover:border-[#00F2FF]/50 transition-all duration-300 shadow-lg">
+              <Wallet className="w-6 h-6 xs:w-8 xs:h-8 md:w-10 md:h-10 text-[#00F2FF] group-hover:scale-110 transition-transform" />
             </div>
-            <span className="font-label text-sm font-semibold text-[#9CA3AF] group-hover:text-white transition-colors text-center leading-tight">
+            <span className="font-label text-[10px] xs:text-xs sm:text-sm font-semibold text-[#9CA3AF] group-hover:text-white transition-colors text-center leading-tight">
               Wallet
             </span>
           </Link>
 
-          <Link to="/leaderboard" className="flex flex-col items-center gap-3 group">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#1C232B] border border-[#374151]/50 flex items-center justify-center group-hover:bg-[#FE6B00]/10 group-hover:border-[#FE6B00]/50 transition-all duration-300 shadow-lg">
-              <Trophy className="w-8 h-8 md:w-10 md:h-10 text-[#FE6B00] group-hover:scale-110 transition-transform" />
+          <Link to="/leaderboard" className="flex flex-col items-center gap-2 sm:gap-3 group">
+            <div className="w-13 h-13 xs:w-16 xs:h-16 md:w-20 md:h-20 rounded-xl xs:rounded-2xl bg-[#1C232B] border border-[#374151]/50 flex items-center justify-center group-hover:bg-[#FE6B00]/10 group-hover:border-[#FE6B00]/50 transition-all duration-300 shadow-lg">
+              <Trophy className="w-6 h-6 xs:w-8 xs:h-8 md:w-10 md:h-10 text-[#FE6B00] group-hover:scale-110 transition-transform" />
             </div>
-            <span className="font-label text-sm font-semibold text-[#9CA3AF] group-hover:text-white transition-colors text-center leading-tight">
+            <span className="font-label text-[10px] xs:text-xs sm:text-sm font-semibold text-[#9CA3AF] group-hover:text-white transition-colors text-center leading-tight">
               Leaderboard
             </span>
           </Link>
         </section>
 
         {/* Platform Stats */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-[#1C232B] rounded-xl p-6 border border-[#374151]/30">
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 bg-[#1C232B] rounded-xl p-4 sm:p-6 border border-[#374151]/30">
           <div className="flex flex-col items-center text-center">
             <span className="text-3xl font-display font-bold text-[#00F2FF] mb-1">12</span>
             <span className="text-xs text-[#9CA3AF] uppercase font-semibold tracking-wider">Active Tournaments</span>

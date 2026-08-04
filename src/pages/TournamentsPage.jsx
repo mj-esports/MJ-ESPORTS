@@ -107,9 +107,9 @@ export default function TournamentsPage() {
         )}
 
         {/* 2. STITCH FILTERS AND TABS (STICKY BAR) */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 z-40 bg-[#121212]/90 backdrop-blur-md py-4 border-b border-[#333333] -mx-4 px-4 md:mx-0 md:px-0">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4 sticky top-0 z-40 bg-[#121212]/90 backdrop-blur-md py-3 sm:py-4 border-b border-[#333333] -mx-4 px-4 md:mx-0 md:px-0">
           {/* Game Category Chips */}
-          <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto no-scrollbar snap-x">
+          <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 md:pb-0 w-full md:w-auto no-scrollbar snap-x">
             {gamesList.map((game) => (
               <button
                 key={`game-tab-${game}`}
@@ -117,7 +117,7 @@ export default function TournamentsPage() {
                   setSelectedGame(game)
                   setVisibleCount(6)
                 }}
-                className={`snap-start flex-shrink-0 px-4 py-2 rounded-full font-label text-sm font-semibold transition-colors ${
+                className={`snap-start flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-label text-xs sm:text-sm font-semibold transition-colors ${
                   selectedGame === game
                     ? 'border border-[#00FFFF] bg-[#00FFFF]/10 text-[#00FFFF]'
                     : 'border border-[#333333] text-[#A0A0A0] hover:text-white hover:border-white'
@@ -145,7 +145,7 @@ export default function TournamentsPage() {
             </div>
 
             {/* Status Segmented Tabs */}
-            <div className="flex bg-[#252525] rounded-lg p-1 w-full sm:w-auto">
+            <div className="flex bg-[#252525] rounded-lg p-1 w-full sm:w-auto overflow-x-auto">
               {statusChips.map((st) => (
                 <button
                   key={`status-chip-${st}`}
@@ -153,7 +153,7 @@ export default function TournamentsPage() {
                     setSelectedStatus(st)
                     setVisibleCount(6)
                   }}
-                  className={`flex-1 sm:flex-none px-5 py-1.5 rounded-md font-label text-xs font-medium transition-all ${
+                  className={`flex-1 sm:flex-none px-2.5 xs:px-3 sm:px-5 py-1.5 rounded-md font-label text-[11px] xs:text-xs font-medium transition-all ${
                     selectedStatus === st
                       ? 'bg-[#444444] text-white font-bold shadow-sm'
                       : 'text-[#A0A0A0] hover:text-white'

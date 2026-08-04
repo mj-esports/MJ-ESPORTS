@@ -422,76 +422,7 @@ export default function TeamsView({ tournaments = [] }) {
           ))}
         </div>
       )}
-                    {team.status}
-                  </span>
-                </div>
 
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="p-2.5 bg-[#07090c] rounded border border-[#3a494b]/40 space-y-0.5">
-                    <span className="text-[10px] text-[#8e9dae] font-bold block uppercase flex items-center gap-1">
-                      <Crown className="w-3 h-3 text-[#ffb800]" />
-                      <span>Captain</span>
-                    </span>
-                    <span className="font-extrabold text-white block">{team.captain}</span>
-                    <span className="font-mono text-[10px] text-[#00f2ff] block">UID: {team.captainUid}</span>
-                  </div>
-
-                  <div className="p-2.5 bg-[#07090c] rounded border border-[#3a494b]/40 space-y-0.5">
-                    <span className="text-[10px] text-[#8e9dae] font-bold block uppercase">Roster Size</span>
-                    <span className="font-extrabold text-[#00ff9d] block">{team.members?.length || 4} Active Players</span>
-                    <span className="text-[10px] text-[#8e9dae] block">1 Captain + {(team.members?.length || 4) - 1} Teammates</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Admin Actions Bar */}
-              <div className="pt-3 border-t border-[#3a494b]/40 flex items-center justify-between font-mono text-xs">
-                <div className="flex items-center gap-3">
-                  <span className="text-[#8e9dae]">Matches: <strong className="text-white">{team.matchesPlayed}</strong></span>
-                  <span className="text-[#8e9dae]">Wins: <strong className="text-[#00ff9d]">{team.wins}</strong></span>
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={() => setSelectedTeam(team)}
-                    className="p-1.5 rounded bg-[#07090c] hover:bg-[#1d232c] text-[#00f2ff] border border-[#3a494b]"
-                    title="Inspect Team Profile & Roster"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    onClick={() => handleUpdateTeamStatus(team.id, 'Verified')}
-                    disabled={updatingTeamId === team.id || team.status === 'Verified'}
-                    className="p-1.5 rounded bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 disabled:opacity-40"
-                    title="Verify Team Roster"
-                  >
-                    <Check className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    onClick={() => handleUpdateTeamStatus(team.id, 'Suspended')}
-                    disabled={updatingTeamId === team.id || team.status === 'Suspended'}
-                    className="p-1.5 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/40 disabled:opacity-40"
-                    title="Suspend Team"
-                  >
-                    <Ban className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    onClick={() => handleRemoveTeam(team.id)}
-                    disabled={updatingTeamId === team.id}
-                    className="p-1.5 rounded bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border border-red-800 disabled:opacity-40"
-                    title="Remove Team"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* 5. TEAM PROFILE & ROSTER MODAL VIEW */}
       {selectedTeam && (

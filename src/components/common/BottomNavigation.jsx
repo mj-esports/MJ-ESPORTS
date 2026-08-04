@@ -50,18 +50,18 @@ export default function BottomNavigation() {
                   )}
                   
                   {/* Icon Container */}
-                  <div className={`p-1 rounded-full transition-all duration-200 flex items-center justify-center ${
+                  <div className={`p-0.5 sm:p-1 rounded-full transition-all duration-200 flex items-center justify-center ${
                     isActive ? 'bg-[#00f2ff]/10' : ''
                   }`}>
                     <Icon
-                      className={`w-5 h-5 transition-transform duration-200 ${
+                      className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 ${
                         isActive ? 'scale-110 text-[#00f2ff]' : 'text-[#b9cacb]'
                       }`}
                     />
                   </div>
 
                   {/* Label */}
-                  <span className={`text-[10px] tracking-tight font-headline font-bold uppercase text-center truncate w-full block leading-none mt-0.5 ${
+                  <span className={`text-[8.5px] xs:text-[10px] tracking-tight font-headline font-bold uppercase text-center truncate w-full block leading-none mt-0.5 ${
                     isActive ? 'text-[#00f2ff]' : 'text-[#b9cacb]'
                   }`}>
                     {tab.name}

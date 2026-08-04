@@ -66,17 +66,17 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 sm:h-18">
           
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-md bg-[#00f2ff] p-[1px] shadow-[0_0_15px_rgba(0,242,255,0.4)] group-hover:scale-105 transition-transform">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-[#00f2ff] p-[1px] shadow-[0_0_15px_rgba(0,242,255,0.4)] group-hover:scale-105 transition-transform shrink-0">
               <div className="w-full h-full bg-[#0b0e11] rounded-[7px] flex items-center justify-center">
-                <Swords className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#00f2ff]" />
+                <Swords className="w-4 h-4 sm:w-5 sm:h-5 text-[#00f2ff]" />
               </div>
             </div>
-            <div>
-              <span className="font-headline text-base sm:text-xl font-bold tracking-wider text-white">
+            <div className="min-w-0">
+              <span className="font-headline text-sm sm:text-xl font-bold tracking-wider text-white truncate block">
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </span>
-              <span className="flex items-center gap-1 text-[8px] sm:text-[9px] uppercase font-bold tracking-widest text-[#fe6b00] -mt-0.5 sm:-mt-1 font-headline">
+              <span className="flex items-center gap-1 text-[7.5px] sm:text-[9px] uppercase font-bold tracking-widest text-[#fe6b00] -mt-0.5 sm:-mt-1 font-headline truncate">
                 <span>Free Fire & BGMI Arena</span>
               </span>
             </div>

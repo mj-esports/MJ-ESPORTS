@@ -208,7 +208,7 @@ export default function WalletPage() {
 
           {/* Available Balance Hero Card (Spans 7 cols) */}
           <div className="lg:col-span-7 bg-[#18181b]/60 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#00f2ff]/30 relative overflow-hidden shadow-[0_0_35px_-10px_rgba(34,211,238,0.25)] flex flex-col justify-between group">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f2ff]/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f2ff]/10 rounded-full blur-3xl transform-gpu pointer-events-none -z-10"></div>
 
             <div>
               <div className="flex items-center justify-between mb-4">

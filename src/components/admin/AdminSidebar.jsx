@@ -8,7 +8,9 @@ import {
   Settings,
   ChevronRight,
   Shield,
-  X
+  X,
+  Bell,
+  FileSpreadsheet
 } from 'lucide-react'
 
 export const NAV_ITEMS = [
@@ -23,6 +25,8 @@ export const NAV_ITEMS = [
     badgeColor: 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40',
   },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, badge: null },
+  { id: 'notifications', label: 'Notifications', icon: Bell, badge: null },
+  { id: 'audit', label: 'Audit Logs', icon: FileSpreadsheet, badge: null },
   { id: 'settings', label: 'Settings', icon: Settings, badge: null },
 ]
 

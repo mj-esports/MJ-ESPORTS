@@ -14,6 +14,8 @@ import TeamsView from '../components/admin/TeamsView'
 import ReportsView from '../components/admin/ReportsView'
 import AnalyticsView from '../components/admin/AnalyticsView'
 import SettingsView from '../components/admin/SettingsView'
+import AdminNotificationsView from '../components/admin/AdminNotificationsView'
+import AdminAuditLogsView from '../components/admin/AdminAuditLogsView'
 
 export default function AdminDashboardPage({ defaultTab }) {
   const {
@@ -29,7 +31,6 @@ export default function AdminDashboardPage({ defaultTab }) {
   const params = useParams()
   const location = useLocation()
 
-  // Primary 6 Tabs: dashboard, tournaments, players, payments, analytics, settings
   const resolveTab = () => {
     if (defaultTab) return defaultTab
     if (params.tab) {
@@ -82,7 +83,7 @@ export default function AdminDashboardPage({ defaultTab }) {
       />
 
       <div className="flex flex-1">
-        {/* Simplified 6-Item Sidebar */}
+        {/* Unified Sidebar */}
         <AdminSidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -188,7 +189,7 @@ export default function AdminDashboardPage({ defaultTab }) {
             )}
           </div>
 
-          {/* Main 6 View Pages */}
+          {/* Main View Pages */}
           <div className="space-y-6">
             {activeTab === 'dashboard' && (
               <DashboardOverview tournaments={tournaments} setActiveTab={setActiveTab} />
@@ -242,6 +243,10 @@ export default function AdminDashboardPage({ defaultTab }) {
                 {analyticsSubTab === 'reports' && <ReportsView tournaments={tournaments} />}
               </>
             )}
+
+            {activeTab === 'notifications' && <AdminNotificationsView />}
+
+            {activeTab === 'audit' && <AdminAuditLogsView />}
 
             {activeTab === 'settings' && <SettingsView />}
           </div>

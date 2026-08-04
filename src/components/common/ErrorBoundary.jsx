@@ -30,8 +30,8 @@ export default class ErrorBoundary extends Component {
 
       return (
         <div className="min-h-screen min-h-dvh flex-1 w-full bg-[#0b0e17] text-[#e1e2e7] flex items-center justify-center p-6 relative overflow-hidden font-sans">
-          {/* Cyberpunk aura background */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#ff3366]/10 rounded-full blur-3xl pointer-events-none" />
+          {/* Cyberpunk aura background - GPU accelerated with robust absolute inset centering */}
+          <div className="absolute inset-0 m-auto w-80 h-80 sm:w-96 sm:h-96 bg-[#ff3366]/10 rounded-full blur-3xl transform-gpu pointer-events-none -z-10" />
 
           <div className="bg-[#151a21] border border-[#ff3366]/40 rounded-2xl p-8 sm:p-12 text-center space-y-6 max-w-lg w-full shadow-[0_0_30px_rgba(255,51,102,0.2)] relative z-10">
             

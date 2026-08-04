@@ -128,7 +128,7 @@ export default function TournamentDetailPage() {
   return (
     <div className="w-full min-h-screen bg-[#0a0a0a] text-[#f5f5f5] font-body antialiased pb-24">
       {/* 1. STITCH HERO BANNER HEADER */}
-      <div className="relative w-full h-[409px] md:h-[512px] overflow-hidden">
+      <div className="relative w-full h-[300px] xs:h-[360px] md:h-[512px] overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-60"
           style={{
@@ -139,17 +139,17 @@ export default function TournamentDetailPage() {
           }}
         ></div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 max-w-7xl mx-auto flex flex-col justify-end">
-          <div className="inline-flex items-center gap-2 bg-[#111111]/50 backdrop-blur-sm border border-[#333333] px-3 py-1 rounded-full w-max mb-4">
+        <div className="absolute bottom-0 left-0 w-full p-4 sm:p-6 md:p-12 max-w-7xl mx-auto flex flex-col justify-end">
+          <div className="inline-flex items-center gap-2 bg-[#111111]/50 backdrop-blur-sm border border-[#333333] px-3 py-1 rounded-full w-max mb-3 sm:mb-4">
             <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></span>
-            <span className="text-xs font-label text-[#a3a3a3] uppercase tracking-wider">
+            <span className="text-[10px] xs:text-xs font-label text-[#a3a3a3] uppercase tracking-wider">
               {tournament.status || 'Registration Open'}
             </span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-headline font-black text-white tracking-tight mb-2 uppercase drop-shadow-lg">
+          <h1 className="text-2xl xs:text-3xl md:text-6xl font-headline font-black text-white tracking-tight mb-2 uppercase drop-shadow-lg leading-tight">
             {tournament.title}
           </h1>
-          <div className="flex flex-wrap gap-4 text-sm md:text-base font-label text-[#a3a3a3]">
+          <div className="flex flex-wrap gap-2.5 sm:gap-4 text-xs md:text-base font-label text-[#a3a3a3]">
             <span className="flex items-center gap-1.5">
               <Gamepad2 className="w-4 h-4 text-[#f97316]" />
               {tournament.game}
