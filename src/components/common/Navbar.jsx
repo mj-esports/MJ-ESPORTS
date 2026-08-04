@@ -103,11 +103,19 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
-                {/* Dynamic Wallet Balance Display Pill */}
-                <div className="bg-[#1d2023] flex items-center px-3 py-1.5 gap-2 rounded-md border border-[#3a494b] text-xs font-mono font-bold text-[#fe6b00]">
+                {/* Clickable Wallet Balance Navigation Link */}
+                <Link
+                  to="/wallet"
+                  className={`flex items-center px-3 py-1.5 gap-2 rounded-md border text-xs font-mono font-bold transition-all shadow-sm ${
+                    isActive('/wallet')
+                      ? 'bg-[#fe6b00]/20 border-[#fe6b00] text-[#fe6b00] shadow-[0_0_10px_rgba(254,107,0,0.3)]'
+                      : 'bg-[#1d2023] border-[#3a494b] text-[#fe6b00] hover:border-[#fe6b00]'
+                  }`}
+                  title="View Esports Wallet & Earnings"
+                >
                   <Wallet className="w-3.5 h-3.5 text-[#fe6b00]" />
                   <span>Wallet: ₹{Number(userWalletBalance).toFixed(2)}</span>
-                </div>
+                </Link>
 
                 {isAdmin && (
                   <Link
@@ -137,6 +145,19 @@ export default function Navbar() {
                       ADMIN
                     </span>
                   )}
+                </Link>
+
+                {/* Settings Link Button */}
+                <Link
+                  to="/settings"
+                  className={`p-2 rounded-md border text-xs transition-colors shadow-sm ${
+                    isActive('/settings')
+                      ? 'bg-[#00f2ff]/20 border-[#00f2ff] text-[#00f2ff]'
+                      : 'bg-[#1d2023] border-[#3a494b] text-[#b9cacb] hover:text-[#00f2ff] hover:border-[#00f2ff]'
+                  }`}
+                  title="Account Settings"
+                >
+                  <Settings className="w-4 h-4" />
                 </Link>
 
                 <button
@@ -191,7 +212,11 @@ export default function Navbar() {
           
           {/* User Status Card inside Drawer */}
           {isAuthenticated ? (
-            <div className="p-3.5 rounded-xl bg-[#151a21] border border-[#3a494b] flex items-center justify-between gap-2">
+            <Link
+              to="/wallet"
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-3.5 rounded-xl bg-[#151a21] border border-[#3a494b] hover:border-[#fe6b00] flex items-center justify-between gap-2 transition-colors block"
+            >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-10 h-10 rounded-full bg-[#fe6b00]/20 border border-[#fe6b00] overflow-hidden flex items-center justify-center shrink-0">
                   {userAvatarUrl ? (
@@ -202,15 +227,15 @@ export default function Navbar() {
                 </div>
                 <div className="min-w-0">
                   <span className="text-xs font-bold text-white block truncate max-w-[110px] xs:max-w-[160px]">{userDisplayName}</span>
-                  <span className="text-[10px] text-[#8e9dae] font-mono block truncate">
-                    Wallet: ₹{Number(userWalletBalance).toFixed(2)}
+                  <span className="text-[10px] text-[#fe6b00] font-mono font-bold block truncate">
+                    Wallet: ₹{Number(userWalletBalance).toFixed(2)} →
                   </span>
                 </div>
               </div>
               <span className="text-[10px] font-extrabold uppercase text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/40 px-2 py-0.5 rounded shrink-0">
                 {isAdmin ? 'ADMIN' : 'PLAYER'}
               </span>
-            </div>
+            </Link>
           ) : (
             <div className="p-3.5 rounded-xl bg-[#151a21] border border-[#3a494b] flex items-center justify-between gap-3">
               <span className="text-xs font-bold text-[#e1e2e7]">Join MJ ESPORTS</span>

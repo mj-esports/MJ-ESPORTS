@@ -15,7 +15,11 @@ import {
   ChevronDown,
   ChevronUp,
   Building2,
-  HelpCircle
+  HelpCircle,
+  Users,
+  MapPin,
+  Share2,
+  Bookmark
 } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -64,7 +68,7 @@ export default function TournamentDetailPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-[#0a0a0a] min-h-screen">
         <DetailSkeleton />
       </div>
     )
@@ -72,13 +76,15 @@ export default function TournamentDetailPage() {
 
   if (!tournament) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-20 text-center space-y-4">
-        <Trophy className="w-12 h-12 text-[#8e9dae] mx-auto opacity-50" />
-        <h2 className="font-display-lg text-2xl font-bold text-white uppercase">Tournament Not Found</h2>
-        <p className="text-xs text-[#8e9dae]">The tournament ID you requested does not exist or has been removed.</p>
-        <Link to="/tournaments" className="btn-cyber-primary inline-flex">
-          Back to Tournaments
-        </Link>
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+        <div className="max-w-md w-full text-center space-y-4 bg-[#111111] p-8 rounded-xl border border-[#333333]">
+          <Trophy className="w-12 h-12 text-[#a3a3a3] mx-auto opacity-50" />
+          <h2 className="font-headline text-2xl font-bold text-white uppercase">Tournament Not Found</h2>
+          <p className="text-xs text-[#a3a3a3]">The tournament ID you requested does not exist or has been removed.</p>
+          <Link to="/tournaments" className="inline-flex px-6 py-2.5 bg-[#f97316] text-white font-headline font-bold rounded-lg hover:bg-orange-600 transition-colors">
+            Back to Tournaments
+          </Link>
+        </div>
       </div>
     )
   }
@@ -120,409 +126,327 @@ export default function TournamentDetailPage() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-6 sm:space-y-8">
-      
-      {/* Back Button */}
-      <Link to="/tournaments" className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8e9dae] hover:text-[#00f2ff] uppercase tracking-wider transition-colors">
-        <ArrowLeft className="w-4 h-4" />
-        <span>Back to All Tournaments</span>
-      </Link>
-
-      {/* 1. HERO BANNER HEADER CARD */}
-      <div className="p-6 sm:p-10 rounded-xl bg-[#151a21] border border-[#3a494b]/60 space-y-6 relative overflow-hidden shadow-2xl">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded text-xs font-bold uppercase tracking-wider bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 flex items-center gap-1.5 shrink-0">
-              <Gamepad2 className="w-4 h-4" />
-              {tournament.game}
-            </span>
-            <span className="px-3 py-1 rounded text-xs font-bold uppercase tracking-wider bg-[#07090c] text-white border border-[#3a494b] shrink-0 font-mono">
-              {tournament.format} Mode
-            </span>
-          </div>
-          
-          {/* Registration Status Badge & Pulse */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {isAlreadyRegistered && (
-              <span className="px-3 py-1 rounded text-xs font-bold uppercase tracking-wider bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 flex items-center gap-1 shrink-0">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>You Are Registered</span>
-              </span>
-            )}
-
-            <span className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider border shrink-0 ${
-              tournament.status === 'Live Now'
-                ? 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40 animate-pulse'
-                : tournament.status === 'Registration Open'
-                ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
-                : 'bg-[#8e9dae]/10 text-[#8e9dae] border-[#8e9dae]/40'
-            }`}>
-              ● Status: {tournament.status}
+    <div className="w-full min-h-screen bg-[#0a0a0a] text-[#f5f5f5] font-body antialiased pb-24">
+      {/* 1. STITCH HERO BANNER HEADER */}
+      <div className="relative w-full h-[409px] md:h-[512px] overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-60"
+          style={{
+            backgroundImage: `url(${
+              tournament.imageUrl ||
+              'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80'
+            })`
+          }}
+        ></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 max-w-7xl mx-auto flex flex-col justify-end">
+          <div className="inline-flex items-center gap-2 bg-[#111111]/50 backdrop-blur-sm border border-[#333333] px-3 py-1 rounded-full w-max mb-4">
+            <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></span>
+            <span className="text-xs font-label text-[#a3a3a3] uppercase tracking-wider">
+              {tournament.status || 'Registration Open'}
             </span>
           </div>
-        </div>
-
-        {/* Tournament Title & Organizer */}
-        <div className="space-y-2">
-          <h1 className="font-display-lg text-2xl sm:text-5xl font-extrabold text-white tracking-tight uppercase leading-tight">
+          <h1 className="text-4xl md:text-6xl font-headline font-black text-white tracking-tight mb-2 uppercase drop-shadow-lg">
             {tournament.title}
           </h1>
-          <div className="flex items-center gap-4 text-xs text-[#8e9dae] flex-wrap">
+          <div className="flex flex-wrap gap-4 text-sm md:text-base font-label text-[#a3a3a3]">
             <span className="flex items-center gap-1.5">
-              <Building2 className="w-4 h-4 text-[#00f2ff]" />
-              <span>Organizer: <strong className="text-white">{tournament.organizer || 'MJ ESPORTS Official'}</strong></span>
+              <Gamepad2 className="w-4 h-4 text-[#f97316]" />
+              {tournament.game}
             </span>
-            <span>&bull;</span>
-            <span className="flex items-center gap-1.5 font-mono text-[#00ff9d]">
-              <Clock className="w-4 h-4" />
-              <span>Live Start: {tournament.startDate} ({tournament.startTime || '06:00 PM IST'})</span>
+            <span className="flex items-center gap-1.5">
+              <Users className="w-4 h-4 text-[#f97316]" />
+              {tournament.format || 'Squad'} Mode
+            </span>
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-[#f97316]" />
+              {tournament.map || 'Bermuda'}
             </span>
           </div>
         </div>
+      </div>
 
-        {/* 2. REGISTRATION PROGRESS METER */}
-        <div className="p-4 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-2">
-          <div className="flex justify-between items-center text-xs font-mono">
-            <span className="text-[#8e9dae] font-bold uppercase">Registration Slot Capacity</span>
-            <span className="font-extrabold text-[#00f2ff]">
-              {regTeams} / {maxTeams} Squads ({fillPercentage}%)
-            </span>
-          </div>
-          <div className="w-full bg-[#151a21] h-3 rounded-full overflow-hidden p-0.5 border border-[#3a494b]/60">
-            <div
-              className="bg-gradient-to-r from-[#00f2ff] via-[#00ff9d] to-[#fe6b00] h-full rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(0,242,255,0.4)]"
-              style={{ width: `${fillPercentage}%` }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Official Champion Winner Banner (when Completed) */}
-        {(tournament.status === 'Completed' || tournament.winnerTeam) && (
-          <div className="p-4 bg-[#fe6b00]/10 border-2 border-[#fe6b00] rounded-xl flex items-center justify-between gap-4 shadow-[0_0_25px_rgba(254,107,0,0.25)]">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#fe6b00] text-slate-950 flex items-center justify-center font-extrabold shadow-md shrink-0">
-                <Trophy className="w-5 h-5 text-slate-950" />
-              </div>
-              <div>
-                <span className="text-[10px] font-mono font-extrabold text-[#fe6b00] uppercase tracking-widest block">OFFICIAL TOURNAMENT CHAMPION</span>
-                <h3 className="font-display-lg text-lg sm:text-xl font-extrabold text-white uppercase">
-                  {tournament.winnerTeam || tournament.teamsList?.[0]?.name || 'Grand Champion'}
-                </h3>
-                {tournament.winnerCaptain && (
-                  <p className="text-xs text-[#ffb693]">Captain: <strong>{tournament.winnerCaptain}</strong></p>
-                )}
-              </div>
-            </div>
-            <span className="px-3 py-1 bg-[#fe6b00] text-slate-950 text-xs font-extrabold uppercase rounded shadow font-mono">
-              TOURNAMENT COMPLETED
-            </span>
-          </div>
-        )}
-
-        {/* Primary Action Buttons */}
-        <div className="pt-4 flex flex-wrap gap-4">
-          <button
-            onClick={handleRegisterClick}
-            disabled={isRegistrationDisabled}
-            className="btn-cyber-primary text-xs flex-1 sm:flex-none justify-center py-3.5 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
-          >
-            <Trophy className="w-4 h-4" />
-            <span>
-              {isAlreadyRegistered
-                ? 'Already Registered'
-                : isFull
-                ? 'Registration Full'
-                : isClosed
-                ? 'Registration Closed'
-                : 'Register Now'}
-            </span>
-          </button>
+      {/* 2. MAIN CONTENT AREA (2 COLS: OVERVIEW & STICKY SIDEBAR) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          <Link
-            to="/live"
-            className="px-6 py-3.5 bg-[#07090c] border border-[#3a494b] text-[#00f2ff] hover:bg-[#1d232c] font-bold rounded text-xs flex items-center justify-center gap-2 uppercase tracking-wider transition-colors min-h-[44px] flex-1 sm:flex-none"
-          >
-            <Radio className="w-4 h-4 text-[#fe6b00]" />
-            <span>Watch Live Stream</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* 3. TABS BAR */}
-      <div className="flex border-b border-[#3a494b]/60 overflow-x-auto text-xs font-bold uppercase tracking-wider scrollbar-hide">
-        {[
-          { id: 'overview', label: 'Overview & Details' },
-          { id: 'prizes', label: 'Prize Breakdown' },
-          { id: 'schedule', label: 'Match Schedule & Timeline' },
-          { id: 'standings', label: 'Points Table' },
-          { id: 'bracket', label: 'Knockout Bracket' },
-          { id: 'teams', label: `Registered Squads (${tournament.teamsList?.length || 0})` },
-          { id: 'faqs', label: 'Rules & FAQs' },
-        ].map((tab) => (
-          <button
-            key={`detail-tab-${tab.id}`}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-5 py-3.5 border-b-2 transition-all shrink-0 whitespace-nowrap font-mono ${
-              activeTab === tab.id
-                ? 'border-[#00f2ff] text-[#00f2ff] bg-[#00f2ff]/10 font-extrabold'
-                : 'border-transparent text-[#8e9dae] hover:text-white'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* 4. TAB CONTENT AREA */}
-      <div className="pt-4">
-        
-        {/* TAB 1: OVERVIEW & DETAILS */}
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            <div className="md:col-span-2 space-y-6">
-              
-              {/* About Section */}
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-3 shadow-xl">
-                <h3 className="font-display-lg text-base sm:text-lg font-bold text-white uppercase">About the Tournament</h3>
-                <p className="text-[#8e9dae] text-xs leading-relaxed">{tournament.description}</p>
-              </div>
-
-              {/* Custom Room Credentials Section */}
-              {tournament.roomStatus === 'Published' && (isAlreadyRegistered || isAdmin) ? (
-                <div className="bg-[#151a21] border border-[#00f2ff]/60 rounded-xl p-5 sm:p-6 space-y-4 shadow-[0_0_20px_rgba(0,242,255,0.15)]">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-display-lg text-base sm:text-lg font-bold text-white flex items-center gap-2 uppercase">
-                      <Key className="w-5 h-5 text-[#00f2ff]" />
-                      <span>Custom Match Room Credentials</span>
-                    </h3>
-                    <span className="px-2.5 py-1 rounded bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 text-[10px] font-mono font-bold uppercase">
-                      Broadcast Live
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#07090c] rounded-lg border border-[#3a494b]/60">
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-label-caps text-[#8e9dae] uppercase tracking-wider block">Room ID</span>
-                      <div className="flex items-center justify-between bg-[#151a21] px-3 py-2 rounded border border-[#3a494b]">
-                        <span className="font-mono text-base font-extrabold text-[#00f2ff]">{tournament.roomId || 'Not set'}</span>
-                        {tournament.roomId && (
-                          <button onClick={() => handleCopy(tournament.roomId, 'Room ID')} className="p-1.5 hover:bg-[#3a494b] text-[#00f2ff] rounded">
-                            <Copy className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-label-caps text-[#8e9dae] uppercase tracking-wider block">Password</span>
-                      <div className="flex items-center justify-between bg-[#151a21] px-3 py-2 rounded border border-[#3a494b]">
-                        <span className="font-mono text-base font-extrabold text-[#fe6b00]">{tournament.roomPassword || 'Not set'}</span>
-                        {tournament.roomPassword && (
-                          <button onClick={() => handleCopy(tournament.roomPassword, 'Password')} className="p-1.5 hover:bg-[#3a494b] text-[#fe6b00] rounded">
-                            <Copy className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2 shadow-xl">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#b9cacb] uppercase">
-                    <Lock className="w-4 h-4 text-[#fe6b00]" />
-                    <span>Room Credentials Protected</span>
-                  </div>
-                  <p className="text-xs text-[#8e9dae] leading-relaxed">
-                    Custom Room ID and Password will be published live to registered squad members prior to match start time.
-                  </p>
-                </div>
-              )}
-
-              {/* Tournament Timeline Tracker */}
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-4 shadow-xl">
-                <h3 className="font-display-lg text-base font-bold text-white uppercase flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-[#00f2ff]" />
-                  <span>Tournament Timeline Stages</span>
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs font-mono">
-                  <div className="p-3 bg-[#07090c] rounded border border-[#00f2ff]/40 space-y-1">
-                    <span className="text-[9px] text-[#00f2ff] uppercase font-bold block">Stage 1</span>
-                    <span className="font-bold text-white block">Slot Registration</span>
-                    <span className="text-[10px] text-[#00ff9d]">Active Now</span>
-                  </div>
-                  <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/40 space-y-1">
-                    <span className="text-[9px] text-[#8e9dae] uppercase font-bold block">Stage 2</span>
-                    <span className="font-bold text-white block">Roster Verification</span>
-                    <span className="text-[10px] text-[#8e9dae]">Upcoming</span>
-                  </div>
-                  <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/40 space-y-1">
-                    <span className="text-[9px] text-[#8e9dae] uppercase font-bold block">Stage 3</span>
-                    <span className="font-bold text-white block">Room Dispatch</span>
-                    <span className="text-[10px] text-[#8e9dae]">Upcoming</span>
-                  </div>
-                  <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/40 space-y-1">
-                    <span className="text-[9px] text-[#8e9dae] uppercase font-bold block">Stage 4</span>
-                    <span className="font-bold text-white block">Live Match Operations</span>
-                    <span className="text-[10px] text-[#8e9dae]">Upcoming</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Sidebar Summary & Organizer */}
-            <div className="space-y-6">
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-4 shadow-xl">
-                <h3 className="font-label-caps text-xs font-bold text-white uppercase tracking-widest">Tournament Specs</h3>
-                <div className="space-y-3 text-xs font-mono">
-                  <div className="flex justify-between py-2 border-b border-[#3a494b]/40">
-                    <span className="text-[#8e9dae]">Organizer</span>
-                    <span className="text-[#00f2ff] font-bold">{tournament.organizer || 'MJ ESPORTS Official'}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-[#3a494b]/40">
-                    <span className="text-[#8e9dae]">Game Title</span>
-                    <span className="text-[#00f2ff] font-bold">{tournament.game}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-[#3a494b]/40">
-                    <span className="text-[#8e9dae]">Match Mode</span>
-                    <span className="text-white font-semibold">{tournament.format}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-[#3a494b]/40">
-                    <span className="text-[#8e9dae]">Prize Pool</span>
-                    <span className="text-[#ffb693] font-extrabold">{tournament.prizePool}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-[#3a494b]/40">
-                    <span className="text-[#8e9dae]">Entry Fee</span>
-                    <span className="text-[#00ff9d] font-bold">{tournament.entryFee || 'Free'}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 2: PRIZE BREAKDOWN */}
-        {activeTab === 'prizes' && (
-          <div className="space-y-6">
-            <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 space-y-4 shadow-xl">
-              <h3 className="font-display-lg text-lg font-bold text-white uppercase flex items-center gap-2">
-                <Award className="w-6 h-6 text-[#fe6b00]" />
-                <span>Prize Pool Allocation ({tournament.prizePool})</span>
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {prizeBreakdown.map((item, idx) => (
-                  <div key={`prize-${idx}`} className="p-5 bg-[#07090c] border border-[#3a494b] rounded-xl text-center space-y-2">
-                    <span className="text-xs font-mono font-bold text-[#8e9dae] uppercase block">{item.place}</span>
-                    <span className="font-display-lg text-2xl font-extrabold text-[#ffb693] block">{item.amount}</span>
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-extrabold bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/40 inline-block uppercase">
-                      {item.share}
-                    </span>
-                  </div>
+          {/* LEFT COLUMN: DETAILS & TABS */}
+          <div className="lg:col-span-2 space-y-8">
+            
+            {/* Tabs Header */}
+            <div className="border-b border-[#333333] overflow-x-auto hide-scrollbar">
+              <nav aria-label="Tabs" className="flex gap-6 min-w-max">
+                {[
+                  { id: 'overview', label: 'Overview' },
+                  { id: 'rules', label: 'Rules' },
+                  { id: 'schedule', label: 'Schedule' },
+                  { id: 'teams', label: 'Registered Squads' },
+                  { id: 'faqs', label: 'FAQs' },
+                ].map((tab) => (
+                  <button
+                    key={`detail-tab-${tab.id}`}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`font-headline text-lg py-4 px-1 transition-colors ${
+                      activeTab === tab.id
+                        ? 'font-bold text-[#f97316] border-b-2 border-[#f97316]'
+                        : 'font-medium text-[#a3a3a3] hover:text-white'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
                 ))}
-              </div>
+              </nav>
             </div>
-          </div>
-        )}
 
-        {/* TAB 3: MATCH SCHEDULE & TIMELINE */}
-        {activeTab === 'schedule' && (
-          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 space-y-4 shadow-xl">
-            <h3 className="font-display-lg text-lg font-bold text-white uppercase flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-[#00f2ff]" />
-              <span>Match Schedule Timeline</span>
-            </h3>
-            <div className="space-y-3 font-mono text-xs">
-              <div className="p-4 bg-[#07090c] rounded-lg border border-[#3a494b]/60 flex items-center justify-between">
-                <div>
-                  <span className="text-[#00f2ff] font-bold block uppercase">Group Stage - Round 1</span>
-                  <span className="text-[#8e9dae] text-[11px]">{tournament.startDate} @ {tournament.startTime || '06:00 PM IST'}</span>
-                </div>
-                <span className="px-2 py-1 rounded bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 font-bold uppercase text-[10px]">
-                  Scheduled
-                </span>
-              </div>
-              <div className="p-4 bg-[#07090c] rounded-lg border border-[#3a494b]/60 flex items-center justify-between">
-                <div>
-                  <span className="text-[#00f2ff] font-bold block uppercase">Grand Finals - Championship Match</span>
-                  <span className="text-[#8e9dae] text-[11px]">{tournament.startDate} @ 08:30 PM IST</span>
-                </div>
-                <span className="px-2 py-1 rounded bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/40 font-bold uppercase text-[10px]">
-                  Upcoming
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
+            {/* TAB 1: OVERVIEW */}
+            {activeTab === 'overview' && (
+              <section className="space-y-6">
+                <h2 className="text-2xl font-headline font-bold text-white">Tournament Overview</h2>
+                <p className="text-[#a3a3a3] leading-relaxed font-body">
+                  {tournament.description ||
+                    'Welcome to the ultimate Free Fire MAX battleground. The Pro Championship brings together the top squads to compete for glory and a massive prize pool. Show your skills, coordinate with your team, and survive to become the champion.'}
+                </p>
 
-        {/* TAB 4: STANDINGS */}
-        {activeTab === 'standings' && <PointsTable teams={tournament.teamsList} />}
-
-        {/* TAB 5: KNOCKOUT BRACKET */}
-        {activeTab === 'bracket' && <BracketViewer bracket={tournament.bracketData} />}
-
-        {/* TAB 6: REGISTERED SQUADS */}
-        {activeTab === 'teams' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {tournament.teamsList && tournament.teamsList.length > 0 ? (
-              tournament.teamsList.map((t, idx) => (
-                <div key={`squad-${idx}`} className="p-4 bg-[#151a21] border border-[#3a494b]/60 rounded-xl flex flex-col justify-between space-y-3 text-xs shadow-xl">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
-                      {t.mode || 'Squad'} Mode
-                    </span>
-                    <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
-                      t.status === 'Confirmed' || t.status === 'Approved'
-                        ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
-                        : 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40'
-                    }`}>
-                      {t.status || 'Confirmed'}
-                    </span>
+                {/* Info Bento Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-[#1a1a1a] rounded-xl p-6 border border-[#333333] hover:border-[#333333]/80 transition-colors">
+                    <div className="flex items-center gap-3 mb-2 text-[#f97316]">
+                      <Award className="w-5 h-5 text-[#f97316]" />
+                      <h3 className="font-headline font-semibold text-white">Prize Pool</h3>
+                    </div>
+                    <p className="text-3xl font-display font-black text-white">{tournament.prizePool || '₹25,000'}</p>
+                    <p className="text-sm text-[#a3a3a3] mt-1">Distributed among top 3 teams</p>
                   </div>
 
-                  <div className="space-y-1">
-                    <h4 className="font-extrabold text-white text-sm">{t.name}</h4>
-                    <p className="text-[#8e9dae] text-[11px]">Captain: <strong className="text-[#e1e2e7]">{t.captain}</strong></p>
+                  <div className="bg-[#1a1a1a] rounded-xl p-6 border border-[#333333] hover:border-[#333333]/80 transition-colors">
+                    <div className="flex items-center gap-3 mb-2 text-white">
+                      <Calendar className="w-5 h-5 text-[#f97316]" />
+                      <h3 className="font-headline font-semibold text-white">Date & Time</h3>
+                    </div>
+                    <p className="text-lg font-medium text-white">{tournament.startDate || 'Nov 25, 2024'}</p>
+                    <p className="text-sm text-[#a3a3a3] mt-1">Starts at {tournament.startTime || '6:00 PM IST'}</p>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="col-span-full p-8 text-center bg-[#151a21] border border-[#3a494b] rounded-xl text-[#8e9dae] text-xs">
-                No teams registered yet. Be the first squad to book a slot!
+
+                {/* Slot Capacity Progress Bar Box */}
+                <div className="bg-[#1a1a1a] p-6 rounded-xl border border-[#333333] mt-6 space-y-3">
+                  <div className="flex justify-between items-end mb-2">
+                    <div>
+                      <h4 className="font-headline font-semibold text-white">Slot Capacity</h4>
+                      <p className="text-sm text-[#a3a3a3]">
+                        {regTeams} / {maxTeams} Squads registered
+                      </p>
+                    </div>
+                    <span className="text-[#f97316] font-bold">{fillPercentage}% Full</span>
+                  </div>
+                  <div className="w-full bg-[#262626] rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className="bg-[#f97316] h-2.5 rounded-full transition-all duration-500"
+                      style={{ width: `${fillPercentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Custom Room Credentials (If Published) */}
+                {tournament.roomStatus === 'Published' && (isAlreadyRegistered || isAdmin) ? (
+                  <div className="bg-[#111111] border border-[#f97316]/60 rounded-xl p-6 space-y-4 shadow-[0_0_20px_rgba(249,115,22,0.15)]">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-headline text-lg font-bold text-white flex items-center gap-2 uppercase">
+                        <Key className="w-5 h-5 text-[#f97316]" />
+                        <span>Custom Match Room Credentials</span>
+                      </h3>
+                      <span className="px-2.5 py-1 rounded bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/40 text-xs font-mono font-bold uppercase">
+                        Broadcast Live
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#1a1a1a] rounded-lg border border-[#333333]">
+                      <div className="space-y-1">
+                        <span className="text-xs text-[#a3a3a3] uppercase block font-label">Room ID</span>
+                        <div className="flex items-center justify-between bg-[#111111] px-3 py-2 rounded border border-[#333333]">
+                          <span className="font-mono text-base font-extrabold text-[#f97316]">{tournament.roomId || 'Not set'}</span>
+                          {tournament.roomId && (
+                            <button onClick={() => handleCopy(tournament.roomId, 'Room ID')} className="p-1.5 hover:bg-[#262626] text-[#f97316] rounded">
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="text-xs text-[#a3a3a3] uppercase block font-label">Password</span>
+                        <div className="flex items-center justify-between bg-[#111111] px-3 py-2 rounded border border-[#333333]">
+                          <span className="font-mono text-base font-extrabold text-white">{tournament.roomPassword || 'Not set'}</span>
+                          {tournament.roomPassword && (
+                            <button onClick={() => handleCopy(tournament.roomPassword, 'Password')} className="p-1.5 hover:bg-[#262626] text-white rounded">
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* Tactical Map Banner */}
+                <div className="mt-8 rounded-xl overflow-hidden border border-[#333333] shadow-lg">
+                  <div
+                    className="bg-cover bg-center w-full h-48 sm:h-64"
+                    style={{
+                      backgroundImage: `url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80')`
+                    }}
+                  ></div>
+                </div>
+              </section>
+            )}
+
+            {/* TAB 2: RULES */}
+            {activeTab === 'rules' && (
+              <div className="bg-[#1a1a1a] rounded-xl border border-[#333333] p-6 space-y-4">
+                <h3 className="text-xl font-headline font-bold text-white">Official Tournament Rules</h3>
+                <ul className="space-y-3 text-sm text-[#a3a3a3] list-disc pl-5">
+                  <li>All players must be present in the custom room 10 minutes prior to match start.</li>
+                  <li>Emulators are strictly prohibited unless explicitly specified in the tournament mode.</li>
+                  <li>Hacking, cheating, or exploiting bugs will result in immediate disqualification and account ban.</li>
+                  <li>Team captains are responsible for submitting final score screenshots to tournament refs.</li>
+                </ul>
               </div>
             )}
-          </div>
-        )}
 
-        {/* TAB 7: RULES & FAQS */}
-        {activeTab === 'faqs' && (
-          <div className="space-y-6">
-            <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 space-y-4 shadow-xl">
-              <h3 className="font-display-lg text-lg font-bold text-white uppercase flex items-center gap-2">
-                <HelpCircle className="w-5 h-5 text-[#00f2ff]" />
-                <span>Frequently Asked Questions</span>
-              </h3>
-              <div className="space-y-3">
-                {faqs.map((faq, idx) => (
-                  <div key={`faq-${idx}`} className="bg-[#07090c] border border-[#3a494b]/60 rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => setOpenFaqIndex(openFaqIndex === idx ? -1 : idx)}
-                      className="w-full p-4 text-left text-xs font-bold text-white uppercase flex justify-between items-center hover:text-[#00f2ff]"
-                    >
-                      <span>{faq.q}</span>
-                      {openFaqIndex === idx ? <ChevronUp className="w-4 h-4 text-[#00f2ff]" /> : <ChevronDown className="w-4 h-4 text-[#8e9dae]" />}
-                    </button>
-                    {openFaqIndex === idx && (
-                      <div className="p-4 pt-0 text-xs text-[#8e9dae] leading-relaxed border-t border-[#3a494b]/40">
-                        {faq.a}
-                      </div>
-                    )}
+            {/* TAB 3: SCHEDULE */}
+            {activeTab === 'schedule' && (
+              <div className="bg-[#1a1a1a] rounded-xl border border-[#333333] p-6 space-y-4">
+                <h3 className="text-xl font-headline font-bold text-white">Match Timeline</h3>
+                <div className="space-y-3 font-mono text-xs">
+                  <div className="p-4 bg-[#111111] rounded-lg border border-[#333333] flex items-center justify-between">
+                    <div>
+                      <span className="text-[#f97316] font-bold block uppercase">Group Stage - Round 1</span>
+                      <span className="text-[#a3a3a3] text-[11px]">{tournament.startDate} @ {tournament.startTime || '6:00 PM IST'}</span>
+                    </div>
+                    <span className="px-2.5 py-1 rounded bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/40 font-bold uppercase text-[10px]">
+                      Scheduled
+                    </span>
                   </div>
-                ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 4: REGISTERED SQUADS */}
+            {activeTab === 'teams' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {tournament.teamsList && tournament.teamsList.length > 0 ? (
+                  tournament.teamsList.map((t, idx) => (
+                    <div key={`squad-${idx}`} className="p-4 bg-[#1a1a1a] border border-[#333333] rounded-xl space-y-2">
+                      <div className="flex justify-between items-center">
+                        <h4 className="font-bold text-[#f5f5f5] text-sm">{t.name}</h4>
+                        <span className="text-xs text-[#22c55e] font-bold">Confirmed</span>
+                      </div>
+                      <p className="text-xs text-[#a3a3a3]">Captain: <strong className="text-[#f5f5f5]">{t.captain}</strong></p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-full p-8 text-center bg-[#1a1a1a] border border-[#333333] rounded-xl text-[#a3a3a3] text-xs">
+                    No teams registered yet. Be the first squad to book a slot!
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 5: FAQS */}
+            {activeTab === 'faqs' && (
+              <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 space-y-4">
+                <h3 className="text-xl font-headline font-bold text-white">Frequently Asked Questions</h3>
+                <div className="space-y-3">
+                  {faqs.map((faq, idx) => (
+                    <div key={`faq-${idx}`} className="bg-[#111111] border border-[#333333] rounded-lg overflow-hidden">
+                      <button
+                        onClick={() => setOpenFaqIndex(openFaqIndex === idx ? -1 : idx)}
+                        className="w-full p-4 text-left text-xs font-bold text-white uppercase flex justify-between items-center hover:text-[#f97316]"
+                      >
+                        <span>{faq.q}</span>
+                        {openFaqIndex === idx ? <ChevronUp className="w-4 h-4 text-[#f97316]" /> : <ChevronDown className="w-4 h-4 text-[#a3a3a3]" />}
+                      </button>
+                      {openFaqIndex === idx && (
+                        <div className="p-4 pt-0 text-xs text-[#a3a3a3] leading-relaxed border-t border-[#333333]">
+                          {faq.a}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* RIGHT COLUMN: STICKY SIDEBAR (Stitch Exact Layout) */}
+          <div className="relative">
+            <div className="sticky top-24 bg-[#1a1a1a] rounded-xl border border-[#333333] p-6 shadow-xl backdrop-blur-md bg-opacity-90 flex flex-col gap-6">
+              <div>
+                <h3 className="text-xl font-headline font-bold text-white border-b border-[#333333] pb-4 mb-4">
+                  Registration Summary
+                </h3>
+                <ul className="space-y-4 font-body text-sm">
+                  <li className="flex justify-between items-center">
+                    <span className="text-[#a3a3a3]">Entry Fee</span>
+                    <span className="font-semibold text-white">{tournament.entryFee || 'Free'} / Squad</span>
+                  </li>
+                  <li className="flex justify-between items-center">
+                    <span className="text-[#a3a3a3]">Platform</span>
+                    <span className="font-semibold text-white">Mobile</span>
+                  </li>
+                  <li className="flex justify-between items-center">
+                    <span className="text-[#a3a3a3]">Format</span>
+                    <span className="font-semibold text-white">{tournament.format || 'Custom Room'}</span>
+                  </li>
+                  <li className="flex justify-between items-center">
+                    <span className="text-[#a3a3a3]">Registration Ends</span>
+                    <span className="font-semibold text-white">{tournament.startDate || 'Nov 24, 11:59 PM'}</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-4 border-t border-[#333333]">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="font-bold text-lg text-white">Total</span>
+                  <span className="font-display font-black text-2xl text-[#f97316]">
+                    {tournament.entryFee || 'Free'}
+                  </span>
+                </div>
+                <button
+                  onClick={handleRegisterClick}
+                  disabled={isRegistrationDisabled}
+                  className="w-full bg-[#f97316] text-white font-headline font-bold text-lg py-4 rounded-xl hover:bg-orange-600 transition-colors shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAlreadyRegistered
+                    ? 'Already Registered'
+                    : isFull
+                    ? 'Registration Full'
+                    : isClosed
+                    ? 'Registration Closed'
+                    : 'Register Squad Now'}
+                </button>
+                <p className="text-center text-xs text-[#a3a3a3] mt-3">
+                  By registering, you agree to the tournament rules.
+                </p>
+              </div>
+
+              {/* Share & Save Actions */}
+              <div className="flex justify-center gap-6 pt-4 border-t border-[#333333]">
+                <button
+                  onClick={() => handleCopy(window.location.href, 'Tournament Link')}
+                  className="text-[#a3a3a3] hover:text-[#f97316] transition-colors p-2 flex flex-col items-center gap-1 text-xs"
+                >
+                  <Share2 className="w-4 h-4" /> Share
+                </button>
+                <button className="text-[#a3a3a3] hover:text-[#f97316] transition-colors p-2 flex flex-col items-center gap-1 text-xs">
+                  <Bookmark className="w-4 h-4" /> Save
+                </button>
               </div>
             </div>
           </div>
-        )}
 
+        </div>
       </div>
 
       {/* Slot Booking Modal */}

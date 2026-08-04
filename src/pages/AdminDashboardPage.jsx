@@ -72,7 +72,7 @@ export default function AdminDashboardPage({ defaultTab }) {
   const activeNavItem = NAV_ITEMS.find((item) => item.id === activeTab) || NAV_ITEMS[0]
 
   return (
-    <div className="min-h-screen bg-[#07090c] text-[#e1e2e7] flex flex-col">
+    <div className="min-h-screen min-h-dvh bg-[#09090b] text-[#f8fafc] font-body selection:bg-[#00f2ff] selection:text-black flex flex-col antialiased">
       
       {/* Compact Admin Header */}
       <AdminHeader
@@ -94,19 +94,22 @@ export default function AdminDashboardPage({ defaultTab }) {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
           
           {/* Compact Active Tab Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 sm:p-3.5 shadow-md">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
-                <activeNavItem.icon className="w-3.5 h-3.5" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+                <activeNavItem.icon className="w-4 h-4" />
               </div>
-              <h2 className="font-display-lg text-sm sm:text-base font-extrabold text-white uppercase tracking-wider">
-                {activeNavItem.label} Console
-              </h2>
+              <div>
+                <h2 className="font-headline text-sm sm:text-base font-black text-white uppercase tracking-wider">
+                  {activeNavItem.label} Console
+                </h2>
+                <p className="text-[11px] text-[#a1a1aa] font-mono">Real-time match operations & telemetry stream</p>
+              </div>
             </div>
 
             {/* Sub-Tab Navigation for Advanced Options */}
             {activeTab === 'tournaments' && (
-              <div className="flex items-center bg-[#07090c] p-1 rounded-lg border border-[#3a494b]/60 text-xs font-mono font-bold">
+              <div className="flex items-center bg-[#09090b] p-1 rounded-xl border border-[#27272a] text-xs font-mono font-bold">
                 <button
                   onClick={() => setTournamentsSubTab('center')}
                   className={`px-3 py-1.5 rounded-md transition-all ${

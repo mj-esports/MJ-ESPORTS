@@ -3,7 +3,7 @@ import { Swords } from 'lucide-react'
 
 export default function AuthLayout() {
   return (
-    <div className="min-h-screen bg-[#07090c] text-[#e1e2e7] flex flex-col justify-between font-sans selection:bg-[#00f2ff] selection:text-slate-950 overflow-x-hidden w-full">
+    <div className="min-h-screen min-h-dvh bg-[#07090c] text-[#e1e2e7] flex flex-col justify-between font-sans selection:bg-[#00f2ff] selection:text-slate-950 overflow-x-hidden w-full">
       
       {/* Top Auth Header Bar (Standalone Minimal Navigation) */}
       <header className="sticky top-0 z-50 bg-[#0f1318]/80 backdrop-blur-xl border-b border-[#3a494b]/60 h-16 px-4 sm:px-8 flex justify-between items-center shadow-lg">

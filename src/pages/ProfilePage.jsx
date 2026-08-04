@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTournaments } from '../contexts/TournamentContext'
 import { useToast } from '../contexts/ToastContext'
+import { supabase } from '../lib/supabase'
 import {
   User,
   Copy,
@@ -17,7 +18,16 @@ import {
   Award,
   ShieldCheck,
   ArrowRight,
-  X
+  X,
+  Lock,
+  Eye,
+  EyeOff,
+  Gamepad2,
+  History,
+  Activity,
+  Bell,
+  Link as LinkIcon,
+  Shield
 } from 'lucide-react'
 
 export default function ProfilePage() {
@@ -31,9 +41,89 @@ export default function ProfilePage() {
   const [avatarInput, setAvatarInput] = useState('')
   const [isSaving, setIsSaving] = useState(false)
 
-  const displayName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Esports Player'
-  const freeFireUid = user?.user_metadata?.freeFireUid || user?.user_metadata?.game_uid || '1092837482'
-  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.avatarUrl || ''
+  const [activeGameTab, setActiveGameTab] = useState('BGMI')
+
+  // Security & Password Change States
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [passwordStatusMsg, setPasswordStatusMsg] = useState({ type: '', text: '' })
+
+  // Notification Preferences States
+  const [notifications, setNotifications] = useState({
+    matchAlerts: true,
+    resultUpdates: true,
+    promotionalOffers: false,
+  })
+
+  const displayName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Neo_Striker'
+  const freeFireUid = user?.user_metadata?.freeFireUid || user?.user_metadata?.game_uid || '88472910'
+  const avatarUrl =
+    user?.user_metadata?.avatar_url ||
+    user?.user_metadata?.avatarUrl ||
+    'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=400&q=80'
+
+  // Dynamic Password Strength Meter Calculation
+  const passwordStrength = useMemo(() => {
+    if (!newPassword) return { width: '0%', label: '', color: 'bg-transparent' }
+    let score = 0
+    if (newPassword.length >= 6) score += 1
+    if (newPassword.length >= 10) score += 1
+    if (/[A-Z]/.test(newPassword)) score += 1
+    if (/[0-9]/.test(newPassword)) score += 1
+    if (/[^A-Za-z0-9]/.test(newPassword)) score += 1
+
+    if (score <= 2) return { width: '33%', label: 'Weak', color: 'bg-[#ff3366]' }
+    if (score <= 4) return { width: '66%', label: 'Medium', color: 'bg-[#fe6b00]' }
+    return { width: '100%', label: 'Strong', color: 'bg-[#00ff9d]' }
+  }, [newPassword])
+
+  const handlePasswordChangeSubmit = async (e) => {
+    e.preventDefault()
+    setPasswordStatusMsg({ type: '', text: '' })
+
+    if (!currentPassword) {
+      setPasswordStatusMsg({ type: 'error', text: 'Current password is required.' })
+      return
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordStatusMsg({ type: 'error', text: 'New password must be at least 6 characters long.' })
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordStatusMsg({ type: 'error', text: 'New password and confirm password do not match.' })
+      return
+    }
+
+    setIsChangingPassword(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+
+      if (error) {
+        throw error
+      }
+
+      showSuccess('Password updated successfully.', 'Security Updated')
+      setPasswordStatusMsg({ type: 'success', text: 'Password updated successfully.' })
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (err) {
+      const errMsg = err.message || 'Failed to update password. Please check your credentials.'
+      showError(errMsg, 'Security Error')
+      setPasswordStatusMsg({ type: 'error', text: errMsg })
+    } finally {
+      setIsChangingPassword(false)
+    }
+  }
 
   // Current active / registered tournaments
   const userRegistrations = useMemo(() => {
@@ -43,29 +133,6 @@ export default function ProfilePage() {
   }, [tournaments, isUserRegistered, user])
 
   const currentTournament = userRegistrations[0] || null
-
-  // Statistics calculation
-  const stats = useMemo(() => {
-    const matchesPlayed = userRegistrations.length
-    const wins = userRegistrations.filter((t) => t.status === 'Completed' || t.winnerTeam).length
-    const kills = matchesPlayed * 5 + (wins > 0 ? 12 : 0)
-    const winRate = matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0
-    const totalEarningsNum = userRegistrations.reduce((acc, t) => {
-      if (t.status === 'Completed' || t.winnerTeam) {
-        const prizeNum = parseInt((t.prizePool || t.prize_pool || '0').replace(/[^0-9]/g, ''), 10) || 0
-        return acc + Math.round(prizeNum * 0.5)
-      }
-      return acc
-    }, 0)
-
-    return {
-      matchesPlayed,
-      wins,
-      kills,
-      winRate: `${winRate}%`,
-      totalEarnings: `₹${totalEarningsNum.toLocaleString()}`,
-    }
-  }, [userRegistrations])
 
   const handleCopyUid = () => {
     if (!freeFireUid) return
@@ -100,265 +167,407 @@ export default function ProfilePage() {
     }
   }
 
-  const achievementBadges = [
-    { name: 'Verified Competitor', icon: ShieldCheck, color: 'text-[#00ff9d] bg-[#00ff9d]/10 border-[#00ff9d]/40' },
-    { name: 'Apex Fragger', icon: Flame, color: 'text-[#fe6b00] bg-[#fe6b00]/10 border-[#fe6b00]/40' },
-    { name: 'Tournament Winner', icon: Trophy, color: 'text-[#ffb693] bg-[#ffb693]/10 border-[#ffb693]/40' },
-    { name: 'Fair Play Certified', icon: Award, color: 'text-[#00f2ff] bg-[#00f2ff]/10 border-[#00f2ff]/40' },
-  ]
-
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 isolate relative">
+    <div className="bg-[#050505] text-white font-body min-h-screen pb-20 antialiased">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-12">
 
-      {/* 1. HEADER: PHOTO, PLAYER NAME, UID & EDIT BUTTON */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-xl relative overflow-hidden">
-        <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
-          {/* Profile Photo */}
-          <div className="w-20 h-20 rounded-full bg-[#00f2ff]/20 border-2 border-[#00f2ff] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,242,255,0.35)] overflow-hidden">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-            ) : (
-              <User className="w-10 h-10 text-[#00f2ff]" />
-            )}
-          </div>
+        {/* 1. STITCH HERO PROFILE SECTION */}
+        <div className="relative w-full rounded-2xl overflow-hidden border border-[#00f2ff]/20 shadow-[0_0_20px_rgba(0,242,255,0.1)] bg-[#0A0A0A]">
+          {/* Cover Background Image */}
+          <div
+            className="h-64 sm:h-80 w-full bg-cover bg-center opacity-60"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80')`,
+            }}
+          ></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent"></div>
 
-          <div className="space-y-1">
-            {/* Player Name */}
-            <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
-              <h1 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
-                {displayName}
-              </h1>
-              <span className="px-2 py-0.5 rounded text-[9px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase tracking-widest flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> VERIFIED
-              </span>
+          {/* Avatar & Primary Info Floating Overlay */}
+          <div className="p-6 sm:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10 -mt-24 sm:-mt-28">
+            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 text-center sm:text-left">
+              <div className="relative">
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl border-4 border-[#0A0A0A] object-cover shadow-[0_0_25px_rgba(0,242,255,0.4)]"
+                />
+                <div className="absolute -bottom-2 -right-2 bg-[#00f2ff] text-black text-xs font-black px-2.5 py-1 rounded-md transform rotate-3 border border-[#0A0A0A] font-headline">
+                  PRO
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
+                  <h1 className="text-2xl sm:text-4xl font-headline font-black text-white tracking-tight uppercase">
+                    {displayName}
+                  </h1>
+                  <span className="px-2.5 py-0.5 rounded text-[10px] font-black bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase tracking-widest flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> VERIFIED
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 justify-center sm:justify-start font-mono text-xs text-[#00f2ff]">
+                  <span>ID: <strong className="text-white">{freeFireUid}</strong></span>
+                  <button onClick={handleCopyUid} title="Copy UID" className="p-1 hover:text-white transition-colors">
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Game UID */}
-            <div className="flex items-center gap-2 justify-center sm:justify-start font-mono text-xs text-[#8e9dae]">
-              <span>UID: <strong className="text-[#00f2ff]">{freeFireUid}</strong></span>
+            <div className="flex items-center gap-3 w-full md:w-auto">
               <button
-                onClick={handleCopyUid}
-                title="Copy UID"
-                className="p-1 hover:bg-[#07090c] rounded text-[#00f2ff] transition-colors"
+                onClick={openEditModal}
+                className="w-full md:w-auto px-6 py-2.5 bg-[#00f2ff]/10 hover:bg-[#00f2ff]/20 text-[#00f2ff] border border-[#00f2ff]/30 rounded-lg text-sm font-bold shadow-[0_0_10px_rgba(0,242,255,0.1)] transition-all flex items-center justify-center gap-2 uppercase tracking-wider min-h-[44px]"
               >
-                <Copy className="w-3.5 h-3.5" />
+                <Edit3 className="w-4 h-4" />
+                <span>Edit Profile</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Edit Profile Button */}
-        <button
-          onClick={openEditModal}
-          className="btn-cyber-primary text-xs w-full sm:w-auto min-h-[44px] shrink-0"
-        >
-          <Edit3 className="w-4 h-4" />
-          <span>Edit Profile</span>
-        </button>
-      </div>
+        {/* 2. STITCH BENTO GRID LAYOUT */}
+        <div className="grid grid-cols-12 gap-6">
 
-      {/* 2. CURRENT TOURNAMENT */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 sm:p-5 space-y-3 shadow-xl">
-        <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2.5">
-          <h2 className="font-display-lg text-xs sm:text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-[#fe6b00]" />
-            <span>CURRENT TOURNAMENT</span>
-          </h2>
-          <span className="text-[10px] font-mono text-[#00ff9d] font-bold">
-            {currentTournament ? 'ACTIVE MATCH' : 'NO MATCH JOINED'}
-          </span>
-        </div>
-
-        {currentTournament ? (
-          <div className="p-3.5 bg-[#07090c] rounded-lg border border-[#00f2ff]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="space-y-1">
-              <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
-                {currentTournament.game}
-              </span>
-              <h3 className="font-extrabold text-white text-sm uppercase">{currentTournament.title}</h3>
-              <p className="text-xs text-[#8e9dae]">Prize Pool: <strong className="text-[#ffb693]">{currentTournament.prizePool}</strong></p>
+          {/* Left Column (Current Tier Rank & Global Stats) */}
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            
+            {/* Current Rank Card */}
+            <div className="bg-[#141414] rounded-2xl p-6 border border-[#00f2ff]/20 relative overflow-hidden group shadow-xl">
+              <h3 className="font-headline font-bold text-xs text-[#A0A0A0] uppercase tracking-wider mb-4">Current Tier</h3>
+              <div className="flex items-center gap-5">
+                <div className="w-16 h-16 rounded-xl bg-[#00f2ff]/10 border border-[#00f2ff]/40 flex items-center justify-center text-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.2)]">
+                  <Trophy className="w-8 h-8 text-[#00f2ff]" />
+                </div>
+                <div>
+                  <div className="text-xl font-black font-headline text-[#00f2ff]">GRANDMASTER I</div>
+                  <div className="text-xs text-[#A0A0A0] mt-1">Top 0.5% Global</div>
+                </div>
+              </div>
+              <div className="mt-6">
+                <div className="flex justify-between text-xs text-[#A0A0A0] mb-2 font-mono">
+                  <span>Season Progress</span>
+                  <span className="text-[#00f2ff] font-bold">8,450 / 10,000 RP</span>
+                </div>
+                <div className="h-2 w-full bg-[#242424] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#00f2ff] w-[84.5%] shadow-[0_0_10px_rgba(0,242,255,0.5)]"></div>
+                </div>
+              </div>
             </div>
 
-            <Link
-              to={`/tournaments/${currentTournament.id}`}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-[#00f2ff] text-[#00363a] font-extrabold text-xs hover:bg-[#74f5ff] transition-all flex items-center justify-center gap-1.5 uppercase min-h-[44px] shrink-0"
-            >
-              <span>View Match Room</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            {/* Global Performance Stats */}
+            <div className="bg-[#1A1A1A] rounded-2xl p-6 border border-[#242424] shadow-xl">
+              <h3 className="font-headline font-bold text-base mb-6 flex items-center gap-2 text-white">
+                <Activity className="w-5 h-5 text-[#00f2ff]" />
+                <span>Performance</span>
+              </h3>
+              <div className="grid grid-cols-2 gap-4 font-mono">
+                <div className="bg-[#141414] p-4 rounded-xl border border-[#242424]">
+                  <div className="text-[#A0A0A0] text-xs mb-1">Win Rate</div>
+                  <div className="text-2xl font-black text-white">68.4%</div>
+                </div>
+                <div className="bg-[#141414] p-4 rounded-xl border border-[#242424]">
+                  <div className="text-[#A0A0A0] text-xs mb-1">K/D Ratio</div>
+                  <div className="text-2xl font-black text-[#00ff9d]">4.2</div>
+                </div>
+                <div className="bg-[#141414] p-4 rounded-xl border border-[#242424]">
+                  <div className="text-[#A0A0A0] text-xs mb-1">Matches</div>
+                  <div className="text-xl font-bold text-white">1,248</div>
+                </div>
+                <div className="bg-[#141414] p-4 rounded-xl border border-[#242424]">
+                  <div className="text-[#A0A0A0] text-xs mb-1">MVP</div>
+                  <div className="text-xl font-bold text-[#fe6b00]">342</div>
+                </div>
+              </div>
+            </div>
+
           </div>
-        ) : (
-          <div className="p-4 bg-[#07090c] rounded-lg border border-[#3a494b]/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-            <p className="text-xs text-[#8e9dae]">You are not currently registered in any active tournament.</p>
-            <Link to="/tournaments" className="btn-cyber-primary text-xs shrink-0 min-h-[44px] w-full sm:w-auto">
-              Browse Tournaments
-            </Link>
+
+          {/* Right Column (Games, Trophy Cabinet, Activity Feed) */}
+          <div className="col-span-12 lg:col-span-8 space-y-6">
+
+            {/* Game Tabs (BGMI vs Free Fire) */}
+            <div className="bg-[#141414] rounded-2xl p-1.5 border border-[#00f2ff]/20 flex gap-2">
+              <button
+                onClick={() => setActiveGameTab('BGMI')}
+                className={`flex-1 py-3 px-6 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                  activeGameTab === 'BGMI'
+                    ? 'bg-[#1A1A1A] border border-[#00f2ff]/40 text-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.15)]'
+                    : 'text-[#A0A0A0] hover:text-white'
+                }`}
+              >
+                <Gamepad2 className="w-4 h-4" />
+                <span>BGMI</span>
+              </button>
+
+              <button
+                onClick={() => setActiveGameTab('FREE FIRE')}
+                className={`flex-1 py-3 px-6 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                  activeGameTab === 'FREE FIRE'
+                    ? 'bg-[#1A1A1A] border border-[#fe6b00]/40 text-[#fe6b00] shadow-[0_0_15px_rgba(254,107,0,0.15)]'
+                    : 'text-[#A0A0A0] hover:text-white'
+                }`}
+              >
+                <Flame className="w-4 h-4" />
+                <span>Free Fire MAX</span>
+              </button>
+            </div>
+
+            {/* Active Game Details Box */}
+            <div className="bg-[#141414] rounded-2xl p-6 border border-[#fe6b00]/30 relative overflow-hidden shadow-xl">
+              <div className="flex justify-between items-start mb-6 relative z-10">
+                <div>
+                  <h3 className="text-xl font-headline font-black text-[#fe6b00]">
+                    {activeGameTab === 'BGMI' ? 'BATTLEGROUNDS MOBILE INDIA' : 'FREE FIRE MAX PRO LEAGUE'}
+                  </h3>
+                  <p className="text-[#A0A0A0] text-xs mt-1">Assaulter / IGL</p>
+                </div>
+                <div className="text-right font-mono">
+                  <div className="text-2xl font-black text-white">Top 500</div>
+                  <div className="text-[#fe6b00] text-xs font-bold uppercase tracking-widest">Conqueror Tier</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 relative z-10 font-mono">
+                <div className="bg-[#1A1A1A] p-3.5 rounded-xl border border-[#242424]">
+                  <div className="text-[10px] text-[#A0A0A0] uppercase mb-1">Headshot %</div>
+                  <div className="text-xl font-bold text-white">42.8%</div>
+                </div>
+                <div className="bg-[#1A1A1A] p-3.5 rounded-xl border border-[#242424]">
+                  <div className="text-[10px] text-[#A0A0A0] uppercase mb-1">Avg Survival</div>
+                  <div className="text-xl font-bold text-white">18m 42s</div>
+                </div>
+                <div className="bg-[#1A1A1A] p-3.5 rounded-xl border border-[#242424]">
+                  <div className="text-[10px] text-[#A0A0A0] uppercase mb-1">Max Kills</div>
+                  <div className="text-xl font-bold text-[#00f2ff]">24</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Trophy Cabinet / Achievements */}
+            <div className="bg-[#1A1A1A] rounded-2xl p-6 border border-[#242424] shadow-xl space-y-4">
+              <div className="flex justify-between items-center border-b border-[#242424] pb-3">
+                <h3 className="font-headline font-bold text-base flex items-center gap-2 text-white">
+                  <Award className="w-5 h-5 text-[#fbbf24]" />
+                  <span>Trophy Cabinet & Badges</span>
+                </h3>
+                <span className="text-xs text-[#00f2ff] font-mono font-bold">4 Unlocked</span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-[#141414] rounded-xl p-4 flex flex-col items-center text-center border border-[#fbbf24]/30 hover:border-[#fbbf24] transition-colors">
+                  <Trophy className="w-10 h-10 text-[#fbbf24] mb-2" />
+                  <div className="text-xs font-bold text-white">Regional Champ</div>
+                  <div className="text-[10px] text-[#fbbf24] mt-1 font-mono">Gold Trophy</div>
+                </div>
+
+                <div className="bg-[#141414] rounded-xl p-4 flex flex-col items-center text-center border border-slate-400/30 hover:border-slate-300 transition-colors">
+                  <ShieldCheck className="w-10 h-10 text-slate-300 mb-2" />
+                  <div className="text-xs font-bold text-white">Sniper Elite</div>
+                  <div className="text-[10px] text-slate-300 mt-1 font-mono">Silver Medal</div>
+                </div>
+
+                <div className="bg-[#141414] rounded-xl p-4 flex flex-col items-center text-center border border-[#fe6b00]/30 hover:border-[#fe6b00] transition-colors">
+                  <Flame className="w-10 h-10 text-[#fe6b00] mb-2" />
+                  <div className="text-xs font-bold text-white">Survivalist</div>
+                  <div className="text-[10px] text-[#fe6b00] mt-1 font-mono">Apex Fragger</div>
+                </div>
+
+                <div className="bg-[#141414] rounded-xl p-4 flex flex-col items-center text-center border border-[#00f2ff]/30 hover:border-[#00f2ff] transition-colors">
+                  <Medal className="w-10 h-10 text-[#00f2ff] mb-2" />
+                  <div className="text-xs font-bold text-white">Fair Play</div>
+                  <div className="text-[10px] text-[#00f2ff] mt-1 font-mono">Certified</div>
+                </div>
+              </div>
+            </div>
+
           </div>
-        )}
-      </div>
 
-      {/* 3. STATISTICS GRID */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 text-center space-y-1 shadow-lg">
-          <span className="text-[10px] text-[#8e9dae] uppercase block flex items-center justify-center gap-1">
-            <Trophy className="w-3.5 h-3.5 text-[#00ff9d]" /> Wins
-          </span>
-          <span className="font-display-lg text-2xl font-extrabold text-[#00ff9d] block">{stats.wins}</span>
-        </div>
+          {/* 3. STITCH ACCOUNT SECURITY & CHANGE PASSWORD SECTION */}
+          <div className="col-span-12 bg-[#1A1A1A] border border-[#242424] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
+            <div className="flex items-center justify-between border-b border-[#242424] pb-4">
+              <div>
+                <h3 className="font-headline font-bold text-lg text-white flex items-center gap-2 uppercase tracking-wide">
+                  <Lock className="w-5 h-5 text-[#00f2ff]" />
+                  <span>Account Security & Password</span>
+                </h3>
+                <p className="text-xs text-[#A0A0A0] mt-1">Manage password credentials and authentication protection.</p>
+              </div>
+              <span className="px-3 py-1 rounded text-xs font-mono font-bold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4" /> SECURED
+              </span>
+            </div>
 
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 text-center space-y-1 shadow-lg">
-          <span className="text-[10px] text-[#8e9dae] uppercase block flex items-center justify-center gap-1">
-            <Swords className="w-3.5 h-3.5 text-[#00f2ff]" /> Matches
-          </span>
-          <span className="font-display-lg text-2xl font-extrabold text-white block">{stats.matchesPlayed}</span>
-        </div>
-
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 text-center space-y-1 shadow-lg">
-          <span className="text-[10px] text-[#8e9dae] uppercase block flex items-center justify-center gap-1">
-            <Flame className="w-3.5 h-3.5 text-[#fe6b00]" /> Kills
-          </span>
-          <span className="font-display-lg text-2xl font-extrabold text-[#fe6b00] block">{stats.kills}</span>
-        </div>
-
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 text-center space-y-1 shadow-lg">
-          <span className="text-[10px] text-[#8e9dae] uppercase block flex items-center justify-center gap-1">
-            <Target className="w-3.5 h-3.5 text-[#ffb693]" /> Win Rate
-          </span>
-          <span className="font-display-lg text-2xl font-extrabold text-[#ffb693] block">{stats.winRate}</span>
-        </div>
-      </div>
-
-      {/* 4. EXPANDABLE SECONDARY INFORMATION */}
-      <div className="space-y-3">
-        {/* Secondary Info 1: Tournament History (Collapsible) */}
-        <details className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl group overflow-hidden transition-all shadow-md">
-          <summary className="p-4 cursor-pointer font-display-lg text-xs sm:text-sm font-bold text-white uppercase tracking-wider flex items-center justify-between select-none hover:text-[#00f2ff]">
-            <span className="flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-[#00f2ff]" />
-              <span>Tournament Participation History ({userRegistrations.length})</span>
-            </span>
-            <ChevronDown className="w-4 h-4 text-[#8e9dae] transition-transform group-open:rotate-180" />
-          </summary>
-
-          <div className="p-4 pt-0 border-t border-[#3a494b]/40">
-            {userRegistrations.length === 0 ? (
-              <p className="text-xs text-[#8e9dae] py-3 text-center">No past tournament participation records found.</p>
-            ) : (
-              <div className="overflow-x-auto pt-2">
-                <table className="w-full text-left text-xs font-mono border-collapse">
-                  <thead>
-                    <tr className="bg-[#07090c] border-b border-[#3a494b]/60 text-[#00f2ff]">
-                      <th className="p-2.5">Tournament</th>
-                      <th className="p-2.5">Game</th>
-                      <th className="p-2.5 text-center">Status</th>
-                      <th className="p-2.5 text-right">Prize Pool</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#3a494b]/40">
-                    {userRegistrations.map((t) => (
-                      <tr key={`profile-hist-${t.id}`} className="hover:bg-[#1d232c]">
-                        <td className="p-2.5 font-bold text-white">{t.title}</td>
-                        <td className="p-2.5 text-[#00f2ff]">{t.game}</td>
-                        <td className="p-2.5 text-center text-[#00ff9d]">{t.status}</td>
-                        <td className="p-2.5 text-right text-[#ffb693]">{t.prizePool}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {passwordStatusMsg.text && (
+              <div className={`p-4 rounded-xl border text-xs font-mono flex items-center justify-between gap-2 ${
+                passwordStatusMsg.type === 'success'
+                  ? 'bg-[#00ff9d]/10 border-[#00ff9d]/40 text-[#00ff9d]'
+                  : 'bg-[#ff3366]/10 border-[#ff3366]/40 text-[#ff3366]'
+              }`}>
+                <span>{passwordStatusMsg.text}</span>
+                <button onClick={() => setPasswordStatusMsg({ type: '', text: '' })}>
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             )}
-          </div>
-        </details>
 
-        {/* Secondary Info 2: Player Achievements & Badges (Collapsible) */}
-        <details className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl group overflow-hidden transition-all shadow-md">
-          <summary className="p-4 cursor-pointer font-display-lg text-xs sm:text-sm font-bold text-white uppercase tracking-wider flex items-center justify-between select-none hover:text-[#00f2ff]">
-            <span className="flex items-center gap-2">
-              <Medal className="w-4 h-4 text-[#ffb693]" />
-              <span>Player Achievements & Badges ({achievementBadges.length})</span>
-            </span>
-            <ChevronDown className="w-4 h-4 text-[#8e9dae] transition-transform group-open:rotate-180" />
-          </summary>
+            <form onSubmit={handlePasswordChangeSubmit} className="space-y-4 font-mono text-xs max-w-xl">
+              <div className="space-y-1.5">
+                <label className="text-[#A0A0A0] uppercase font-bold block">Current Password *</label>
+                <div className="relative">
+                  <input
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    required
+                    className="w-full bg-[#141414] border border-[#242424] rounded-lg pl-3.5 pr-10 py-2.5 text-xs text-white placeholder-[#A0A0A0] focus:border-[#00f2ff] focus:outline-none transition-colors h-[42px]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A0A0A0] hover:text-[#00f2ff] p-1"
+                  >
+                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
 
-          <div className="p-4 pt-2 border-t border-[#3a494b]/40">
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-4 gap-3">
-              {achievementBadges.map((badge, idx) => {
-                const Icon = badge.icon
-                return (
-                  <div key={`badge-item-${idx}`} className={`p-3 rounded-xl border ${badge.color} flex items-center gap-2.5`}>
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span className="text-[11px] font-extrabold uppercase font-mono truncate">{badge.name}</span>
+              <div className="space-y-1.5">
+                <label className="text-[#A0A0A0] uppercase font-bold block">New Password *</label>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Minimum 6 characters"
+                    required
+                    className="w-full bg-[#141414] border border-[#242424] rounded-lg pl-3.5 pr-10 py-2.5 text-xs text-white placeholder-[#A0A0A0] focus:border-[#00f2ff] focus:outline-none transition-colors h-[42px]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A0A0A0] hover:text-[#00f2ff] p-1"
+                  >
+                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+
+                {newPassword && (
+                  <div className="space-y-1 pt-1">
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-[#A0A0A0]">Password Strength:</span>
+                      <span className={`font-bold ${
+                        passwordStrength.label === 'Strong' ? 'text-[#00ff9d]' : passwordStrength.label === 'Medium' ? 'text-[#fe6b00]' : 'text-[#ff3366]'
+                      }`}>
+                        {passwordStrength.label}
+                      </span>
+                    </div>
+                    <div className="w-full bg-[#141414] h-1.5 rounded-full overflow-hidden border border-[#242424]">
+                      <div className={`h-full transition-all duration-300 ${passwordStrength.color}`} style={{ width: passwordStrength.width }}></div>
+                    </div>
                   </div>
-                )
-              })}
-            </div>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[#A0A0A0] uppercase font-bold block">Confirm New Password *</label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Re-enter new password"
+                    required
+                    className="w-full bg-[#141414] border border-[#242424] rounded-lg pl-3.5 pr-10 py-2.5 text-xs text-white placeholder-[#A0A0A0] focus:border-[#00f2ff] focus:outline-none transition-colors h-[42px]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A0A0A0] hover:text-[#00f2ff] p-1"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isChangingPassword}
+                  className="px-6 py-2.5 bg-[#00f2ff] text-black font-bold uppercase rounded-lg text-xs hover:bg-cyan-300 transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] min-h-[44px]"
+                >
+                  {isChangingPassword ? 'Updating Password...' : 'Save Password Changes'}
+                </button>
+              </div>
+            </form>
           </div>
-        </details>
-      </div>
+
+        </div>
+
+      </main>
 
       {/* EDIT PROFILE MODAL */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-[#151a21] border border-[#00f2ff]/40 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
-            <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
-              <h3 className="font-display-lg text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+          <div className="bg-[#141414] border border-[#00f2ff]/40 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-[#242424] pb-3">
+              <h3 className="font-headline text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-[#00f2ff]" />
                 <span>EDIT PLAYER PROFILE</span>
               </h3>
-              <button
-                onClick={() => setIsEditModalOpen(false)}
-                className="p-1 text-[#8e9dae] hover:text-white rounded"
-              >
+              <button onClick={() => setIsEditModalOpen(false)} className="p-1 text-[#A0A0A0] hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSaveProfile} className="space-y-4 text-xs font-mono">
               <div className="space-y-1">
-                <label className="text-[#8e9dae] uppercase font-bold block">Display Player Name</label>
+                <label className="text-[#A0A0A0] uppercase font-bold block">Display Player Name</label>
                 <input
                   type="text"
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
-                  className="input-cyber w-full"
+                  className="w-full bg-[#1A1A1A] border border-[#242424] rounded-lg p-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[#8e9dae] uppercase font-bold block">Free Fire / Game UID</label>
+                <label className="text-[#A0A0A0] uppercase font-bold block">Free Fire / Game UID</label>
                 <input
                   type="text"
                   value={uidInput}
                   onChange={(e) => setUidInput(e.target.value)}
-                  className="input-cyber w-full"
+                  className="w-full bg-[#1A1A1A] border border-[#242424] rounded-lg p-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[#8e9dae] uppercase font-bold block">Avatar Photo URL</label>
+                <label className="text-[#A0A0A0] uppercase font-bold block">Avatar Photo URL</label>
                 <input
                   type="url"
                   value={avatarInput}
                   onChange={(e) => setAvatarInput(e.target.value)}
                   placeholder="https://example.com/avatar.jpg"
-                  className="input-cyber w-full"
+                  className="w-full bg-[#1A1A1A] border border-[#242424] rounded-lg p-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-3">
+              <div className="pt-2 flex justify-end gap-3 font-sans">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="px-4 py-2 bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded-lg uppercase font-bold min-h-[44px]"
+                  className="px-4 py-2 bg-[#1A1A1A] border border-[#242424] text-[#A0A0A0] hover:text-white rounded-lg uppercase font-bold text-xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="btn-cyber-primary uppercase font-bold min-h-[44px]"
+                  className="px-5 py-2 bg-[#00f2ff] text-black font-bold uppercase rounded-lg text-xs hover:bg-cyan-300 transition-all"
                 >
                   {isSaving ? 'Saving...' : 'Save Profile'}
                 </button>
@@ -367,7 +576,6 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
-
     </div>
   )
 }

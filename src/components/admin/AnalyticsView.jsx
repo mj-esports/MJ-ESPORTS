@@ -39,7 +39,7 @@ export default function AnalyticsView({ tournaments = [] }) {
       }
     } catch (err) {
       console.warn('[Analytics Fetch Warning]:', err)
-    } fontLoading: {
+    } finally {
       setLoading(false)
     }
   }

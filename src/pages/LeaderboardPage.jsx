@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
-import { Trophy, Shield, User, RefreshCw, AlertCircle, Gamepad2, TrendingUp, Sparkles } from 'lucide-react'
+import { Trophy, Award, Medal, Download, Sparkles, User, RefreshCw } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import { TableSkeleton } from '../components/common/SkeletonLoader.jsx'
 import EmptyState from '../components/common/EmptyState.jsx'
@@ -8,15 +8,12 @@ const PublicTeamProfileModal = lazy(() => import('../components/team/PublicTeamP
 
 export default function LeaderboardPage() {
   const [tournamentsList, setTournamentsList] = useState([])
-  const [selectedGameFilter, setSelectedGameFilter] = useState('ALL GAMES')
   const [selectedTeamModal, setSelectedTeamModal] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
 
   // Fetch live tournaments data from Supabase
   const fetchData = useCallback(async () => {
     setLoading(true)
-    setError(null)
     try {
       if (isSupabaseConfigured) {
         const { data, error: err } = await supabase
@@ -56,34 +53,24 @@ export default function LeaderboardPage() {
     }
   }, [fetchData])
 
-  // Filter tournaments by selected game filter
-  const filteredTournaments = useMemo(() => {
-    if (selectedGameFilter === 'ALL GAMES') return tournamentsList
-    return tournamentsList.filter((t) =>
-      (t.game || '').toLowerCase().includes(selectedGameFilter.toLowerCase().replace(/\s+/g, ''))
-    )
-  }, [tournamentsList, selectedGameFilter])
-
-  // Aggregate Top 50 Players / Teams Rankings
-  const top50Rankings = useMemo(() => {
+  // Aggregate Final Standings & Top Teams/Players
+  const standings = useMemo(() => {
     const statsMap = {}
 
-    filteredTournaments.forEach((t) => {
-      const gameTitle = t.game || 'Free Fire'
+    tournamentsList.forEach((t) => {
       const teams = Array.isArray(t.teams_list) ? t.teams_list : (Array.isArray(t.teamsList) ? t.teamsList : [])
 
       teams.forEach((team) => {
-        const name = team.captain || team.player || team.name || team.team || 'Player'
-        const squad = team.name || team.team || 'Squad'
+        const name = team.team || team.name || team.captain || 'Team Apex'
+        const player = team.captain || team.player || team.name || 'Viper_XYZ'
         const kills = Number(team.kills || team.finishes || 0)
         const points = Number(team.points || team.score || 0)
         const isWinner = team.rank === 1 || team.position === 1
 
         if (!statsMap[name]) {
           statsMap[name] = {
-            player: name,
-            team: squad,
-            game: gameTitle,
+            team: name,
+            player: player,
             matches: 0,
             wins: 0,
             points: 0,
@@ -98,183 +85,279 @@ export default function LeaderboardPage() {
       })
     })
 
-    return Object.values(statsMap)
+    const sortedList = Object.values(statsMap)
       .sort((a, b) => b.points - a.points || b.wins - a.wins || b.kills - a.kills)
-      .slice(0, 50)
-      .map((item, index) => {
-        const winRatio = item.matches > 0 ? (item.wins / item.matches) * 100 : 0
-        const kd = (item.kills / (item.matches || 1)).toFixed(1)
-        return {
-          ...item,
-          rank: index + 1,
-          kd,
-          winRate: `${Math.round(winRatio)}%`,
-        }
-      })
-  }, [filteredTournaments])
 
-  // Top 3 Podium Winners
-  const rank1 = top50Rankings[0] || null
-  const rank2 = top50Rankings[1] || null
-  const rank3 = top50Rankings[2] || null
-
-  // Derive Season Telemetry Stats
-  const seasonStats = useMemo(() => {
-    let totalPrize = 0
-    let totalMatches = 0
-    tournamentsList.forEach((t) => {
-      const val = parseInt((t.prize_pool || t.prizePool || '0').replace(/[^0-9]/g, ''), 10)
-      if (!isNaN(val)) totalPrize += val
-      totalMatches += (t.teams_list?.length || 1)
-    })
-
-    const avgKd = top50Rankings.length > 0
-      ? (top50Rankings.reduce((acc, p) => acc + Number(p.kd), 0) / top50Rankings.length).toFixed(2)
-      : '1.85'
-
-    return {
-      avgKd,
-      totalPrize: totalPrize > 0 ? `₹${totalPrize.toLocaleString()}` : '₹50,000+',
-      totalMatches: totalMatches || 24,
-      totalPlayers: top50Rankings.length || 50,
+    // Default mock standings if list is empty
+    if (sortedList.length === 0) {
+      return [
+        { rank: 1, team: 'Team Apex', player: 'Viper_XYZ', kills: 342, points: 1250, payout: '₹10,000', avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=200&q=80' },
+        { rank: 2, team: 'Team Nemesis', player: 'ShadowStrike', kills: 298, points: 1120, payout: '₹7,500', avatar: null },
+        { rank: 3, team: 'Void Walkers', player: 'Phantom_FF', kills: 256, points: 980, payout: '₹4,000', avatar: null },
+        { rank: 4, team: 'Crimson Riot', player: 'Blaze_BGMI', kills: 210, points: 845, payout: '-', avatar: null },
+        { rank: 5, team: 'Silent Storm', player: 'Ghost_Fragger', kills: 195, points: 790, payout: '-', avatar: null },
+      ]
     }
-  }, [tournamentsList, top50Rankings])
+
+    return sortedList.slice(0, 50).map((item, index) => {
+      const payout = index === 0 ? '₹10,000' : index === 1 ? '₹7,500' : index === 2 ? '₹4,000' : '-'
+      return {
+        ...item,
+        rank: index + 1,
+        payout,
+      }
+    })
+  }, [tournamentsList])
+
+  const championTeam = standings[0] || { team: 'Team Apex', player: 'Viper_XYZ', payout: '₹10,000' }
+  const mvpPlayer = standings[1] || { player: 'ShadowStrike', team: 'Team Nemesis', kills: 142 }
+
+  const handleDownloadCsv = () => {
+    const headers = ['Rank,Team,Kills,TotalPoints,Payout\n']
+    const rows = standings.map(
+      (s) => `${s.rank},"${s.team}",${s.kills},${s.points},"${s.payout}"\n`
+    )
+    const blob = new Blob([...headers, ...rows], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `MJ_ESPORTS_Final_Standings_2026.csv`
+    a.click()
+  }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 space-y-3.5 isolate relative">
-
-      {/* 1. COMPACT 1-LINE HEADER */}
-      <div className="flex items-center justify-between border-b border-[#3a494b]/40 pb-2">
-        <h1 className="font-display-lg text-lg font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-          <Trophy className="w-4 h-4 text-[#00f2ff]" />
-          <span>LEADERBOARD</span>
-        </h1>
-        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-extrabold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
-          SEASON 2026
-        </span>
-      </div>
-
-      {/* 1. TOP 3 PODIUM (Visible Immediately) */}
-      <div className="grid grid-cols-3 gap-2.5 sm:gap-4 items-end pt-1">
-        {/* 2nd Place */}
-        <div className="bg-[#151a21] border border-[#00f2ff]/30 rounded-xl p-2.5 text-center space-y-1 flex flex-col items-center justify-between min-h-[120px]">
-          <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
-            2ND PLACE
-          </span>
-          <div className="w-8 h-8 rounded-full bg-[#07090c] border border-[#00f2ff] flex items-center justify-center font-extrabold text-white text-xs overflow-hidden">
-            {rank2?.avatar ? <img src={rank2.avatar} alt={rank2.player} className="w-full h-full object-cover" decoding="async" loading="lazy" /> : '2'}
+    <div className="bg-[#09090b] text-[#f8fafc] font-body min-h-screen flex flex-col antialiased">
+      <main className="flex-grow pt-8 pb-16 px-4 md:px-8 max-w-7xl mx-auto w-full">
+        
+        {/* 1. HEADER */}
+        <header className="mb-10 text-center md:text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fbbf24]/10 border border-[#fbbf24]/20 text-[#fbbf24] font-label text-sm font-semibold mb-4">
+            <Trophy className="w-4 h-4 text-[#fbbf24]" />
+            <span>Tournament Concluded</span>
           </div>
-          <div>
-            <h4 className="font-extrabold text-white text-xs truncate max-w-[85px] sm:max-w-none">{rank2 ? rank2.player : 'Contender'}</h4>
-            <span className="font-mono text-[10px] text-[#00f2ff] font-bold">{rank2 ? `${rank2.points} PTS` : '0 PTS'}</span>
+          <h1 className="font-headline text-4xl md:text-6xl font-black tracking-tighter mb-2 uppercase text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-zinc-400">
+            Summer Championship '26
+          </h1>
+          <p className="text-[#a1a1aa] text-base md:text-lg max-w-2xl font-body">
+            The dust has settled. Witness the champions, the MVPs, and the final standings of the season's most grueling competition.
+          </p>
+        </header>
+
+        {/* 2. BENTO GRID TOP SECTION */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+          
+          {/* Winner Podium (Spans 2 cols) */}
+          <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-[#18181b]/60 backdrop-blur-md rounded-xl border border-[#fbbf24]/30 p-6 md:p-8 flex flex-col justify-between relative overflow-hidden shadow-[0_0_40px_-10px_rgba(251,191,36,0.3)] group">
+            <div className="relative z-10">
+              <h2 className="font-label text-[#fbbf24] font-bold uppercase tracking-widest text-sm mb-1">
+                Grand Champions
+              </h2>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 rounded-full bg-[#18181b] flex items-center justify-center border-2 border-[#fbbf24] p-1 shadow-lg">
+                  {championTeam.avatar ? (
+                    <img src={championTeam.avatar} alt={championTeam.team} className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    <Trophy className="w-8 h-8 text-[#fbbf24]" />
+                  )}
+                </div>
+                <h3 className="font-headline text-3xl md:text-4xl font-black tracking-tight text-white uppercase">
+                  {championTeam.team}
+                </h3>
+              </div>
+            </div>
+
+            <div className="relative z-10 flex flex-wrap gap-6 items-end justify-between mt-6 pt-4 border-t border-white/5">
+              <div>
+                <p className="text-[#a1a1aa] font-label text-xs uppercase mb-1">Prize Money Won</p>
+                <p className="font-headline text-3xl md:text-4xl font-bold text-[#fbbf24]">{championTeam.payout}</p>
+              </div>
+              <div className="bg-[#09090b]/60 backdrop-blur px-4 py-2.5 rounded-lg border border-white/5 flex items-center gap-3">
+                <Sparkles className="w-5 h-5 text-[#22d3ee]" />
+                <div>
+                  <p className="text-xs text-[#a1a1aa] font-label">Team MVP</p>
+                  <p className="font-bold text-sm text-white">{championTeam.player}</p>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Match MVP Badge */}
+          <div className="col-span-1 bg-[#18181b]/60 backdrop-blur-md rounded-xl p-6 flex flex-col items-center text-center relative overflow-hidden shadow-[0_0_30px_-10px_rgba(34,211,238,0.2)] border border-[#27272a]">
+            <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-transparent via-[#22d3ee] to-transparent"></div>
+            <h2 className="font-label text-[#22d3ee] font-bold uppercase tracking-widest text-xs mb-6 w-full text-left">
+              Tournament MVP
+            </h2>
+            <div className="relative mb-4">
+              <div className="w-20 h-20 rounded-full border-2 border-[#22d3ee] p-1 relative z-10 bg-[#09090b] flex items-center justify-center">
+                {mvpPlayer.avatar ? (
+                  <img src={mvpPlayer.avatar} alt={mvpPlayer.player} className="w-full h-full rounded-full object-cover" />
+                ) : (
+                  <User className="w-10 h-10 text-[#22d3ee]" />
+                )}
+              </div>
+              <div className="absolute inset-0 bg-[#22d3ee] blur-xl opacity-20 rounded-full"></div>
+            </div>
+            <h3 className="font-headline text-2xl font-bold mb-1 text-white">{mvpPlayer.player}</h3>
+            <p className="text-[#a1a1aa] text-xs font-mono mb-6">{mvpPlayer.team}</p>
+            <div className="w-full grid grid-cols-2 gap-2 mt-auto">
+              <div className="bg-[#18181b] rounded-lg p-3 border border-white/5">
+                <p className="text-[10px] text-[#a1a1aa] font-label uppercase mb-1">Total Kills</p>
+                <p className="font-headline text-xl font-bold text-white">{mvpPlayer.kills || 142}</p>
+              </div>
+              <div className="bg-[#18181b] rounded-lg p-3 border border-white/5">
+                <p className="text-[10px] text-[#a1a1aa] font-label uppercase mb-1">Headshot %</p>
+                <p className="font-headline text-xl font-bold text-[#22d3ee]">68%</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Prize Distribution Summary */}
+          <div className="col-span-1 md:col-span-3 lg:col-span-1 bg-[#18181b]/60 backdrop-blur-md rounded-xl p-6 flex flex-col border border-[#27272a]">
+            <h2 className="font-label text-[#a1a1aa] font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-[#fbbf24]" />
+              <span>Prize Pool</span>
+            </h2>
+            <div className="mb-6">
+              <p className="text-xs text-[#a1a1aa] font-label mb-1">Total Pool</p>
+              <p className="font-headline text-3xl font-bold text-white">₹25,000</p>
+            </div>
+            <div className="space-y-3.5 mt-auto">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#fbbf24]"></div>
+                  <span className="text-xs font-semibold text-white">1st Place</span>
+                </div>
+                <span className="text-xs text-[#fbbf24] font-bold">₹10,000</span>
+              </div>
+              <div className="w-full bg-[#18181b] h-1.5 rounded-full overflow-hidden">
+                <div className="bg-[#fbbf24] h-full w-[40%] rounded-full"></div>
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-slate-300"></div>
+                  <span className="text-xs text-[#a1a1aa]">2nd Place</span>
+                </div>
+                <span className="text-xs text-white">₹7,500</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-amber-700"></div>
+                  <span className="text-xs text-[#a1a1aa]">3rd Place</span>
+                </div>
+                <span className="text-xs text-white">₹4,000</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#22d3ee]"></div>
+                  <span className="text-xs text-[#a1a1aa]">MVPs & Bonus</span>
+                </div>
+                <span className="text-xs text-[#22d3ee] font-bold">₹3,500</span>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        {/* 1st Place (Grand Champion) */}
-        <div className="bg-[#151a21] border-2 border-[#fe6b00] rounded-xl p-3 text-center space-y-1.5 flex flex-col items-center justify-between min-h-[145px] shadow-[0_0_15px_rgba(254,107,0,0.2)] relative -translate-y-1">
-          <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-[#fe6b00] text-slate-950 shadow-sm">
-            CHAMPION 🥇
-          </span>
-          <div className="w-10 h-10 rounded-full bg-[#07090c] border-2 border-[#fe6b00] flex items-center justify-center font-extrabold text-[#fe6b00] text-sm overflow-hidden shadow-md">
-            {rank1?.avatar ? <img src={rank1.avatar} alt={rank1.player} className="w-full h-full object-cover" decoding="async" loading="lazy" /> : <Trophy className="w-4 h-4 text-[#fe6b00]" />}
+        {/* 3. FINAL STANDINGS LEADERBOARD TABLE */}
+        <section className="space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h2 className="font-headline text-2xl font-bold tracking-tight text-white uppercase">Final Standings</h2>
+            <button
+              onClick={handleDownloadCsv}
+              className="text-xs font-label text-[#22d3ee] hover:text-white transition-colors flex items-center gap-1.5 bg-[#18181b] px-4 py-2 rounded-lg border border-[#27272a]"
+            >
+              <span>Download Full CSV</span>
+              <Download className="w-4 h-4" />
+            </button>
           </div>
-          <div>
-            <h4 className="font-extrabold text-white text-xs sm:text-sm truncate max-w-[95px] sm:max-w-none">{rank1 ? rank1.player : 'Grand Champion'}</h4>
-            <span className="font-mono text-xs text-[#ffb693] font-extrabold">{rank1 ? `${rank1.points} PTS` : '0 PTS'}</span>
-          </div>
-        </div>
 
-        {/* 3rd Place */}
-        <div className="bg-[#151a21] border border-[#ffe173]/30 rounded-xl p-2.5 text-center space-y-1 flex flex-col items-center justify-between min-h-[120px]">
-          <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-[#ffe173]/10 text-[#ffe173] border border-[#ffe173]/30">
-            3RD PLACE
-          </span>
-          <div className="w-8 h-8 rounded-full bg-[#07090c] border border-[#ffe173] flex items-center justify-center font-extrabold text-white text-xs overflow-hidden">
-            {rank3?.avatar ? <img src={rank3.avatar} alt={rank3.player} className="w-full h-full object-cover" decoding="async" loading="lazy" /> : '3'}
-          </div>
-          <div>
-            <h4 className="font-extrabold text-white text-xs truncate max-w-[85px] sm:max-w-none">{rank3 ? rank3.player : 'Contender'}</h4>
-            <span className="font-mono text-[10px] text-[#ffe173] font-bold">{rank3 ? `${rank3.points} PTS` : '0 PTS'}</span>
-          </div>
-        </div>
-      </div>
+          <div className="bg-[#18181b]/60 backdrop-blur-md rounded-xl border border-[#27272a] overflow-hidden shadow-2xl">
+            {loading ? (
+              <div className="p-4">
+                <TableSkeleton rows={6} />
+              </div>
+            ) : standings.length === 0 ? (
+              <EmptyState type="leaderboard" />
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/5 bg-[#18181b]/80 font-mono text-xs uppercase text-[#a1a1aa]">
+                      <th className="py-4 px-6 text-center w-16">Rank</th>
+                      <th className="py-4 px-6">Team / Squad</th>
+                      <th className="py-4 px-6 text-right">Kills</th>
+                      <th className="py-4 px-6 text-right">Total Pts</th>
+                      <th className="py-4 px-6 text-right pr-6">Payout</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 font-mono text-xs">
+                    {standings.map((s) => {
+                      const isRank1 = s.rank === 1
+                      const isRank2 = s.rank === 2
+                      const isRank3 = s.rank === 3
 
-      {/* 2. TOP 50 PLAYERS RANKING TABLE (Immediately Below Podium Above Fold) */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl overflow-hidden shadow-xl cv-auto">
-        <div className="p-3 bg-[#07090c] border-b border-[#3a494b]/60 flex items-center justify-between">
-          <h3 className="font-display-lg text-xs sm:text-sm font-extrabold uppercase text-[#00f2ff] tracking-wider flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-[#00f2ff]" />
-            <span>TOP 50 PLAYERS RANKINGS</span>
-          </h3>
-          {/* Compact Game Filter Dropdown inline */}
-          <select
-            value={selectedGameFilter}
-            onChange={(e) => setSelectedGameFilter(e.target.value)}
-            className="bg-[#151a21] border border-[#3a494b] text-[#00f2ff] font-mono text-[11px] py-1 px-2.5 rounded-lg focus:outline-none focus:border-[#00f2ff] font-bold uppercase"
-          >
-            <option value="ALL GAMES">ALL GAMES</option>
-            <option value="FREE FIRE">FREE FIRE</option>
-            <option value="BGMI">BGMI</option>
-          </select>
-        </div>
+                      return (
+                        <tr
+                          key={`standings-row-${s.rank}`}
+                          onClick={() => setSelectedTeamModal(s)}
+                          className={`group hover:bg-white/5 transition-colors cursor-pointer ${
+                            isRank1 ? 'bg-[#fbbf24]/5' : ''
+                          }`}
+                        >
+                          <td className="py-4 px-6 text-center">
+                            <div
+                              className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold ${
+                                isRank1
+                                  ? 'bg-[#fbbf24] text-black shadow-md'
+                                  : isRank2
+                                  ? 'bg-slate-300 text-black'
+                                  : isRank3
+                                  ? 'bg-amber-700 text-white'
+                                  : 'text-[#a1a1aa]'
+                              }`}
+                            >
+                              {s.rank}
+                            </div>
+                          </td>
 
-        {loading ? (
-          <div className="p-4">
-            <TableSkeleton rows={8} />
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-[#18181b] border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                                {s.avatar ? (
+                                  <img src={s.avatar} alt={s.team} className="w-full h-full object-cover" />
+                                ) : (
+                                  <User className="w-4 h-4 text-[#22d3ee]" />
+                                )}
+                              </div>
+                              <div>
+                                <span className={`font-bold font-headline block ${
+                                  isRank1 ? 'text-[#fbbf24]' : 'text-white'
+                                }`}>
+                                  {s.team}
+                                </span>
+                                <span className="text-[10px] text-[#a1a1aa] font-normal block">{s.player}</span>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-6 text-right font-display text-[#a1a1aa]">{s.kills}</td>
+                          <td className="py-4 px-6 text-right font-display font-bold text-white">{s.points}</td>
+                          <td className={`py-4 px-6 text-right pr-6 font-display font-bold ${
+                            isRank1 ? 'text-[#fbbf24]' : isRank2 ? 'text-slate-300' : isRank3 ? 'text-amber-500' : 'text-[#a1a1aa]'
+                          }`}>
+                            {s.payout}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        ) : top50Rankings.length === 0 ? (
-          <EmptyState type="leaderboard" />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-mono text-[10px] sm:text-xs text-[#00f2ff] uppercase">
-                  <th className="px-3 sm:px-4 py-2.5">#</th>
-                  <th className="px-3 sm:px-4 py-2.5">Player / Squad</th>
-                  <th className="px-3 sm:px-4 py-2.5">Game</th>
-                  <th className="px-3 sm:px-4 py-2.5 text-center">Points</th>
-                  <th className="px-3 sm:px-4 py-2.5 text-center">Matches</th>
-                  <th className="px-3 sm:px-4 py-2.5 text-center">K/D</th>
-                  <th className="px-3 sm:px-4 py-2.5 text-right pr-4">Win Rate</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#3a494b]/40 font-mono text-xs">
-                {top50Rankings.map((p) => (
-                  <tr
-                    key={`top50-rank-${p.rank}`}
-                    onClick={() => setSelectedTeamModal(p)}
-                    className="hover:bg-[#1d232c] transition-colors cursor-pointer"
-                  >
-                    <td className="px-3 sm:px-4 py-3">
-                      <span className={`inline-flex items-center justify-center w-6 h-6 rounded text-[11px] font-extrabold ${
-                        p.rank === 1 ? 'bg-[#fe6b00] text-slate-950' : p.rank === 2 ? 'bg-[#00f2ff] text-[#00363a]' : p.rank === 3 ? 'bg-[#ffe173] text-slate-950' : 'bg-[#07090c] text-[#8e9dae]'
-                      }`}>
-                        {p.rank}
-                      </span>
-                    </td>
-                    <td className="px-3 sm:px-4 py-3 font-sans font-bold text-white">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-[#07090c] border border-[#00f2ff]/30 overflow-hidden flex items-center justify-center shrink-0">
-                          {p.avatar ? <img src={p.avatar} alt={p.player} className="w-full h-full object-cover" /> : <User className="w-3 h-3 text-[#00f2ff]" />}
-                        </div>
-                        <div>
-                          <span className="text-white hover:text-[#00f2ff] block">{p.player}</span>
-                          <span className="text-[9px] text-[#8e9dae] font-normal block">{p.team}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-3 sm:px-4 py-3 font-sans text-[#00f2ff] font-semibold text-[11px]">{p.game}</td>
-                    <td className="px-3 sm:px-4 py-3 text-center font-extrabold text-white">{p.points}</td>
-                    <td className="px-3 sm:px-4 py-3 text-center text-[#e1e2e7]">{p.matches}</td>
-                    <td className="px-3 sm:px-4 py-3 text-center text-[#00f2ff] font-bold">{p.kd}</td>
-                    <td className="px-3 sm:px-4 py-3 text-right pr-4 text-[#00ff9d] font-bold">{p.winRate}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+        </section>
+
+      </main>
 
       {selectedTeamModal && (
         <Suspense fallback={null}>
@@ -284,7 +367,7 @@ export default function LeaderboardPage() {
           />
         </Suspense>
       )}
-
     </div>
   )
 }
+

@@ -163,23 +163,23 @@ export default function PlayerDirectoryView() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 antialiased">
       
-      {/* 1. MODULE HEADER & REFRESH */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-xs font-mono font-bold uppercase">
+      {/* 1. MODULE HEADER & SYNC */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
             <Users className="w-3.5 h-3.5" />
-            <span>COMMUNITY PLAYER MANAGEMENT SYSTEM</span>
+            <span>PLAYER DIRECTORY SYSTEM</span>
           </div>
-          <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-            <span>PLAYER DIRECTORY & VERIFICATION CONTROL</span>
+          <h2 className="font-headline text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
+            COMPETITOR VERIFICATION & DIRECTORY CONTROL
           </h2>
         </div>
 
         <button
           onClick={fetchUsersAndHistory}
-          className="px-4 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] rounded-lg text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] transition-all flex items-center gap-1.5 uppercase min-h-[40px] shrink-0"
+          className="px-4 py-2 bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] hover:border-[#00f2ff] rounded-xl text-xs font-mono font-bold text-white transition-all flex items-center gap-2 uppercase shrink-0"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-[#00f2ff] ${loading ? 'animate-spin' : ''}`} />
           <span>Sync Database</span>
@@ -188,54 +188,54 @@ export default function PlayerDirectoryView() {
 
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
-      {/* 2. STATS KPI HEADER (DYNAMIC COUNT QUERIES) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-1 shadow-xl">
-          <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Total Registered Players</span>
-          <span className="font-display-lg text-2xl font-extrabold text-[#00f2ff] block">{kpis.totalPlayers}</span>
-          <span className="text-[10px] text-[#8e9dae]">COUNT(players)</span>
+      {/* 2. STATS KPI HEADER */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
+        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 space-y-2 shadow-xl">
+          <span className="text-[#a1a1aa] uppercase font-bold text-[10px] block">Total Players</span>
+          <span className="font-headline text-2xl font-black text-[#00f2ff] block">{kpis.totalPlayers}</span>
+          <span className="text-[10px] text-[#a1a1aa] block">REGISTERED USERS</span>
         </div>
 
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-1 shadow-xl">
-          <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Verified Competitors</span>
-          <span className="font-display-lg text-2xl font-extrabold text-[#00ff9d] block">{kpis.verifiedPlayers}</span>
-          <span className="text-[10px] text-[#00ff9d]/80">COUNT(status = 'Verified')</span>
+        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 space-y-2 shadow-xl">
+          <span className="text-[#a1a1aa] uppercase font-bold text-[10px] block">Verified Competitors</span>
+          <span className="font-headline text-2xl font-black text-[#00ff9d] block">{kpis.verifiedPlayers}</span>
+          <span className="text-[10px] text-[#00ff9d] block">UID VERIFIED</span>
         </div>
 
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-1 shadow-xl">
-          <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Active Accounts</span>
-          <span className="font-display-lg text-2xl font-extrabold text-white block">{kpis.activePlayers}</span>
-          <span className="text-[10px] text-[#8e9dae]">COUNT(status != 'Suspended')</span>
+        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 space-y-2 shadow-xl">
+          <span className="text-[#a1a1aa] uppercase font-bold text-[10px] block">Active Roster</span>
+          <span className="font-headline text-2xl font-black text-white block">{kpis.activePlayers}</span>
+          <span className="text-[10px] text-[#a1a1aa] block">ELIGIBLE PLAYERS</span>
         </div>
 
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-1 shadow-xl">
-          <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Total Matches Played</span>
-          <span className="font-display-lg text-2xl font-extrabold text-[#fe6b00] block">{kpis.totalMatchesPlayed}</span>
-          <span className="text-[10px] text-[#fe6b00]/80">SUM(matches_played)</span>
+        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 space-y-2 shadow-xl">
+          <span className="text-[#a1a1aa] uppercase font-bold text-[10px] block">Total Matches Played</span>
+          <span className="font-headline text-2xl font-black text-[#fe6b00] block">{kpis.totalMatchesPlayed}</span>
+          <span className="text-[10px] text-[#fe6b00] block">MATCH PARTICIPATIONS</span>
         </div>
       </div>
 
       {/* 3. SEARCH & MULTI-FILTER BAR */}
-      <div className="flex flex-col lg:flex-row gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
+      <div className="flex flex-col lg:flex-row gap-3 bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 shadow-xl">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-3" />
+          <Search className="w-4 h-4 text-[#a1a1aa] absolute left-3.5 top-3" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search players by username, email, or game character UID..."
-            className="w-full pl-9 pr-4 py-2 bg-[#07090c] border border-[#3a494b] rounded-lg text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-xs text-white placeholder-[#71717a] focus:outline-none focus:border-[#00f2ff] font-mono transition-colors"
           />
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           {/* Game Filter */}
-          <div className="flex items-center gap-1.5">
-            <Gamepad2 className="w-4 h-4 text-[#8e9dae]" />
+          <div className="flex items-center gap-2">
+            <Gamepad2 className="w-4 h-4 text-[#a1a1aa]" />
             <select
               value={gameFilter}
               onChange={(e) => setGameFilter(e.target.value)}
-              className="bg-[#07090c] border border-[#3a494b] text-white text-xs font-mono font-bold rounded-lg px-3 py-2 focus:outline-none focus:border-[#00f2ff]"
+              className="bg-[#09090b] border border-[#27272a] text-white text-xs font-mono font-bold rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#00f2ff]"
             >
               <option value="ALL">ALL GAMES</option>
               <option value="FREEFIRE">FREE FIRE</option>
@@ -244,12 +244,12 @@ export default function PlayerDirectoryView() {
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-1.5">
-            <Filter className="w-4 h-4 text-[#8e9dae]" />
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-[#a1a1aa]" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[#07090c] border border-[#3a494b] text-white text-xs font-mono font-bold rounded-lg px-3 py-2 focus:outline-none focus:border-[#00f2ff]"
+              className="bg-[#09090b] border border-[#27272a] text-white text-xs font-mono font-bold rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#00f2ff]"
             >
               <option value="ALL">ALL STATUS</option>
               <option value="VERIFIED">VERIFIED</option>
@@ -260,102 +260,92 @@ export default function PlayerDirectoryView() {
         </div>
       </div>
 
-      {/* 4. PLAYER DIRECTORY TABLE & CARDS */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl overflow-hidden shadow-2xl">
+      {/* 4. PLAYER DIRECTORY TABLE */}
+      <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl overflow-hidden shadow-2xl">
         {loading ? (
-          <div className="p-12 text-center text-[#8e9dae] space-y-2">
-            <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-            <span>Synchronizing database player profiles...</span>
+          <div className="p-12 text-center text-[#a1a1aa] font-mono text-xs space-y-3">
+            <div className="w-7 h-7 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <span>Synchronizing competitor records from database...</span>
           </div>
         ) : filteredUsers.length === 0 ? (
-          <div className="p-12 text-center text-[#8e9dae] space-y-3">
-            <Users className="w-12 h-12 text-[#00f2ff] mx-auto opacity-50 animate-pulse" />
+          <div className="p-12 text-center text-[#a1a1aa] space-y-3">
+            <Users className="w-12 h-12 text-[#00f2ff] mx-auto opacity-40 animate-pulse" />
             <div className="space-y-1">
-              <h3 className="font-display-lg text-base font-bold text-white uppercase tracking-wider">
+              <h3 className="font-headline text-base font-bold text-white uppercase tracking-wider">
                 No players registered yet.
               </h3>
-              <p className="text-xs text-[#8e9dae]">
+              <p className="text-xs text-[#a1a1aa]">
                 Competitor profiles will appear here as users sign up and link their game handles.
               </p>
             </div>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-xs font-mono">
               <thead>
-                <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
-                  <th className="p-3.5 pl-4">Player Username</th>
-                  <th className="p-3.5">Email</th>
-                  <th className="p-3.5">Game UID</th>
-                  <th className="p-3.5 text-center">Matches</th>
-                  <th className="p-3.5 text-center">Status</th>
-                  <th className="p-3.5 text-right pr-4">Admin Actions</th>
+                <tr className="bg-[#09090b] border-b border-[#27272a] text-[#a1a1aa] uppercase font-bold text-[10px] tracking-wider">
+                  <th className="p-4 pl-6">Player Username</th>
+                  <th className="p-4">Email</th>
+                  <th className="p-4">Game UID</th>
+                  <th className="p-4 text-center">Matches</th>
+                  <th className="p-4 text-center">Status</th>
+                  <th className="p-4 text-right pr-6">Admin Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#3a494b]/40">
+              <tbody className="divide-y divide-[#27272a]">
                 {filteredUsers.map((u) => (
-                  <tr key={`p-row-${u.id}`} className="hover:bg-[#1d232c] transition-colors">
-                    <td className="p-3.5 pl-4 font-extrabold text-white">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center font-bold text-[#00f2ff]">
+                  <tr key={`p-row-${u.id}`} className="hover:bg-[#27272a]/50 transition-colors">
+                    <td className="p-4 pl-6 font-bold text-white">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center font-bold text-[#00f2ff] shrink-0 font-sans">
                           {u.username.substring(0, 1).toUpperCase()}
                         </div>
-                        <span>{u.username}</span>
+                        <span className="font-sans font-extrabold text-sm text-white">{u.username}</span>
                       </div>
                     </td>
-                    <td className="p-3.5 text-[#8e9dae] font-mono">{u.email}</td>
-                    <td className="p-3.5 font-mono text-[#00f2ff] font-bold">{u.gameUid}</td>
-                    <td className="p-3.5 text-center font-mono font-bold text-white">{u.matchesPlayed}</td>
-                    <td className="p-3.5 text-center">
-                      <span className={`px-2.5 py-0.5 rounded text-[10px] font-mono font-extrabold uppercase border ${
+                    <td className="p-4 text-[#a1a1aa]">{u.email}</td>
+                    <td className="p-4 text-[#00f2ff] font-bold">{u.gameUid}</td>
+                    <td className="p-4 text-center font-bold text-white">{u.matchesPlayed}</td>
+                    <td className="p-4 text-center">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border ${
                         u.verificationStatus === 'Verified'
                           ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                           : u.verificationStatus === 'Suspended'
-                          ? 'bg-red-950 text-[#ff3366] border-red-800'
-                          : 'bg-[#ffb800]/10 text-[#ffb800] border-[#ffb800]/40'
+                          ? 'bg-[#ff3366]/10 text-[#ff3366] border-[#ff3366]/40'
+                          : 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40'
                       }`}>
                         {u.verificationStatus}
                       </span>
                     </td>
-                    <td className="p-3.5 text-right pr-4">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="p-4 text-right pr-6">
+                      <div className="flex items-center justify-end gap-2">
                         {/* View Profile */}
                         <button
                           onClick={() => setSelectedUser(u)}
-                          className="p-1.5 rounded bg-[#07090c] hover:bg-[#1d232c] text-[#00f2ff] border border-[#3a494b]"
+                          className="p-2 rounded-xl bg-[#09090b] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] hover:border-[#00f2ff] transition-colors"
                           title="Inspect Player Profile"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-4 h-4" />
                         </button>
 
                         {/* Verify Button */}
                         <button
                           onClick={() => handleUpdateVerificationStatus(u.userId || u.id, 'Verified')}
                           disabled={updatingUserId === (u.userId || u.id) || u.verificationStatus === 'Verified'}
-                          className="p-1.5 rounded bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 disabled:opacity-40"
+                          className="p-2 rounded-xl bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 disabled:opacity-30 transition-colors"
                           title="Verify Competitor"
                         >
-                          <Check className="w-3.5 h-3.5" />
-                        </button>
-
-                        {/* Reject / Reset Button */}
-                        <button
-                          onClick={() => handleUpdateVerificationStatus(u.userId || u.id, 'Pending')}
-                          disabled={updatingUserId === (u.userId || u.id) || u.verificationStatus === 'Pending'}
-                          className="p-1.5 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/40 disabled:opacity-40"
-                          title="Reject / Reset to Pending"
-                        >
-                          <X className="w-3.5 h-3.5" />
+                          <Check className="w-4 h-4" />
                         </button>
 
                         {/* Suspend Button */}
                         <button
                           onClick={() => handleUpdateVerificationStatus(u.userId || u.id, 'Suspended')}
                           disabled={updatingUserId === (u.userId || u.id) || u.verificationStatus === 'Suspended'}
-                          className="p-1.5 rounded bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border border-red-800 disabled:opacity-40"
-                          title="Suspend Player Account"
+                          className="p-2 rounded-xl bg-[#ff3366]/10 hover:bg-[#ff3366]/20 text-[#ff3366] border border-[#ff3366]/40 disabled:opacity-30 transition-colors"
+                          title="Suspend Account"
                         >
-                          <Ban className="w-3.5 h-3.5" />
+                          <Ban className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
