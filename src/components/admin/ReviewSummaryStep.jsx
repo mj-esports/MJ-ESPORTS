@@ -21,10 +21,12 @@ import {
   AlertCircle
 } from 'lucide-react'
 
+import { OFFICIAL_MJ_RULES } from '../common/OfficialRulebook'
+
 export default function ReviewSummaryStep({ form }) {
-  const rulesList = form.rulesText
-    ? form.rulesText.split('\n').filter(Boolean)
-    : ['No emulators allowed.', 'Screen recording mandatory.']
+  const rulesList = Array.isArray(form.rules) && form.rules.length > 0
+    ? form.rules
+    : (form.rulesText ? form.rulesText.split('\n').filter(Boolean) : OFFICIAL_MJ_RULES)
 
   return (
     <div className="space-y-6 text-white font-mono text-xs">
@@ -158,30 +160,40 @@ export default function ReviewSummaryStep({ form }) {
           <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2.5">
             <span className="font-headline text-xs font-black uppercase text-[#fe6b00] flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#fe6b00]" />
-              <span>Schedule & Match Kickoff</span>
+              <span>Tournament Schedule (V1)</span>
             </span>
             <span className="text-[10px] text-[#8e9dae] font-bold uppercase">IST Timing</span>
           </div>
 
-          <div className="space-y-2.5 text-xs font-mono">
+          <div className="space-y-2 text-[11px] font-mono">
             <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
-              <span className="text-[#8e9dae]">Start Date:</span>
+              <span className="text-[#8e9dae]">1. Tournament Date:</span>
               <strong className="text-white font-bold">{form.startDate || 'Not Set'}</strong>
             </div>
 
             <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
-              <span className="text-[#8e9dae]">Start Time:</span>
-              <strong className="text-[#fe6b00] font-bold">{form.startTime || '06:00 PM IST'}</strong>
+              <span className="text-[#8e9dae]">2. Registration Opens:</span>
+              <strong className="text-[#00ff9d] font-bold">{form.registrationStart || 'Immediate'}</strong>
             </div>
 
             <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
-              <span className="text-[#8e9dae]">Check-in Window:</span>
-              <strong className="text-[#00f2ff]">45 Mins Prior</strong>
+              <span className="text-[#8e9dae]">3. Registration Closes:</span>
+              <strong className="text-[#ff4655] font-bold">{form.registrationEnd || '1 Hour Prior'}</strong>
+            </div>
+
+            <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
+              <span className="text-[#8e9dae]">4. Check-in Time:</span>
+              <strong className="text-[#00f2ff] font-bold">{form.checkInTime || '05:15 PM IST'}</strong>
+            </div>
+
+            <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
+              <span className="text-[#8e9dae]">5. Match Kickoff Time:</span>
+              <strong className="text-[#fe6b00] font-bold">{form.startTime || '06:00 PM IST'}</strong>
             </div>
 
             <div className="flex justify-between py-1">
-              <span className="text-[#8e9dae]">Room Pass Release:</span>
-              <strong className="text-[#a855f7]">15 Mins Prior</strong>
+              <span className="text-[#8e9dae]">6. Room Publish Time:</span>
+              <strong className="text-[#a855f7] font-bold">{form.roomPublishTime || '05:45 PM IST'}</strong>
             </div>
           </div>
         </div>
@@ -191,25 +203,41 @@ export default function ReviewSummaryStep({ form }) {
           <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2.5">
             <span className="font-headline text-xs font-black uppercase text-[#00ff9d] flex items-center gap-2">
               <Trophy className="w-4 h-4 text-[#ffd700]" />
-              <span>Financials & Slot Capacity</span>
+              <span>Financials & Squad Capacity</span>
             </span>
-            <span className="text-[10px] text-[#8e9dae] font-bold uppercase">Validated</span>
+            <span className="text-[10px] text-[#00ff9d] font-bold uppercase">Razorpay UPI</span>
           </div>
 
-          <div className="space-y-2.5 text-xs font-mono">
-            <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
-              <span className="text-[#8e9dae]">Total Prize Pool:</span>
-              <strong className="text-[#ffd700] font-extrabold text-sm">{form.prizePool}</strong>
-            </div>
-
+          <div className="space-y-2 text-[11px] font-mono">
             <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
               <span className="text-[#8e9dae]">Entry Fee:</span>
               <strong className="text-[#00f2ff] font-bold">{form.entryFee}</strong>
             </div>
 
-            <div className="flex justify-between py-1">
+            <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
               <span className="text-[#8e9dae]">Max Squad Slots:</span>
               <strong className="text-white font-bold">{form.maxTeams} Slots</strong>
+            </div>
+
+            <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
+              <span className="text-[#8e9dae]">Prize Type:</span>
+              <strong className="text-[#fe6b00] font-bold uppercase">{form.prizeType ? form.prizeType.replace('_', ' ') : 'Placement + Per Kill'}</strong>
+            </div>
+
+            <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
+              <span className="text-[#8e9dae]">Payment Gateway:</span>
+              <strong className="text-[#00ff9d] font-bold">Razorpay (Fixed)</strong>
+            </div>
+
+            <div className="flex justify-between py-1">
+              <span className="text-[#8e9dae]">Configured Payouts:</span>
+              <strong className="text-[#ffd700]">
+                {form.prizeType === 'winner_takes_all'
+                  ? `Winner: ₹${form.prizes?.winnerPrize || 1500}`
+                  : form.prizeType === 'per_kill'
+                  ? `₹${form.perKillReward || 30} / Kill`
+                  : `1st: ₹${form.prizes?.firstPrize || 800} | 2nd: ₹${form.prizes?.secondPrize || 400}`}
+              </strong>
             </div>
           </div>
         </div>

@@ -29,20 +29,53 @@ export default function TournamentsPage() {
   // Filter tournaments by search, game tab, & status chip
   const filteredTournaments = useMemo(() => {
     const filtered = tournaments.filter((t) => {
+      // 1. Visibility Check: Show all published tournaments (published === true or status !== 'Draft')
+      const isPublished = t.published !== undefined ? Boolean(t.published) : (t.status !== 'Draft')
+      if (!isPublished) return false
+
+      // 2. Case-insensitive Search Match
+      const queryStr = searchQuery.trim().toLowerCase()
       const matchesSearch =
-        (t.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (t.game || '').toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesGame = selectedGame === 'All' || t.game === selectedGame
-      
+        !queryStr ||
+        (t.title || '').toLowerCase().includes(queryStr) ||
+        (t.game || '').toLowerCase().includes(queryStr) ||
+        (t.mode || '').toLowerCase().includes(queryStr)
+
+      // 3. Case-insensitive Game Filter Match
+      const matchesGame =
+        selectedGame === 'All' ||
+        (t.game || '').toLowerCase() === selectedGame.toLowerCase()
+
+      // 4. Case-insensitive & Synonymous Status Filter Match
       let matchesStatus = true
-      if (selectedStatus === 'LIVE NOW') matchesStatus = t.status === 'Live Now'
-      else if (selectedStatus === 'UPCOMING') matchesStatus = t.status === 'Registration Open' || t.status === 'Upcoming'
-      else if (selectedStatus === 'COMPLETED') matchesStatus = t.status === 'Completed'
+      const s = (t.status || '').toLowerCase()
+      if (selectedStatus === 'LIVE NOW') {
+        matchesStatus = s === 'live now' || s === 'live'
+      } else if (selectedStatus === 'UPCOMING') {
+        matchesStatus = s === 'registration open' || s === 'upcoming' || s === 'open'
+      } else if (selectedStatus === 'COMPLETED') {
+        matchesStatus = s === 'completed' || s === 'finished' || s === 'ended'
+      }
 
       return matchesSearch && matchesGame && matchesStatus
     })
 
-    return Array.from(new Map(filtered.map((item) => [item.id, item])).values())
+    const deduped = Array.from(new Map(filtered.map((item) => [item.id, item])).values())
+
+    console.log('[Player Tournaments Page - Visibility Audit Log]:', {
+      totalTournamentsInState: tournaments.length,
+      queryResultCount: deduped.length,
+      filters: { searchQuery, selectedGame, selectedStatus },
+      visibleTournaments: deduped.map((t) => ({
+        tournamentId: t.id,
+        status: t.status,
+        published: t.published !== undefined ? t.published : (t.status !== 'Draft'),
+        title: t.title,
+        game: t.game
+      }))
+    })
+
+    return deduped
   }, [tournaments, searchQuery, selectedGame, selectedStatus])
 
   const visibleTournaments = useMemo(() => {

@@ -33,9 +33,9 @@ import FormModeSelector from '../common/FormModeSelector'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
 import StepWizard from '../common/StepWizard'
-import SchedulePicker from '../common/SchedulePicker'
-import PrizePoolBreakdown from '../common/PrizePoolBreakdown'
-import DynamicRulesManager from '../common/DynamicRulesManager'
+import TournamentScheduleForm from '../common/TournamentScheduleForm'
+import EntryPrizeSystem from '../common/EntryPrizeSystem'
+import OfficialRulebook, { OFFICIAL_MJ_RULES } from '../common/OfficialRulebook'
 import ReviewSummaryStep from './ReviewSummaryStep'
 import { useToast } from '../../contexts/ToastContext'
 
@@ -57,7 +57,7 @@ export default function TournamentCenterView({
   const [actionId, setActionId] = useState(null)
   const [formErrors, setFormErrors] = useState({})
 
-  const [form, setForm] = useState({
+  const defaultFormState = {
     title: '',
     bannerUrl: '',
     game: 'Free Fire',
@@ -67,7 +67,10 @@ export default function TournamentCenterView({
     maxTeams: 32,
     startDate: '',
     startTime: '06:00 PM IST',
-    rulesText: '1. No emulators allowed.\n2. Screen recording mandatory.\n3. Toxic behavior leads to immediate DQ.',
+    registrationStart: 'Immediate',
+    registrationEnd: '1 Hour Prior to Kickoff',
+    checkInTime: '05:15 PM IST',
+    roomPublishTime: '05:45 PM IST',
     description: 'Official high-stakes tournament.',
     status: 'Registration Open',
     // Free Fire Specifics
@@ -78,31 +81,16 @@ export default function TournamentCenterView({
     bgmiMap: 'Erangel',
     bgmiPerspective: 'TPP',
     bgmiRedZone: 'Disabled',
-  })
+  }
 
+  const [form, setForm] = useState(defaultFormState)
   const [alert, setAlert] = useState(null)
 
   const handleOpenCreateModal = () => {
     setFormErrors({})
     setForm({
-      title: '',
-      bannerUrl: '',
-      game: 'Free Fire',
-      mode: 'squad',
-      prizePool: '₹1,00,000',
-      entryFee: 'Free',
-      maxTeams: 32,
-      startDate: '',
-      startTime: '06:00 PM IST',
-      rulesText: '1. No emulators allowed.\n2. Screen recording mandatory.\n3. Toxic behavior leads to immediate DQ.',
-      description: 'Official high-stakes tournament.',
-      status: 'Registration Open',
-      ffMap: 'Bermuda',
-      ffGunAttributes: 'Disabled',
-      ffCharacterSkills: 'Enabled',
-      bgmiMap: 'Erangel',
-      bgmiPerspective: 'TPP',
-      bgmiRedZone: 'Disabled',
+      ...defaultFormState,
+      startDate: new Date().toISOString().split('T')[0]
     })
     setEditingId(null)
     setCurrentStep(0)
@@ -128,9 +116,12 @@ export default function TournamentCenterView({
       prizePool: t.prizePool || '₹1,00,000',
       entryFee: t.entryFee || 'Free',
       maxTeams: t.maxTeams || 32,
-      startDate: t.startDate || '',
+      startDate: t.startDate || new Date().toISOString().split('T')[0],
       startTime: t.startTime || '06:00 PM IST',
-      rulesText: Array.isArray(t.rules) ? t.rules.join('\n') : (t.rulesText || ''),
+      registrationStart: t.registrationStart || 'Immediate',
+      registrationEnd: t.registrationEnd || '1 Hour Prior to Kickoff',
+      checkInTime: t.checkInTime || '05:15 PM IST',
+      roomPublishTime: t.roomPublishTime || '05:45 PM IST',
       description: t.description || 'Official high-stakes tournament.',
       status: t.status || 'Registration Open',
       ffMap: t.ffMap || 'Bermuda',
@@ -158,17 +149,60 @@ export default function TournamentCenterView({
       }
     } else if (stepIdx === 1) {
       if (!form.startDate) {
-        errors.startDate = 'Start Date is required.'
+        errors.startDate = 'Tournament Date is required.'
       }
-      if (!form.startTime) {
-        errors.startTime = 'Start Time is required.'
+      if (!form.registrationStart || !form.registrationStart.trim()) {
+        errors.registrationStart = 'Registration Opens time is required.'
+      }
+      if (!form.registrationEnd || !form.registrationEnd.trim()) {
+        errors.registrationEnd = 'Registration Closes time is required.'
+      }
+      if (!form.checkInTime || !form.checkInTime.trim()) {
+        errors.checkInTime = 'Check-in Time is required.'
+      }
+      if (!form.startTime || !form.startTime.trim()) {
+        errors.startTime = 'Match Start Time is required.'
+      }
+      if (!form.roomPublishTime || !form.roomPublishTime.trim()) {
+        errors.roomPublishTime = 'Room Publish Time is required.'
+      }
+      if (!form.status || !form.status.trim()) {
+        errors.status = 'Operational Stage Status is required.'
       }
     } else if (stepIdx === 2) {
-      if (!form.maxTeams || Number(form.maxTeams) <= 0) {
+      const entryFeeNum = typeof form.entryFeeNum === 'number' ? form.entryFeeNum : (parseFloat(String(form.entryFee || 0).replace(/[^0-9.]/g, '')) || 0)
+      const slotsNum = Number(form.maxTeams || 0)
+      const pType = form.prizeType || 'placement_kill'
+      const prizesObj = form.prizes || {}
+      const perKill = Number(form.perKillReward || 0)
+
+      if (isNaN(entryFeeNum) || entryFeeNum < 0) {
+        errors.entryFee = 'Entry Fee must be a valid non-negative amount.'
+      }
+      if (!slotsNum || slotsNum <= 0) {
         errors.maxTeams = 'Max Squad Slots must be greater than 0.'
       }
-      if (!form.prizePool || !form.prizePool.trim()) {
-        errors.prizePool = 'Prize pool amount is required.'
+
+      // Dynamic Validation strictly based on active Prize Type (Hidden fields are NEVER validated)
+      if (pType === 'per_kill') {
+        if (!perKill || perKill <= 0) {
+          errors.perKillReward = 'Per Kill Reward amount is required.'
+        }
+      } else if (pType === 'winner_takes_all') {
+        if (!prizesObj.winnerPrize || Number(prizesObj.winnerPrize) <= 0) {
+          errors.winnerPrize = 'Winner Champion Prize amount is required.'
+        }
+      } else if (pType === 'placement') {
+        if (!prizesObj.firstPrize || Number(prizesObj.firstPrize) <= 0) {
+          errors.firstPrize = '1st Champion Prize amount is required.'
+        }
+      } else if (pType === 'placement_kill') {
+        if (!perKill || perKill <= 0) {
+          errors.perKillReward = 'Per Kill Reward amount is required.'
+        }
+        if (!prizesObj.firstPrize || Number(prizesObj.firstPrize) <= 0) {
+          errors.firstPrize = '1st Champion Prize amount is required.'
+        }
       }
     }
     setFormErrors(errors)
@@ -177,7 +211,10 @@ export default function TournamentCenterView({
 
   const handleWizardNext = () => {
     if (validateStep(currentStep)) {
+      setFormErrors({})
       setCurrentStep((prev) => Math.min(prev + 1, 3))
+    } else {
+      showError('Please fill in all required fields before proceeding to the next step.', 'Validation Error')
     }
   }
 
@@ -221,6 +258,7 @@ export default function TournamentCenterView({
   }
 
   const submitFormData = async (payload, isDraft = false) => {
+    if (isSaving) return // Verify that Publish button only attempts to save once
     setIsSaving(true)
     setAlert(null)
     try {
@@ -228,33 +266,30 @@ export default function TournamentCenterView({
       const formatString = payload.mode === 'solo' ? 'SOLO (1P)' : payload.mode === 'duo' ? 'DUO (2P)' : 'SQUAD (4P)'
 
       const tournamentPayload = {
-        title: payload.title.trim(),
-        game: payload.game,
-        mode: payload.mode,
+        title: String(payload.title || '').trim(),
+        game: String(payload.game || 'Free Fire').trim(),
+        mode: String(payload.mode || 'squad').trim(),
         team_size: modeSize,
         match_format: formatString,
         format: formatString,
-        prize_pool: payload.prizePool,
-        prizePool: payload.prizePool,
-        entry_fee: payload.entryFee,
-        entryFee: payload.entryFee,
-        max_teams: Number(payload.maxTeams),
-        maxTeams: Number(payload.maxTeams),
-        start_date: payload.startDate,
-        startDate: payload.startDate,
-        start_time: payload.startTime,
-        startTime: payload.startTime,
-        status: payload.status || (isDraft ? 'Draft' : 'Registration Open'),
-        rules: payload.rulesText.split('\n').filter(Boolean),
-        banner_url: payload.bannerUrl,
-        bannerUrl: payload.bannerUrl,
-        description: payload.description,
-        ffMap: payload.ffMap,
-        ffGunAttributes: payload.ffGunAttributes,
-        ffCharacterSkills: payload.ffCharacterSkills,
-        bgmiMap: payload.bgmiMap,
-        bgmiPerspective: payload.bgmiPerspective,
-        bgmiRedZone: payload.bgmiRedZone,
+        prize_pool: String(payload.prizePool || '₹0').trim(),
+        prizePool: String(payload.prizePool || '₹0').trim(),
+        entry_fee: String(payload.entryFee || 'Free').trim(),
+        entryFee: String(payload.entryFee || 'Free').trim(),
+        max_teams: Number(payload.maxTeams || 32),
+        maxTeams: Number(payload.maxTeams || 32),
+        start_date: String(payload.startDate || '').trim(),
+        startDate: String(payload.startDate || '').trim(),
+        start_time: String(payload.startTime || '').trim(),
+        startTime: String(payload.startTime || '').trim(),
+        registrationStart: payload.registrationStart || null,
+        registrationEnd: payload.registrationEnd || null,
+        status: String(payload.status || (isDraft ? 'Draft' : 'Registration Open')).trim(),
+        rules: Array.isArray(payload.rules) ? payload.rules : OFFICIAL_MJ_RULES,
+        banner_url: String(payload.bannerUrl || '').trim(),
+        bannerUrl: String(payload.bannerUrl || '').trim(),
+        bannerImage: String(payload.bannerUrl || '').trim(),
+        description: String(payload.description || 'Official high-stakes tournament.').trim(),
       }
 
       if (editingId) {
@@ -275,9 +310,15 @@ export default function TournamentCenterView({
 
       setShowModal(false)
     } catch (err) {
-      console.error('[Save Tournament Error]:', err)
-      setAlert({ type: 'error', message: err.message || 'Failed to save tournament.' })
-      showError(err, 'Save Failed')
+      console.error({
+        payload,
+        validationResult: formErrors,
+        supabaseError: err,
+        stack: err.stack || new Error().stack
+      })
+      const exactErrorMsg = err.message || 'Failed to insert tournament.'
+      setAlert({ type: 'error', message: exactErrorMsg })
+      showError(exactErrorMsg, 'Tournament Error')
     } finally {
       setIsSaving(false)
     }
@@ -515,18 +556,22 @@ export default function TournamentCenterView({
             </div>
           ) : null}
 
-          <SchedulePicker
+          {/* TOURNAMENT SCHEDULE (V1 FIELDS) */}
+          <TournamentScheduleForm
             startDate={form.startDate}
             startTime={form.startTime}
-            onChange={({ startDate, startTime }) => {
+            registrationStart={form.registrationStart}
+            registrationEnd={form.registrationEnd}
+            checkInTime={form.checkInTime}
+            roomPublishTime={form.roomPublishTime}
+            errors={formErrors}
+            onChange={(sched) => {
               setForm((prev) => ({
                 ...prev,
-                startDate,
-                startTime
+                ...sched
               }))
-              if (formErrors.startDate) setFormErrors((prev) => ({ ...prev, startDate: null }))
+              if (Object.keys(formErrors).length > 0) setFormErrors({})
             }}
-            tournamentTitle={form.title || 'Tournament'}
           />
 
           <div className="space-y-1">
@@ -544,70 +589,33 @@ export default function TournamentCenterView({
             </select>
           </div>
 
-          {/* DYNAMIC RULES MANAGER WITH REORDERING & ADD/DELETE */}
-          <DynamicRulesManager
-            initialRules={form.rulesText}
-            onChange={(rulesObjArray, formattedRulesText) => {
-              setForm((prev) => ({
-                ...prev,
-                rulesText: formattedRulesText
-              }))
-            }}
-          />
+          {/* READ-ONLY OFFICIAL TOURNAMENT RULEBOOK */}
+          <OfficialRulebook rules={OFFICIAL_MJ_RULES} />
         </div>
       ),
     },
     {
-      title: 'Financials & Slot Capacity',
-      shortTitle: 'Prize & Capacity',
+      title: 'Prize & Entry System (V1)',
+      shortTitle: 'Prize & Entry',
       content: (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <FormInput
-              label="Entry Fee"
-              name="entryFee"
-              value={form.entryFee}
-              onChange={(e) => setForm((prev) => ({ ...prev, entryFee: e.target.value }))}
-              placeholder="Free or ₹50"
-              required
-            />
-
-            <FormInput
-              label="Max Squad Slots"
-              name="maxTeams"
-              type="number"
-              value={form.maxTeams}
-              onChange={(e) => {
-                setForm((prev) => ({ ...prev, maxTeams: e.target.value }))
-                if (formErrors.maxTeams) setFormErrors((prev) => ({ ...prev, maxTeams: null }))
-              }}
-              placeholder="32"
-              required
-              error={formErrors.maxTeams}
-            />
-          </div>
-
-          {/* PRIZE POOL AUTO CALCULATOR & PERCENTAGE CHECK MATRIX */}
-          <PrizePoolBreakdown
-            initialTotalPool={form.prizePool}
-            onUpdate={({ totalPool }) => {
-              setForm((prev) => ({
-                ...prev,
-                prizePool: `₹${Number(totalPool).toLocaleString('en-IN')}`
-              }))
-            }}
-          />
-
-          <div className="p-4 bg-[#07090c] border border-[#3a494b]/60 rounded-xl space-y-2 text-xs">
-            <div className="flex justify-between items-center text-[11px] font-bold uppercase text-[#00f2ff]">
-              <span>Financials Configuration Verified</span>
-              <span>Next: Review & Launch</span>
-            </div>
-            <p className="text-[11px] text-[#8e9dae] leading-relaxed">
-              Prize Pool: <strong className="text-[#ffd700]">{form.prizePool}</strong> &bull; Entry: <strong className="text-white">{form.entryFee}</strong> &bull; Capacity: <strong className="text-white">{form.maxTeams} Slots</strong>
-            </p>
-          </div>
-        </div>
+        <EntryPrizeSystem
+          entryFee={form.entryFee}
+          maxTeams={form.maxTeams}
+          game={form.game}
+          mode={form.mode}
+          paymentType={form.paymentType}
+          distributionType={form.distributionType}
+          perKillReward={form.perKillReward}
+          prizes={form.prizes}
+          errors={formErrors}
+          onChange={(financialData) => {
+            setForm((prev) => ({
+              ...prev,
+              ...financialData
+            }))
+            if (Object.keys(formErrors).length > 0) setFormErrors({})
+          }}
+        />
       ),
     },
     {

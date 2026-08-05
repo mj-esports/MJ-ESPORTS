@@ -28,9 +28,9 @@ import { DetailSkeleton } from '../components/common/SkeletonLoader'
 import SlotBookingModal from '../components/tournament/SlotBookingModal'
 import PointsTable from '../components/bracket/PointsTable'
 import BracketViewer from '../components/bracket/BracketViewer'
-import SchedulePicker from '../components/common/SchedulePicker'
-import PrizePoolBreakdown from '../components/common/PrizePoolBreakdown'
-import DynamicRulesManager from '../components/common/DynamicRulesManager'
+import TournamentScheduleForm from '../components/common/TournamentScheduleForm'
+import EntryPrizeSystem from '../components/common/EntryPrizeSystem'
+import OfficialRulebook, { OFFICIAL_MJ_RULES } from '../components/common/OfficialRulebook'
 
 export default function TournamentDetailPage() {
   const { id } = useParams()
@@ -233,8 +233,11 @@ export default function TournamentDetailPage() {
 
                 {/* PRIZE POOL BREAKDOWN & DISTRIBUTION CARD */}
                 <div className="mt-6">
-                  <PrizePoolBreakdown
-                    initialTotalPool={tournament.prizePool || '₹25,000'}
+                  <EntryPrizeSystem
+                    entryFee={tournament.entryFee || '₹50'}
+                    maxTeams={tournament.maxTeams || 32}
+                    game={tournament.game}
+                    mode={tournament.mode}
                     readOnly={true}
                   />
                 </div>
@@ -313,20 +316,21 @@ export default function TournamentDetailPage() {
 
             {/* TAB 2: RULES */}
             {activeTab === 'rules' && (
-              <DynamicRulesManager
-                initialRules={tournament.rules || tournament.rulesText}
-                readOnly={true}
+              <OfficialRulebook
+                rules={tournament.rules && tournament.rules.length > 0 ? tournament.rules : OFFICIAL_MJ_RULES}
               />
             )}
 
             {/* TAB 3: SCHEDULE */}
             {activeTab === 'schedule' && (
-              <SchedulePicker
+              <TournamentScheduleForm
                 startDate={tournament.startDate || ''}
                 startTime={tournament.startTime || '06:00 PM IST'}
+                registrationStart={tournament.registrationStart || ''}
+                registrationEnd={tournament.registrationEnd || ''}
+                checkInTime={tournament.checkInTime || '05:15 PM IST'}
+                roomPublishTime={tournament.roomPublishTime || '05:45 PM IST'}
                 readOnly={true}
-                showTimelineOnly={true}
-                tournamentTitle={tournament.title}
               />
             )}
 
