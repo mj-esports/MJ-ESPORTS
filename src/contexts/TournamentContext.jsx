@@ -169,7 +169,7 @@ export function TournamentProvider({ children }) {
 
     if (!isSupabaseConfigured) {
       const configErr = new Error('Database Error: Supabase client is not configured. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.')
-      console.error("Supabase insert failed:", configErr)
+      console.error('[STAGE 7: Failure - Supabase Not Configured]', configErr)
       throw configErr
     }
 
@@ -182,41 +182,48 @@ export function TournamentProvider({ children }) {
       published: isPub,
     }, true)
 
-    // Requirement 4: Log payload being sent
-    console.log("Tournament payload:", dbRow)
+    // STAGE 4: Supabase Insert Started
+    console.log('[STAGE 4: Supabase Insert Started]', { table: 'tournaments', dbRow })
 
-    // Requirement 2: Supabase INSERT into public.tournaments
+    // STAGE 4: Execute Supabase INSERT
     let { data, error } = await supabase
       .from('tournaments')
       .insert([dbRow])
       .select('*')
 
-    // Handle column mismatch gracefully if 'published' column does not exist in schema
+    // STAGE 5: Supabase Response Received
+    console.log('[STAGE 5: Supabase Response Received]', { data, error })
+
+    // Handle column mismatch if 'published' column is absent in Supabase schema
     if (error && (error.message?.includes('published') || error.message?.includes('column'))) {
       console.warn('[Supabase Insert Retry]: Column mismatch detected, retrying insert without published field...', error.message)
       const fallbackRow = { ...dbRow }
       delete fallbackRow.published
+      console.log('[STAGE 4 RETRY: Retrying Supabase Insert]', { table: 'tournaments', fallbackRow })
       const retryRes = await supabase
         .from('tournaments')
         .insert([fallbackRow])
         .select('*')
       data = retryRes.data
       error = retryRes.error
+      console.log('[STAGE 5 RETRY: Supabase Retry Response Received]', { data, error })
     }
 
-    // Requirement 4: Log full error on failure
+    // STAGE 7: Failure
     if (error) {
-      console.error("Supabase insert failed:", error)
+      console.error('[STAGE 7: Failure - Supabase Insert Error]', error)
       const exactMsg = error.message || error.details || error.hint || `PostgreSQL error code ${error.code}`
       throw new Error(exactMsg)
     }
 
-    // Requirement 4: Log success response & inserted row ID
+    // STAGE 6: Success
     const insertedRow = data && data[0] ? data[0] : null
-    console.log("Supabase insert success response:", data)
-    console.log("Inserted row ID:", insertedRow ? insertedRow.id : 'N/A')
+    console.log('[STAGE 6: Success - Tournament Inserted]', {
+      insertedRowId: insertedRow ? insertedRow.id : 'N/A',
+      insertedRow
+    })
 
-    // Requirement 6: Refresh tournament list from Supabase after successful insert
+    // Refresh tournament list from Supabase after successful insert
     await fetchTournaments()
     return insertedRow ? mapTournamentFromDb(insertedRow) : null
   }

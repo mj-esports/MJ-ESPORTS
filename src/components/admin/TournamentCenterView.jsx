@@ -237,28 +237,47 @@ export default function TournamentCenterView({
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault()
+    console.log('[STAGE 1: Publish Button Clicked]', { currentStep, isSaving, formState: form })
+
     if (!validateStep(0)) {
       setCurrentStep(0)
-      showError('Please correct Basic Info errors before publishing.', 'Validation Error')
+      const errText = 'Basic Information validation failed. Please fill in all required setup fields.'
+      console.warn('[STAGE 2: Validation Failed - Step 1]', formErrors)
+      showError(errText, errText)
       return
     }
     if (!validateStep(1)) {
       setCurrentStep(1)
-      showError('Please select a valid Start Date & Time before publishing.', 'Validation Error')
+      const errText = 'Schedule Settings validation failed. Please fill in all required timing & operational stage fields.'
+      console.warn('[STAGE 2: Validation Failed - Step 2]', formErrors)
+      showError(errText, errText)
       return
     }
     if (!validateStep(2)) {
       setCurrentStep(2)
-      showError('Please configure Financials & Slot Capacity before publishing.', 'Validation Error')
+      const errText = 'Financials & Prize System validation failed. Please configure required entry fee & prize fields.'
+      console.warn('[STAGE 2: Validation Failed - Step 3]', formErrors)
+      showError(errText, errText)
       return
     }
+
+    console.log('[STAGE 2: Validation Passed]', {
+      step0Valid: true,
+      step1Valid: true,
+      step2Valid: true,
+      form
+    })
+
     const publishForm = { ...form, status: form.status === 'Draft' ? 'Registration Open' : form.status }
     setForm(publishForm)
     await submitFormData(publishForm, false)
   }
 
   const submitFormData = async (payload, isDraft = false) => {
-    if (isSaving) return // Verify that Publish button only attempts to save once
+    if (isSaving) {
+      console.warn('[Publish Blocked]: Save operation is already in progress.')
+      return
+    }
     setIsSaving(true)
     setAlert(null)
     try {
@@ -292,6 +311,8 @@ export default function TournamentCenterView({
         description: String(payload.description || 'Official high-stakes tournament.').trim(),
       }
 
+      console.log('[STAGE 3: Payload Generated]', tournamentPayload)
+
       if (editingId) {
         if (editTournament) await editTournament(editingId, tournamentPayload)
         if (isDraft) {
@@ -310,7 +331,7 @@ export default function TournamentCenterView({
 
       setShowModal(false)
     } catch (err) {
-      console.error({
+      console.error('[STAGE 7: Failure]', {
         payload,
         validationResult: formErrors,
         supabaseError: err,
