@@ -237,36 +237,32 @@ export default function TournamentCenterView({
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault()
-    console.log('[STAGE 1: Publish Button Clicked]', { currentStep, isSaving, formState: form })
+    console.log("STEP 1 : Publish button clicked")
+    console.log("STEP 2 : Validation started")
 
     if (!validateStep(0)) {
       setCurrentStep(0)
       const errText = 'Basic Information validation failed. Please fill in all required setup fields.'
-      console.warn('[STAGE 2: Validation Failed - Step 1]', formErrors)
+      console.warn('STEP 2 FAILED : Step 1 validation errors', formErrors)
       showError(errText, errText)
       return
     }
     if (!validateStep(1)) {
       setCurrentStep(1)
       const errText = 'Schedule Settings validation failed. Please fill in all required timing & operational stage fields.'
-      console.warn('[STAGE 2: Validation Failed - Step 2]', formErrors)
+      console.warn('STEP 2 FAILED : Step 2 validation errors', formErrors)
       showError(errText, errText)
       return
     }
     if (!validateStep(2)) {
       setCurrentStep(2)
       const errText = 'Financials & Prize System validation failed. Please configure required entry fee & prize fields.'
-      console.warn('[STAGE 2: Validation Failed - Step 3]', formErrors)
+      console.warn('STEP 2 FAILED : Step 3 validation errors', formErrors)
       showError(errText, errText)
       return
     }
 
-    console.log('[STAGE 2: Validation Passed]', {
-      step0Valid: true,
-      step1Valid: true,
-      step2Valid: true,
-      form
-    })
+    console.log("STEP 3 : Validation passed")
 
     const publishForm = { ...form, status: form.status === 'Draft' ? 'Registration Open' : form.status }
     setForm(publishForm)
@@ -311,7 +307,7 @@ export default function TournamentCenterView({
         description: String(payload.description || 'Official high-stakes tournament.').trim(),
       }
 
-      console.log('[STAGE 3: Payload Generated]', tournamentPayload)
+      console.log("STEP 4 : Tournament payload", tournamentPayload)
 
       if (editingId) {
         if (editTournament) await editTournament(editingId, tournamentPayload)
@@ -331,12 +327,7 @@ export default function TournamentCenterView({
 
       setShowModal(false)
     } catch (err) {
-      console.error('[STAGE 7: Failure]', {
-        payload,
-        validationResult: formErrors,
-        supabaseError: err,
-        stack: err.stack || new Error().stack
-      })
+      console.error("STEP 7 : Execution Exception", err)
       const exactErrorMsg = err?.message || err?.details || (typeof err === 'string' ? err : 'Failed to insert tournament into database.')
       setAlert({ type: 'error', message: exactErrorMsg })
       showError(exactErrorMsg, exactErrorMsg)
