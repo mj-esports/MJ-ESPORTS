@@ -60,12 +60,11 @@ function mapTournamentFromDb(row) {
   }
 }
 
-function mapTournamentToDb(t) {
+function mapTournamentToDb(t, isInsert = false) {
   const fmt = t.match_format || t.matchFormat || t.format || 'Squad Battle Royale'
   const isPublished = t.published !== undefined ? Boolean(t.published) : (t.status !== 'Draft')
 
-  return {
-    id: String(t.id),
+  const row = {
     title: String(t.title || '').trim(),
     game: String(t.game || 'Free Fire').trim(),
     mode: String(t.mode || 'Squad').trim(),
@@ -89,6 +88,12 @@ function mapTournamentToDb(t) {
     teams_list: Array.isArray(t.teamsList) ? t.teamsList : (Array.isArray(t.teams_list) ? t.teams_list : []),
     banner_image: String(t.bannerImage || t.imageUrl || '').trim(),
   }
+
+  if (t.id && !String(t.id).startsWith('t-')) {
+    row.id = String(t.id)
+  }
+
+  return row
 }
 
 export function TournamentProvider({ children }) {
@@ -102,11 +107,6 @@ export function TournamentProvider({ children }) {
       return
     }
 
-    const { game, status, search } = params
-    const cleanGame = game && game !== 'All Games' && game !== 'ALL' ? game : undefined
-    const cleanStatus = status && status !== 'All Statuses' && status !== 'ALL' ? status : undefined
-    const cleanSearch = search || undefined
-
     try {
       const { data, error } = await supabase
         .from('tournaments')
@@ -114,13 +114,7 @@ export function TournamentProvider({ children }) {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('[Supabase Fetch Tournaments Error]:', {
-          error,
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        })
+        console.error('[Supabase Fetch Tournaments Error]:', error)
       } else if (data) {
         const mapped = data.map(mapTournamentFromDb)
         console.log('[Tournament Visibility Log - Fetch Success]:', {
@@ -132,7 +126,7 @@ export function TournamentProvider({ children }) {
             title: t.title
           }))
         })
-        setTournaments((prev) => dedupeTournaments([...mapped, ...prev]))
+        setTournaments(mapped)
       }
     } catch (err) {
       console.error('[Supabase Fetch Tournaments Failure]:', err)
@@ -152,12 +146,12 @@ export function TournamentProvider({ children }) {
   }
 
   const getTournamentById = (id) => {
-    return tournaments.find((t) => t.id === id)
+    return tournaments.find((t) => String(t.id) === String(id))
   }
 
   const isUserRegistered = (tournamentId, identifier) => {
     if (!tournamentId || !identifier) return false
-    const target = tournaments.find((t) => t.id === tournamentId)
+    const target = tournaments.find((t) => String(t.id) === String(tournamentId))
     if (!target) return false
 
     return (
@@ -172,103 +166,67 @@ export function TournamentProvider({ children }) {
 
   const createTournament = async (newTournament) => {
     verifyAdminAuth()
-    const createdId = newTournament.id || ('t-' + Date.now())
+
+    if (!isSupabaseConfigured) {
+      const configErr = new Error('Database Error: Supabase client is not configured. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.')
+      console.error("Supabase insert failed:", configErr)
+      throw configErr
+    }
+
     const statusVal = newTournament.status || 'Registration Open'
     const isPub = newTournament.published !== undefined ? Boolean(newTournament.published) : (statusVal !== 'Draft')
 
-    const created = {
+    const dbRow = mapTournamentToDb({
       ...newTournament,
-      id: createdId,
-      registeredTeams: Number(newTournament.registeredTeams || 0),
-      maxTeams: Number(newTournament.maxTeams || 32),
       status: statusVal,
       published: isPub,
-      teamsList: newTournament.teamsList || [],
-      rules: Array.isArray(newTournament.rules) ? newTournament.rules : [],
+    }, true)
+
+    console.log("Tournament payload:", dbRow)
+
+    const { data, error } = await supabase
+      .from('tournaments')
+      .insert([dbRow])
+      .select('*')
+
+    if (error) {
+      console.error("Supabase insert failed:", error)
+      throw new Error(error.message || error.details || 'Supabase tournament insertion rejected.')
     }
 
-    console.log('[Tournament Creation Visibility Audit]:', {
-      tournamentId: created.id,
-      status: created.status,
-      published: created.published,
-      queryResultCount: 1
-    })
+    const insertedRow = data && data[0] ? data[0] : null
+    console.log("Supabase insert success response:", data)
+    console.log("Inserted row ID:", insertedRow ? insertedRow.id : 'N/A')
 
-    if (isSupabaseConfigured) {
-      // 1. Verify authenticated Supabase user session
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser()
-
-      if (authError || !user) {
-        console.error('[Create Tournament Auth Error]: User is not authenticated.', authError)
-        throw new Error(`Authentication Error: Active Supabase session required. (${authError?.message || 'No user session'})`)
-      }
-
-      const dbRow = mapTournamentToDb(created)
-
-      try {
-        const { data, error } = await supabase
-          .from('tournaments')
-          .insert([dbRow])
-          .select('*')
-
-        if (error) {
-          console.error('[Supabase Create Tournament Error]:', {
-            payload: dbRow,
-            validationResult: true,
-            supabaseError: error,
-            stack: new Error().stack
-          })
-          throw new Error(`Failed to insert tournament: ${error.message || error.details || 'Database insert rejected.'}`)
-        }
-
-        if (data && data[0]) {
-          created.id = data[0].id
-        }
-      } catch (catchedErr) {
-        console.error('[Supabase Create Tournament Exception]:', {
-          payload: dbRow,
-          validationResult: false,
-          supabaseError: catchedErr,
-          stack: catchedErr.stack || new Error().stack
-        })
-        throw catchedErr
-      }
-    }
-
-    setTournaments((prev) => dedupeTournaments([created, ...prev]))
-    return created
+    await fetchTournaments()
+    return insertedRow ? mapTournamentFromDb(insertedRow) : null
   }
 
   const editTournament = async (tournamentId, updatedFields) => {
     verifyAdminAuth()
-    let updatedTournament = null
 
-    setTournaments((prev) =>
-      prev.map((t) => {
-        if (t.id === tournamentId) {
-          updatedTournament = { ...t, ...updatedFields }
-          return updatedTournament
-        }
-        return t
-      })
-    )
-
-    if (isSupabaseConfigured && updatedTournament) {
-      const dbRow = mapTournamentToDb(updatedTournament)
-      const { error } = await supabase.from('tournaments').update(dbRow).eq('id', tournamentId)
-      if (error) {
-        console.error('[Supabase Edit Tournament Error]:', {
-          payload: dbRow,
-          validationResult: false,
-          supabaseError: error,
-          stack: new Error().stack
-        })
-        throw new Error(`Failed to update tournament: ${error.message || error.details || 'Database update rejected.'}`)
-      }
+    if (!isSupabaseConfigured) {
+      const configErr = new Error('Database Error: Supabase client is not configured.')
+      console.error("Supabase update failed:", configErr)
+      throw configErr
     }
+
+    const dbRow = mapTournamentToDb({ id: tournamentId, ...updatedFields })
+    console.log("Tournament payload:", dbRow)
+
+    const { data, error } = await supabase
+      .from('tournaments')
+      .update(dbRow)
+      .eq('id', tournamentId)
+      .select('*')
+
+    if (error) {
+      console.error("Supabase update failed:", error)
+      throw new Error(error.message || error.details || 'Supabase update rejected.')
+    }
+
+    console.log("Supabase update success response:", data)
+    await fetchTournaments()
   }
 
   const deleteTournament = async (tournamentId) => {
