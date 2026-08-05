@@ -23,6 +23,14 @@ function mapTournamentFromDb(row) {
   const statusStr = row.status || 'Registration Open'
   const isPublished = row.published !== undefined ? Boolean(row.published) : (statusStr !== 'Draft')
 
+  // Task 3: Convert rules text string from database back into array for UI
+  let rulesArray = []
+  if (typeof row.rules === 'string') {
+    rulesArray = row.rules.split('\n').filter(Boolean)
+  } else if (Array.isArray(row.rules)) {
+    rulesArray = row.rules
+  }
+
   return {
     id: String(row.id),
     title: row.title,
@@ -48,7 +56,7 @@ function mapTournamentFromDb(row) {
     published: isPublished,
     organizer: row.organizer || 'MJ ESPORTS Official',
     description: row.description || '',
-    rules: Array.isArray(row.rules) ? row.rules : [],
+    rules: rulesArray,
     teamsList: Array.isArray(row.teams_list) ? row.teams_list : (Array.isArray(row.teamsList) ? row.teamsList : []),
     imageUrl: row.banner_image || row.image_url || row.imageUrl || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80',
     bannerImage: row.banner_image || row.image_url || row.imageUrl || '',
@@ -60,47 +68,33 @@ function mapTournamentFromDb(row) {
   }
 }
 
-function mapTournamentToDb(t, isInsert = false) {
+function mapTournamentToDb(t) {
   const fmt = t.match_format || t.matchFormat || t.format || 'Squad Battle Royale'
-  const modeVal = String(t.mode || 'Squad').trim()
-  const teamSize = Number(t.team_size ?? t.teamSize ?? (modeVal.toLowerCase().includes('solo') ? 1 : modeVal.toLowerCase().includes('duo') ? 2 : 4))
-  const isPublished = t.published !== undefined ? Boolean(t.published) : (t.status !== 'Draft')
 
-  // Helper to ensure TIMESTAMPTZ columns get valid ISO string or null (never empty string)
-  const toValidIso = (val) => {
-    if (!val) return null
-    try {
-      const d = new Date(val)
-      return isNaN(d.getTime()) ? null : d.toISOString()
-    } catch (e) {
-      return null
-    }
+  // Task 2: Convert rules array into string for database TEXT column
+  let rulesString = ''
+  if (Array.isArray(t.rules)) {
+    rulesString = t.rules.join('\n')
+  } else if (typeof t.rules === 'string') {
+    rulesString = t.rules
   }
 
   const row = {
     title: String(t.title || '').trim(),
     game: String(t.game || 'Free Fire').trim(),
-    mode: modeVal,
-    map: String(t.map || 'Bermuda').trim(),
-    team_size: teamSize,
     format: String(fmt).trim(),
+    match_format: String(fmt).trim(),
     prize_pool: String(t.prizePool || t.prize_pool || '₹0').trim(),
     entry_fee: String(t.entryFee || t.entry_fee || 'Free').trim(),
     max_teams: Number(t.maxTeams ?? t.max_teams ?? 32),
     registered_teams: Number(t.registeredTeams ?? t.registered_teams ?? 0),
     start_date: String(t.startDate || t.start_date || t.matchDate || '').trim(),
     start_time: String(t.startTime || t.start_time || t.matchTime || '').trim(),
-    registration_start: toValidIso(t.registrationStart || t.registration_start),
-    registration_end: toValidIso(t.registrationEnd || t.registration_end),
-    match_date: String(t.matchDate || t.match_date || t.startDate || '').trim(),
-    match_time: String(t.matchTime || t.match_time || t.startTime || '').trim(),
     status: String(t.status || 'Registration Open').trim(),
-    published: isPublished,
     organizer: String(t.organizer || 'MJ ESPORTS Official').trim(),
     description: String(t.description || '').trim(),
-    rules: Array.isArray(t.rules) ? t.rules : [],
+    rules: rulesString,
     teams_list: Array.isArray(t.teamsList) ? t.teamsList : (Array.isArray(t.teams_list) ? t.teams_list : []),
-    banner_image: String(t.bannerImage || t.imageUrl || t.bannerUrl || '').trim(),
   }
 
   if (t.id && !String(t.id).startsWith('t-')) {
@@ -185,41 +179,35 @@ export function TournamentProvider({ children }) {
       throw configErr
     }
 
-    const statusVal = newTournament.status || 'Registration Open'
-    const isPub = newTournament.published !== undefined ? Boolean(newTournament.published) : (statusVal !== 'Draft')
+    const dbRow = mapTournamentToDb(newTournament)
 
-    const dbRow = mapTournamentToDb({
-      ...newTournament,
-      status: statusVal,
-      published: isPub,
-    }, true)
-
-    // Task 2: Log the exact payload before INSERT
-    console.log("POST /rest/v1/tournaments PAYLOAD:")
-    console.log(JSON.stringify(dbRow, null, 2))
+    console.log("FULL PAYLOAD", JSON.stringify(dbRow, null, 2))
 
     try {
-      let { data, error } = await supabase
+      let result = await supabase
         .from("tournaments")
         .insert([dbRow])
         .select()
 
-      if (error) {
-        // Task 1: Capture and log the complete error object returned by Supabase
-        console.error("Supabase Error:", error)
-        console.error("Message:", error?.message)
-        console.error("Details:", error?.details)
-        console.error("Hint:", error?.hint)
-        console.error("Code:", error?.code)
+      console.log("RAW SUPABASE RETURN OBJECT:", result)
+      console.log("RESULT DATA:", result.data)
+      console.log("RESULT ERROR:", result.error)
 
-        // Fallback retry with essential columns if schema cache mismatch occurs
+      if (result.error) {
+        console.log("RAW SUPABASE ERROR JSON")
+        console.log(JSON.stringify(result.error, null, 2))
+        console.error("error.code:", result.error.code)
+        console.error("error.message:", result.error.message)
+        console.error("error.details:", result.error.details)
+        console.error("error.hint:", result.error.hint)
+
+        // Attempt fallback retry with essential columns if schema cache mismatch occurs
         console.warn('[SUPABASE INSERT FALLBACK]: Retrying insert with essential schema columns...')
         const essentialRow = {
           title: dbRow.title,
           game: dbRow.game,
-          mode: dbRow.mode,
-          map: dbRow.map,
           format: dbRow.format,
+          match_format: dbRow.match_format,
           prize_pool: dbRow.prize_pool,
           entry_fee: dbRow.entry_fee,
           max_teams: dbRow.max_teams,
@@ -230,38 +218,44 @@ export function TournamentProvider({ children }) {
           organizer: dbRow.organizer,
           description: dbRow.description,
           rules: dbRow.rules,
-          banner_image: dbRow.banner_image,
+          teams_list: dbRow.teams_list,
         }
         if (dbRow.id) essentialRow.id = dbRow.id
 
-        console.log("RETRY ESSENTIAL PAYLOAD:")
-        console.log(JSON.stringify(essentialRow, null, 2))
-
-        const retryRes = await supabase
+        console.log("ESSENTIAL FALLBACK PAYLOAD:", JSON.stringify(essentialRow, null, 2))
+        const retryResult = await supabase
           .from("tournaments")
           .insert([essentialRow])
           .select()
 
-        data = retryRes.data
-        error = retryRes.error
+        console.log("RETRY RESULT:", retryResult)
+        if (retryResult.data && !retryResult.error) {
+          result = retryResult
+        } else {
+          const finalErr = retryResult.error || result.error
+          const detailedMsg = [
+            finalErr.message,
+            finalErr.details,
+            finalErr.hint,
+            finalErr.code ? `(Code: ${finalErr.code})` : null
+          ].filter(Boolean).join(' | ')
 
-        if (error) {
-          console.error("Supabase Error:", error)
-          console.error("Message:", error?.message)
-          console.error("Details:", error?.details)
-          console.error("Hint:", error?.hint)
-          console.error("Code:", error?.code)
-          const detailedMsg = [error?.message, error?.details, error?.hint].filter(Boolean).join(' - ') || `Supabase Insert Error (Code: ${error?.code})`
-          throw new Error(detailedMsg)
+          const errObj = new Error(detailedMsg || 'Supabase Insert Error')
+          errObj.code = finalErr.code
+          errObj.details = finalErr.details
+          errObj.hint = finalErr.hint
+          errObj.rawError = finalErr
+          throw errObj
         }
       }
 
-      console.log("POST /rest/v1/tournaments 201 Created:", data)
-      const insertedRow = data && data[0] ? data[0] : null
+      console.log("INSERT SUCCESS (HTTP 201 Created):", result.data)
+      const insertedRow = result.data && result.data[0] ? result.data[0] : null
+
       await fetchTournaments()
       return insertedRow ? mapTournamentFromDb(insertedRow) : null
     } catch (error) {
-      console.error("FULL STACK", error)
+      console.error("FULL STACK / CATCH BLOCK:", error)
       throw error
     }
   }
@@ -276,34 +270,32 @@ export function TournamentProvider({ children }) {
     }
 
     const dbRow = mapTournamentToDb({ id: tournamentId, ...updatedFields })
-    console.log("Tournament payload:", dbRow)
+    console.log("FULL UPDATE PAYLOAD:", JSON.stringify(dbRow, null, 2))
 
-    let { data, error } = await supabase
+    const result = await supabase
       .from('tournaments')
       .update(dbRow)
       .eq('id', tournamentId)
       .select('*')
 
-    if (error && (error.message?.includes('published') || error.message?.includes('column'))) {
-      console.warn('[Supabase Update Retry]: Retrying update without published field...', error.message)
-      const fallbackRow = { ...dbRow }
-      delete fallbackRow.published
-      const retryRes = await supabase
-        .from('tournaments')
-        .update(fallbackRow)
-        .eq('id', tournamentId)
-        .select('*')
-      data = retryRes.data
-      error = retryRes.error
+    console.log("RAW UPDATE RESULT:", result)
+
+    if (result.error) {
+      console.error("RAW UPDATE ERROR:", result.error)
+      console.error("error.code:", result.error.code)
+      console.error("error.message:", result.error.message)
+      console.error("error.details:", result.error.details)
+      console.error("error.hint:", result.error.hint)
+
+      const exactMsg = [result.error.message, result.error.details, result.error.hint].filter(Boolean).join(' | ') || `PostgreSQL error code ${result.error.code}`
+      const errObj = new Error(exactMsg)
+      errObj.code = result.error.code
+      errObj.details = result.error.details
+      errObj.hint = result.error.hint
+      throw errObj
     }
 
-    if (error) {
-      console.error("Supabase update failed:", error)
-      const exactMsg = error.message || error.details || error.hint || `PostgreSQL error code ${error.code}`
-      throw new Error(exactMsg)
-    }
-
-    console.log("Supabase update success response:", data)
+    console.log("Supabase update success response:", result.data)
     await fetchTournaments()
   }
 
