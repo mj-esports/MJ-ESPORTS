@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { CheckCircle2, AlertCircle, AlertTriangle, Info, WifiOff, RefreshCw, X } from 'lucide-react'
+import { CheckCircle2, AlertCircle, AlertTriangle, Info, WifiOff, RefreshCw, X, XCircle } from 'lucide-react'
 
 const TOAST_STYLES = {
   success: {
@@ -10,7 +10,7 @@ const TOAST_STYLES = {
     shadow: 'shadow-[0_0_20px_rgba(0,255,157,0.3)]',
   },
   error: {
-    icon: AlertCircle,
+    icon: XCircle,
     bg: 'bg-[#0b0e17]/95',
     border: 'border-[#ff3366]',
     accent: 'text-[#ff3366]',
@@ -38,7 +38,7 @@ const TOAST_STYLES = {
     shadow: 'shadow-[0_0_20px_rgba(255,107,0,0.3)]',
   },
   network: {
-    icon: AlertCircle,
+    icon: XCircle,
     bg: 'bg-[#0b0e17]/95',
     border: 'border-[#ff3366]',
     accent: 'text-[#ff3366]',
@@ -68,7 +68,7 @@ export default function Toast({
 
   return (
     <div
-      className={`max-w-sm w-full backdrop-blur-xl border ${style.border} ${style.bg} ${style.shadow} p-4 rounded-xl flex items-start gap-3 transition-all duration-300 transform translate-y-0 text-xs shadow-2xl relative overflow-hidden`}
+      className={`max-w-sm w-full backdrop-blur-xl border ${style.border} ${style.bg} ${style.shadow} p-4 rounded-xl flex items-start gap-3 transition-all duration-300 text-xs shadow-2xl relative overflow-hidden animate-toast-mobile sm:animate-toast-desktop`}
       role="status"
       aria-live="polite"
     >

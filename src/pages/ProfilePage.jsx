@@ -33,7 +33,7 @@ export default function ProfilePage() {
   const handleCopy = (value, label) => {
     if (!value) return
     navigator.clipboard.writeText(value)
-    showSuccess(`${label} copied!`, 'Copied')
+    showSuccess('UID Copied', 'Copied')
   }
 
   const openEditModal = () => {

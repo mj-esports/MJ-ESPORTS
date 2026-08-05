@@ -110,7 +110,6 @@ export default function WalletPage() {
 
   const handleRefreshBalance = () => {
     syncWalletData()
-    showSuccess('Wallet balance synchronized with database ledger.', 'Refreshed')
   }
 
   // Handle Add Money / Deposit
@@ -137,7 +136,7 @@ export default function WalletPage() {
         await updateProfile({ wallet_balance: newBal })
       }
 
-      showSuccess(`₹${num.toLocaleString()} successfully added to wallet!`, 'Deposit Successful')
+      showSuccess('Wallet Updated', 'Deposit Successful')
       setIsDepositModalOpen(false)
       setAmountInput('')
     } catch (err) {
@@ -173,7 +172,7 @@ export default function WalletPage() {
         await updateProfile({ wallet_balance: newBal })
       }
 
-      showSuccess(`Withdrawal request of ₹${num.toLocaleString()} submitted.`, 'Payout Pending')
+      showSuccess('Payment Submitted', 'Payout Pending')
       setIsWithdrawModalOpen(false)
       setAmountInput('')
       setUpiIdInput('')

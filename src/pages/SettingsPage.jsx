@@ -144,7 +144,7 @@ export default function SettingsPage() {
           bgmiUid: bgmiUid.trim(),
         })
       }
-      showSuccess('General profile settings updated successfully.', 'Settings Saved')
+      showSuccess('Settings Saved', 'Settings Saved')
     } catch (err) {
       showError(err.message || 'Failed to update settings.', 'Error')
     }
@@ -171,7 +171,7 @@ export default function SettingsPage() {
       const { error } = await supabase.auth.updateUser({ password: newPassword })
       if (error) throw error
 
-      showSuccess('Password changed successfully.', 'Security Updated')
+      showSuccess('Password Changed', 'Security Updated')
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')

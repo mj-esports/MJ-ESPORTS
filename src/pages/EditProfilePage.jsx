@@ -70,7 +70,7 @@ export default function EditProfilePage() {
       }
       setAvatarUrl(finalUrl)
       setAlert({ type: 'success', message: 'Profile photo updated successfully!' })
-      showSuccess('Profile picture updated.', 'Avatar Saved')
+      showSuccess('Profile Updated Successfully', 'Avatar Saved')
       setIsAvatarModalOpen(false)
     } catch (err) {
       const errMsg = err?.message || String(err)
@@ -181,7 +181,7 @@ export default function EditProfilePage() {
       }
 
       setAlert({ type: 'success', message: 'Player profile updated successfully!' })
-      showSuccess('Profile changes saved successfully.', 'Saved')
+      showSuccess('Profile Updated Successfully', 'Saved')
       setTimeout(() => navigate('/profile'), 800)
     } catch (err) {
       console.error('[Save Profile Error]:', err)

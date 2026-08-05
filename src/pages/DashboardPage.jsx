@@ -155,7 +155,7 @@ export default function DashboardPage() {
       }
 
       setAlert({ type: 'success', message: 'Profile updated successfully!' })
-      showSuccess('Profile information saved successfully.', 'Profile Updated')
+      showSuccess('Profile Updated Successfully', 'Profile Updated')
       setIsEditing(false)
     } catch (err) {
       console.error('[Profile Update Error]:', err)
@@ -180,7 +180,7 @@ export default function DashboardPage() {
 
       setAvatarUrl(finalUrl)
       setAlert({ type: 'success', message: 'Profile picture updated successfully!' })
-      showSuccess('Profile photo updated successfully!', 'Avatar Updated')
+      showSuccess('Profile Updated Successfully', 'Avatar Updated')
       setIsAvatarModalOpen(false)
     } catch (err) {
       const rawErrorMessage = err?.message || String(err)
@@ -237,14 +237,12 @@ export default function DashboardPage() {
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => showSuccess('Dashboard statistics shared!', 'Share')}
             className="px-4 py-2 bg-[#1C232B] hover:bg-[#232C36] rounded-lg text-sm font-medium flex items-center gap-2 transition-colors border border-[#232C36]"
           >
             <Share2 className="w-4 h-4 text-[#98A2B3]" />
             <span>Share Stats</span>
           </button>
           <button
-            onClick={() => showSuccess('Performance report generated!', 'Export')}
             className="px-4 py-2 bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/30 hover:bg-[#00E5FF]/20 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"
           >
             <Download className="w-4 h-4 text-[#00E5FF]" />

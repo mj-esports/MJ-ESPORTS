@@ -1,30 +1,71 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import Toast from '../components/common/Toast'
 import { sanitizeError } from '../utils/errorHandler'
 
 const ToastContext = createContext(undefined)
 
 export function ToastProvider({ children }) {
-  const [toasts, setToasts] = useState([])
+  const [activeToast, setActiveToast] = useState(null)
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true)
 
+  const activeToastRef = useRef(null)
+  useEffect(() => {
+    activeToastRef.current = activeToast
+  }, [activeToast])
+
   const removeToast = useCallback((id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
+    setActiveToast((prev) => (prev && prev.id === id ? null : prev))
   }, [])
 
   const addToast = useCallback((toast) => {
+    // Prevent duplicate toasts from repeated clicks
+    if (activeToastRef.current && activeToastRef.current.message === toast.message) {
+      return activeToastRef.current.id
+    }
+
     const id = 'toast-' + Math.random().toString(36).substr(2, 9)
     const newToast = { ...toast, id }
-    setToasts((prev) => [...prev.slice(-4), newToast]) // Keep max 5 toasts visible
+
+    if (activeToastRef.current) {
+      // Dismiss the previous toast first
+      setActiveToast(null)
+      // Show the new toast after a minor delay
+      setTimeout(() => {
+        setActiveToast(newToast)
+      }, 150)
+    } else {
+      setActiveToast(newToast)
+    }
+
     return id
   }, [])
 
   const showSuccess = useCallback((message, title = 'Success') => {
+    // Standardize all success messages
+    let standardizedMessage = message
+    const lower = message.toLowerCase()
+
+    if (lower.includes('profile changes saved') || lower.includes('profile updated') || lower.includes('profile information saved') || lower.includes('avatar saved') || lower.includes('avatar updated') || lower.includes('profile picture updated')) {
+      standardizedMessage = 'Profile Updated Successfully'
+    } else if (lower.includes('copied') || lower.includes('uid')) {
+      standardizedMessage = 'UID Copied'
+    } else if (lower.includes('settings saved') || lower.includes('settings updated')) {
+      standardizedMessage = 'Settings Saved'
+    } else if (lower.includes('password changed') || lower.includes('security updated')) {
+      standardizedMessage = 'Password Changed'
+    } else if (lower.includes('registered') || lower.includes('registration confirmed') || lower.includes('slot reserved')) {
+      standardizedMessage = 'Tournament Registered'
+    } else if (lower.includes('payment submitted') || lower.includes('withdrawal request') || lower.includes('payment verification')) {
+      standardizedMessage = 'Payment Submitted'
+    } else if (lower.includes('wallet updated') || lower.includes('added to wallet')) {
+      standardizedMessage = 'Wallet Updated'
+    }
+
     return addToast({
       type: 'success',
       title,
-      message,
-      autoCloseMs: 4000,
+      message: standardizedMessage,
+      autoCloseMs: 2500, // Success duration: 2-3 seconds
     })
   }, [addToast])
 
@@ -36,7 +77,7 @@ export function ToastProvider({ children }) {
       message: sanitized.message,
       onRetry: onRetry || (sanitized.canRetry ? () => window.location.reload() : undefined),
       retryText: 'Retry Request',
-      autoCloseMs: 6000,
+      autoCloseMs: 5000, // Error duration: 5 seconds
     })
   }, [addToast])
 
@@ -45,7 +86,7 @@ export function ToastProvider({ children }) {
       type: 'warning',
       title,
       message,
-      autoCloseMs: 5000,
+      autoCloseMs: 4000,
     })
   }, [addToast])
 
@@ -54,7 +95,7 @@ export function ToastProvider({ children }) {
       type: 'info',
       title,
       message,
-      autoCloseMs: 4000,
+      autoCloseMs: 3000,
     })
   }, [addToast])
 
@@ -71,7 +112,7 @@ export function ToastProvider({ children }) {
         type: 'offline',
         title: 'Network Disconnected',
         message: 'You are operating in offline mode. Live tournament updates will pause until reconnected.',
-        autoCloseMs: 0, // Keep until dismissed or online
+        autoCloseMs: 0,
       })
     }
 
@@ -87,7 +128,7 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider
       value={{
-        toasts,
+        toasts: activeToast ? [activeToast] : [],
         addToast,
         removeToast,
         showSuccess,
@@ -99,16 +140,46 @@ export function ToastProvider({ children }) {
     >
       {children}
       
-      {/* Toast Floating Container (Fixed Bottom Right) */}
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col gap-3 max-w-sm w-[calc(100%-2rem)] sm:w-full pointer-events-none">
-        {toasts.map((toast) => (
-          <div key={toast.id} className="pointer-events-auto">
+      {/* Self-contained CSS animations style injection */}
+      <style>{`
+        @keyframes toast-in-desktop {
+          from {
+            transform: translateY(-24px) scale(0.95);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+          }
+        }
+        @keyframes toast-in-mobile {
+          from {
+            transform: translateY(24px) scale(0.95);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+          }
+        }
+        .animate-toast-desktop {
+          animation: toast-in-desktop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-toast-mobile {
+          animation: toast-in-mobile 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
+      
+      {/* Toast Floating Container (Desktop: top-right, Mobile: bottom-center) */}
+      <div className="fixed z-50 max-w-sm w-[calc(100%-2rem)] sm:w-full pointer-events-none transition-all duration-300 bottom-6 left-1/2 -translate-x-1/2 sm:bottom-auto sm:left-auto sm:translate-x-0 sm:top-6 sm:right-6">
+        {activeToast && (
+          <div className="pointer-events-auto">
             <Toast
-              {...toast}
-              onClose={() => toast.id && removeToast(toast.id)}
+              {...activeToast}
+              onClose={() => removeToast(activeToast.id)}
             />
           </div>
-        ))}
+        )}
       </div>
     </ToastContext.Provider>
   )

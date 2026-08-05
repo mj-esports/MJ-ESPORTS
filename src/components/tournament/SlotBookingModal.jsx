@@ -235,7 +235,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
         status: 'Approved',
       })
 
-      showSuccess(`Slot reserved successfully for ${formData.teamName}!`, 'Registration Confirmed')
+      showSuccess('Tournament Registered', 'Registration Confirmed')
 
       setRegistrationSummary({
         refId,
