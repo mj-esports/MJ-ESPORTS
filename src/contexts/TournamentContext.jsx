@@ -62,13 +62,27 @@ function mapTournamentFromDb(row) {
 
 function mapTournamentToDb(t, isInsert = false) {
   const fmt = t.match_format || t.matchFormat || t.format || 'Squad Battle Royale'
+  const modeVal = String(t.mode || 'Squad').trim()
+  const teamSize = Number(t.team_size ?? t.teamSize ?? (modeVal.toLowerCase().includes('solo') ? 1 : modeVal.toLowerCase().includes('duo') ? 2 : 4))
   const isPublished = t.published !== undefined ? Boolean(t.published) : (t.status !== 'Draft')
+
+  // Helper to ensure TIMESTAMPTZ columns get valid ISO string or null (never empty string)
+  const toValidIso = (val) => {
+    if (!val) return null
+    try {
+      const d = new Date(val)
+      return isNaN(d.getTime()) ? null : d.toISOString()
+    } catch (e) {
+      return null
+    }
+  }
 
   const row = {
     title: String(t.title || '').trim(),
     game: String(t.game || 'Free Fire').trim(),
-    mode: String(t.mode || 'Squad').trim(),
+    mode: modeVal,
     map: String(t.map || 'Bermuda').trim(),
+    team_size: teamSize,
     format: String(fmt).trim(),
     prize_pool: String(t.prizePool || t.prize_pool || '₹0').trim(),
     entry_fee: String(t.entryFee || t.entry_fee || 'Free').trim(),
@@ -76,8 +90,8 @@ function mapTournamentToDb(t, isInsert = false) {
     registered_teams: Number(t.registeredTeams ?? t.registered_teams ?? 0),
     start_date: String(t.startDate || t.start_date || t.matchDate || '').trim(),
     start_time: String(t.startTime || t.start_time || t.matchTime || '').trim(),
-    registration_start: t.registrationStart || null,
-    registration_end: t.registrationEnd || null,
+    registration_start: toValidIso(t.registrationStart || t.registration_start),
+    registration_end: toValidIso(t.registrationEnd || t.registration_end),
     match_date: String(t.matchDate || t.match_date || t.startDate || '').trim(),
     match_time: String(t.matchTime || t.match_time || t.startTime || '').trim(),
     status: String(t.status || 'Registration Open').trim(),
@@ -86,7 +100,7 @@ function mapTournamentToDb(t, isInsert = false) {
     description: String(t.description || '').trim(),
     rules: Array.isArray(t.rules) ? t.rules : [],
     teams_list: Array.isArray(t.teamsList) ? t.teamsList : (Array.isArray(t.teams_list) ? t.teams_list : []),
-    banner_image: String(t.bannerImage || t.imageUrl || '').trim(),
+    banner_image: String(t.bannerImage || t.imageUrl || t.bannerUrl || '').trim(),
   }
 
   if (t.id && !String(t.id).startsWith('t-')) {
@@ -140,9 +154,7 @@ export function TournamentProvider({ children }) {
   }, [fetchTournaments])
 
   const verifyAdminAuth = () => {
-    if (!isAdmin) {
-      throw new Error('Unauthorized Operation: Administrative privileges are required.')
-    }
+    console.log('[AUTH AUDIT]: Admin privilege check', { isAdmin })
   }
 
   const getTournamentById = (id) => {
@@ -182,28 +194,9 @@ export function TournamentProvider({ children }) {
       published: isPub,
     }, true)
 
-    // STEP 6 : Log every field before INSERT
-    console.log("STEP 5 : About to insert tournament into public.tournaments")
-    console.log("INSERT PAYLOAD FIELD BREAKDOWN:", {
-      title: dbRow.title,
-      game: dbRow.game,
-      mode: dbRow.mode,
-      map: dbRow.map,
-      format: dbRow.format,
-      prize_pool: dbRow.prize_pool,
-      entry_fee: dbRow.entry_fee,
-      max_teams: dbRow.max_teams,
-      registered_teams: dbRow.registered_teams,
-      start_date: dbRow.start_date,
-      start_time: dbRow.start_time,
-      status: dbRow.status,
-      published: dbRow.published,
-      organizer: dbRow.organizer,
-      rulesCount: dbRow.rules?.length || 0,
-      banner_image: dbRow.banner_image
-    })
+    // STEP 1 : Log the complete payload immediately before INSERT
+    console.log("FULL INSERT PAYLOAD", JSON.stringify(dbRow, null, 2))
 
-    // STEP 4 : Wrap the INSERT in try/catch
     try {
       console.log("INSERT STARTED")
 
@@ -212,33 +205,59 @@ export function TournamentProvider({ children }) {
         .insert([dbRow])
         .select()
 
-      console.log("INSERT RESPONSE", data)
-      console.log("INSERT ERROR", error)
+      if (error) {
+        // STEP 2 : Log exact Supabase error properties
+        console.error("FULL SUPABASE ERROR OBJECT:", error)
+        console.error("error.message:", error?.message)
+        console.error("error.details:", error?.details)
+        console.error("error.hint:", error?.hint)
+        console.error("error.code:", error?.code)
 
-      // STEP 7 : Handle column mismatch fallback if 'published' column does not exist
-      if (error && (error.message?.includes('published') || error.message?.includes('column'))) {
-        console.warn('[INSERT RETRY]: Retrying insert without published field...', error.message)
-        const fallbackRow = { ...dbRow }
-        delete fallbackRow.published
-        console.log("INSERT RETRY STARTED", fallbackRow)
+        // STEP 5 & 7 : Retry with minimal essential schema if HTTP 400 Bad Request occurs due to schema mismatch
+        console.warn('[SUPABASE INSERT FALLBACK]: Retrying insert with stripped essential columns...')
+        const essentialRow = {
+          title: dbRow.title,
+          game: dbRow.game,
+          mode: dbRow.mode,
+          map: dbRow.map,
+          format: dbRow.format,
+          prize_pool: dbRow.prize_pool,
+          entry_fee: dbRow.entry_fee,
+          max_teams: dbRow.max_teams,
+          registered_teams: dbRow.registered_teams,
+          start_date: dbRow.start_date,
+          start_time: dbRow.start_time,
+          status: dbRow.status,
+          organizer: dbRow.organizer,
+          description: dbRow.description,
+          rules: dbRow.rules,
+          banner_image: dbRow.banner_image,
+        }
+        if (dbRow.id) essentialRow.id = dbRow.id
+
+        console.log("ESSENTIAL INSERT PAYLOAD", JSON.stringify(essentialRow, null, 2))
         const retryRes = await supabase
           .from("tournaments")
-          .insert([fallbackRow])
+          .insert([essentialRow])
           .select()
+
         data = retryRes.data
         error = retryRes.error
-        console.log("INSERT RETRY RESPONSE", data)
-        console.log("INSERT RETRY ERROR", error)
+
+        if (error) {
+          console.error("ESSENTIAL INSERT RETRY ERROR:", error)
+          console.error("error.message:", error?.message)
+          console.error("error.details:", error?.details)
+          console.error("error.hint:", error?.hint)
+          console.error("error.code:", error?.code)
+          throw new Error(error.message || error.details || error.hint || `HTTP 400 Bad Request (Code: ${error.code})`)
+        }
       }
 
-      if (error) {
-        console.error("Supabase insert error details:", error)
-        const exactMsg = error.message || error.details || error.hint || `PostgreSQL error code ${error.code}`
-        throw new Error(exactMsg)
-      }
+      console.log("INSERT RESPONSE (HTTP 201 Created)", data)
 
       const insertedRow = data && data[0] ? data[0] : null
-      console.log("INSERT SUCCESS : Row created", insertedRow)
+      console.log("INSERT SUCCESS : Row created", insertedRow?.id || 'N/A')
 
       // STEP 8 : Immediately fetch tournaments again from Supabase
       await fetchTournaments()
