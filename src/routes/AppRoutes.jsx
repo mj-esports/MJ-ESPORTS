@@ -20,6 +20,10 @@ const AboutPage = lazy(() => import('../pages/AboutPage'))
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'))
 const DashboardPage = lazy(() => import('../pages/DashboardPage'))
 const ProfilePage = lazy(() => import('../pages/ProfilePage'))
+const EditProfilePage = lazy(() => import('../pages/EditProfilePage'))
+const StatisticsPage = lazy(() => import('../pages/StatisticsPage'))
+const TournamentHistoryPage = lazy(() => import('../pages/TournamentHistoryPage'))
+const AchievementsPage = lazy(() => import('../pages/AchievementsPage'))
 const WalletPage = lazy(() => import('../pages/WalletPage'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'))
 const AdminDashboardPage = lazy(() => import('../pages/AdminDashboardPage'))
@@ -63,6 +67,10 @@ export default function AppRoutes() {
           <Route element={<ProtectedRoute redirectTo="/login" />}>
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="profile/edit" element={<EditProfilePage />} />
+            <Route path="profile/statistics" element={<StatisticsPage />} />
+            <Route path="profile/history" element={<TournamentHistoryPage />} />
+            <Route path="profile/achievements" element={<AchievementsPage />} />
             <Route path="wallet" element={<WalletPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>

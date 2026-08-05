@@ -135,6 +135,40 @@ export function AuthProvider({ children }) {
     return await apiUpdateUserPassword(newPassword)
   }
 
+  const updateProfile = async (profileData) => {
+    if (isSupabaseConfigured) {
+      const { data: authData, error: authErr } = await supabase.auth.updateUser({
+        data: profileData
+      })
+      if (authErr) throw authErr
+
+      if (authData?.user) {
+        setUser(authData.user)
+      }
+      return authData
+    } else {
+      const updatedMetadata = {
+        ...(user?.user_metadata || {}),
+        ...profileData,
+      }
+      const updatedUser = {
+        ...(user || {}),
+        user_metadata: updatedMetadata,
+      }
+      const updatedSession = {
+        ...(session || {}),
+        user: updatedUser,
+      }
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('mj_esports_mock_user', JSON.stringify(updatedUser))
+        localStorage.setItem('mj_esports_mock_session', JSON.stringify(updatedSession))
+      }
+      setUser(updatedUser)
+      setSession(updatedSession)
+      return { user: updatedUser, session: updatedSession }
+    }
+  }
+
   const signOut = async () => {
     setRoleLoading(true)
     await apiSignOut()
@@ -158,6 +192,7 @@ export function AuthProvider({ children }) {
     signInWithGoogle,
     requestPasswordReset,
     updateUserPassword,
+    updateProfile,
     signOut,
   }
 
