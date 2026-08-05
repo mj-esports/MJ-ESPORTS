@@ -182,22 +182,41 @@ export function TournamentProvider({ children }) {
       published: isPub,
     }, true)
 
+    // Requirement 4: Log payload being sent
     console.log("Tournament payload:", dbRow)
 
-    const { data, error } = await supabase
+    // Requirement 2: Supabase INSERT into public.tournaments
+    let { data, error } = await supabase
       .from('tournaments')
       .insert([dbRow])
       .select('*')
 
-    if (error) {
-      console.error("Supabase insert failed:", error)
-      throw new Error(error.message || error.details || 'Supabase tournament insertion rejected.')
+    // Handle column mismatch gracefully if 'published' column does not exist in schema
+    if (error && (error.message?.includes('published') || error.message?.includes('column'))) {
+      console.warn('[Supabase Insert Retry]: Column mismatch detected, retrying insert without published field...', error.message)
+      const fallbackRow = { ...dbRow }
+      delete fallbackRow.published
+      const retryRes = await supabase
+        .from('tournaments')
+        .insert([fallbackRow])
+        .select('*')
+      data = retryRes.data
+      error = retryRes.error
     }
 
+    // Requirement 4: Log full error on failure
+    if (error) {
+      console.error("Supabase insert failed:", error)
+      const exactMsg = error.message || error.details || error.hint || `PostgreSQL error code ${error.code}`
+      throw new Error(exactMsg)
+    }
+
+    // Requirement 4: Log success response & inserted row ID
     const insertedRow = data && data[0] ? data[0] : null
     console.log("Supabase insert success response:", data)
     console.log("Inserted row ID:", insertedRow ? insertedRow.id : 'N/A')
 
+    // Requirement 6: Refresh tournament list from Supabase after successful insert
     await fetchTournaments()
     return insertedRow ? mapTournamentFromDb(insertedRow) : null
   }
@@ -214,15 +233,29 @@ export function TournamentProvider({ children }) {
     const dbRow = mapTournamentToDb({ id: tournamentId, ...updatedFields })
     console.log("Tournament payload:", dbRow)
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('tournaments')
       .update(dbRow)
       .eq('id', tournamentId)
       .select('*')
 
+    if (error && (error.message?.includes('published') || error.message?.includes('column'))) {
+      console.warn('[Supabase Update Retry]: Retrying update without published field...', error.message)
+      const fallbackRow = { ...dbRow }
+      delete fallbackRow.published
+      const retryRes = await supabase
+        .from('tournaments')
+        .update(fallbackRow)
+        .eq('id', tournamentId)
+        .select('*')
+      data = retryRes.data
+      error = retryRes.error
+    }
+
     if (error) {
       console.error("Supabase update failed:", error)
-      throw new Error(error.message || error.details || 'Supabase update rejected.')
+      const exactMsg = error.message || error.details || error.hint || `PostgreSQL error code ${error.code}`
+      throw new Error(exactMsg)
     }
 
     console.log("Supabase update success response:", data)

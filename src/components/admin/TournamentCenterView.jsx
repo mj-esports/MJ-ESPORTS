@@ -316,9 +316,9 @@ export default function TournamentCenterView({
         supabaseError: err,
         stack: err.stack || new Error().stack
       })
-      const exactErrorMsg = err.message || 'Failed to insert tournament.'
+      const exactErrorMsg = err?.message || err?.details || (typeof err === 'string' ? err : 'Failed to insert tournament into database.')
       setAlert({ type: 'error', message: exactErrorMsg })
-      showError(exactErrorMsg, 'Tournament Error')
+      showError(exactErrorMsg, exactErrorMsg)
     } finally {
       setIsSaving(false)
     }

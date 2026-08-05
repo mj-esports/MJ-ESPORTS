@@ -96,10 +96,10 @@ export function sanitizeError(error) {
     }
   }
 
-  // 6. Default Sanitized Fallback (Never expose raw error object or stack trace)
+  // 6. Default Fallback - Always preserve actual error message for DB/RLS/Validation errors
   return {
-    title: 'Error Encountered',
-    message: 'An unexpected error occurred while processing your request. Please try again.',
+    title: 'Database / Request Error',
+    message: rawMsg || 'An unexpected error occurred while processing your request. Please try again.',
     isNetworkError: false,
     isTimeout: false,
     isOffline: false,
