@@ -194,27 +194,26 @@ export function TournamentProvider({ children }) {
       published: isPub,
     }, true)
 
-    // STEP 1 : Log the complete payload immediately before INSERT
-    console.log("FULL INSERT PAYLOAD", JSON.stringify(dbRow, null, 2))
+    // Task 2: Log the exact payload before INSERT
+    console.log("POST /rest/v1/tournaments PAYLOAD:")
+    console.log(JSON.stringify(dbRow, null, 2))
 
     try {
-      console.log("INSERT STARTED")
-
       let { data, error } = await supabase
         .from("tournaments")
         .insert([dbRow])
         .select()
 
       if (error) {
-        // STEP 2 : Log exact Supabase error properties
-        console.error("FULL SUPABASE ERROR OBJECT:", error)
-        console.error("error.message:", error?.message)
-        console.error("error.details:", error?.details)
-        console.error("error.hint:", error?.hint)
-        console.error("error.code:", error?.code)
+        // Task 1: Capture and log the complete error object returned by Supabase
+        console.error("Supabase Error:", error)
+        console.error("Message:", error?.message)
+        console.error("Details:", error?.details)
+        console.error("Hint:", error?.hint)
+        console.error("Code:", error?.code)
 
-        // STEP 5 & 7 : Retry with minimal essential schema if HTTP 400 Bad Request occurs due to schema mismatch
-        console.warn('[SUPABASE INSERT FALLBACK]: Retrying insert with stripped essential columns...')
+        // Fallback retry with essential columns if schema cache mismatch occurs
+        console.warn('[SUPABASE INSERT FALLBACK]: Retrying insert with essential schema columns...')
         const essentialRow = {
           title: dbRow.title,
           game: dbRow.game,
@@ -235,7 +234,9 @@ export function TournamentProvider({ children }) {
         }
         if (dbRow.id) essentialRow.id = dbRow.id
 
-        console.log("ESSENTIAL INSERT PAYLOAD", JSON.stringify(essentialRow, null, 2))
+        console.log("RETRY ESSENTIAL PAYLOAD:")
+        console.log(JSON.stringify(essentialRow, null, 2))
+
         const retryRes = await supabase
           .from("tournaments")
           .insert([essentialRow])
@@ -245,21 +246,18 @@ export function TournamentProvider({ children }) {
         error = retryRes.error
 
         if (error) {
-          console.error("ESSENTIAL INSERT RETRY ERROR:", error)
-          console.error("error.message:", error?.message)
-          console.error("error.details:", error?.details)
-          console.error("error.hint:", error?.hint)
-          console.error("error.code:", error?.code)
-          throw new Error(error.message || error.details || error.hint || `HTTP 400 Bad Request (Code: ${error.code})`)
+          console.error("Supabase Error:", error)
+          console.error("Message:", error?.message)
+          console.error("Details:", error?.details)
+          console.error("Hint:", error?.hint)
+          console.error("Code:", error?.code)
+          const detailedMsg = [error?.message, error?.details, error?.hint].filter(Boolean).join(' - ') || `Supabase Insert Error (Code: ${error?.code})`
+          throw new Error(detailedMsg)
         }
       }
 
-      console.log("INSERT RESPONSE (HTTP 201 Created)", data)
-
+      console.log("POST /rest/v1/tournaments 201 Created:", data)
       const insertedRow = data && data[0] ? data[0] : null
-      console.log("INSERT SUCCESS : Row created", insertedRow?.id || 'N/A')
-
-      // STEP 8 : Immediately fetch tournaments again from Supabase
       await fetchTournaments()
       return insertedRow ? mapTournamentFromDb(insertedRow) : null
     } catch (error) {
