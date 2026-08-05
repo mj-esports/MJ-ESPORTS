@@ -1,9 +1,11 @@
-import { useState } from 'react'
-import { Bell, Send, CheckCircle2, AlertTriangle, Info, Shield, Filter, Search, Trash2, Mail } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Bell, Send, Mail, Search, Filter, Trash2 } from 'lucide-react'
 import FormInput from '../common/FormInput'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
 import EmptyState from '../common/EmptyState'
+import { supabase, isSupabaseConfigured } from '../../lib/supabase'
+import { createNotification } from '../../services/notificationService'
 
 export default function AdminNotificationsView() {
   const [activeSubTab, setActiveSubTab] = useState('BROADCAST') // 'BROADCAST' | 'LOGS'
@@ -12,6 +14,7 @@ export default function AdminNotificationsView() {
   const [alert, setAlert] = useState(null)
   const [filterType, setFilterType] = useState('ALL')
   const [searchQuery, setSearchQuery] = useState('')
+  const [notificationLogs, setNotificationLogs] = useState([])
 
   const [form, setForm] = useState({
     title: '',
@@ -22,43 +25,51 @@ export default function AdminNotificationsView() {
     link: '',
   })
 
-  // Mock Notification Broadcast Logs
-  const [notificationLogs, setNotificationLogs] = useState([
-    {
-      id: 'notif-1',
-      title: '🏆 Free Fire Championship Registration Open',
-      message: 'Registrations are now live for Season 4! Total prize pool ₹1,00,000.',
-      type: 'prize',
-      target: 'ALL_PLAYERS',
-      sentAt: '2026-08-04 18:30:00',
-      recipientCount: 1420,
-    },
-    {
-      id: 'notif-2',
-      title: '🔑 Room Credentials Published for BGMI Pro Scrims',
-      message: 'Custom room ID and password have been published. Check your match portal.',
-      type: 'room',
-      target: 'CAPTAINS_ONLY',
-      sentAt: '2026-08-04 17:15:00',
-      recipientCount: 32,
-    },
-    {
-      id: 'notif-3',
-      title: '✅ Wallet Deposit Verified',
-      message: 'Your entry fee deposit of ₹100 has been verified and credited.',
-      type: 'payment',
-      target: 'SPECIFIC_USER',
-      sentAt: '2026-08-04 16:00:00',
-      recipientCount: 1,
-    },
-  ])
+  // Fetch real notifications history
+  const fetchLogs = async () => {
+    setLoading(true)
+    try {
+      if (isSupabaseConfigured) {
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .order('created_at', { ascending: false })
+
+        if (!error && data) {
+          const mapped = data.map((n) => ({
+            id: n.id,
+            title: n.title,
+            message: n.message,
+            type: n.type,
+            target: n.user_id ? 'SPECIFIC_USER' : 'ALL_PLAYERS',
+            sentAt: new Date(n.created_at).toLocaleString(),
+            recipientCount: 1, // simplified recipient display
+          }))
+          setNotificationLogs(mapped)
+        } else {
+          setNotificationLogs([])
+        }
+      } else {
+        setNotificationLogs([])
+      }
+    } catch (err) {
+      console.warn('[AdminNotifications Fetch Logs Warning]:', err)
+      setNotificationLogs([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchLogs()
+  }, [])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleBroadcast = (e) => {
+  const handleBroadcast = async (e) => {
     e.preventDefault()
     setAlert(null)
 
@@ -73,33 +84,83 @@ export default function AdminNotificationsView() {
     }
 
     setSending(true)
-    setTimeout(() => {
-      const newLog = {
-        id: 'notif-' + Date.now(),
-        title: form.title.trim(),
-        message: form.message.trim(),
-        type: form.type,
-        target: form.target,
-        sentAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        recipientCount: form.target === 'ALL_PLAYERS' ? 1500 : form.target === 'CAPTAINS_ONLY' ? 48 : 1,
-      }
+    try {
+      if (isSupabaseConfigured) {
+        if (form.target === 'SPECIFIC_USER') {
+          // Find user ID from user_roles by email
+          const { data: roleRow, error: roleErr } = await supabase
+            .from('user_roles')
+            .select('user_id')
+            .eq('email', form.targetUserEmail.trim())
+            .maybeSingle()
 
-      setNotificationLogs((prev) => [newLog, ...prev])
-      setAlert({ type: 'success', message: `Broadcast successfully dispatched to target recipients!` })
-      setForm({
-        title: '',
-        message: '',
-        type: 'info',
-        target: 'ALL_PLAYERS',
-        targetUserEmail: '',
-        link: '',
-      })
+          if (roleErr || !roleRow) {
+            throw new Error(`Recipient user not found with email: ${form.targetUserEmail}`)
+          }
+
+          const res = await createNotification({
+            userId: roleRow.user_id,
+            title: form.title.trim(),
+            message: form.message.trim(),
+            type: form.type,
+            link: form.link || null,
+          })
+
+          if (!res) throw new Error('Failed to insert notification record in Supabase.')
+        } else {
+          // Broadcast target: get all active users from profiles
+          const { data: profiles, error: profErr } = await supabase
+            .from('profiles')
+            .select('id')
+
+          if (profErr || !profiles || profiles.length === 0) {
+            throw new Error('No registered player profiles found to broadcast to.')
+          }
+
+          // Insert notifications concurrently
+          await Promise.all(
+            profiles.map((p) =>
+              createNotification({
+                userId: p.id,
+                title: form.title.trim(),
+                message: form.message.trim(),
+                type: form.type,
+                link: form.link || null,
+              })
+            )
+          )
+        }
+
+        setAlert({ type: 'success', message: 'Notification successfully dispatched and saved to database!' })
+        setForm({
+          title: '',
+          message: '',
+          type: 'info',
+          target: 'ALL_PLAYERS',
+          targetUserEmail: '',
+          link: '',
+        })
+        fetchLogs()
+      } else {
+        throw new Error('Supabase is not configured.')
+      }
+    } catch (err) {
+      setAlert({ type: 'error', message: err.message || 'Failed to dispatch notification broadcast.' })
+    } finally {
       setSending(false)
-    }, 600)
+    }
   }
 
-  const handleDeleteLog = (id) => {
-    setNotificationLogs((prev) => prev.filter((item) => item.id !== id))
+  const handleDeleteLog = async (id) => {
+    try {
+      if (isSupabaseConfigured) {
+        const { error } = await supabase.from('notifications').delete().eq('id', id)
+        if (error) throw error
+      }
+      setNotificationLogs((prev) => prev.filter((item) => item.id !== id))
+    } catch (err) {
+      console.warn('[AdminDeleteLog Warning]:', err)
+    }
   }
 
   const filteredLogs = notificationLogs.filter((item) => {
@@ -130,7 +191,7 @@ export default function AdminNotificationsView() {
         <div className="flex items-center bg-[#09090b] p-1 rounded-xl border border-[#27272a] text-xs font-mono font-bold">
           <button
             onClick={() => setActiveSubTab('BROADCAST')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
               activeSubTab === 'BROADCAST' ? 'bg-[#00f2ff] text-black font-extrabold' : 'text-[#a1a1aa] hover:text-white'
             }`}
           >
@@ -138,7 +199,7 @@ export default function AdminNotificationsView() {
           </button>
           <button
             onClick={() => setActiveSubTab('LOGS')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
               activeSubTab === 'LOGS' ? 'bg-[#00f2ff] text-black font-extrabold' : 'text-[#a1a1aa] hover:text-white'
             }`}
           >
@@ -182,7 +243,6 @@ export default function AdminNotificationsView() {
               >
                 <option value="info">Information (Blue Icon)</option>
                 <option value="success">Success / Verified (Green Icon)</option>
-
                 <option value="warning">Warning / Alert (Amber Icon)</option>
                 <option value="payment">Payment Deposit / Fee (Cyan Icon)</option>
                 <option value="room">Room Credentials (Orange Icon)</option>
@@ -218,12 +278,11 @@ export default function AdminNotificationsView() {
                 className="w-full bg-[#09090b] border border-[#27272a] rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none h-[42px] font-mono"
               >
                 <option value="ALL_PLAYERS">All Platform Registered Players (Broadcast)</option>
-                <option value="CAPTAINS_ONLY">Squad Captains Only</option>
                 <option value="SPECIFIC_USER">Specific Player (Email Lookup)</option>
               </select>
             </div>
 
-            {form.target === 'SPECIFIC_USER' ? (
+            {form.target === 'SPECIFIC_USER' && (
               <FormInput
                 label="Target User Email Address"
                 name="targetUserEmail"
@@ -232,14 +291,6 @@ export default function AdminNotificationsView() {
                 placeholder="player@gmail.com"
                 icon={Mail}
                 required
-              />
-            ) : (
-              <FormInput
-                label="Optional Deep Link URL / Route"
-                name="link"
-                value={form.link}
-                onChange={handleInputChange}
-                placeholder="/tournaments/t-101 or /wallet"
               />
             )}
           </div>
@@ -313,14 +364,11 @@ export default function AdminNotificationsView() {
                       </span>
                     </div>
                     <p className="text-xs text-[#a1a1aa] font-mono leading-relaxed">{log.message}</p>
-                    <span className="text-[10px] text-[#00ff9d] font-mono font-bold block">
-                      Recipients reached: {log.recipientCount} Users
-                    </span>
                   </div>
 
                   <button
                     onClick={() => handleDeleteLog(log.id)}
-                    className="p-2 rounded-lg bg-[#09090b] border border-[#27272a] hover:border-[#ef4444] text-[#a1a1aa] hover:text-[#ef4444] transition-colors shrink-0"
+                    className="p-2 rounded-lg bg-[#09090b] border border-[#27272a] hover:border-[#ef4444] text-[#a1a1aa] hover:text-[#ef4444] transition-colors shrink-0 cursor-pointer"
                     title="Delete Notification Log"
                   >
                     <Trash2 className="w-4 h-4" />

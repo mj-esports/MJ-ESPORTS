@@ -39,7 +39,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
 
         if (error) {
           console.warn('[Supabase Payments Warning]:', error.message)
-          fallbackMockPayments()
+          setPayments([])
         } else if (data && data.length > 0) {
           const mapped = data.map((r) => {
             const tourn = tournaments.find((t) => String(t.id) === String(r.tournament_id))
@@ -68,48 +68,17 @@ export default function PaymentVerificationView({ tournaments = [] }) {
           })
           setPayments(mapped)
         } else {
-          fallbackMockPayments()
+          setPayments([])
         }
       } else {
-        fallbackMockPayments()
+        setPayments([])
       }
     } catch (err) {
       console.error('[Payment Verification Fetch Error]:', err)
-      fallbackMockPayments()
+      setPayments([])
     } finally {
       setLoading(false)
     }
-  }
-
-  const fallbackMockPayments = () => {
-    setPayments([
-      {
-        id: 'p-101',
-        tournamentTitle: 'Free Fire Grand Championship 2026',
-        teamName: 'Alpha Phoenix Squad',
-        captainName: 'Phoenix_99',
-        email: 'phoenix@example.com',
-        freeFireUid: '518920412',
-        entryFee: '₹100',
-        transactionId: 'UPI-984210492108',
-        screenshotUrl: null,
-        status: 'Pending',
-        registeredAt: '2026-07-25 18:30',
-      },
-      {
-        id: 'p-102',
-        tournamentTitle: 'BGMI Champions Cup',
-        teamName: 'Alpha Squad',
-        captainName: 'Alpha_Captain',
-        email: 'tgfan@example.com',
-        freeFireUid: '518920413',
-        entryFee: '₹50',
-        transactionId: 'UPI-774102941092',
-        screenshotUrl: null,
-        status: 'Verified',
-        registeredAt: '2026-07-25 17:15',
-      },
-    ])
   }
 
   useEffect(() => {

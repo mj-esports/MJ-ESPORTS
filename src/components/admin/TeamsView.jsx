@@ -79,12 +79,9 @@ export default function TeamsView({ tournaments = [] }) {
             status: t.status || 'Verified',
             logoUrl: t.logo_url,
             createdAt: t.created_at ? new Date(t.created_at).toLocaleDateString() : 'Recent',
-            members: members.length > 0 ? members : [
-              { id: `mem-${t.id}-1`, player_name: t.captain_name || 'Captain', game_uid: 'N/A', role: 'Captain' },
-              { id: `mem-${t.id}-2`, player_name: 'Teammate #1', game_uid: 'N/A', role: 'Member' },
-              { id: `mem-${t.id}-3`, player_name: 'Teammate #2', game_uid: 'N/A', role: 'Member' },
-              { id: `mem-${t.id}-4`, player_name: 'Teammate #3', game_uid: 'N/A', role: 'Member' },
-            ],
+            members: members.length > 0 ? members : (t.captain_name ? [
+              { id: `mem-${t.id}-1`, player_name: t.captain_name, game_uid: 'N/A', role: 'Captain' }
+            ] : []),
             matchesPlayed: teamRegs.length,
             wins: teamRegs.filter((r) => r.status === 'Completed' || r.status === 'Approved').length,
             earnings: '₹0',

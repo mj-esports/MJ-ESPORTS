@@ -199,79 +199,14 @@ export default function AnalyticsView({ tournaments = [] }) {
           </div>
 
           {/* 4. INTERACTIVE CHARTS: REGISTRATION TRENDS & GAME PARTICIPATION */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left 7 Cols: Interactive Registration Trend Chart */}
-            <div className="lg:col-span-7 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
-                <h3 className="font-display-lg text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <BarChart2 className="w-4 h-4 text-[#00f2ff]" />
-                  <span>Registration Velocity & Weekly Trends</span>
-                </h3>
-                <span className="text-[10px] font-mono text-[#00ff9d] bg-[#00ff9d]/10 px-2 py-0.5 rounded border border-[#00ff9d]/40">
-                  Live Telemetry
-                </span>
-              </div>
-
-              {/* Bar Graph */}
-              <div className="pt-4 flex items-end justify-between gap-3 h-48 px-2 font-mono">
-                {registrationTrends.map((trend, idx) => {
-                  const barHeightPct = Math.max(12, Math.round((trend.count / maxTrendCount) * 100))
-                  return (
-                    <div key={`trend-bar-${idx}`} className="flex-1 flex flex-col items-center gap-2 group">
-                      <span className="text-[10px] text-[#00f2ff] font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                        {trend.count}
-                      </span>
-                      <div className="w-full bg-[#07090c] rounded-t border border-[#3a494b]/60 flex items-end overflow-hidden h-36">
-                        <div
-                          className="w-full bg-gradient-to-t from-[#00f2ff]/40 to-[#00f2ff] group-hover:from-[#00ff9d]/40 group-hover:to-[#00ff9d] transition-all rounded-t shadow-[0_0_10px_rgba(0,242,255,0.4)]"
-                          style={{ height: `${barHeightPct}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-[10px] text-[#8e9dae] uppercase font-bold">{trend.label}</span>
-                    </div>
-                  )
-                })}
-              </div>
+          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 shadow-xl text-center">
+            <h3 className="font-display-lg text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 justify-center border-b border-[#3a494b]/60 pb-3 mb-4">
+              <BarChart2 className="w-4 h-4 text-[#00f2ff]" />
+              <span>Registration Velocity & Weekly Trends</span>
+            </h3>
+            <div className="py-12 text-[#a1a1aa] font-mono text-xs">
+              No analytics data available.
             </div>
-
-            {/* Right 5 Cols: Game Popularity Split */}
-            <div className="lg:col-span-5 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
-                <h3 className="font-display-lg text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <PieChart className="w-4 h-4 text-[#fe6b00]" />
-                  <span>Participation & Game Split</span>
-                </h3>
-              </div>
-
-              <div className="space-y-4 pt-2">
-                <div className="space-y-1">
-                  <div className="flex justify-between font-bold text-xs">
-                    <span className="text-[#00f2ff]">Free Fire MAX</span>
-                    <span className="font-mono text-[#00f2ff]">{gameSplit.ffCount} Matches ({gameSplit.ffPct}%)</span>
-                  </div>
-                  <div className="w-full bg-[#07090c] h-3 rounded-full overflow-hidden border border-[#3a494b]/60">
-                    <div className="bg-[#00f2ff] h-full rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(0,242,255,0.4)]" style={{ width: `${gameSplit.ffPct}%` }}></div>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex justify-between font-bold text-xs">
-                    <span className="text-[#fe6b00]">BGMI Mobile</span>
-                    <span className="font-mono text-[#ffb693]">{gameSplit.bgmiCount} Matches ({gameSplit.bgmiPct}%)</span>
-                  </div>
-                  <div className="w-full bg-[#07090c] h-3 rounded-full overflow-hidden border border-[#3a494b]/60">
-                    <div className="bg-[#fe6b00] h-full rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(254,107,0,0.4)]" style={{ width: `${gameSplit.bgmiPct}%` }}></div>
-                  </div>
-                </div>
-
-                <div className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/60 text-xs text-[#8e9dae] space-y-1 font-mono">
-                  <span className="text-[#white] font-bold block">Capacity Telemetry</span>
-                  <span>Registered Slots: {telemetry.totalRegisteredSlots} / {telemetry.totalSlots} Max Capacity ({telemetry.fillRatePct}%)</span>
-                </div>
-              </div>
-            </div>
-
           </div>
 
         </>

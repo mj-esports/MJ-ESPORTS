@@ -117,11 +117,19 @@ export default function TournamentHistoryPage() {
         </div>
 
         {/* Tournaments List */}
-        {filteredRegistrations.length === 0 ? (
-          <div className="py-16 text-center border border-[#27272a]/60 bg-[#0A0A0A] rounded-2xl p-6 space-y-3">
+        {userRegistrations.length === 0 ? (
+          <div className="py-16 text-center border border-[#27272a]/60 bg-[#0A0A0A] rounded-2xl p-6 space-y-3 font-sans">
+            <Trophy className="w-10 h-10 text-[#A0A0A0] mx-auto animate-pulse" />
+            <p className="text-xs font-bold text-white uppercase">No Matches Registered</p>
+            <p className="text-[10px] text-[#A0A0A0]">
+              You haven't participated in any tournaments yet.
+            </p>
+          </div>
+        ) : filteredRegistrations.length === 0 ? (
+          <div className="py-16 text-center border border-[#27272a]/60 bg-[#0A0A0A] rounded-2xl p-6 space-y-3 font-sans">
             <Trophy className="w-10 h-10 text-[#A0A0A0] mx-auto" />
             <p className="text-xs font-bold text-white uppercase">No Tournaments Found</p>
-            <p className="text-[10px] text-[#A0A0A0] font-sans">
+            <p className="text-[10px] text-[#A0A0A0]">
               No matching registrations detected in the active filters.
             </p>
           </div>

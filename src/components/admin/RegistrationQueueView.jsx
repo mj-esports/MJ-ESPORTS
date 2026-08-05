@@ -45,7 +45,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
 
         if (error) {
           console.warn('[Supabase Registrations Fetch Warning]:', error.message)
-          fallbackToContextData()
+          setLiveRegistrations([])
         } else if (data && data.length > 0) {
           const mapped = data.map((r) => {
             const tourn = tournaments.find((t) => String(t.id) === String(r.tournament_id))
@@ -71,41 +71,17 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
           })
           setLiveRegistrations(mapped)
         } else {
-          fallbackToContextData()
+          setLiveRegistrations([])
         }
       } else {
-        fallbackToContextData()
+        setLiveRegistrations([])
       }
     } catch (err) {
       console.error('[Fetch Registrations Error]:', err)
-      fallbackToContextData()
+      setLiveRegistrations([])
     } finally {
       setLoading(false)
     }
-  }
-
-  const fallbackToContextData = () => {
-    const all = tournaments.flatMap((t) =>
-      (t.teamsList || []).map((team) => ({
-        id: team.id || team.refId || 'reg-' + Math.random(),
-        tournamentId: t.id,
-        tournamentTitle: t.title,
-        tournamentGame: t.game,
-        teamName: team.name || team.teamName || 'Squad Team',
-        name: team.name || team.teamName || 'Squad Team',
-        captainName: team.captain || team.captainName || 'Player 1',
-        captain: team.captain || team.captainName || 'Player 1',
-        email: team.email || 'player@example.com',
-        freeFireUid: team.freeFireUid || team.uid || '518920412',
-        whatsappNumber: team.whatsappNumber || '+91 9876543210',
-        format: team.format || 'Squad',
-        teammateUids: team.teammateUids || ['789123041', '654321098', '987654321'],
-        status: team.status || 'Approved',
-        registeredAt: team.registeredAt || 'Today',
-        referenceId: team.refId || `REG-MJ-${Math.floor(1000 + Math.random() * 9000)}`,
-      }))
-    )
-    setLiveRegistrations(all)
   }
 
   useEffect(() => {
