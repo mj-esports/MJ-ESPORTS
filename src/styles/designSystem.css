@@ -315,6 +315,26 @@ body {
   color: var(--color-on-surface-variant);
 }
 
+/* Native Date & Time Picker Custom Dark Theme */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) sepia(1) saturate(5) hue-rotate(140deg);
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
 /* Shimmer Loading Skeleton */
 @keyframes skeletonPulse {
   0%, 100% {

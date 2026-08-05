@@ -8,7 +8,6 @@ import {
   Lock,
   Unlock,
   Eye,
-  EyeOff,
   Search,
   Filter,
   Calendar,
@@ -18,12 +17,26 @@ import {
   Gamepad2,
   X,
   FileText,
-  Users
+  Users,
+  Image,
+  Sparkles,
+  MapPin,
+  Zap,
+  Shield,
+  Target,
+  Crosshair
 } from 'lucide-react'
 import { SUPPORTED_GAMES } from '../../data/mockData'
 import FormInput from '../common/FormInput'
+import FormSelect from '../common/FormSelect'
+import FormModeSelector from '../common/FormModeSelector'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
+import StepWizard from '../common/StepWizard'
+import SchedulePicker from '../common/SchedulePicker'
+import PrizePoolBreakdown from '../common/PrizePoolBreakdown'
+import DynamicRulesManager from '../common/DynamicRulesManager'
+import ReviewSummaryStep from './ReviewSummaryStep'
 import { useToast } from '../../contexts/ToastContext'
 
 export default function TournamentCenterView({
@@ -36,6 +49,7 @@ export default function TournamentCenterView({
   const { showSuccess, showError } = useToast()
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
+  const [currentStep, setCurrentStep] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [gameFilter, setGameFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -56,6 +70,14 @@ export default function TournamentCenterView({
     rulesText: '1. No emulators allowed.\n2. Screen recording mandatory.\n3. Toxic behavior leads to immediate DQ.',
     description: 'Official high-stakes tournament.',
     status: 'Registration Open',
+    // Free Fire Specifics
+    ffMap: 'Bermuda',
+    ffGunAttributes: 'Disabled',
+    ffCharacterSkills: 'Enabled',
+    // BGMI Specifics
+    bgmiMap: 'Erangel',
+    bgmiPerspective: 'TPP',
+    bgmiRedZone: 'Disabled',
   })
 
   const [alert, setAlert] = useState(null)
@@ -75,8 +97,15 @@ export default function TournamentCenterView({
       rulesText: '1. No emulators allowed.\n2. Screen recording mandatory.\n3. Toxic behavior leads to immediate DQ.',
       description: 'Official high-stakes tournament.',
       status: 'Registration Open',
+      ffMap: 'Bermuda',
+      ffGunAttributes: 'Disabled',
+      ffCharacterSkills: 'Enabled',
+      bgmiMap: 'Erangel',
+      bgmiPerspective: 'TPP',
+      bgmiRedZone: 'Disabled',
     })
     setEditingId(null)
+    setCurrentStep(0)
     setShowModal(true)
   }
 
@@ -101,251 +130,579 @@ export default function TournamentCenterView({
       maxTeams: t.maxTeams || 32,
       startDate: t.startDate || '',
       startTime: t.startTime || '06:00 PM IST',
-      rulesText: Array.isArray(t.rules) ? t.rules.join('\n') : '',
-      description: t.description || '',
+      rulesText: Array.isArray(t.rules) ? t.rules.join('\n') : (t.rulesText || ''),
+      description: t.description || 'Official high-stakes tournament.',
       status: t.status || 'Registration Open',
+      ffMap: t.ffMap || 'Bermuda',
+      ffGunAttributes: t.ffGunAttributes || 'Disabled',
+      ffCharacterSkills: t.ffCharacterSkills || 'Enabled',
+      bgmiMap: t.bgmiMap || 'Erangel',
+      bgmiPerspective: t.bgmiPerspective || 'TPP',
+      bgmiRedZone: t.bgmiRedZone || 'Disabled',
     })
     setEditingId(t.id)
+    setCurrentStep(0)
     setShowModal(true)
   }
 
-  const validateForm = () => {
-    const errs = {}
-    if (!form.title.trim()) {
-      errs.title = 'Tournament Name is required'
+  const validateStep = (stepIdx) => {
+    const errors = {}
+    if (stepIdx === 0) {
+      if (!form.title || !form.title.trim()) {
+        errors.title = 'Tournament Title is required.'
+      } else if (form.title.trim().length < 3) {
+        errors.title = 'Tournament Title must be at least 3 characters long.'
+      }
+      if (form.bannerUrl && form.bannerUrl.trim() && !form.bannerUrl.startsWith('http://') && !form.bannerUrl.startsWith('https://')) {
+        errors.bannerUrl = 'Banner URL must start with http:// or https://'
+      }
+    } else if (stepIdx === 1) {
+      if (!form.startDate) {
+        errors.startDate = 'Start Date is required.'
+      }
+      if (!form.startTime) {
+        errors.startTime = 'Start Time is required.'
+      }
+    } else if (stepIdx === 2) {
+      if (!form.maxTeams || Number(form.maxTeams) <= 0) {
+        errors.maxTeams = 'Max Squad Slots must be greater than 0.'
+      }
+      if (!form.prizePool || !form.prizePool.trim()) {
+        errors.prizePool = 'Prize pool amount is required.'
+      }
     }
-
-    const slotsNum = parseInt(form.maxTeams, 10)
-    if (isNaN(slotsNum) || slotsNum <= 0) {
-      errs.maxTeams = 'Max slots must be a positive integer > 0'
-    }
-
-    if (!form.startDate) {
-      errs.startDate = 'Start date is required'
-    }
-
-    setFormErrors(errs)
-    return Object.keys(errs).length === 0
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
   }
 
-  const handleDuplicate = async (t) => {
-    if (actionId) return
-    setActionId(t.id)
-    try {
-      await createTournament({
-        ...t,
-        title: `${t.title} (Copy)`,
-        registeredTeams: 0,
-        teamsList: [],
-      })
-      showSuccess(`Tournament "${t.title}" duplicated successfully!`, 'Tournament Duplicated')
-    } catch (err) {
-      showError(err, 'Duplication Failed')
-    } finally {
-      setActionId(null)
-    }
-  }
-
-  const handleToggleRegistration = async (t) => {
-    if (actionId) return
-    setActionId(t.id)
-    try {
-      const nextStatus = t.status === 'Registration Open' ? 'Registration Closed' : 'Registration Open'
-      await updateTournamentStatus(t.id, nextStatus)
-      showSuccess(`Registration status updated to "${nextStatus}" for ${t.title}`, 'Status Updated')
-    } catch (err) {
-      showError(err, 'Status Update Error')
-    } finally {
-      setActionId(null)
+  const handleWizardNext = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep((prev) => Math.min(prev + 1, 3))
     }
   }
 
-  const handleDelete = async (tId, title) => {
-    if (actionId) return
-    if (!window.confirm(`Are you sure you want to delete tournament "${title}"?`)) return
-    setActionId(tId)
-    try {
-      await deleteTournament(tId)
-      showSuccess(`Tournament "${title}" deleted successfully.`, 'Tournament Deleted')
-    } catch (err) {
-      showError(err, 'Deletion Error')
-    } finally {
-      setActionId(null)
+  const handleWizardBack = () => {
+    setFormErrors({})
+    setCurrentStep((prev) => Math.max(prev - 1, 0))
+  }
+
+  const handleSaveDraft = async (e) => {
+    if (e && e.preventDefault) e.preventDefault()
+    if (!validateStep(0)) {
+      setCurrentStep(0)
+      showError('Please enter a valid Tournament Title to save draft.', 'Validation Error')
+      return
     }
+    const draftForm = { ...form, status: 'Draft' }
+    setForm(draftForm)
+    await submitFormData(draftForm, true)
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setAlert(null)
-
-    const cleanTitle = form.title.trim()
-    if (!cleanTitle) {
-      setAlert({ type: 'error', message: 'Tournament Name is required.' })
+    if (e && e.preventDefault) e.preventDefault()
+    if (!validateStep(0)) {
+      setCurrentStep(0)
+      showError('Please correct Basic Info errors before publishing.', 'Validation Error')
       return
     }
-
-    const slotsNum = parseInt(form.maxTeams, 10)
-    if (isNaN(slotsNum) || slotsNum <= 0) {
-      setAlert({ type: 'error', message: 'Max Squad Slots must be a positive integer greater than 0.' })
+    if (!validateStep(1)) {
+      setCurrentStep(1)
+      showError('Please select a valid Start Date & Time before publishing.', 'Validation Error')
       return
     }
-
-    if (!form.startDate) {
-      setAlert({ type: 'error', message: 'Tournament start date is required.' })
+    if (!validateStep(2)) {
+      setCurrentStep(2)
+      showError('Please configure Financials & Slot Capacity before publishing.', 'Validation Error')
       return
     }
+    const publishForm = { ...form, status: form.status === 'Draft' ? 'Registration Open' : form.status }
+    setForm(publishForm)
+    await submitFormData(publishForm, false)
+  }
 
+  const submitFormData = async (payload, isDraft = false) => {
     setIsSaving(true)
-    const rulesArray = form.rulesText
-      .split('\n')
-      .map((r) => r.trim())
-      .filter((r) => r.length > 0)
-
-    const mode = (form.mode || 'squad').toLowerCase()
-    const teamSize = mode === 'solo' ? 1 : mode === 'duo' ? 2 : 4
-    const matchFormat = mode === 'solo'
-      ? 'Solo Battle Royale'
-      : mode === 'duo'
-      ? 'Duo Battle Royale'
-      : 'Squad Battle Royale'
-
-    const payload = {
-      title: cleanTitle,
-      game: form.game,
-      mode: mode,
-      team_size: teamSize,
-      teamSize: teamSize,
-      match_format: matchFormat,
-      matchFormat: matchFormat,
-      format: matchFormat,
-      prizePool: form.prizePool.trim() || '₹0',
-      entryFee: form.entryFee.trim() || 'Free',
-      maxTeams: slotsNum,
-      startDate: form.startDate,
-      startTime: form.startTime.trim(),
-      rules: rulesArray,
-      description: form.description.trim(),
-      status: form.status,
-    }
-
-    console.log("TOURNAMENT CREATE PAYLOAD", payload)
-
+    setAlert(null)
     try {
-      if (editingId) {
-        await editTournament(editingId, payload)
-        setAlert({ type: 'success', message: 'Tournament configuration updated successfully!' })
-      } else {
-        await createTournament({
-          ...payload,
-          organizer: 'MJ ESPORTS Official',
-        })
-        setAlert({ type: 'success', message: 'New tournament created successfully!' })
+      const modeSize = payload.mode === 'solo' ? 1 : payload.mode === 'duo' ? 2 : 4
+      const formatString = payload.mode === 'solo' ? 'SOLO (1P)' : payload.mode === 'duo' ? 'DUO (2P)' : 'SQUAD (4P)'
+
+      const tournamentPayload = {
+        title: payload.title.trim(),
+        game: payload.game,
+        mode: payload.mode,
+        team_size: modeSize,
+        match_format: formatString,
+        format: formatString,
+        prize_pool: payload.prizePool,
+        prizePool: payload.prizePool,
+        entry_fee: payload.entryFee,
+        entryFee: payload.entryFee,
+        max_teams: Number(payload.maxTeams),
+        maxTeams: Number(payload.maxTeams),
+        start_date: payload.startDate,
+        startDate: payload.startDate,
+        start_time: payload.startTime,
+        startTime: payload.startTime,
+        status: payload.status || (isDraft ? 'Draft' : 'Registration Open'),
+        rules: payload.rulesText.split('\n').filter(Boolean),
+        banner_url: payload.bannerUrl,
+        bannerUrl: payload.bannerUrl,
+        description: payload.description,
+        ffMap: payload.ffMap,
+        ffGunAttributes: payload.ffGunAttributes,
+        ffCharacterSkills: payload.ffCharacterSkills,
+        bgmiMap: payload.bgmiMap,
+        bgmiPerspective: payload.bgmiPerspective,
+        bgmiRedZone: payload.bgmiRedZone,
       }
+
+      if (editingId) {
+        if (editTournament) await editTournament(editingId, tournamentPayload)
+        if (isDraft) {
+          showSuccess(`Draft for "${payload.title}" updated successfully!`, 'Draft Updated')
+        } else {
+          showSuccess(`Tournament "${payload.title}" updated successfully!`, 'Tournament Updated')
+        }
+      } else {
+        if (createTournament) await createTournament(tournamentPayload)
+        if (isDraft) {
+          showSuccess(`Draft for "${payload.title}" saved to database!`, 'Draft Saved')
+        } else {
+          showSuccess(`Tournament "${payload.title}" published! Registration is now OPEN.`, 'Tournament Published')
+        }
+      }
+
       setShowModal(false)
     } catch (err) {
+      console.error('[Save Tournament Error]:', err)
       setAlert({ type: 'error', message: err.message || 'Failed to save tournament.' })
+      showError(err, 'Save Failed')
     } finally {
       setIsSaving(false)
     }
   }
 
-  // Filter tournaments list with sanitized parameter checks
+  const handleToggleRegistration = async (t) => {
+    const nextStatus = t.status === 'Registration Open' ? 'Registration Closed' : 'Registration Open'
+    setActionId(t.id)
+    try {
+      if (updateTournamentStatus) await updateTournamentStatus(t.id, nextStatus)
+      showSuccess(`Registration status updated to "${nextStatus}" for ${t.title}`, 'Status Updated')
+    } catch (err) {
+      showError(err, 'Toggle Failed')
+    } finally {
+      setActionId(null)
+    }
+  }
+
+  const handleDuplicate = async (t) => {
+    try {
+      const dupPayload = {
+        title: `${t.title} (Copy)`,
+        game: t.game,
+        mode: t.mode || 'squad',
+        team_size: t.team_size || 4,
+        match_format: t.match_format || t.format || 'SQUAD (4P)',
+        format: t.format || 'SQUAD (4P)',
+        prize_pool: t.prize_pool || t.prizePool || '₹1,00,000',
+        prizePool: t.prizePool || t.prize_pool || '₹1,00,000',
+        entry_fee: t.entry_fee || t.entryFee || 'Free',
+        entryFee: t.entryFee || t.entry_fee || 'Free',
+        max_teams: t.max_teams || t.maxTeams || 32,
+        maxTeams: t.maxTeams || t.max_teams || 32,
+        start_date: t.start_date || t.startDate || '',
+        startDate: t.startDate || t.start_date || '',
+        start_time: t.start_time || t.startTime || '06:00 PM IST',
+        startTime: t.startTime || t.start_time || '06:00 PM IST',
+        status: 'Draft',
+        rules: t.rules || [],
+        banner_url: t.banner_url || t.bannerUrl || '',
+      }
+      if (createTournament) await createTournament(dupPayload)
+      showSuccess(`Tournament "${t.title}" duplicated successfully!`, 'Tournament Duplicated')
+    } catch (err) {
+      showError(err, 'Duplication Failed')
+    }
+  }
+
+  const handleDelete = async (id, title) => {
+    if (!window.confirm(`Are you sure you want to delete tournament "${title}"?`)) return
+    setActionId(id)
+    try {
+      if (deleteTournament) await deleteTournament(id)
+      showSuccess(`Tournament "${title}" deleted successfully.`, 'Tournament Deleted')
+    } catch (err) {
+      showError(err, 'Delete Failed')
+    } finally {
+      setActionId(null)
+    }
+  }
+
+  // Filter tournaments
   const filteredTournaments = tournaments.filter((t) => {
-    const cleanGame = gameFilter && gameFilter !== 'ALL' && gameFilter !== 'All Games' ? gameFilter.toLowerCase() : undefined
-    const cleanStatus = statusFilter && statusFilter !== 'ALL' && statusFilter !== 'All Statuses' ? statusFilter : undefined
-    const cleanSearch = searchQuery ? searchQuery.trim().toLowerCase() : undefined
-
-    const matchesGame = !cleanGame || t.game?.toLowerCase() === cleanGame
-    const matchesStatus = !cleanStatus || t.status === cleanStatus
-    const matchesSearch = !cleanSearch ||
-      t.title?.toLowerCase().includes(cleanSearch) ||
-      t.game?.toLowerCase().includes(cleanSearch)
-
+    const matchesSearch =
+      t.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.game?.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesGame = !gameFilter || t.game === gameFilter
+    const matchesStatus = !statusFilter || t.status === statusFilter
     return matchesSearch && matchesGame && matchesStatus
   })
 
+  // Define steps for Step Wizard
+  const wizardSteps = [
+    {
+      title: 'General Information',
+      shortTitle: 'General',
+      content: (
+        <div className="space-y-4">
+          <FormInput
+            label="Tournament Title"
+            name="title"
+            value={form.title}
+            onChange={(e) => {
+              setForm((prev) => ({ ...prev, title: e.target.value }))
+              if (formErrors.title) setFormErrors((prev) => ({ ...prev, title: null }))
+            }}
+            placeholder="e.g. Free Fire India Championship 2026"
+            required
+            error={formErrors.title}
+            icon={Trophy}
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormSelect
+              label="Game Title"
+              name="game"
+              value={form.game}
+              onChange={(e) => setForm((prev) => ({ ...prev, game: e.target.value }))}
+              options={SUPPORTED_GAMES}
+              required
+              icon={Gamepad2}
+            />
+
+            <FormModeSelector
+              label="Competition Mode"
+              value={form.mode}
+              onChange={(newMode) => setForm((prev) => ({ ...prev, mode: newMode }))}
+              required
+            />
+          </div>
+
+          <div className="p-3.5 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl flex items-center justify-between shadow-inner">
+            <div className="flex items-center gap-2.5">
+              <Users className="w-4.5 h-4.5 text-[#00f2ff] shrink-0" />
+              <div>
+                <span className="font-label-caps text-[9px] font-bold text-[#8e9dae] uppercase tracking-widest block">
+                  Selected Match Format Preview
+                </span>
+                <h4 className="text-xs sm:text-sm font-extrabold text-white uppercase tracking-tight">
+                  {form.mode === 'solo'
+                    ? 'Solo Battle Royale'
+                    : form.mode === 'duo'
+                    ? 'Duo Battle Royale'
+                    : 'Squad Battle Royale'}
+                </h4>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 uppercase font-mono">
+              {form.mode === 'solo' ? '1 Player Required' : form.mode === 'duo' ? '2 Players Required' : '4 Players Required'}
+            </span>
+          </div>
+
+          <FormInput
+            label="Banner Image URL (Optional)"
+            name="bannerUrl"
+            value={form.bannerUrl}
+            onChange={(e) => {
+              setForm((prev) => ({ ...prev, bannerUrl: e.target.value }))
+              if (formErrors.bannerUrl) setFormErrors((prev) => ({ ...prev, bannerUrl: null }))
+            }}
+            placeholder="https://images.unsplash.com/photo-..."
+            error={formErrors.bannerUrl}
+            icon={Image}
+          />
+        </div>
+      ),
+    },
+    {
+      title: 'Scheduling & Game Settings',
+      shortTitle: 'Schedule & Rules',
+      content: (
+        <div className="space-y-4">
+          
+          {/* CONDITIONAL GAME OPTIONS SECTION */}
+          {form.game === 'Free Fire' ? (
+            <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-3.5 shadow-inner">
+              <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2">
+                <span className="text-xs font-bold text-[#00f2ff] uppercase flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-[#fe6b00]" />
+                  <span>Free Fire Tournament Parameters</span>
+                </span>
+                <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/30 uppercase">
+                  FF Preset
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <FormSelect
+                  label="Match Map"
+                  name="ffMap"
+                  value={form.ffMap}
+                  onChange={(e) => setForm((prev) => ({ ...prev, ffMap: e.target.value }))}
+                  options={['Bermuda', 'Purgatory', 'Kalahari', 'Alpine', 'Nexterra']}
+                  icon={MapPin}
+                />
+
+                <FormSelect
+                  label="Gun Attributes"
+                  name="ffGunAttributes"
+                  value={form.ffGunAttributes}
+                  onChange={(e) => setForm((prev) => ({ ...prev, ffGunAttributes: e.target.value }))}
+                  options={['Disabled', 'Enabled']}
+                  icon={Crosshair}
+                />
+
+                <FormSelect
+                  label="Character Skills"
+                  name="ffCharacterSkills"
+                  value={form.ffCharacterSkills}
+                  onChange={(e) => setForm((prev) => ({ ...prev, ffCharacterSkills: e.target.value }))}
+                  options={['Enabled', 'Disabled']}
+                  icon={Zap}
+                />
+              </div>
+            </div>
+          ) : form.game === 'BGMI' ? (
+            <div className="p-4 bg-[#07090c] border border-[#00ff9d]/30 rounded-xl space-y-3.5 shadow-inner">
+              <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2">
+                <span className="text-xs font-bold text-[#00ff9d] uppercase flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-[#00ff9d]" />
+                  <span>BGMI Tournament Parameters</span>
+                </span>
+                <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 uppercase">
+                  BGMI Preset
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <FormSelect
+                  label="Match Map"
+                  name="bgmiMap"
+                  value={form.bgmiMap}
+                  onChange={(e) => setForm((prev) => ({ ...prev, bgmiMap: e.target.value }))}
+                  options={['Erangel', 'Miramar', 'Sanhok', 'Vikendi', 'Livik']}
+                  icon={MapPin}
+                />
+
+                <FormSelect
+                  label="Perspective"
+                  name="bgmiPerspective"
+                  value={form.bgmiPerspective}
+                  onChange={(e) => setForm((prev) => ({ ...prev, bgmiPerspective: e.target.value }))}
+                  options={['TPP', 'FPP']}
+                  icon={Target}
+                />
+
+                <FormSelect
+                  label="Red Zone"
+                  name="bgmiRedZone"
+                  value={form.bgmiRedZone}
+                  onChange={(e) => setForm((prev) => ({ ...prev, bgmiRedZone: e.target.value }))}
+                  options={['Disabled', 'Enabled']}
+                />
+              </div>
+            </div>
+          ) : null}
+
+          <SchedulePicker
+            startDate={form.startDate}
+            startTime={form.startTime}
+            onChange={({ startDate, startTime }) => {
+              setForm((prev) => ({
+                ...prev,
+                startDate,
+                startTime
+              }))
+              if (formErrors.startDate) setFormErrors((prev) => ({ ...prev, startDate: null }))
+            }}
+            tournamentTitle={form.title || 'Tournament'}
+          />
+
+          <div className="space-y-1">
+            <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">Operational Stage Status</label>
+            <select
+              value={form.status}
+              onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}
+              className="w-full p-3 bg-[#07090c] border border-[#3a494b] rounded text-white text-xs focus:outline-none focus:border-[#00f2ff]"
+            >
+              <option value="Draft">Stage 1: Draft (Private)</option>
+              <option value="Registration Open">Stage 2: Registration Open</option>
+              <option value="Registration Closed">Stage 5: Registration Closed</option>
+              <option value="Live Now">Stage 8: Live Now</option>
+              <option value="Completed">Stage 11: Completed</option>
+            </select>
+          </div>
+
+          {/* DYNAMIC RULES MANAGER WITH REORDERING & ADD/DELETE */}
+          <DynamicRulesManager
+            initialRules={form.rulesText}
+            onChange={(rulesObjArray, formattedRulesText) => {
+              setForm((prev) => ({
+                ...prev,
+                rulesText: formattedRulesText
+              }))
+            }}
+          />
+        </div>
+      ),
+    },
+    {
+      title: 'Financials & Slot Capacity',
+      shortTitle: 'Prize & Capacity',
+      content: (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <FormInput
+              label="Entry Fee"
+              name="entryFee"
+              value={form.entryFee}
+              onChange={(e) => setForm((prev) => ({ ...prev, entryFee: e.target.value }))}
+              placeholder="Free or ₹50"
+              required
+            />
+
+            <FormInput
+              label="Max Squad Slots"
+              name="maxTeams"
+              type="number"
+              value={form.maxTeams}
+              onChange={(e) => {
+                setForm((prev) => ({ ...prev, maxTeams: e.target.value }))
+                if (formErrors.maxTeams) setFormErrors((prev) => ({ ...prev, maxTeams: null }))
+              }}
+              placeholder="32"
+              required
+              error={formErrors.maxTeams}
+            />
+          </div>
+
+          {/* PRIZE POOL AUTO CALCULATOR & PERCENTAGE CHECK MATRIX */}
+          <PrizePoolBreakdown
+            initialTotalPool={form.prizePool}
+            onUpdate={({ totalPool }) => {
+              setForm((prev) => ({
+                ...prev,
+                prizePool: `₹${Number(totalPool).toLocaleString('en-IN')}`
+              }))
+            }}
+          />
+
+          <div className="p-4 bg-[#07090c] border border-[#3a494b]/60 rounded-xl space-y-2 text-xs">
+            <div className="flex justify-between items-center text-[11px] font-bold uppercase text-[#00f2ff]">
+              <span>Financials Configuration Verified</span>
+              <span>Next: Review & Launch</span>
+            </div>
+            <p className="text-[11px] text-[#8e9dae] leading-relaxed">
+              Prize Pool: <strong className="text-[#ffd700]">{form.prizePool}</strong> &bull; Entry: <strong className="text-white">{form.entryFee}</strong> &bull; Capacity: <strong className="text-white">{form.maxTeams} Slots</strong>
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Review & Launch Tournament',
+      shortTitle: 'Review & Publish',
+      content: (
+        <ReviewSummaryStep form={form} />
+      ),
+    },
+  ]
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 antialiased font-mono text-xs">
       
-      {/* Header Controls & Create Action */}
+      {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
-        <div className="space-y-1">
-          <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-[#fe6b00]" />
-            <span>TOURNAMENT MANAGEMENT</span>
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-bold uppercase tracking-wider mb-1">
+            <Trophy className="w-3.5 h-3.5" />
+            <span>Tournament Management</span>
+          </div>
+          <h2 className="font-display-lg text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
+            Tournament Operations Hub
           </h2>
-          <p className="text-xs text-[#8e9dae]">
-            Configure competitions, slots, entry fees, prize pools, and status controls.
-          </p>
         </div>
 
         <button
           onClick={handleOpenCreateModal}
-          aria-label="Create New Tournament"
-          className="btn-cyber-primary text-xs shrink-0"
+          className="btn-cyber text-xs py-3 px-5 uppercase tracking-wider flex items-center gap-2 min-h-[44px] cursor-pointer"
         >
-          <Plus className="w-4 h-4 shrink-0" />
-          <span>Create Tournament</span>
+          <Plus className="w-4 h-4" />
+          <span>New Tournament Wizard</span>
         </button>
       </div>
 
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
-      {/* FILTER BAR: Search, Game Filter, Status Filter */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
-        <div className="relative">
-          <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-3.5" />
+      {/* FILTER & SEARCH BAR */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 shadow-lg">
+        <div className="relative w-full sm:w-72">
+          <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search tournament name..."
-            className="w-full pl-9 pr-3 py-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
+            placeholder="Search tournaments by name or game..."
+            className="w-full bg-[#07090c] border border-[#3a494b] rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:border-[#00f2ff] focus:outline-none h-[38px]"
           />
         </div>
 
-        <div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Filter className="w-4 h-4 text-[#8e9dae]" />
           <select
             value={gameFilter}
             onChange={(e) => setGameFilter(e.target.value)}
-            className="w-full p-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white focus:outline-none focus:border-[#00f2ff]"
+            className="bg-[#07090c] border border-[#3a494b] rounded-lg px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none h-[38px]"
           >
             <option value="">All Games</option>
             {SUPPORTED_GAMES.map((g) => (
-              <option key={`game-f-${g}`} value={g}>{g}</option>
+              <option key={`filter-${g}`} value={g}>{g}</option>
             ))}
           </select>
-        </div>
 
-        <div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full p-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white focus:outline-none focus:border-[#00f2ff]"
+            className="bg-[#07090c] border border-[#3a494b] rounded-lg px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none h-[38px]"
           >
             <option value="">All Statuses</option>
             <option value="Registration Open">Registration Open</option>
             <option value="Live Now">Live Now</option>
             <option value="Registration Closed">Registration Closed</option>
+            <option value="Draft">Draft</option>
             <option value="Completed">Completed</option>
           </select>
         </div>
       </div>
 
-      {/* TOURNAMENT CARDS GRID */}
+      {/* TOURNAMENTS GRID DISPLAY */}
       {filteredTournaments.length === 0 ? (
-        <div className="p-12 text-center bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-3 shadow-xl">
-          <Trophy className="w-10 h-10 text-[#8e9dae] mx-auto" />
-          <h3 className="font-display-lg text-sm font-bold text-white uppercase">No Tournaments Found</h3>
-          <p className="text-xs text-[#8e9dae]">No competitions match your selected search or filter criteria.</p>
+        <div className="py-16 text-center border border-[#3a494b]/60 bg-[#151a21]/60 rounded-xl p-6 space-y-3 shadow-lg">
+          <Trophy className="w-10 h-10 text-[#8e9dae] mx-auto opacity-50" />
+          <p className="text-xs font-bold text-white uppercase">No Tournaments Found</p>
+          <p className="text-[10px] text-[#8e9dae]">No tournaments match the selected filters.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredTournaments.map((t) => (
-            <div key={`tc-card-${t.id}`} className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl flex flex-col justify-between hover:border-[#00f2ff] transition-all">
+            <div
+              key={t.id}
+              className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff]/50 rounded-xl p-5 space-y-4 shadow-xl flex flex-col justify-between transition-all"
+            >
               <div className="space-y-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#07090c] text-[#00f2ff] border border-[#00f2ff]/30">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
                     {t.game}
                   </span>
                   <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
@@ -366,7 +723,7 @@ export default function TournamentCenterView({
                 <div className="p-3.5 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-2 text-xs">
                   <div className="flex justify-between items-center text-[11px]">
                     <span className="text-[#8e9dae] font-semibold">Slot Progress</span>
-                    <span className="font-mono font-bold text-[#00f2ff]">{t.registeredTeams} / {t.maxTeams} Teams</span>
+                    <span className="font-mono font-bold text-[#00f2ff]">{t.registeredTeams || 0} / {t.maxTeams || 32} Teams</span>
                   </div>
                   <div className="w-full h-1.5 bg-[#151a21] rounded-full overflow-hidden">
                     <div
@@ -386,7 +743,7 @@ export default function TournamentCenterView({
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
                     onClick={() => handleOpenEditModal(t)}
-                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5"
+                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5 cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5 text-[#00f2ff]" />
                     <span>Edit</span>
@@ -394,7 +751,7 @@ export default function TournamentCenterView({
 
                   <button
                     onClick={() => handleDuplicate(t)}
-                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5"
+                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5 cursor-pointer"
                   >
                     <Copy className="w-3.5 h-3.5 text-[#00f2ff]" />
                     <span>Duplicate</span>
@@ -404,7 +761,7 @@ export default function TournamentCenterView({
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
                     onClick={() => handleToggleRegistration(t)}
-                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5 text-[#ffb800]"
+                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5 text-[#ffb800] cursor-pointer"
                   >
                     {t.status === 'Registration Open' ? <Lock className="w-3.5 h-3.5 text-[#ffb800]" /> : <Unlock className="w-3.5 h-3.5 text-[#00ff9d]" />}
                     <span>{t.status === 'Registration Open' ? 'Close Reg' : 'Open Reg'}</span>
@@ -412,7 +769,7 @@ export default function TournamentCenterView({
 
                   <button
                     onClick={() => handleDelete(t.id, t.title)}
-                    className="btn-cyber-danger text-[11px] min-h-[38px] py-1.5 px-2.5"
+                    className="btn-cyber-danger text-[11px] min-h-[38px] py-1.5 px-2.5 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Delete</span>
@@ -425,208 +782,38 @@ export default function TournamentCenterView({
         </div>
       )}
 
-      {/* CREATE / EDIT MODAL DIALOG */}
+      {/* REUSABLE STEP WIZARD MODAL DIALOG */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-2xl max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-[0_0_50px_rgba(0,242,255,0.15)] relative max-h-[92vh] overflow-y-auto">
             
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-5 right-5 p-2 rounded bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
+              className="absolute top-5 right-5 p-2 rounded-xl bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="space-y-1">
+            <div className="space-y-1 border-b border-[#3a494b]/50 pb-3">
               <h3 className="font-display-lg text-lg font-bold text-white uppercase tracking-tight flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-[#00f2ff]" />
-                <span>{editingId ? 'Edit Tournament Configuration' : 'Create New Tournament'}</span>
+                <span>{editingId ? 'Edit Tournament Configuration' : 'Tournament Creation Wizard'}</span>
               </h3>
-              <p className="text-xs text-[#8e9dae]">Configure parameters and rule sets for competitive play.</p>
+              <p className="text-xs text-[#8e9dae]">Configure parameters, schedule, financials, and rules in 4 guided steps.</p>
             </div>
 
-            <form onSubmit={handleSubmit} noValidate className="space-y-4 text-xs">
-              <FormInput
-                label="Tournament Title"
-                name="title"
-                value={form.title}
-                onChange={(e) => {
-                  setForm((prev) => ({ ...prev, title: e.target.value }))
-                  if (formErrors.title) setFormErrors((prev) => ({ ...prev, title: null }))
-                }}
-                placeholder="e.g. Free Fire India Championship 2026"
-                required
-                error={formErrors.title}
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+              <StepWizard
+                steps={wizardSteps}
+                currentStep={currentStep}
+                onNext={handleWizardNext}
+                onBack={handleWizardBack}
+                onSaveDraft={handleSaveDraft}
+                onCancel={() => setShowModal(false)}
+                nextText="Next Step"
+                finishText={editingId ? 'Update & Publish' : 'Publish Tournament'}
+                isSubmitting={isSaving}
               />
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">Game Title</label>
-                  <select
-                    value={form.game}
-                    onChange={(e) => setForm((prev) => ({ ...prev, game: e.target.value }))}
-                    className="w-full p-3 bg-[#07090c] border border-[#3a494b] rounded text-white text-xs focus:outline-none focus:border-[#00f2ff]"
-                  >
-                    {SUPPORTED_GAMES.map((g) => (
-                      <option key={`m-game-${g}`} value={g}>{g}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* COMPETITION MODE SELECTION BUTTONS */}
-                <div className="space-y-1">
-                  <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase tracking-wider block">
-                    Competition Mode <span className="text-[#00f2ff]">*</span>
-                  </label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {[
-                      { key: 'solo', label: 'SOLO', size: 1 },
-                      { key: 'duo', label: 'DUO', size: 2 },
-                      { key: 'squad', label: 'SQUAD', size: 4 },
-                    ].map((m) => (
-                      <button
-                        key={`create-mode-btn-${m.key}`}
-                        type="button"
-                        onClick={() => setForm((prev) => ({ ...prev, mode: m.key }))}
-                        className={`py-2 px-2 rounded text-xs font-bold uppercase transition-all border flex flex-col items-center justify-center min-h-[40px] ${
-                          form.mode === m.key
-                            ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
-                            : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b] hover:text-white'
-                        }`}
-                      >
-                        <span className="font-extrabold">{m.label}</span>
-                        <span className="text-[9px] opacity-75 font-mono">({m.size}P)</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* COMPETITION MODE PREVIEW CARD */}
-              <div className="p-3.5 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl flex items-center justify-between shadow-inner">
-                <div className="flex items-center gap-2.5">
-                  <Users className="w-4.5 h-4.5 text-[#00f2ff] shrink-0" />
-                  <div>
-                    <span className="font-label-caps text-[9px] font-bold text-[#8e9dae] uppercase tracking-widest block">
-                      Selected Match Format Preview
-                    </span>
-                    <h4 className="text-xs sm:text-sm font-extrabold text-white uppercase tracking-tight">
-                      {form.mode === 'solo'
-                        ? 'Solo Battle Royale'
-                        : form.mode === 'duo'
-                        ? 'Duo Battle Royale'
-                        : 'Squad Battle Royale'}
-                    </h4>
-                  </div>
-                </div>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 uppercase font-mono">
-                  {form.mode === 'solo' ? '1 Player Required' : form.mode === 'duo' ? '2 Players Required' : '4 Players Required'}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <FormInput
-                  label="Prize Pool"
-                  name="prizePool"
-                  value={form.prizePool}
-                  onChange={(e) => setForm((prev) => ({ ...prev, prizePool: e.target.value }))}
-                  placeholder="₹1,00,000"
-                  required
-                />
-
-                <FormInput
-                  label="Entry Fee"
-                  name="entryFee"
-                  value={form.entryFee}
-                  onChange={(e) => setForm((prev) => ({ ...prev, entryFee: e.target.value }))}
-                  placeholder="Free or ₹50"
-                  required
-                />
-
-                <FormInput
-                  label="Max Squad Slots"
-                  name="maxTeams"
-                  type="number"
-                  value={form.maxTeams}
-                  onChange={(e) => {
-                    setForm((prev) => ({ ...prev, maxTeams: e.target.value }))
-                    if (formErrors.maxTeams) setFormErrors((prev) => ({ ...prev, maxTeams: null }))
-                  }}
-                  placeholder="32"
-                  required
-                  error={formErrors.maxTeams}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <FormInput
-                  label="Start Date"
-                  name="startDate"
-                  type="date"
-                  value={form.startDate}
-                  onChange={(e) => {
-                    setForm((prev) => ({ ...prev, startDate: e.target.value }))
-                    if (formErrors.startDate) setFormErrors((prev) => ({ ...prev, startDate: null }))
-                  }}
-                  required
-                  error={formErrors.startDate}
-                />
-
-                <FormInput
-                  label="Start Time"
-                  name="startTime"
-                  value={form.startTime}
-                  onChange={(e) => setForm((prev) => ({ ...prev, startTime: e.target.value }))}
-                  placeholder="06:00 PM IST"
-                  required
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">Operational Stage Status</label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}
-                  className="w-full p-3 bg-[#07090c] border border-[#3a494b] rounded text-white text-xs focus:outline-none focus:border-[#00f2ff]"
-                >
-                  <option value="Draft">Stage 1: Draft (Private)</option>
-                  <option value="Registration Open">Stage 2: Registration Open</option>
-                  <option value="Registration Closed">Stage 5: Registration Closed</option>
-                  <option value="Live Now">Stage 8: Live Now</option>
-                  <option value="Completed">Stage 11: Completed</option>
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">Tournament Rulebook (1 rule per line)</label>
-                <textarea
-                  rows={4}
-                  value={form.rulesText}
-                  onChange={(e) => setForm((prev) => ({ ...prev, rulesText: e.target.value }))}
-                  placeholder="Enter tournament rules..."
-                  className="w-full p-3 bg-[#07090c] border border-[#3a494b] rounded text-white text-xs placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
-                />
-              </div>
-
-              <div className="pt-2 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 py-3 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded hover:bg-[#1d232c] uppercase min-h-[44px]"
-                >
-                  Cancel
-                </button>
-
-                <LoadingButton
-                  type="submit"
-                  loading={isSaving}
-                  loadingText="Saving Configuration..."
-                  className="flex-1 py-3 min-h-[44px]"
-                >
-                  {editingId ? 'Update Tournament' : 'Create Competition'}
-                </LoadingButton>
-              </div>
-
             </form>
           </div>
         </div>

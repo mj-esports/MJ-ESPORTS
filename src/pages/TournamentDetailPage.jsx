@@ -28,6 +28,9 @@ import { DetailSkeleton } from '../components/common/SkeletonLoader'
 import SlotBookingModal from '../components/tournament/SlotBookingModal'
 import PointsTable from '../components/bracket/PointsTable'
 import BracketViewer from '../components/bracket/BracketViewer'
+import SchedulePicker from '../components/common/SchedulePicker'
+import PrizePoolBreakdown from '../components/common/PrizePoolBreakdown'
+import DynamicRulesManager from '../components/common/DynamicRulesManager'
 
 export default function TournamentDetailPage() {
   const { id } = useParams()
@@ -228,6 +231,14 @@ export default function TournamentDetailPage() {
                   </div>
                 </div>
 
+                {/* PRIZE POOL BREAKDOWN & DISTRIBUTION CARD */}
+                <div className="mt-6">
+                  <PrizePoolBreakdown
+                    initialTotalPool={tournament.prizePool || '₹25,000'}
+                    readOnly={true}
+                  />
+                </div>
+
                 {/* Slot Capacity Progress Bar Box */}
                 <div className="bg-[#1a1a1a] p-6 rounded-xl border border-[#333333] mt-6 space-y-3">
                   <div className="flex justify-between items-end mb-2">
@@ -302,33 +313,21 @@ export default function TournamentDetailPage() {
 
             {/* TAB 2: RULES */}
             {activeTab === 'rules' && (
-              <div className="bg-[#1a1a1a] rounded-xl border border-[#333333] p-6 space-y-4">
-                <h3 className="text-xl font-headline font-bold text-white">Official Tournament Rules</h3>
-                <ul className="space-y-3 text-sm text-[#a3a3a3] list-disc pl-5">
-                  <li>All players must be present in the custom room 10 minutes prior to match start.</li>
-                  <li>Emulators are strictly prohibited unless explicitly specified in the tournament mode.</li>
-                  <li>Hacking, cheating, or exploiting bugs will result in immediate disqualification and account ban.</li>
-                  <li>Team captains are responsible for submitting final score screenshots to tournament refs.</li>
-                </ul>
-              </div>
+              <DynamicRulesManager
+                initialRules={tournament.rules || tournament.rulesText}
+                readOnly={true}
+              />
             )}
 
             {/* TAB 3: SCHEDULE */}
             {activeTab === 'schedule' && (
-              <div className="bg-[#1a1a1a] rounded-xl border border-[#333333] p-6 space-y-4">
-                <h3 className="text-xl font-headline font-bold text-white">Match Timeline</h3>
-                <div className="space-y-3 font-mono text-xs">
-                  <div className="p-4 bg-[#111111] rounded-lg border border-[#333333] flex items-center justify-between">
-                    <div>
-                      <span className="text-[#f97316] font-bold block uppercase">Group Stage - Round 1</span>
-                      <span className="text-[#a3a3a3] text-[11px]">{tournament.startDate} @ {tournament.startTime || '6:00 PM IST'}</span>
-                    </div>
-                    <span className="px-2.5 py-1 rounded bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/40 font-bold uppercase text-[10px]">
-                      Scheduled
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <SchedulePicker
+                startDate={tournament.startDate || ''}
+                startTime={tournament.startTime || '06:00 PM IST'}
+                readOnly={true}
+                showTimelineOnly={true}
+                tournamentTitle={tournament.title}
+              />
             )}
 
             {/* TAB 4: REGISTERED SQUADS */}
