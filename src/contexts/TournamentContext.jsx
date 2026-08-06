@@ -60,7 +60,6 @@ export function mapTournamentToDb(t) {
   if (!t) return {}
 
   const formatVal = String(t.format || t.match_format || t.matchFormat || 'SQUAD (4P)').trim()
-  const matchFormatVal = String(t.match_format || t.matchFormat || t.format || 'SQUAD (4P)').trim()
 
   let rulesArray = []
   if (Array.isArray(t.rules)) {
