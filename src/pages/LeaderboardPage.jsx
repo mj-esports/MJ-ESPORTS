@@ -18,7 +18,7 @@ export default function LeaderboardPage() {
       if (isSupabaseConfigured) {
         const { data, error: err } = await supabase
           .from('tournaments')
-          .select('*')
+          .select('id, title, game, format, prize_pool, status, teams_list, created_at')
           .order('created_at', { ascending: false })
 
         if (err) {

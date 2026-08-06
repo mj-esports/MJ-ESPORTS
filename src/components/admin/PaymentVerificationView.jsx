@@ -34,7 +34,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
       if (isSupabaseConfigured) {
         const { data, error } = await supabase
           .from('tournament_registrations')
-          .select('*')
+          .select('id, tournament_id, team_name, captain_name, free_fire_uid, whatsapp_number, email, status, payment_status, payment_id, transaction_id, screenshot_url, registered_at')
           .order('created_at', { ascending: false })
 
         if (error) {

@@ -36,8 +36,10 @@ import StepWizard from '../common/StepWizard'
 import TournamentScheduleForm from '../common/TournamentScheduleForm'
 import EntryPrizeSystem from '../common/EntryPrizeSystem'
 import OfficialRulebook, { OFFICIAL_MJ_RULES } from '../common/OfficialRulebook'
-import ReviewSummaryStep from './ReviewSummaryStep'
+import { useTournaments } from '../../contexts/TournamentContext'
 import { useToast } from '../../contexts/ToastContext'
+import { telemetry } from '../../services/telemetryService'
+import ReviewSummaryStep from './ReviewSummaryStep'
 
 export default function TournamentCenterView({
   tournaments = [],
@@ -309,6 +311,7 @@ export default function TournamentCenterView({
 
       if (editingId) {
         if (editTournament) await editTournament(editingId, tournamentPayload)
+        telemetry.logAdminAction('update_tournament', editingId, { title: payload.title, status: payload.status })
         if (isDraft) {
           showSuccess(`Draft for "${payload.title}" updated successfully!`, 'Draft Updated')
         } else {
@@ -316,6 +319,7 @@ export default function TournamentCenterView({
         }
       } else {
         if (createTournament) await createTournament(tournamentPayload)
+        telemetry.logAdminAction('create_tournament', payload.title, { status: payload.status })
         if (isDraft) {
           showSuccess(`Draft for "${payload.title}" saved to database!`, 'Draft Saved')
         } else {
@@ -325,7 +329,7 @@ export default function TournamentCenterView({
 
       setShowModal(false)
     } catch (err) {
-      console.error("STEP 7 : Execution Exception", err)
+      telemetry.logError(err, { action: 'submit_tournament', editingId })
       const exactErrorMsg = err?.message || err?.details || (typeof err === 'string' ? err : 'Failed to insert tournament into database.')
       setAlert({ type: 'error', message: exactErrorMsg })
       showError(exactErrorMsg, exactErrorMsg)

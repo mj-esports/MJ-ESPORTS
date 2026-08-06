@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import {
   Wallet,
   ArrowUpRight,
@@ -38,7 +38,7 @@ export default function WalletPage() {
 
   const userWalletBalance = user?.user_metadata?.wallet_balance ?? 0.0
 
-  const syncWalletData = async () => {
+  const syncWalletData = useCallback(async () => {
     if (!user?.id) return
     setIsRefreshing(true)
     try {
@@ -97,11 +97,11 @@ export default function WalletPage() {
     } finally {
       setIsRefreshing(false)
     }
-  }
+  }, [user?.id])
 
   useEffect(() => {
     syncWalletData()
-  }, [user?.id, userWalletBalance])
+  }, [syncWalletData])
 
   const handleRefreshBalance = () => {
     syncWalletData()

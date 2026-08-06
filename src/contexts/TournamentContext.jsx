@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import { useAuth } from './AuthContext'
 
@@ -104,32 +104,67 @@ export function TournamentProvider({ children }) {
   const [tournaments, setTournaments] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const fetchTournaments = useCallback(async () => {
+  // In-flight request lock to prevent duplicate concurrent submissions
+  const activeSubmissionsRef = useRef(new Set())
+
+  const fetchTournaments = useCallback(async (retries = 2) => {
     if (!isSupabaseConfigured) {
       setLoading(false)
       return
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('tournaments')
-        .select('*')
-        .order('created_at', { ascending: false })
+    let attempt = 0
+    while (attempt <= retries) {
+      try {
+        const { data, error } = await supabase
+          .from('tournaments')
+          .select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, created_at, updated_at')
+          .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('Fetch tournaments error:', error)
-      } else if (data) {
-        setTournaments(data.map(mapTournamentFromDb))
+        if (error) {
+          console.error(`[fetchTournaments] Attempt ${attempt + 1} error:`, error)
+          if (attempt < retries) {
+            await new Promise((res) => setTimeout(res, 1000 * (attempt + 1)))
+            attempt++
+            continue
+          }
+        } else if (data) {
+          setTournaments(data.map(mapTournamentFromDb))
+          break
+        }
+      } catch (err) {
+        console.error(`[fetchTournaments] Attempt ${attempt + 1} exception:`, err)
+        if (attempt < retries) {
+          await new Promise((res) => setTimeout(res, 1000 * (attempt + 1)))
+          attempt++
+          continue
+        }
+      } finally {
+        setLoading(false)
       }
-    } catch (err) {
-      console.error('Fetch tournaments exception:', err)
-    } finally {
-      setLoading(false)
+      attempt++
     }
   }, [])
 
   useEffect(() => {
     fetchTournaments()
+
+    if (isSupabaseConfigured) {
+      const channel = supabase
+        .channel('realtime_tournaments_changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'tournaments' },
+          () => {
+            fetchTournaments()
+          }
+        )
+        .subscribe()
+
+      return () => {
+        supabase.removeChannel(channel)
+      }
+    }
   }, [fetchTournaments])
 
   const getTournamentById = (id) => {
@@ -156,22 +191,32 @@ export function TournamentProvider({ children }) {
       throw new Error('Supabase client is not configured.')
     }
 
-    const payload = mapTournamentToDb(tournamentData)
-
-    const { data, error } = await supabase
-      .from('tournaments')
-      .insert([payload])
-      .select()
-
-    if (error) {
-      console.error('Create tournament error:', error)
-      throw error
+    const lockKey = `create_${tournamentData.title || ''}_${tournamentData.startDate || ''}`
+    if (activeSubmissionsRef.current.has(lockKey)) {
+      throw new Error('A tournament creation request is already in progress. Please wait.')
     }
+    activeSubmissionsRef.current.add(lockKey)
 
-    const insertedRow = data && data[0] ? data[0] : payload
-    const newTournament = mapTournamentFromDb(insertedRow)
-    setTournaments((prev) => [newTournament, ...prev.filter((t) => String(t.id) !== String(newTournament.id))])
-    return newTournament
+    try {
+      const payload = mapTournamentToDb(tournamentData)
+
+      const { data, error } = await supabase
+        .from('tournaments')
+        .insert([payload])
+        .select()
+
+      if (error) {
+        console.error('Create tournament error:', error)
+        throw error
+      }
+
+      const insertedRow = data && data[0] ? data[0] : payload
+      const newTournament = mapTournamentFromDb(insertedRow)
+      setTournaments((prev) => [newTournament, ...prev.filter((t) => String(t.id) !== String(newTournament.id))])
+      return newTournament
+    } finally {
+      activeSubmissionsRef.current.delete(lockKey)
+    }
   }
 
   const updateTournament = async (id, updatedFields) => {
@@ -223,86 +268,96 @@ export function TournamentProvider({ children }) {
   }
 
   const registerTeam = async (tournamentId, teamInfo) => {
-    const target = tournaments.find((t) => String(t.id) === String(tournamentId))
-    if (!target) {
-      throw new Error('Tournament not found!')
+    const lockKey = `reg_${tournamentId}_${teamInfo.email || teamInfo.freeFireUid || teamInfo.userId || ''}`
+    if (activeSubmissionsRef.current.has(lockKey)) {
+      throw new Error('Registration is currently processing. Please wait.')
     }
+    activeSubmissionsRef.current.add(lockKey)
 
-    if (target.status !== 'Registration Open') {
-      throw new Error('Registration for this tournament is currently closed.')
-    }
-
-    if (target.startDate) {
-      const startDate = new Date(target.startDate)
-      if (!isNaN(startDate.getTime()) && startDate < new Date()) {
-        throw new Error('The registration deadline for this tournament has passed.')
-      }
-    }
-
-    if ((target.registeredTeams || 0) >= (target.maxTeams || 32)) {
-      throw new Error('Tournament slots are full!')
-    }
-
-    const isDuplicate = target.teamsList?.some(
-      (item) =>
-        (item.email && teamInfo.email && item.email.toLowerCase() === teamInfo.email.toLowerCase()) ||
-        (item.freeFireUid && teamInfo.freeFireUid && item.freeFireUid === teamInfo.freeFireUid) ||
-        (item.userId && teamInfo.userId && item.userId === teamInfo.userId) ||
-        (teamInfo.teammates && item.teammates?.some((tUid) => teamInfo.teammates.includes(tUid)))
-    )
-
-    if (isDuplicate) {
-      throw new Error('You, your squad, or one of your teammate Game UIDs has already registered for this tournament!')
-    }
-
-    const regStatus = teamInfo.status || 'Approved'
-    const refId = teamInfo.refId || `REG-MJ-${Date.now().toString(36).toUpperCase()}`
-
-    if (isSupabaseConfigured) {
-      const { data: existingRegs } = await supabase
-        .from('tournament_registrations')
-        .select('id')
-        .eq('tournament_id', tournamentId)
-        .or(`email.eq.${teamInfo.email},free_fire_uid.eq.${teamInfo.freeFireUid}${teamInfo.userId ? `,user_id.eq.${teamInfo.userId}` : ''}`)
-
-      if (existingRegs && existingRegs.length > 0) {
-        throw new Error('You or your team has already registered for this tournament!')
+    try {
+      const target = tournaments.find((t) => String(t.id) === String(tournamentId))
+      if (!target) {
+        throw new Error('Tournament not found!')
       }
 
-      await supabase.from('tournament_registrations').insert([
-        {
-          tournament_id: tournamentId,
-          team_name: teamInfo.name,
-          captain_name: teamInfo.captain,
-          free_fire_uid: teamInfo.freeFireUid,
-          whatsapp_number: teamInfo.whatsappNumber,
-          email: teamInfo.email,
-          user_id: teamInfo.userId || null,
-          status: regStatus,
-          registered_at: new Date().toISOString(),
-        },
-      ])
+      if (target.status !== 'Registration Open') {
+        throw new Error('Registration for this tournament is currently closed.')
+      }
+
+      if (target.startDate) {
+        const startDate = new Date(target.startDate)
+        if (!isNaN(startDate.getTime()) && startDate < new Date()) {
+          throw new Error('The registration deadline for this tournament has passed.')
+        }
+      }
+
+      if ((target.registeredTeams || 0) >= (target.maxTeams || 32)) {
+        throw new Error('Tournament slots are full!')
+      }
+
+      const isDuplicate = target.teamsList?.some(
+        (item) =>
+          (item.email && teamInfo.email && item.email.toLowerCase() === teamInfo.email.toLowerCase()) ||
+          (item.freeFireUid && teamInfo.freeFireUid && item.freeFireUid === teamInfo.freeFireUid) ||
+          (item.userId && teamInfo.userId && item.userId === teamInfo.userId) ||
+          (teamInfo.teammates && item.teammates?.some((tUid) => teamInfo.teammates.includes(tUid)))
+      )
+
+      if (isDuplicate) {
+        throw new Error('You, your squad, or one of your teammate Game UIDs has already registered for this tournament!')
+      }
+
+      const regStatus = teamInfo.status || 'Approved'
+      const refId = teamInfo.refId || `REG-MJ-${Date.now().toString(36).toUpperCase()}`
+
+      if (isSupabaseConfigured) {
+        const { data: existingRegs } = await supabase
+          .from('tournament_registrations')
+          .select('id')
+          .eq('tournament_id', tournamentId)
+          .or(`email.eq.${teamInfo.email},free_fire_uid.eq.${teamInfo.freeFireUid}${teamInfo.userId ? `,user_id.eq.${teamInfo.userId}` : ''}`)
+
+        if (existingRegs && existingRegs.length > 0) {
+          throw new Error('You or your team has already registered for this tournament!')
+        }
+
+        await supabase.from('tournament_registrations').insert([
+          {
+            tournament_id: tournamentId,
+            team_name: teamInfo.name,
+            captain_name: teamInfo.captain,
+            free_fire_uid: teamInfo.freeFireUid,
+            whatsapp_number: teamInfo.whatsappNumber,
+            email: teamInfo.email,
+            user_id: teamInfo.userId || null,
+            status: regStatus,
+            registered_at: new Date().toISOString(),
+          },
+        ])
+      }
+
+      const updatedTeamRecord = {
+        ...teamInfo,
+        id: refId,
+        refId,
+        status: regStatus,
+        teammates: teamInfo.teammates || [],
+        rank: (target.teamsList?.length || 0) + 1,
+        registeredAt: new Date().toISOString(),
+      }
+
+      const newTeamsList = [...(target.teamsList || []), updatedTeamRecord]
+      const newRegisteredCount = (target.registeredTeams || 0) + 1
+
+      await updateTournament(tournamentId, {
+        registeredTeams: newRegisteredCount,
+        teamsList: newTeamsList,
+      })
+
+      return updatedTeamRecord
+    } finally {
+      activeSubmissionsRef.current.delete(lockKey)
     }
-
-    const updatedTeamRecord = {
-      ...teamInfo,
-      id: refId,
-      refId,
-      status: regStatus,
-      teammates: teamInfo.teammates || [],
-      rank: (target.teamsList?.length || 0) + 1,
-      registeredAt: new Date().toISOString(),
-    }
-
-    const newTeamsList = [...(target.teamsList || []), updatedTeamRecord]
-    const newRegisteredCount = (target.registeredTeams || 0) + 1
-
-    await updateTournament(tournamentId, {
-      registeredTeams: newRegisteredCount,
-      teamsList: newTeamsList,
-    })
-
-    return updatedTeamRecord
   }
 
   const withdrawTeam = async (tournamentId, identifier) => {

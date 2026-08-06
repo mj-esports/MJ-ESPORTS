@@ -5,11 +5,13 @@ import { useTournaments } from '../contexts/TournamentContext'
 import { CardSkeleton } from '../components/common/SkeletonLoader'
 import EmptyState from '../components/common/EmptyState'
 import { SUPPORTED_GAMES } from '../data/mockData'
+import { useDebounce } from '../hooks/useDebounce'
 
 export default function TournamentsPage() {
   const { tournaments, loading } = useTournaments()
 
   const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [selectedGame, setSelectedGame] = useState('All')
   const [selectedStatus, setSelectedStatus] = useState('ALL')
   const [visibleCount, setVisibleCount] = useState(6)
@@ -34,7 +36,7 @@ export default function TournamentsPage() {
       if (!isPublished) return false
 
       // 2. Case-insensitive Search Match
-      const queryStr = searchQuery.trim().toLowerCase()
+      const queryStr = debouncedSearchQuery.trim().toLowerCase()
       const matchesSearch =
         !queryStr ||
         (t.title || '').toLowerCase().includes(queryStr) ||

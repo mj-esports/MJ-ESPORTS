@@ -20,8 +20,18 @@ export async function fetchWalletTransactions(userId) {
   }
 }
 
+const activeTxLocks = new Set()
+
 export async function addWalletTransaction({ userId, type, amount, description, tournamentId }) {
   if (!isSupabaseConfigured || !userId) return null
+
+  const lockKey = `tx_${userId}_${type}_${amount}_${tournamentId || ''}`
+  if (activeTxLocks.has(lockKey)) {
+    console.warn('[walletService] Duplicate transaction request blocked:', lockKey)
+    return null
+  }
+  activeTxLocks.add(lockKey)
+
   try {
     const numAmount = Number(amount)
     const { data, error } = await supabase
@@ -36,7 +46,7 @@ export async function addWalletTransaction({ userId, type, amount, description, 
           status: 'Completed',
         },
       ])
-      .select('*')
+      .select('id, user_id, type, amount, description, tournament_id, status, created_at')
       .single()
 
     if (error) {
@@ -64,5 +74,7 @@ export async function addWalletTransaction({ userId, type, amount, description, 
   } catch (err) {
     console.error('[walletService] exception:', err)
     return null
+  } finally {
+    activeTxLocks.delete(lockKey)
   }
 }
