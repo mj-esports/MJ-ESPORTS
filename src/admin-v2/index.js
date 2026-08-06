@@ -1,0 +1,8 @@
+export { default as AdminDashboardV2 } from '../pages/AdminDashboardV2'
+export { default as Sidebar } from '../components/admin-v2/Sidebar'
+export { default as TopHeader } from '../components/admin-v2/TopHeader'
+export { default as DashboardHome } from '../components/admin-v2/DashboardHome'
+export { default as TournamentMenu } from '../components/admin-v2/TournamentMenu'
+export { default as UsersMenu } from '../components/admin-v2/UsersMenu'
+export { default as WalletMenu } from '../components/admin-v2/WalletMenu'
+export { default as SettingsMenu } from '../components/admin-v2/SettingsMenu'

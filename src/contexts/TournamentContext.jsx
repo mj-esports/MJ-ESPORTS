@@ -77,7 +77,6 @@ export function mapTournamentToDb(t) {
     title: String(t.title || '').trim(),
     game: String(t.game || 'Free Fire').trim(),
     format: formatVal,
-    match_format: matchFormatVal,
     prize_pool: String(t.prize_pool || t.prizePool || '₹0').trim(),
     entry_fee: String(t.entry_fee || t.entryFee || 'Free').trim(),
     max_teams: Number(t.max_teams ?? t.maxTeams ?? 32),
