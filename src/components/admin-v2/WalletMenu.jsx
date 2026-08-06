@@ -1,5 +1,5 @@
 import React from 'react'
-import { Wallet, ArrowDownLeft, ArrowUpRight, CheckCircle2, Clock, XCircle, DollarSign } from 'lucide-react'
+import { Wallet } from 'lucide-react'
 
 const mockTransactions = [
   {

@@ -2,16 +2,11 @@ import { useState, useMemo, useEffect } from 'react'
 import {
   Wallet,
   ArrowUpRight,
-  ArrowDownLeft,
   PlusCircle,
   RefreshCw,
   Search,
   Filter,
-  CheckCircle2,
-  AlertCircle,
-  Building2,
-  Smartphone,
-  CreditCard
+  AlertCircle
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'

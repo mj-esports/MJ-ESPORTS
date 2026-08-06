@@ -6,13 +6,9 @@ import {
   Trophy,
   ArrowLeft,
   Gamepad2,
-  Calendar,
-  Clock,
   MapPin,
-  Flame,
   Search,
-  CheckCircle2,
-  Users
+  CheckCircle2
 } from 'lucide-react'
 
 export default function TournamentHistoryPage() {

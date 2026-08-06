@@ -1,5 +1,5 @@
 import React from 'react'
-import { Trophy, Calendar, Users, Clock } from 'lucide-react'
+import { Trophy, Users } from 'lucide-react'
 
 export default function TournamentCard({ tournament }) {
   const {

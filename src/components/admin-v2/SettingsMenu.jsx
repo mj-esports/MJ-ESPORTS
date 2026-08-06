@@ -1,5 +1,5 @@
 import React from 'react'
-import { Settings, Shield, Bell, Key, Database, Save, Globe } from 'lucide-react'
+import { Settings, Shield, Bell, Database, Save, Globe } from 'lucide-react'
 
 export default function SettingsMenu() {
   return (

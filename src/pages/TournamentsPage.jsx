@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, ArrowRight, Clock, Gamepad2, Trophy, Users, Sparkles, Calendar } from 'lucide-react'
+import { Search, Clock, Users, Sparkles, Calendar } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { CardSkeleton } from '../components/common/SkeletonLoader'
 import EmptyState from '../components/common/EmptyState'
