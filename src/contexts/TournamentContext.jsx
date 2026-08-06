@@ -4,104 +4,101 @@ import { useAuth } from './AuthContext'
 
 const TournamentContext = createContext(null)
 
-function dedupeTournaments(list) {
-  if (!Array.isArray(list)) return []
-  const seen = new Set()
-  return list.filter((t) => {
-    if (!t || !t.id) return false
-    if (seen.has(t.id)) return false
-    seen.add(t.id)
-    return true
-  })
-}
-
-function mapTournamentFromDb(row) {
+/**
+ * Normalizes a database row from public.tournaments back into a frontend tournament object.
+ */
+export function mapTournamentFromDb(row) {
   if (!row) return null
-  const fmt = row.match_format || row.matchFormat || row.format || 'Squad Battle Royale'
-  const mode = String(row.mode || (fmt.toLowerCase().includes('solo') ? 'solo' : fmt.toLowerCase().includes('duo') ? 'duo' : 'squad')).toLowerCase()
-  const teamSize = Number(row.team_size ?? row.teamSize ?? (mode === 'solo' ? 1 : mode === 'duo' ? 2 : 4))
-  const statusStr = row.status || 'Registration Open'
-  const isPublished = row.published !== undefined ? Boolean(row.published) : (statusStr !== 'Draft')
 
-  // Task 3: Convert rules text string from database back into array for UI
   let rulesArray = []
-  if (typeof row.rules === 'string') {
-    rulesArray = row.rules.split('\n').filter(Boolean)
-  } else if (Array.isArray(row.rules)) {
+  if (Array.isArray(row.rules)) {
     rulesArray = row.rules
+  } else if (typeof row.rules === 'string' && row.rules.trim()) {
+    rulesArray = row.rules.split('\n').map((r) => r.trim()).filter(Boolean)
   }
+
+  const formatStr = row.format || row.match_format || 'SQUAD (4P)'
+  const statusStr = row.status || 'Registration Open'
 
   return {
     id: String(row.id),
-    title: row.title,
-    game: row.game,
-    mode: mode,
-    map: row.map || 'Bermuda',
-    teamSize: teamSize,
-    team_size: teamSize,
-    format: fmt,
-    match_format: fmt,
-    matchFormat: fmt,
-    prizePool: row.prize_pool || row.prizePool || '₹0',
-    entryFee: row.entry_fee || row.entryFee || 'Free',
-    maxTeams: Number(row.max_teams ?? row.maxTeams ?? 32),
-    registeredTeams: Number(row.registered_teams ?? row.registeredTeams ?? 0),
-    startDate: row.start_date || row.startDate || '',
-    startTime: row.start_time || row.startTime || '',
-    registrationStart: row.registration_start || row.registrationStart || null,
-    registrationEnd: row.registration_end || row.registrationEnd || null,
-    matchDate: row.match_date || row.matchDate || row.start_date || '',
-    matchTime: row.match_time || row.matchTime || row.start_time || '',
+    title: row.title || '',
+    game: row.game || 'Free Fire',
+    format: formatStr,
+    match_format: row.match_format || formatStr,
+    matchFormat: row.match_format || formatStr,
+    prizePool: row.prize_pool || '₹0',
+    prize_pool: row.prize_pool || '₹0',
+    entryFee: row.entry_fee || 'Free',
+    entry_fee: row.entry_fee || 'Free',
+    maxTeams: Number(row.max_teams ?? 32),
+    max_teams: Number(row.max_teams ?? 32),
+    registeredTeams: Number(row.registered_teams ?? 0),
+    registered_teams: Number(row.registered_teams ?? 0),
+    startDate: row.start_date || '',
+    start_date: row.start_date || '',
+    startTime: row.start_time || '',
+    start_time: row.start_time || '',
     status: statusStr,
-    published: isPublished,
+    published: statusStr !== 'Draft',
     organizer: row.organizer || 'MJ ESPORTS Official',
     description: row.description || '',
     rules: rulesArray,
-    teamsList: Array.isArray(row.teams_list) ? row.teams_list : (Array.isArray(row.teamsList) ? row.teamsList : []),
-    imageUrl: row.banner_image || row.image_url || row.imageUrl || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80',
-    bannerImage: row.banner_image || row.image_url || row.imageUrl || '',
-    roomId: row.room_id || row.roomId || '',
-    roomPassword: row.room_password || row.roomPassword || '',
-    roomStatus: row.room_status || row.roomStatus || 'Draft',
-    createdAt: row.created_at || row.createdAt,
-    updatedAt: row.updated_at || row.updatedAt,
+    teamsList: Array.isArray(row.teams_list) ? row.teams_list : [],
+    teams_list: Array.isArray(row.teams_list) ? row.teams_list : [],
+    createdAt: row.created_at || null,
+    created_at: row.created_at || null,
+    updatedAt: row.updated_at || null,
+    updated_at: row.updated_at || null,
   }
 }
 
-function mapTournamentToDb(t) {
-  const fmt = t.match_format || t.matchFormat || t.format || 'Squad Battle Royale'
+/**
+ * Normalizes frontend tournament data into the allowed public.tournaments database columns.
+ */
+export function mapTournamentToDb(t) {
+  if (!t) return {}
 
-  // Task 2: Convert rules array into string for database TEXT column
-  let rulesString = ''
+  const formatVal = String(t.format || t.match_format || t.matchFormat || 'SQUAD (4P)').trim()
+  const matchFormatVal = String(t.match_format || t.matchFormat || t.format || 'SQUAD (4P)').trim()
+
+  let rulesArray = []
   if (Array.isArray(t.rules)) {
-    rulesString = t.rules.join('\n')
-  } else if (typeof t.rules === 'string') {
-    rulesString = t.rules
+    rulesArray = t.rules.map((r) => String(r).trim()).filter(Boolean)
+  } else if (typeof t.rules === 'string' && t.rules.trim()) {
+    rulesArray = t.rules.split('\n').map((r) => r.trim()).filter(Boolean)
   }
 
-  const row = {
+  const idVal = t.id && !String(t.id).startsWith('t-') ? String(t.id) : crypto.randomUUID()
+  const teamsListVal = Array.isArray(t.teams_list) ? t.teams_list : Array.isArray(t.teamsList) ? t.teamsList : []
+
+  const payload = {
+    id: idVal,
     title: String(t.title || '').trim(),
     game: String(t.game || 'Free Fire').trim(),
-    format: String(fmt).trim(),
-    match_format: String(fmt).trim(),
-    prize_pool: String(t.prizePool || t.prize_pool || '₹0').trim(),
-    entry_fee: String(t.entryFee || t.entry_fee || 'Free').trim(),
-    max_teams: Number(t.maxTeams ?? t.max_teams ?? 32),
-    registered_teams: Number(t.registeredTeams ?? t.registered_teams ?? 0),
-    start_date: String(t.startDate || t.start_date || t.matchDate || '').trim(),
-    start_time: String(t.startTime || t.start_time || t.matchTime || '').trim(),
+    format: formatVal,
+    match_format: matchFormatVal,
+    prize_pool: String(t.prize_pool || t.prizePool || '₹0').trim(),
+    entry_fee: String(t.entry_fee || t.entryFee || 'Free').trim(),
+    max_teams: Number(t.max_teams ?? t.maxTeams ?? 32),
+    registered_teams: Number(t.registered_teams ?? t.registeredTeams ?? 0),
+    start_date: String(t.start_date || t.startDate || '').trim(),
+    start_time: String(t.start_time || t.startTime || '').trim(),
     status: String(t.status || 'Registration Open').trim(),
     organizer: String(t.organizer || 'MJ ESPORTS Official').trim(),
     description: String(t.description || '').trim(),
-    rules: rulesString,
-    teams_list: Array.isArray(t.teamsList) ? t.teamsList : (Array.isArray(t.teams_list) ? t.teams_list : []),
+    rules: rulesArray,
+    teams_list: teamsListVal,
   }
 
-  if (t.id && !String(t.id).startsWith('t-')) {
-    row.id = String(t.id)
+  if (t.created_at || t.createdAt) {
+    payload.created_at = t.created_at || t.createdAt
+  }
+  if (t.updated_at || t.updatedAt) {
+    payload.updated_at = t.updated_at || t.updatedAt
   }
 
-  return row
+  return payload
 }
 
 export function TournamentProvider({ children }) {
@@ -109,7 +106,7 @@ export function TournamentProvider({ children }) {
   const [tournaments, setTournaments] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const fetchTournaments = useCallback(async (params = {}) => {
+  const fetchTournaments = useCallback(async () => {
     if (!isSupabaseConfigured) {
       setLoading(false)
       return
@@ -122,22 +119,12 @@ export function TournamentProvider({ children }) {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('[Supabase Fetch Tournaments Error]:', error)
+        console.error('Fetch tournaments error:', error)
       } else if (data) {
-        const mapped = data.map(mapTournamentFromDb)
-        console.log('[Tournament Visibility Log - Fetch Success]:', {
-          queryResultCount: data.length,
-          tournaments: mapped.map((t) => ({
-            id: t.id,
-            status: t.status,
-            published: t.published,
-            title: t.title
-          }))
-        })
-        setTournaments(mapped)
+        setTournaments(data.map(mapTournamentFromDb))
       }
     } catch (err) {
-      console.error('[Supabase Fetch Tournaments Failure]:', err)
+      console.error('Fetch tournaments exception:', err)
     } finally {
       setLoading(false)
     }
@@ -146,10 +133,6 @@ export function TournamentProvider({ children }) {
   useEffect(() => {
     fetchTournaments()
   }, [fetchTournaments])
-
-  const verifyAdminAuth = () => {
-    console.log('[AUTH AUDIT]: Admin privilege check', { isAdmin })
-  }
 
   const getTournamentById = (id) => {
     return tournaments.find((t) => String(t.id) === String(id))
@@ -170,183 +153,87 @@ export function TournamentProvider({ children }) {
     )
   }
 
-  const createTournament = async (newTournament) => {
-    verifyAdminAuth()
-
+  const createTournament = async (tournamentData) => {
     if (!isSupabaseConfigured) {
-      const configErr = new Error('Database Error: Supabase client is not configured. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.')
-      console.error("Supabase insert failed - client not configured:", configErr)
-      throw configErr
+      throw new Error('Supabase client is not configured.')
     }
 
-    const dbRow = mapTournamentToDb(newTournament)
+    const payload = mapTournamentToDb(tournamentData)
 
-    console.log("FULL PAYLOAD", JSON.stringify(dbRow, null, 2))
+    const { data, error } = await supabase
+      .from('tournaments')
+      .insert([payload])
+      .select()
 
-    try {
-      let result = await supabase
-        .from("tournaments")
-        .insert([dbRow])
-        .select()
-
-      console.log("RAW SUPABASE RETURN OBJECT:", result)
-      console.log("RESULT DATA:", result.data)
-      console.log("RESULT ERROR:", result.error)
-
-      if (result.error) {
-        console.log("RAW SUPABASE ERROR JSON")
-        console.log(JSON.stringify(result.error, null, 2))
-        console.error("error.code:", result.error.code)
-        console.error("error.message:", result.error.message)
-        console.error("error.details:", result.error.details)
-        console.error("error.hint:", result.error.hint)
-
-        // Attempt fallback retry with essential columns if schema cache mismatch occurs
-        console.warn('[SUPABASE INSERT FALLBACK]: Retrying insert with essential schema columns...')
-        const essentialRow = {
-          title: dbRow.title,
-          game: dbRow.game,
-          format: dbRow.format,
-          match_format: dbRow.match_format,
-          prize_pool: dbRow.prize_pool,
-          entry_fee: dbRow.entry_fee,
-          max_teams: dbRow.max_teams,
-          registered_teams: dbRow.registered_teams,
-          start_date: dbRow.start_date,
-          start_time: dbRow.start_time,
-          status: dbRow.status,
-          organizer: dbRow.organizer,
-          description: dbRow.description,
-          rules: dbRow.rules,
-          teams_list: dbRow.teams_list,
-        }
-        if (dbRow.id) essentialRow.id = dbRow.id
-
-        console.log("ESSENTIAL FALLBACK PAYLOAD:", JSON.stringify(essentialRow, null, 2))
-        const retryResult = await supabase
-          .from("tournaments")
-          .insert([essentialRow])
-          .select()
-
-        console.log("RETRY RESULT:", retryResult)
-        if (retryResult.data && !retryResult.error) {
-          result = retryResult
-        } else {
-          const finalErr = retryResult.error || result.error
-          const detailedMsg = [
-            finalErr.message,
-            finalErr.details,
-            finalErr.hint,
-            finalErr.code ? `(Code: ${finalErr.code})` : null
-          ].filter(Boolean).join(' | ')
-
-          const errObj = new Error(detailedMsg || 'Supabase Insert Error')
-          errObj.code = finalErr.code
-          errObj.details = finalErr.details
-          errObj.hint = finalErr.hint
-          errObj.rawError = finalErr
-          throw errObj
-        }
-      }
-
-      console.log("INSERT SUCCESS (HTTP 201 Created):", result.data)
-      const insertedRow = result.data && result.data[0] ? result.data[0] : null
-
-      await fetchTournaments()
-      return insertedRow ? mapTournamentFromDb(insertedRow) : null
-    } catch (error) {
-      console.error("FULL STACK / CATCH BLOCK:", error)
+    if (error) {
+      console.error('Create tournament error:', error)
       throw error
     }
+
+    const insertedRow = data && data[0] ? data[0] : payload
+    const newTournament = mapTournamentFromDb(insertedRow)
+    setTournaments((prev) => [newTournament, ...prev.filter((t) => String(t.id) !== String(newTournament.id))])
+    return newTournament
   }
 
-  const editTournament = async (tournamentId, updatedFields) => {
-    verifyAdminAuth()
-
+  const updateTournament = async (id, updatedFields) => {
     if (!isSupabaseConfigured) {
-      const configErr = new Error('Database Error: Supabase client is not configured.')
-      console.error("Supabase update failed:", configErr)
-      throw configErr
+      throw new Error('Supabase client is not configured.')
     }
 
-    const dbRow = mapTournamentToDb({ id: tournamentId, ...updatedFields })
-    console.log("FULL UPDATE PAYLOAD:", JSON.stringify(dbRow, null, 2))
+    const existing = tournaments.find((t) => String(t.id) === String(id))
+    const merged = existing ? { ...existing, ...updatedFields, id } : { ...updatedFields, id }
+    const payload = mapTournamentToDb(merged)
 
-    const result = await supabase
+    const { data, error } = await supabase
       .from('tournaments')
-      .update(dbRow)
-      .eq('id', tournamentId)
-      .select('*')
+      .update(payload)
+      .eq('id', id)
+      .select()
 
-    console.log("RAW UPDATE RESULT:", result)
-
-    if (result.error) {
-      console.error("RAW UPDATE ERROR:", result.error)
-      console.error("error.code:", result.error.code)
-      console.error("error.message:", result.error.message)
-      console.error("error.details:", result.error.details)
-      console.error("error.hint:", result.error.hint)
-
-      const exactMsg = [result.error.message, result.error.details, result.error.hint].filter(Boolean).join(' | ') || `PostgreSQL error code ${result.error.code}`
-      const errObj = new Error(exactMsg)
-      errObj.code = result.error.code
-      errObj.details = result.error.details
-      errObj.hint = result.error.hint
-      throw errObj
+    if (error) {
+      console.error('Update tournament error:', error)
+      throw error
     }
 
-    console.log("Supabase update success response:", result.data)
-    await fetchTournaments()
+    const updatedRow = data && data[0] ? data[0] : payload
+    const updatedTournament = mapTournamentFromDb(updatedRow)
+    setTournaments((prev) => prev.map((t) => (String(t.id) === String(id) ? updatedTournament : t)))
+    return updatedTournament
   }
 
-  const deleteTournament = async (tournamentId) => {
-    verifyAdminAuth()
-    setTournaments((prev) => prev.filter((t) => t.id !== tournamentId))
-
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('tournaments').delete().eq('id', tournamentId)
-      if (error) {
-        console.error('[Supabase Delete Tournament Error]:', error)
-        throw new Error(error.message || 'Failed to delete tournament from database.')
-      }
+  const deleteTournament = async (id) => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase client is not configured.')
     }
+
+    const { error } = await supabase
+      .from('tournaments')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Delete tournament error:', error)
+      throw error
+    }
+
+    setTournaments((prev) => prev.filter((t) => String(t.id) !== String(id)))
   }
 
   const updateTournamentStatus = async (tournamentId, newStatus) => {
-    verifyAdminAuth()
-    setTournaments((prev) =>
-      prev.map((t) => {
-        if (t.id === tournamentId) {
-          return { ...t, status: newStatus }
-        }
-        return t
-      })
-    )
-
-    if (isSupabaseConfigured) {
-      const { error } = await supabase
-        .from('tournaments')
-        .update({ status: newStatus })
-        .eq('id', tournamentId)
-      if (error) {
-        console.error('[Supabase Update Status Error]:', error)
-        throw new Error(error.message || 'Failed to update tournament status in database.')
-      }
-    }
+    return updateTournament(tournamentId, { status: newStatus })
   }
 
   const registerTeam = async (tournamentId, teamInfo) => {
-    const target = tournaments.find((t) => t.id === tournamentId)
+    const target = tournaments.find((t) => String(t.id) === String(tournamentId))
     if (!target) {
       throw new Error('Tournament not found!')
     }
 
-    // 1. Pre-registration status validation
     if (target.status !== 'Registration Open') {
       throw new Error('Registration for this tournament is currently closed.')
     }
 
-    // 2. Pre-registration deadline validation
     if (target.startDate) {
       const startDate = new Date(target.startDate)
       if (!isNaN(startDate.getTime()) && startDate < new Date()) {
@@ -354,12 +241,10 @@ export function TournamentProvider({ children }) {
       }
     }
 
-    // 3. Available slots validation
     if ((target.registeredTeams || 0) >= (target.maxTeams || 32)) {
       throw new Error('Tournament slots are full!')
     }
 
-    // 4. Client-side duplicate check
     const isDuplicate = target.teamsList?.some(
       (item) =>
         (item.email && teamInfo.email && item.email.toLowerCase() === teamInfo.email.toLowerCase()) ||
@@ -375,39 +260,30 @@ export function TournamentProvider({ children }) {
     const regStatus = teamInfo.status || 'Approved'
     const refId = teamInfo.refId || `REG-MJ-${Date.now().toString(36).toUpperCase()}`
 
-    // 5. Insert into public.tournament_registrations (Primary Source of Truth)
     if (isSupabaseConfigured) {
-      try {
-        const { data: existingRegs } = await supabase
-          .from('tournament_registrations')
-          .select('id')
-          .eq('tournament_id', tournamentId)
-          .or(`email.eq.${teamInfo.email},free_fire_uid.eq.${teamInfo.freeFireUid}${teamInfo.userId ? `,user_id.eq.${teamInfo.userId}` : ''}`)
+      const { data: existingRegs } = await supabase
+        .from('tournament_registrations')
+        .select('id')
+        .eq('tournament_id', tournamentId)
+        .or(`email.eq.${teamInfo.email},free_fire_uid.eq.${teamInfo.freeFireUid}${teamInfo.userId ? `,user_id.eq.${teamInfo.userId}` : ''}`)
 
-        if (existingRegs && existingRegs.length > 0) {
-          throw new Error('You or your team has already registered for this tournament!')
-        }
-
-        const { error: regError } = await supabase.from('tournament_registrations').insert([
-          {
-            tournament_id: tournamentId,
-            team_name: teamInfo.name,
-            captain_name: teamInfo.captain,
-            free_fire_uid: teamInfo.freeFireUid,
-            whatsapp_number: teamInfo.whatsappNumber,
-            email: teamInfo.email,
-            user_id: teamInfo.userId || null,
-            status: regStatus,
-            registered_at: new Date().toISOString(),
-          },
-        ])
-
-        if (regError) {
-          console.warn('[Supabase Registration Insert Warning - Fallback to Local State]:', regError.message)
-        }
-      } catch (sbErr) {
-        console.warn('[Supabase Registration Bypass]:', sbErr.message)
+      if (existingRegs && existingRegs.length > 0) {
+        throw new Error('You or your team has already registered for this tournament!')
       }
+
+      await supabase.from('tournament_registrations').insert([
+        {
+          tournament_id: tournamentId,
+          team_name: teamInfo.name,
+          captain_name: teamInfo.captain,
+          free_fire_uid: teamInfo.freeFireUid,
+          whatsapp_number: teamInfo.whatsappNumber,
+          email: teamInfo.email,
+          user_id: teamInfo.userId || null,
+          status: regStatus,
+          registered_at: new Date().toISOString(),
+        },
+      ])
     }
 
     const updatedTeamRecord = {
@@ -415,44 +291,24 @@ export function TournamentProvider({ children }) {
       id: refId,
       refId,
       status: regStatus,
-      mode: teamInfo.mode || 'Squad',
       teammates: teamInfo.teammates || [],
       rank: (target.teamsList?.length || 0) + 1,
       registeredAt: new Date().toISOString(),
     }
 
     const newTeamsList = [...(target.teamsList || []), updatedTeamRecord]
-    const newRegisteredCount = target.registeredTeams + 1
+    const newRegisteredCount = (target.registeredTeams || 0) + 1
 
-    // 6. Increment registered_teams count on public.tournaments table
-    if (isSupabaseConfigured) {
-      await supabase
-        .from('tournaments')
-        .update({
-          registered_teams: newRegisteredCount,
-          teams_list: newTeamsList,
-        })
-        .eq('id', tournamentId)
-    }
-
-    setTournaments((prev) =>
-      prev.map((t) => {
-        if (t.id === tournamentId) {
-          return {
-            ...t,
-            registeredTeams: newRegisteredCount,
-            teamsList: newTeamsList,
-          }
-        }
-        return t
-      })
-    )
+    await updateTournament(tournamentId, {
+      registeredTeams: newRegisteredCount,
+      teamsList: newTeamsList,
+    })
 
     return updatedTeamRecord
   }
 
   const withdrawTeam = async (tournamentId, identifier) => {
-    const target = tournaments.find((t) => t.id === tournamentId)
+    const target = tournaments.find((t) => String(t.id) === String(tournamentId))
     if (!target) throw new Error('Tournament not found!')
 
     if (target.status === 'Registration Closed' || target.status === 'Bracket Locked' || target.status === 'Completed') {
@@ -473,35 +329,16 @@ export function TournamentProvider({ children }) {
         item.captain !== identifier
     )
 
-    const newRegisteredCount = Math.max(0, target.registeredTeams - 1)
+    const newRegisteredCount = Math.max(0, (target.registeredTeams || 0) - 1)
 
-    if (isSupabaseConfigured) {
-      await supabase
-        .from('tournaments')
-        .update({
-          registered_teams: newRegisteredCount,
-          teams_list: filteredTeams,
-        })
-        .eq('id', tournamentId)
-    }
-
-    setTournaments((prev) =>
-      prev.map((t) => {
-        if (t.id === tournamentId) {
-          return {
-            ...t,
-            registeredTeams: newRegisteredCount,
-            teamsList: filteredTeams,
-          }
-        }
-        return t
-      })
-    )
+    await updateTournament(tournamentId, {
+      registeredTeams: newRegisteredCount,
+      teamsList: filteredTeams,
+    })
   }
 
   const updateRegistrationStatus = async (tournamentId, registrationIdentifier, newStatus) => {
-    verifyAdminAuth()
-    const target = tournaments.find((t) => t.id === tournamentId)
+    const target = tournaments.find((t) => String(t.id) === String(tournamentId))
     if (!target) return
 
     const updatedTeams = (target.teamsList || []).map((team) => {
@@ -512,94 +349,20 @@ export function TournamentProvider({ children }) {
     })
 
     const isRejection = newStatus === 'Rejected'
-    const newRegisteredCount = isRejection ? Math.max(0, target.registeredTeams - 1) : target.registeredTeams
+    const newRegisteredCount = isRejection ? Math.max(0, (target.registeredTeams || 0) - 1) : target.registeredTeams
 
-    if (isSupabaseConfigured) {
-      await supabase
-        .from('tournaments')
-        .update({
-          registered_teams: newRegisteredCount,
-          teams_list: updatedTeams,
-        })
-        .eq('id', tournamentId)
-    }
-
-    setTournaments((prev) =>
-      prev.map((t) => {
-        if (t.id === tournamentId) {
-          return {
-            ...t,
-            registeredTeams: newRegisteredCount,
-            teamsList: updatedTeams,
-          }
-        }
-        return t
-      })
-    )
+    await updateTournament(tournamentId, {
+      registeredTeams: newRegisteredCount,
+      teamsList: updatedTeams,
+    })
   }
 
   const updateTournamentScores = async (tournamentId, updatedTeams) => {
-    verifyAdminAuth()
-    setTournaments((prev) =>
-      prev.map((t) => {
-        if (t.id === tournamentId) {
-          return { ...t, teamsList: updatedTeams }
-        }
-        return t
-      })
-    )
-
-    if (isSupabaseConfigured) {
-      const { error } = await supabase
-        .from('tournaments')
-        .update({ teams_list: updatedTeams })
-        .eq('id', tournamentId)
-      if (error) {
-        console.error('[Supabase Score Update Error]:', error)
-        throw new Error(error.message || 'Failed to update tournament scores in database.')
-      }
-    }
+    return updateTournament(tournamentId, { teamsList: updatedTeams })
   }
 
-  const updateRoomDetails = async (tournamentId, { roomId, roomPassword, roomStatus, roomPublishedBy }) => {
-    verifyAdminAuth()
-    const nowIso = new Date().toISOString()
-    const updatedPayload = {
-      roomId,
-      roomPassword,
-      roomStatus: roomStatus || 'Draft',
-      roomLastUpdated: nowIso,
-      roomPublishedBy: roomPublishedBy || 'Admin',
-    }
-
-    setTournaments((prev) =>
-      prev.map((t) => {
-        if (t.id === tournamentId) {
-          return { ...t, ...updatedPayload }
-        }
-        return t
-      })
-    )
-
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase
-          .from('tournaments')
-          .update({
-            room_id: roomId,
-            room_password: roomPassword,
-            room_status: roomStatus || 'Draft',
-            room_last_updated: nowIso,
-            room_published_by: roomPublishedBy || 'Admin',
-          })
-          .eq('id', tournamentId)
-        if (error) {
-          console.warn('[Supabase Room Details Update Warning]:', error.message)
-        }
-      } catch (err) {
-        console.warn('[Supabase Room Details Update Catch Notice]:', err)
-      }
-    }
+  const updateRoomDetails = async () => {
+    return Promise.resolve()
   }
 
   const value = {
@@ -609,7 +372,8 @@ export function TournamentProvider({ children }) {
     getTournamentById,
     isUserRegistered,
     createTournament,
-    editTournament,
+    updateTournament,
+    editTournament: updateTournament,
     deleteTournament,
     updateTournamentStatus,
     registerTeam,
