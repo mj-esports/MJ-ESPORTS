@@ -112,13 +112,28 @@ export async function signUp(email, password, metadata = {}) {
     },
   })
   if (error) {
-    if (error.message.includes('already registered')) {
-      throw new Error('An account with this email address already exists.')
+    console.error('[Supabase Auth signUp Error]:', {
+      code: error.code,
+      message: error.message,
+      status: error.status,
+      name: error.name,
+      error,
+    })
+    if (error.message && (error.message.includes('already registered') || error.message.includes('User already registered'))) {
+      const err = new Error('An account with this email address already exists.')
+      err.code = error.code || 'user_already_exists'
+      err.status = error.status
+      err.name = error.name
+      throw err
     }
-    throw new Error(error.message)
+    const err = new Error(error.message)
+    err.code = error.code
+    err.status = error.status
+    err.name = error.name
+    throw err
   }
 
-  // Insert into user_roles table if session created
+  // Insert into user_roles and profiles tables automatically if user created
   if (data.user) {
     try {
       await supabase.from('user_roles').upsert([
@@ -130,6 +145,19 @@ export async function signUp(email, password, metadata = {}) {
       ])
     } catch (roleErr) {
       console.warn('[Supabase user_roles Insert Warning]:', roleErr.message)
+    }
+
+    try {
+      const username = metadata.username || data.user.user_metadata?.username || data.user.email?.split('@')[0] || 'Player'
+      await supabase.from('profiles').upsert([
+        {
+          id: data.user.id,
+          username,
+          email: data.user.email,
+        },
+      ])
+    } catch (profileErr) {
+      console.warn('[Supabase profiles Insert Warning]:', profileErr.message)
     }
   }
 
@@ -152,12 +180,31 @@ export async function signIn(email, password) {
   })
 
   if (error) {
-    if (error.message.includes('Invalid login credentials')) {
-      throw new Error('Invalid email address or password.')
-    } else if (error.message.includes('Email not confirmed')) {
-      throw new Error('Email address is not confirmed. Please check your inbox or disable email confirmation in Supabase settings.')
+    console.error('[Supabase Auth signIn Error]:', {
+      code: error.code,
+      message: error.message,
+      status: error.status,
+      name: error.name,
+      error,
+    })
+
+    const isInvalidCredentials =
+      error.code === 'invalid_credentials' ||
+      (error.message && error.message.toLowerCase().includes('invalid login credentials'))
+
+    if (isInvalidCredentials) {
+      const err = new Error('Invalid email or password.')
+      err.code = error.code || 'invalid_credentials'
+      err.status = error.status
+      err.name = error.name
+      throw err
     }
-    throw new Error(error.message)
+
+    const err = new Error(error.message)
+    err.code = error.code
+    err.status = error.status
+    err.name = error.name
+    throw err
   }
   return data
 }

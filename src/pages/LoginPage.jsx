@@ -99,7 +99,7 @@ export default function LoginPage() {
 
   const validate = () => {
     const newErrors = {}
-    const cleanEmail = sanitizeString(formData.email)
+    const cleanEmail = (formData.email || '').trim()
 
     if (!cleanEmail) {
       newErrors.email = 'Email address is required'
@@ -121,7 +121,7 @@ export default function LoginPage() {
 
     if (!validate() || isSubmitting) return
 
-    const cleanEmail = sanitizeString(formData.email)
+    const cleanEmail = (formData.email || '').trim()
 
     setIsSubmitting(true)
     try {
@@ -133,7 +133,7 @@ export default function LoginPage() {
       }, 600)
     } catch (err) {
       console.error('Login Error:', err)
-      const errorMsg = 'Invalid email or password. Please check your credentials and try again.'
+      const errorMsg = err.message || 'Invalid email or password. Please check your credentials and try again.'
       setAlert({ type: 'error', message: errorMsg })
       showError(err, 'Authentication Failed')
     } finally {

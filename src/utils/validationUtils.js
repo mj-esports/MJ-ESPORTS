@@ -33,15 +33,94 @@ export function isValidEmail(email) {
 }
 
 /**
- * Validates password strength: minimum 6 characters (recommended 8+), at least 1 letter and 1 number.
+ * Validates password minimum length requirement (minimum 8 characters).
  */
 export function isStrongPassword(password) {
   if (!password || typeof password !== 'string') return false
-  const trimmed = password.trim()
-  if (trimmed.length < 6) return false
-  const hasLetter = /[a-zA-Z]/.test(trimmed)
-  const hasNumber = /[0-9]/.test(trimmed)
-  return hasLetter && hasNumber
+  return password.length >= 8
+}
+
+/**
+ * Evaluates live password strength indicator and recommendation guidelines.
+ * Levels: 🟥 Weak | 🟨 Medium | 🟩 Strong | 🟪 Very Strong
+ */
+export function evaluatePasswordStrength(password) {
+  if (!password || typeof password !== 'string') {
+    return {
+      score: 0,
+      level: 'Weak',
+      color: '#ef4444',
+      badgeColor: 'bg-red-500/20 text-red-400 border-red-500/30',
+      emoji: '🟥',
+      segmentCount: 1,
+      recommendations: {
+        length8: false,
+        hasNumber: false,
+        hasSymbol: false,
+        hasUppercase: false,
+      },
+    }
+  }
+
+  const length8 = password.length >= 8
+  const hasNumber = /[0-9]/.test(password)
+  const hasSymbol = /[^a-zA-Z0-9]/.test(password)
+  const hasUppercase = /[A-Z]/.test(password)
+  const hasLowercase = /[a-z]/.test(password)
+
+  let score = 0
+  if (length8) score += 1
+  if (password.length >= 12) score += 1
+  if (hasNumber) score += 1
+  if (hasSymbol) score += 1
+  if (hasUppercase && hasLowercase) score += 1
+
+  let level = 'Weak'
+  let color = '#ef4444'
+  let badgeColor = 'bg-red-500/20 text-red-400 border-red-500/30'
+  let emoji = '🟥'
+  let segmentCount = 1
+
+  if (!length8 || score <= 2) {
+    level = 'Weak'
+    color = '#ef4444'
+    badgeColor = 'bg-red-500/20 text-red-400 border-red-500/30'
+    emoji = '🟥'
+    segmentCount = 1
+  } else if (score === 3) {
+    level = 'Medium'
+    color = '#eab308'
+    badgeColor = 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+    emoji = '🟨'
+    segmentCount = 2
+  } else if (score === 4) {
+    level = 'Strong'
+    color = '#10b981'
+    badgeColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+    emoji = '🟩'
+    segmentCount = 3
+  } else {
+    level = 'Very Strong'
+    color = '#a855f7'
+    badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+    emoji = '🟪'
+    segmentCount = 4
+  }
+
+  return {
+    score,
+    level,
+    color,
+    badgeColor,
+    emoji,
+    segmentCount,
+    recommendations: {
+      length8,
+      hasNumber,
+      hasSymbol,
+      hasUppercase,
+    },
+  }
 }
 
 /**

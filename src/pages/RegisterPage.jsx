@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, Mail, Lock, UserPlus, ArrowRight, ShieldCheck } from 'lucide-react'
+import { User, Mail, Lock, UserPlus, ArrowRight, ShieldCheck, Check } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'
 import LoadingButton from '../components/common/LoadingButton'
-import { isValidEmail, sanitizeString, isStrongPassword } from '../utils/validationUtils'
+import { isValidEmail, sanitizeString, isStrongPassword, evaluatePasswordStrength } from '../utils/validationUtils'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -23,6 +23,8 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [alert, setAlert] = useState(null)
 
+  const pwdStrength = evaluatePasswordStrength(formData.password)
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -34,7 +36,7 @@ export default function RegisterPage() {
   const validate = () => {
     const newErrors = {}
     const cleanUsername = (formData.username || '').trim()
-    const cleanEmail = sanitizeString(formData.email)
+    const cleanEmail = (formData.email || '').trim()
 
     if (!cleanUsername) {
       newErrors.username = 'Username is required.'
@@ -50,8 +52,8 @@ export default function RegisterPage() {
 
     if (!formData.password) {
       newErrors.password = 'Password is required'
-    } else if (!isStrongPassword(formData.password)) {
-      newErrors.password = 'Password must be at least 6 characters with at least 1 letter and 1 number'
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters long.'
     }
 
     if (!formData.confirmPassword) {
@@ -71,23 +73,25 @@ export default function RegisterPage() {
     if (!validate() || isSubmitting) return
 
     const cleanUsername = sanitizeString(formData.username)
-    const cleanEmail = sanitizeString(formData.email)
+    const cleanEmail = (formData.email || '').trim()
 
     setIsSubmitting(true)
     try {
-      // 1. Sign up user
-      await signUp(cleanEmail, formData.password, {
+      // 1. Sign up user (creates Auth user, user_roles, and profiles automatically)
+      const signUpResult = await signUp(cleanEmail, formData.password, {
         username: cleanUsername,
       })
 
-      // 2. Immediately sign in without requiring email confirmation
-      try {
-        await signIn(cleanEmail, formData.password)
-      } catch (signInErr) {
-        console.warn('Auto sign-in fallback:', signInErr.message)
+      // 2. Ensure user is logged in (auto sign-in if session was not returned by signUp)
+      if (!signUpResult?.session) {
+        try {
+          await signIn(cleanEmail, formData.password)
+        } catch (signInErr) {
+          console.warn('Auto sign-in fallback:', signInErr.message)
+        }
       }
 
-      showSuccess('Account created successfully! Logging you in...', 'Registration Complete')
+      showSuccess('Account created successfully! Welcome to the Arena.', 'Registration Complete')
       setAlert({
         type: 'success',
         message: 'Account created successfully! Signing you in...',
@@ -95,7 +99,7 @@ export default function RegisterPage() {
 
       setTimeout(() => {
         navigate('/', { replace: true })
-      }, 800)
+      }, 600)
     } catch (err) {
       console.error('Registration Error:', err)
       showError(err, 'Registration Failed')
@@ -103,6 +107,7 @@ export default function RegisterPage() {
         type: 'error',
         message: err.message || 'Failed to create account. Please check your information and try again.',
       })
+    } finally {
       setIsSubmitting(false)
     }
   }
@@ -195,18 +200,70 @@ export default function RegisterPage() {
                 icon={Mail}
               />
 
-              <FormInput
-                label="Password"
-                id="password"
-                name="password"
-                isPassword
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                required
-                error={errors.password}
-                icon={Lock}
-              />
+              <div className="space-y-1.5">
+                <FormInput
+                  label="Password"
+                  id="password"
+                  name="password"
+                  isPassword
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
+                  error={errors.password}
+                  icon={Lock}
+                />
+
+                {/* Live Password Strength Indicator & Helpful Guidance Recommendations */}
+                {formData.password && (
+                  <div className="p-3 bg-[#07090c] border border-[#3a494b]/60 rounded-lg space-y-2.5 transition-all text-xs">
+                    {/* Strength Level Bar Header */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#8e9dae] font-medium text-[11px] uppercase tracking-wider">Password Strength</span>
+                      <span className={`px-2 py-0.5 rounded text-[11px] font-bold border flex items-center gap-1 ${pwdStrength.badgeColor}`}>
+                        <span>{pwdStrength.emoji}</span>
+                        <span>{pwdStrength.level}</span>
+                      </span>
+                    </div>
+
+                    {/* 4-Segment Progress Bar */}
+                    <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full">
+                      {[1, 2, 3, 4].map((seg) => (
+                        <div
+                          key={seg}
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            backgroundColor:
+                              seg <= pwdStrength.segmentCount
+                                ? pwdStrength.color
+                                : '#1d232c',
+                          }}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Recommendations Guidelines */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1 text-[11px]">
+                      <div className={`flex items-center gap-1.5 transition-colors ${pwdStrength.recommendations.length8 ? 'text-[#00ff9d] font-semibold' : 'text-[#8e9dae]'}`}>
+                        <Check className={`w-3.5 h-3.5 shrink-0 ${pwdStrength.recommendations.length8 ? 'text-[#00ff9d]' : 'text-gray-600'}`} />
+                        <span>8+ characters</span>
+                      </div>
+                      <div className={`flex items-center gap-1.5 transition-colors ${pwdStrength.recommendations.hasNumber ? 'text-[#00ff9d] font-semibold' : 'text-[#8e9dae]'}`}>
+                        <Check className={`w-3.5 h-3.5 shrink-0 ${pwdStrength.recommendations.hasNumber ? 'text-[#00ff9d]' : 'text-gray-600'}`} />
+                        <span>Numbers improve security</span>
+                      </div>
+                      <div className={`flex items-center gap-1.5 transition-colors ${pwdStrength.recommendations.hasSymbol ? 'text-[#00ff9d] font-semibold' : 'text-[#8e9dae]'}`}>
+                        <Check className={`w-3.5 h-3.5 shrink-0 ${pwdStrength.recommendations.hasSymbol ? 'text-[#00ff9d]' : 'text-gray-600'}`} />
+                        <span>Symbols improve security</span>
+                      </div>
+                      <div className={`flex items-center gap-1.5 transition-colors ${pwdStrength.recommendations.hasUppercase ? 'text-[#00ff9d] font-semibold' : 'text-[#8e9dae]'}`}>
+                        <Check className={`w-3.5 h-3.5 shrink-0 ${pwdStrength.recommendations.hasUppercase ? 'text-[#00ff9d]' : 'text-gray-600'}`} />
+                        <span>Uppercase letters improve security</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <FormInput
                 label="Confirm Password"

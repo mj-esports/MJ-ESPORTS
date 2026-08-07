@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [roleLoading, setRoleLoading] = useState(true)
 
-  // Resolve user role with complete loading lock
+  // Resolve user role with complete loading lock & ensure user profile
   const syncUserAndRole = useCallback(async (currentUser, currentSession) => {
     setRoleLoading(true)
     setSession(currentSession ?? null)
@@ -28,12 +28,32 @@ export function AuthProvider({ children }) {
     if (currentUser) {
       try {
         const resolvedRole = await getUserRole(currentUser)
-        console.log('[AUTH DEBUG] Current User Email:', currentUser.email)
-        console.log('[AUTH DEBUG] Current User ID:', currentUser.id)
-        console.log('[AUTH DEBUG] Role from database/service:', resolvedRole)
-        console.log('[AUTH DEBUG] user_roles query result / resolved role:', resolvedRole)
-        console.log('[AUTH DEBUG] isAdmin value:', resolvedRole === 'admin')
         setRole(resolvedRole)
+
+        // Automatically ensure user profile exists in public.profiles table (e.g. for Google Sign-In & new users)
+        if (isSupabaseConfigured) {
+          const userEmail = currentUser.email || ''
+          const username =
+            currentUser.user_metadata?.username ||
+            currentUser.user_metadata?.full_name ||
+            currentUser.user_metadata?.name ||
+            (userEmail ? userEmail.split('@')[0] : 'Player')
+
+          try {
+            await supabase.from('profiles').upsert(
+              [
+                {
+                  id: currentUser.id,
+                  username,
+                  email: userEmail,
+                },
+              ],
+              { onConflict: 'id' }
+            )
+          } catch (pErr) {
+            console.warn('[Sync Profile Upsert Notice]:', pErr.message)
+          }
+        }
       } catch (err) {
         console.error('[Role Resolution Error]:', err)
         setRole('user')
