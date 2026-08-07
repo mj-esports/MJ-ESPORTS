@@ -22,7 +22,7 @@ export default function BottomNavigation() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#111417]/90 backdrop-blur-md border-t border-[#3a494b]/60 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] pb-[env(safe-area-inset-bottom,0px)] select-none"
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#111417]/95 backdrop-blur-lg border-t border-[#3a494b]/60 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1 select-none"
       aria-label="Mobile Bottom Navigation"
     >
       <div className="flex items-center justify-around h-[64px] w-full max-w-lg mx-auto px-1">

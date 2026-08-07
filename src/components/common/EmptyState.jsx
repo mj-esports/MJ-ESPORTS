@@ -2,138 +2,141 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import {
   Trophy,
-  ClipboardList,
-  Bell,
-  BarChart3,
-  Flame,
-  Calendar,
-  CreditCard,
   SearchX,
+  Radio,
+  Award,
+  Calendar,
+  RotateCcw,
+  Compass,
   ArrowRight
 } from 'lucide-react'
 
 export const EMPTY_STATE_VARIANTS = {
-  tournaments: {
-    icon: Trophy,
-    sentence: 'No tournaments are currently open for registration.',
-    ctaText: 'Browse Open Tournaments',
-    ctaLink: '/tournaments',
-    accentColor: 'text-[#00f2ff]',
-    borderColor: 'border-[#00f2ff]/40',
-  },
-  registrations: {
-    icon: ClipboardList,
-    sentence: 'You have not registered for any active tournament match yet.',
-    ctaText: 'Explore Competitions',
-    ctaLink: '/tournaments',
-    accentColor: 'text-[#fe6b00]',
-    borderColor: 'border-[#fe6b00]/40',
-  },
-  notifications: {
-    icon: Bell,
-    sentence: 'No official announcements or alerts at this time.',
-    ctaText: 'Check Schedule',
-    ctaLink: '/tournaments',
-    accentColor: 'text-[#00ff9d]',
-    borderColor: 'border-[#00ff9d]/40',
-  },
-  results: {
-    icon: BarChart3,
-    sentence: 'Match standings will appear here once results are published.',
-    ctaText: 'View Leaderboard',
-    ctaLink: '/leaderboard',
-    accentColor: 'text-[#ffe173]',
-    borderColor: 'border-[#ffe173]/40',
-  },
-  leaderboard: {
-    icon: Trophy,
-    sentence: 'Leaderboard rankings will populate after completed matches.',
-    ctaText: 'Join Tournament',
-    ctaLink: '/tournaments',
-    accentColor: 'text-[#00f2ff]',
-    borderColor: 'border-[#00f2ff]/40',
-  },
-  announcements: {
-    icon: Flame,
-    sentence: 'No official announcements published at this time.',
-    ctaText: 'View Competitions',
-    ctaLink: '/tournaments',
-    accentColor: 'text-[#fe6b00]',
-    borderColor: 'border-[#fe6b00]/40',
-  },
-  matches: {
-    icon: Calendar,
-    sentence: 'No live matches currently in progress.',
-    ctaText: 'Browse Schedule',
-    ctaLink: '/tournaments',
-    accentColor: 'text-[#00f2ff]',
-    borderColor: 'border-[#00f2ff]/40',
-  },
-  finance: {
-    icon: CreditCard,
-    sentence: 'No pending payment data available.',
-    ctaText: 'Refresh View',
-    ctaLink: null,
-    accentColor: 'text-[#00ff9d]',
-    borderColor: 'border-[#00ff9d]/40',
-  },
   search: {
     icon: SearchX,
-    sentence: 'No tournament matched your search query.',
-    ctaText: 'Clear Filters',
-    ctaLink: '/tournaments',
-    accentColor: 'text-[#8e9dae]',
-    borderColor: 'border-[#3a494b]',
+    title: 'No Tournaments Found',
+    sentence: 'No tournaments match your search criteria or active game filters.',
+    primaryCtaText: 'Reset Filters',
+    secondaryCtaText: 'Browse All Tournaments',
+    accentColor: 'text-[#00FFFF]',
+    glowColor: 'shadow-[0_0_25px_rgba(0,255,255,0.25)]',
+    borderColor: 'border-[#00FFFF]/40',
+    bgColor: 'bg-[#00FFFF]/10'
   },
+  live: {
+    icon: Radio,
+    title: 'No Live Tournaments',
+    sentence: 'There are no matches currently broadcast live at this moment.',
+    primaryCtaText: 'Browse All Tournaments',
+    secondaryCtaText: 'Reset Filters',
+    accentColor: 'text-[#FF0055]',
+    glowColor: 'shadow-[0_0_25px_rgba(255,0,85,0.25)]',
+    borderColor: 'border-[#FF0055]/50',
+    bgColor: 'bg-[#FF0055]/10'
+  },
+  completed: {
+    icon: Award,
+    title: 'No Completed Matches',
+    sentence: 'No completed tournament match records found in this view.',
+    primaryCtaText: 'Browse Active Events',
+    secondaryCtaText: 'Reset Filters',
+    accentColor: 'text-amber-400',
+    glowColor: 'shadow-[0_0_25px_rgba(245,158,11,0.25)]',
+    borderColor: 'border-amber-500/40',
+    bgColor: 'bg-amber-500/10'
+  },
+  upcoming: {
+    icon: Calendar,
+    title: 'No Upcoming Events',
+    sentence: 'No upcoming tournaments scheduled under the selected filter.',
+    primaryCtaText: 'Browse All Tournaments',
+    secondaryCtaText: 'Reset Filters',
+    accentColor: 'text-purple-400',
+    glowColor: 'shadow-[0_0_25px_rgba(168,85,247,0.25)]',
+    borderColor: 'border-purple-500/40',
+    bgColor: 'bg-purple-500/10'
+  },
+  tournaments: {
+    icon: Trophy,
+    title: 'No Tournaments Available',
+    sentence: 'No tournaments are currently listed under this section.',
+    primaryCtaText: 'Reset Filters',
+    secondaryCtaText: 'Explore All Matches',
+    accentColor: 'text-[#00FFFF]',
+    glowColor: 'shadow-[0_0_25px_rgba(0,255,255,0.25)]',
+    borderColor: 'border-[#00FFFF]/40',
+    bgColor: 'bg-[#00FFFF]/10'
+  }
 }
 
 export default function EmptyState({
   type = 'search',
+  title,
   sentence,
   ctaText,
+  secondaryCtaText,
   ctaLink,
   onCtaClick,
+  onSecondaryCtaClick,
   icon: CustomIcon,
 }) {
   const config = EMPTY_STATE_VARIANTS[type] || EMPTY_STATE_VARIANTS.search
   const IconComponent = CustomIcon || config.icon
+  const displayTitle = title || config.title
   const displaySentence = sentence || config.sentence
-  const displayCtaText = ctaText !== undefined ? ctaText : config.ctaText
-  const displayCtaLink = ctaLink !== undefined ? ctaLink : config.ctaLink
+  const primaryText = ctaText !== undefined ? ctaText : config.primaryCtaText
+  const secondaryText = secondaryCtaText !== undefined ? secondaryCtaText : config.secondaryCtaText
 
   return (
-    <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 sm:p-3.5 text-center space-y-2 max-w-md mx-auto shadow-md max-h-[160px] overflow-hidden flex flex-col items-center justify-center isolate relative my-2">
-      {/* Icon */}
-      <div className={`w-8 h-8 rounded-lg bg-[#07090c] border ${config.borderColor} flex items-center justify-center text-white shrink-0`}>
-        <IconComponent className={`w-4 h-4 ${config.accentColor}`} />
+    <div className="bg-[#181818] border border-[#2A2A2A] rounded-2xl p-8 sm:p-12 text-center flex flex-col items-center justify-center max-w-xl mx-auto my-8 shadow-2xl relative overflow-hidden group">
+      {/* Ambient background glow */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none"></div>
+
+      {/* Esports Icon Badge */}
+      <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl ${config.bgColor} border ${config.borderColor} ${config.glowColor} flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 shrink-0`}>
+        <IconComponent className={`w-8 h-8 sm:w-10 sm:h-10 ${config.accentColor}`} />
       </div>
 
-      {/* One short sentence */}
-      <p className="text-[11px] font-semibold text-[#8e9dae] leading-snug max-w-xs text-center truncate">
+      {/* Title & Message */}
+      <h3 className="font-headline font-black text-xl sm:text-2xl text-white mb-2 tracking-tight">
+        {displayTitle}
+      </h3>
+      <p className="text-sm text-[#A0A0A0] font-label max-w-md mb-8 leading-relaxed">
         {displaySentence}
       </p>
 
-      {/* One primary action button */}
-      {displayCtaText && (
-        <div>
-          {displayCtaLink ? (
-            <Link
-              to={displayCtaLink}
-              className="btn-cyber-primary text-[11px] px-3 py-1.5 min-h-[38px] inline-flex items-center justify-center gap-1.5"
-            >
-              <span>{displayCtaText}</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          ) : (
-            <button
-              onClick={onCtaClick}
-              className="btn-cyber-primary text-[11px] px-3 py-1.5 min-h-[38px] inline-flex items-center justify-center gap-1.5"
-            >
-              <span>{displayCtaText}</span>
-            </button>
-          )}
-        </div>
-      )}
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto">
+        {primaryText && (
+          <button
+            onClick={onCtaClick}
+            className="w-full sm:w-auto bg-[#00FFFF] text-black font-extrabold px-6 py-3 rounded-lg hover:bg-[#00FFFF]/90 transition-all duration-200 active:scale-95 font-label text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_15px_rgba(0,255,255,0.3)] flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>{primaryText}</span>
+          </button>
+        )}
+
+        {secondaryText && onSecondaryCtaClick && (
+          <button
+            onClick={onSecondaryCtaClick}
+            className="w-full sm:w-auto bg-[#252525] border border-[#333333] hover:border-[#00FFFF] text-white hover:text-[#00FFFF] font-bold px-6 py-3 rounded-lg transition-all duration-200 active:scale-95 font-label text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Compass className="w-4 h-4" />
+            <span>{secondaryText}</span>
+          </button>
+        )}
+
+        {ctaLink && !onCtaClick && (
+          <Link
+            to={ctaLink}
+            className="w-full sm:w-auto bg-[#00FFFF] text-black font-extrabold px-6 py-3 rounded-lg hover:bg-[#00FFFF]/90 transition-all duration-200 active:scale-95 font-label text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_15px_rgba(0,255,255,0.3)] inline-flex items-center justify-center gap-2"
+          >
+            <span>{primaryText || 'Browse All'}</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        )}
+      </div>
     </div>
   )
 }

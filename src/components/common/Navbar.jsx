@@ -356,7 +356,7 @@ export default function Navbar() {
 
       {/* Slide Navigation Drawer Overlay (MOBILE) */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-[64px] z-40 bg-[#07090c]/95 backdrop-blur-lg flex flex-col justify-between p-5 space-y-6 md:hidden animate-in fade-in slide-in-from-right duration-200">
+        <div className="fixed inset-0 top-16 sm:top-20 z-40 bg-[#07090c]/95 backdrop-blur-lg flex flex-col justify-between p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] space-y-6 md:hidden overflow-y-auto animate-in fade-in slide-in-from-right duration-200">
           
           <div className="space-y-6 overflow-y-auto">
             {/* User Wallet Overview Card */}

@@ -10,50 +10,66 @@ export default function Footer() {
     return null
   }
 
-  // Full Footer (Home Page Only - 30% Shorter)
   return (
-    <footer className="bg-[#0b0e11] border-t border-[#3a494b]/60 pt-6 sm:pt-8 pb-20 md:pb-8 text-[#b9cacb]">
+    <footer className="bg-[#0b0e11] border-t border-[#3a494b]/60 pt-7 sm:pt-9 pb-24 md:pb-8 text-[#b9cacb]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pb-6 sm:pb-8 border-b border-[#3a494b]/40">
+        
+        {/* Main Grid: Compact & Balanced 24px–32px Visual Hierarchy */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 pb-7 border-b border-[#3a494b]/40">
           
           {/* Brand Info */}
-          <div className="space-y-4 md:col-span-1">
+          <div className="space-y-3 lg:col-span-1">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-md bg-[#00f2ff] p-[1px] shadow-[0_0_12px_rgba(0,242,255,0.4)]">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-md bg-[#00f2ff] p-[1px] shadow-[0_0_12px_rgba(0,242,255,0.4)]">
                 <div className="w-full h-full bg-[#0b0e11] rounded-[7px] flex items-center justify-center">
                   <Swords className="w-4 h-4 text-[#00f2ff]" />
                 </div>
               </div>
-              <span className="font-headline text-lg font-bold tracking-wider text-white">
+              <span className="font-headline text-base sm:text-lg font-bold tracking-wider text-white">
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </span>
             </Link>
+
             <p className="text-xs text-[#b9cacb]/80 leading-relaxed">
               The ultimate AAA competitive arena for gamers, teams, and tournament organizers. Compete, rank up, and claim real prize pools.
             </p>
 
-            {/* Official Brand Social Media Icons */}
-            <div className="flex items-center gap-3 pt-2">
+            {/* AAA Esports Official Brand Social Buttons */}
+            <div className="flex items-center gap-4 pt-2">
+              {/* Official Instagram AAA Dark Glass Button */}
               <a
-                href="#"
+                href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="MJ ESPORTS Discord"
-                className="w-9 h-9 rounded-md bg-[#1d2023] border border-[#3a494b]/60 flex items-center justify-center text-[#5865F2] hover:scale-105 transition-transform"
+                aria-label="MJ ESPORTS Instagram"
+                className="w-12 h-12 sm:w-[50px] sm:h-[50px] rounded-[14px] bg-[#161B22]/95 backdrop-blur-md border border-[#272d35] shadow-md hover:border-[#dd2a7b]/60 hover:shadow-[0_0_20px_rgba(221,42,123,0.45)] focus-visible:border-[#dd2a7b]/60 focus-visible:shadow-[0_0_20px_rgba(221,42,123,0.45)] transition-all duration-300 transform active:scale-95 hover:-translate-y-0.5 flex items-center justify-center shrink-0 group touch-manipulation outline-none"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.093.252-.19.373-.287a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.287a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+                <svg className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="ig-brand-gradient" x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#fdf497" />
+                      <stop offset="25%" stopColor="#f58529" />
+                      <stop offset="50%" stopColor="#dd2a7b" />
+                      <stop offset="75%" stopColor="#8134af" />
+                      <stop offset="100%" stopColor="#515bd4" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="2" y="2" width="20" height="20" rx="5.5" stroke="url(#ig-brand-gradient)" strokeWidth="2" fill="none" />
+                  <circle cx="12" cy="12" r="4.2" stroke="url(#ig-brand-gradient)" strokeWidth="2" fill="none" />
+                  <circle cx="17.2" cy="6.8" r="1.2" fill="url(#ig-brand-gradient)" />
                 </svg>
               </a>
+
+              {/* Official WhatsApp Community AAA Dark Glass Button */}
               <a
-                href="#"
+                href="https://whatsapp.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="MJ ESPORTS YouTube"
-                className="w-9 h-9 rounded-md bg-[#1d2023] border border-[#3a494b]/60 flex items-center justify-center text-[#FF0000] hover:scale-105 transition-transform"
+                aria-label="MJ ESPORTS WhatsApp Community"
+                className="w-12 h-12 sm:w-[50px] sm:h-[50px] rounded-[14px] bg-[#161B22]/95 backdrop-blur-md border border-[#272d35] shadow-md hover:border-[#25D366]/60 hover:shadow-[0_0_20px_rgba(37,211,102,0.45)] focus-visible:border-[#25D366]/60 focus-visible:shadow-[0_0_20px_rgba(37,211,102,0.45)] transition-all duration-300 transform active:scale-95 hover:-translate-y-0.5 flex items-center justify-center shrink-0 group touch-manipulation outline-none"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                <svg className="w-6 h-6 fill-[#25D366] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.461c-1.852 0-3.67-.498-5.266-1.442l-.377-.225-3.916 1.027 1.045-3.817-.247-.392a9.78 9.78 0 01-1.503-5.228c0-5.405 4.398-9.802 9.805-9.802 2.617 0 5.078 1.022 6.929 2.873 1.85 1.852 2.87 4.311 2.868 6.929 0 5.407-4.398 9.805-9.805 9.805m0-18.005a11.94 11.94 0 00-8.455 3.504 11.94 11.94 0 00-3.502 8.455c0 2.102.547 4.155 1.587 5.968l-1.687 6.163 6.305-1.654a11.905 11.905 0 005.752 1.481h.005c6.586 0 11.946-5.36 11.948-11.946 0-3.19-1.243-6.189-3.502-8.449A11.905 11.905 0 0012.051 3.837" />
                 </svg>
               </a>
             </div>
@@ -61,7 +77,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <h4 className="font-label-md text-xs text-[#e1e2e7]">Platform</h4>
+            <h4 className="font-label-md text-xs text-[#e1e2e7] uppercase font-bold tracking-wider mb-2">Platform</h4>
             <ul className="space-y-2 text-xs font-body">
               <li><Link to="/tournaments" className="hover:text-[#00f2ff] transition-colors">Browse Tournaments</Link></li>
               <li><Link to="/leaderboard" className="hover:text-[#00f2ff] transition-colors">Global Leaderboard</Link></li>
@@ -71,7 +87,7 @@ export default function Footer() {
 
           {/* Official Supported Games */}
           <div className="space-y-3">
-            <h4 className="font-label-md text-xs text-[#e1e2e7]">Supported Games</h4>
+            <h4 className="font-label-md text-xs text-[#e1e2e7] uppercase font-bold tracking-wider mb-2">Supported Games</h4>
             <ul className="space-y-2 text-xs font-body">
               <li className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#fe6b00]"></span>
@@ -86,7 +102,7 @@ export default function Footer() {
 
           {/* Support & Contact */}
           <div className="space-y-3">
-            <h4 className="font-label-md text-xs text-[#e1e2e7]">Support</h4>
+            <h4 className="font-label-md text-xs text-[#e1e2e7] uppercase font-bold tracking-wider mb-2">Support</h4>
             <div className="space-y-2 text-xs font-body">
               <p className="flex items-center gap-2 min-w-0">
                 <Mail className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
@@ -103,14 +119,16 @@ export default function Footer() {
         </div>
 
         {/* Copyright Bar */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#849495]">
+        <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#849495]">
           <p>&copy; {new Date().getFullYear()} MJ ESPORTS. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <span className="hover:text-[#00f2ff] cursor-pointer">Privacy Policy</span>
-            <span className="hover:text-[#00f2ff] cursor-pointer">Terms of Service</span>
+            <span className="hover:text-[#00f2ff] cursor-pointer transition-colors">Privacy Policy</span>
+            <span className="hover:text-[#00f2ff] cursor-pointer transition-colors">Terms of Service</span>
           </div>
         </div>
       </div>
     </footer>
   )
 }
+
+

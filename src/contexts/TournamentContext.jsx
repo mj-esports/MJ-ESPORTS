@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import { useAuth } from './AuthContext'
+import { INITIAL_TOURNAMENTS } from '../data/mockData'
 
 const TournamentContext = createContext(null)
 
@@ -101,7 +102,7 @@ export function mapTournamentToDb(t) {
 
 export function TournamentProvider({ children }) {
   const { isAdmin } = useAuth()
-  const [tournaments, setTournaments] = useState([])
+  const [tournaments, setTournaments] = useState(INITIAL_TOURNAMENTS)
   const [loading, setLoading] = useState(true)
 
   // In-flight request lock to prevent duplicate concurrent submissions
@@ -109,6 +110,7 @@ export function TournamentProvider({ children }) {
 
   const fetchTournaments = useCallback(async (retries = 2) => {
     if (!isSupabaseConfigured) {
+      setTournaments(INITIAL_TOURNAMENTS)
       setLoading(false)
       return
     }
@@ -127,9 +129,14 @@ export function TournamentProvider({ children }) {
             await new Promise((res) => setTimeout(res, 1000 * (attempt + 1)))
             attempt++
             continue
+          } else {
+            setTournaments(INITIAL_TOURNAMENTS)
           }
-        } else if (data) {
+        } else if (data && data.length > 0) {
           setTournaments(data.map(mapTournamentFromDb))
+          break
+        } else {
+          setTournaments(INITIAL_TOURNAMENTS)
           break
         }
       } catch (err) {
@@ -138,6 +145,8 @@ export function TournamentProvider({ children }) {
           await new Promise((res) => setTimeout(res, 1000 * (attempt + 1)))
           attempt++
           continue
+        } else {
+          setTournaments(INITIAL_TOURNAMENTS)
         }
       } finally {
         setLoading(false)

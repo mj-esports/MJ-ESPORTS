@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTournaments } from '../contexts/TournamentContext'
 import { useAuth } from '../contexts/AuthContext'
+import SkeletonLoader from '../components/common/SkeletonLoader'
 import {
   Swords,
   Gamepad2,
@@ -13,10 +14,10 @@ import {
 } from 'lucide-react'
 
 export default function Home() {
-  const { tournaments } = useTournaments()
+  const { tournaments, loading } = useTournaments()
   const { user } = useAuth()
 
-  const displayName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'PlayerOne'
+  const displayName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Player'
 
   // Upcoming Tournaments List
   const upcomingTournaments = useMemo(() => {
@@ -55,8 +56,10 @@ export default function Home() {
       const teams = Array.isArray(t.teams_list) ? t.teams_list : (Array.isArray(t.teamsList) ? t.teamsList : [])
 
       teams.forEach((team) => {
-        const name = team.team || team.name || team.captain || 'Team Apex'
-        const player = team.captain || team.player || team.name || 'Viper_XYZ'
+        const name = team.team || team.name || team.captain || ''
+        const player = team.captain || team.player || team.name || ''
+        if (!name || !player) return
+
         const kills = Number(team.kills || team.finishes || 0)
         const points = Number(team.points || team.score || 0)
         const isWinner = team.rank === 1 || team.position === 1
@@ -83,14 +86,19 @@ export default function Home() {
   }, [tournaments])
 
   return (
-    <main className="flex-grow flex flex-col w-full bg-[#0B0E11] text-white font-body antialiased selection:bg-[#00F2FF]/30 selection:text-[#00F2FF]">
+    <div className="flex-grow flex flex-col w-full bg-[#0B0E11] text-white font-body antialiased selection:bg-[#00F2FF]/30 selection:text-[#00F2FF]">
       
       {/* 1. HERO SECTION */}
-      <section className="relative w-full h-[500px] md:h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="relative w-full min-h-[380px] md:min-h-[460px] flex items-center justify-center overflow-hidden py-10 md:py-16">
         <div className="absolute inset-0 z-0 transform-gpu">
           <img
-            className="w-full h-full object-cover opacity-60 transform-gpu"
-            alt="Two esports characters facing off in a dark arena with dramatic cyan spotlighting"
+            className="w-full h-full object-cover opacity-50 transform-gpu"
+            alt="Esports tournament arena stage"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            width="2000"
+            height="1000"
             src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=2000&q=80"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E11] via-[#0B0E11]/60 to-transparent transform-gpu"></div>
@@ -98,32 +106,35 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
-          <span className="px-3 sm:px-4 py-1.5 rounded-full bg-[#1C232B]/80 border border-[#00F2FF]/30 text-[#00F2FF] font-label text-xs sm:text-sm font-semibold tracking-wide mb-6 uppercase flex items-center justify-center gap-1.5 sm:gap-2 md:backdrop-blur-sm max-w-full text-center flex-wrap">
-            <span className="w-2 h-2 rounded-full bg-[#00F2FF] animate-pulse shrink-0"></span>
-            <span className="truncate max-w-[240px] xs:max-w-none">Season 4 Registrations Open &bull; Welcome {displayName}</span>
+          {/* Hero Greeting */}
+          <span className="px-3 sm:px-4 py-1.5 rounded-full bg-[#1C232B]/80 border border-[#00F2FF]/30 text-[#00F2FF] text-[16px] sm:text-[18px] font-medium tracking-wide mb-4 inline-flex items-center justify-center gap-2 md:backdrop-blur-sm max-w-full whitespace-nowrap overflow-hidden text-ellipsis shadow-[0_0_15px_rgba(0,242,255,0.2)]">
+            👋 Welcome back, MJ ESPORTS
           </span>
 
-          <h1 className="font-headline font-black text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tighter text-white mb-4 uppercase drop-shadow-2xl leading-none">
-            Elevate Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F2FF] to-[#00C2CC]">Game</span>
+          {/* Hero Title */}
+          <h1 className="font-headline font-black text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight text-white mb-4 uppercase drop-shadow-2xl leading-tight max-w-full break-words">
+            READY FOR BATTLE?
           </h1>
 
-          <p className="font-body text-[#9CA3AF] text-sm xs:text-base md:text-xl max-w-2xl mx-auto mb-8 font-medium">
-            Compete in daily tournaments. Climb the ranks. Claim your share of the <span className="text-[#FE6B00] font-bold">₹50,000+</span> monthly prize pool.
+          {/* Hero Description */}
+          <p className="font-body text-[#9CA3AF] text-[15px] sm:text-[17px] max-w-2xl mx-auto mb-6 font-medium leading-relaxed line-clamp-2 sm:line-clamp-none">
+            Every Match Counts. Every Kill Matters.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center justify-center">
             <Link
               to="/tournaments"
-              className="px-6 sm:px-8 py-3.5 sm:py-4 bg-[#00F2FF] text-[#0B0E11] font-headline font-bold text-base sm:text-lg rounded-lg hover:bg-[#00C2CC] transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_20px_rgba(0,242,255,0.4)] flex items-center justify-center gap-2 uppercase tracking-wider min-h-[44px]"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-[#00F2FF] text-[#0B0E11] font-headline font-bold text-sm sm:text-base rounded-lg hover:bg-[#00C2CC] transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_20px_rgba(0,242,255,0.4)] flex items-center justify-center gap-2 uppercase tracking-wider min-h-[48px]"
             >
               <span>Browse Tournaments</span>
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
               to="/leaderboard"
-              className="px-6 sm:px-8 py-3.5 sm:py-4 bg-[#2A3441] text-white font-headline font-bold text-base sm:text-lg rounded-lg hover:bg-[#1C232B] transition-all duration-300 border border-[#374151] flex items-center justify-center gap-2 uppercase tracking-wider min-h-[44px]"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-[#2A3441] text-white font-headline font-bold text-sm sm:text-base rounded-lg hover:bg-[#1C232B] transition-all duration-300 border border-[#374151] flex items-center justify-center gap-2 uppercase tracking-wider min-h-[48px]"
             >
-              <span>View Leaderboard</span>
+              <span>Leaderboard</span>
               <Trophy className="w-5 h-5 text-[#FE6B00]" />
             </Link>
           </div>
@@ -131,7 +142,7 @@ export default function Home() {
       </section>
 
       {/* 2. MAIN CONTAINER GRID */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6 md:-mt-16 relative z-20 pb-20 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6 md:-mt-16 relative z-20 pb-20 space-y-10 sm:space-y-12">
 
         {/* Quick Actions */}
         <section className="grid grid-cols-4 gap-2 sm:gap-4 md:gap-8">
@@ -172,7 +183,11 @@ export default function Home() {
           </Link>
         </section>
 
-        {tournaments.length === 0 ? (
+        {loading ? (
+          <div className="py-8">
+            <SkeletonLoader type="card" count={2} />
+          </div>
+        ) : tournaments.length === 0 ? (
           <div className="py-16 text-center border border-[#374151]/30 bg-[#1C232B]/60 rounded-2xl p-6 space-y-3 shadow-lg">
             <Trophy className="w-12 h-12 text-[#9CA3AF] mx-auto animate-pulse" />
             <p className="text-xs font-bold text-white uppercase">No active tournaments.</p>
@@ -183,33 +198,36 @@ export default function Home() {
         ) : (
           <>
             {/* Layout Grid for Upcoming & Leaderboard (Beside each other on desktop) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
               
               {/* Upcoming Tournaments */}
               <section className="lg:col-span-2">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-headline font-black text-2xl uppercase tracking-wider text-white flex items-center gap-3">
-                    <Calendar className="w-6 h-6 text-[#00F2FF]" />
-                    <span>Upcoming Tournaments</span>
+                <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
+                  <h2 className="font-headline font-black text-sm xs:text-base sm:text-2xl uppercase tracking-normal sm:tracking-wider text-white flex items-center gap-2 sm:gap-3 min-w-0">
+                    <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#00F2FF] shrink-0" />
+                    <span className="leading-tight break-words">Upcoming Tournaments</span>
                   </h2>
-                  <Link to="/tournaments" className="text-sm font-label text-[#00F2FF] hover:text-[#00C2CC] transition-colors flex items-center gap-1 font-semibold uppercase">
+                  <Link to="/tournaments" className="text-xs sm:text-sm font-label text-[#00F2FF] hover:text-[#00C2CC] transition-colors flex items-center gap-1 font-semibold uppercase whitespace-nowrap shrink-0 ml-1">
                     <span>View All</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 shrink-0" />
                   </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {upcomingTournaments.length === 0 ? (
                     <div className="col-span-2 py-8 text-center text-xs text-[#9CA3AF] font-sans">
-                      No upcoming matches registered.
+                      No active tournaments.
                     </div>
                   ) : (
-                    upcomingTournaments.map((t) => (
-                      <div key={t.id} className="bg-[#1C232B] rounded-lg border border-[#374151]/30 overflow-hidden hover:border-[#00F2FF]/50 transition-colors group flex flex-col">
-                        <div className="h-32 relative overflow-hidden">
+                    upcomingTournaments.map((t, idx) => (
+                      <div key={`upcoming-tourney-${t.id || t._id || idx}`} className="bg-[#1C232B] rounded-lg border border-[#374151]/30 overflow-hidden hover:border-[#00F2FF]/50 transition-colors group flex flex-col">
+                        <div className="h-32 relative overflow-hidden bg-[#111417]">
                           <img
                             className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
                             alt="Tournament Banner Logo"
+                            loading="lazy"
+                            width="400"
+                            height="200"
                             src={t.imageUrl || "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80"}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-[#1C232B] to-transparent"></div>
@@ -250,7 +268,7 @@ export default function Home() {
 
                           <Link
                             to={`/tournaments/${t.id}`}
-                            className="w-full py-2.5 bg-[#2A3441] hover:bg-[#00F2FF]/20 text-white hover:text-[#00F2FF] font-headline font-bold text-sm uppercase tracking-wider rounded transition-colors border border-[#374151] hover:border-[#00F2FF]/50 text-center block"
+                            className="w-full py-2.5 bg-[#2A3441] hover:bg-[#00F2FF]/20 text-white hover:text-[#00F2FF] font-headline font-bold text-sm uppercase tracking-wider rounded transition-colors border border-[#374151] hover:border-[#00F2FF]/50 text-center block min-h-[44px] flex items-center justify-center"
                           >
                             Register Now
                           </Link>
@@ -263,17 +281,21 @@ export default function Home() {
 
               {/* Leaderboard Widget */}
               <section className="lg:col-span-1">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-headline font-black text-2xl uppercase tracking-wider text-white flex items-center gap-3">
-                    <Trophy className="w-6 h-6 text-[#FE6B00]" />
-                    <span>Top Players</span>
+                <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
+                  <h2 className="font-headline font-black text-base xs:text-lg sm:text-2xl uppercase tracking-wider text-white flex items-center gap-2 sm:gap-3 min-w-0">
+                    <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-[#FE6B00] shrink-0" />
+                    <span className="truncate">Leaderboard</span>
                   </h2>
+                  <Link to="/leaderboard" className="text-xs sm:text-sm font-label text-[#00F2FF] hover:text-[#00C2CC] transition-colors flex items-center gap-1 font-semibold uppercase whitespace-nowrap shrink-0">
+                    <span>View All</span>
+                    <ArrowRight className="w-4 h-4 shrink-0" />
+                  </Link>
                 </div>
 
-                <div className="bg-[#1C232B] rounded-lg border border-[#374151]/30 p-1 space-y-1">
+                <div className="bg-[#1C232B] rounded-lg border border-[#374151]/30 p-2 space-y-1">
                   {topPlayers.length === 0 ? (
                     <div className="py-12 text-center text-xs text-[#9CA3AF] font-sans">
-                      No ranking data available yet.
+                      No rankings available yet.
                     </div>
                   ) : (
                     topPlayers.map((p, idx) => {
@@ -281,15 +303,15 @@ export default function Home() {
                       const border = idx === 0 ? 'border-yellow-500' : idx === 1 ? 'border-gray-400' : 'border-amber-700'
                       const text = idx === 0 ? 'text-yellow-500' : idx === 1 ? 'text-gray-300' : 'text-amber-600'
                       return (
-                        <div key={`top-${idx}`} className={`flex items-center gap-4 p-3 rounded-lg bg-gradient-to-r from-${color}/10 to-transparent border-l-2 ${border} mb-1`}>
-                          <div className={`w-10 h-10 rounded-full border-2 ${border} overflow-hidden relative bg-[#2A3441] flex items-center justify-center font-bold ${text}`}>
+                        <div key={`top-player-${p.player}-${idx}`} className={`flex items-center gap-4 p-3 rounded-lg bg-gradient-to-r from-${color}/10 to-transparent border-l-2 ${border}`}>
+                          <div className={`w-10 h-10 rounded-full border-2 ${border} overflow-hidden relative bg-[#2A3441] flex items-center justify-center font-bold ${text} shrink-0`}>
                             {idx + 1}
                           </div>
-                          <div className="flex-1">
-                            <h4 className={`font-headline font-bold text-sm ${text}`}>{p.player}</h4>
+                          <div className="flex-1 min-w-0">
+                            <h4 className={`font-headline font-bold text-sm ${text} truncate`}>{p.player}</h4>
                             <p className="text-[10px] text-[#9CA3AF] uppercase truncate">{p.kills} Kills &bull; {p.team}</p>
                           </div>
-                          <div className="text-right">
+                          <div className="text-right shrink-0">
                             <span className="font-headline font-bold text-lg text-white font-mono">{p.points}</span>
                             <p className="text-[10px] text-[#9CA3AF] uppercase font-semibold">PTS</p>
                           </div>
@@ -297,44 +319,58 @@ export default function Home() {
                       )
                     })
                   )}
-                  
-                  <Link
-                    to="/leaderboard"
-                    className="w-full py-3 text-xs font-label uppercase tracking-wider text-[#9CA3AF] hover:text-[#00F2FF] transition-colors border-t border-[#374151]/30 mt-2 block text-center font-bold"
-                  >
-                    View Full Rankings
-                  </Link>
                 </div>
               </section>
 
             </div>
 
             {/* Platform Stats */}
-            <section className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 bg-[#1C232B] rounded-xl p-4 sm:p-6 border border-[#374151]/30">
-              <div className="flex flex-col items-center text-center">
-                <span className="text-3xl font-display font-bold text-[#00F2FF] mb-1">{activeCount}</span>
-                <span className="text-xs text-[#9CA3AF] uppercase font-semibold tracking-wider">Active Tournaments</span>
+            <section className="grid grid-cols-2 md:grid-cols-4 gap-3 xs:gap-4 sm:gap-6 bg-[#1C232B]/90 backdrop-blur-md rounded-2xl p-4 xs:p-5 sm:p-8 border border-[#374151]/50 shadow-2xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#00F2FF]/5 via-transparent to-[#FE6B00]/5 pointer-events-none"></div>
+
+              <div className="flex flex-col items-center justify-center text-center p-2 sm:p-3 relative z-10">
+                <span className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-display font-black text-[#00F2FF] leading-none tracking-tight drop-shadow-[0_0_15px_rgba(0,242,255,0.4)]">
+                  {activeCount}
+                </span>
+                <span className="text-[9px] xs:text-[10px] sm:text-xs text-[#9CA3AF] uppercase font-bold tracking-widest mt-2 leading-tight">
+                  Active Tournaments
+                </span>
               </div>
-              <div className="flex flex-col items-center text-center">
-                <span className="text-3xl font-display font-bold text-white mb-1">{openCount}</span>
-                <span className="text-xs text-[#9CA3AF] uppercase font-semibold tracking-wider">Open Registrations</span>
+
+              <div className="flex flex-col items-center justify-center text-center p-2 sm:p-3 relative z-10">
+                <span className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-display font-black text-white leading-none tracking-tight drop-shadow-md">
+                  {openCount}
+                </span>
+                <span className="text-[9px] xs:text-[10px] sm:text-xs text-[#9CA3AF] uppercase font-bold tracking-widest mt-2 leading-tight">
+                  Open Registrations
+                </span>
               </div>
-              <div className="flex flex-col items-center text-center">
-                <span className="text-3xl font-display font-bold text-[#FE6B00] mb-1">{totalPrizePool}</span>
-                <span className="text-xs text-[#9CA3AF] uppercase font-semibold tracking-wider">Total Prize Pool</span>
+
+              <div className="flex flex-col items-center justify-center text-center p-2 sm:p-3 relative z-10">
+                <span className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-display font-black text-[#FE6B00] leading-none tracking-tight drop-shadow-[0_0_15px_rgba(254,107,0,0.4)]">
+                  {totalPrizePool}
+                </span>
+                <span className="text-[9px] xs:text-[10px] sm:text-xs text-[#9CA3AF] uppercase font-bold tracking-widest mt-2 leading-tight">
+                  Total Prize Pool
+                </span>
               </div>
-              <div className="flex flex-col items-center text-center">
-                <span className="text-3xl font-display font-bold text-white mb-1">{totalRegisteredPlayers.toLocaleString()}</span>
-                <span className="text-xs text-[#9CA3AF] uppercase font-semibold tracking-wider">Registered Players</span>
+
+              <div className="flex flex-col items-center justify-center text-center p-2 sm:p-3 relative z-10">
+                <span className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-display font-black text-white leading-none tracking-tight drop-shadow-md">
+                  {totalRegisteredPlayers.toLocaleString()}
+                </span>
+                <span className="text-[9px] xs:text-[10px] sm:text-xs text-[#9CA3AF] uppercase font-bold tracking-widest mt-2 leading-tight">
+                  Registered Players
+                </span>
               </div>
             </section>
 
             {/* Featured Tournament Section */}
             {upcomingTournaments.length > 0 && (
               <section>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-headline font-black text-2xl uppercase tracking-wider text-white flex items-center gap-3">
-                    <Star className="w-6 h-6 text-[#00F2FF]" />
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className="font-headline font-black text-lg xs:text-xl sm:text-2xl uppercase tracking-wider text-white flex items-center gap-3">
+                    <Star className="w-5 h-5 sm:w-6 sm:h-6 text-[#00F2FF]" />
                     <span>Featured Tournament</span>
                   </h2>
                 </div>
@@ -342,11 +378,14 @@ export default function Home() {
                 <div className="rounded-2xl p-1 relative overflow-hidden group bg-[#1C232B]/60 md:backdrop-blur-md border border-white/5">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#FE6B00]/20 to-[#00F2FF]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
 
-                  <div className="bg-[#1C232B] rounded-xl p-6 relative z-10 flex flex-col md:flex-row items-center gap-8 border border-[#374151]/30">
-                    <div className="w-full md:w-1/3 aspect-video rounded-lg overflow-hidden relative shadow-lg">
+                  <div className="bg-[#1C232B] rounded-xl p-5 sm:p-6 relative z-10 flex flex-col md:flex-row items-center gap-6 sm:gap-8 border border-[#374151]/30">
+                    <div className="w-full md:w-1/3 aspect-video rounded-lg overflow-hidden relative shadow-lg bg-[#111417] shrink-0">
                       <img
                         className="w-full h-full object-cover"
                         alt="Gameplay screenshot"
+                        loading="lazy"
+                        width="400"
+                        height="225"
                         src={upcomingTournaments[0].imageUrl || "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80"}
                       />
                       <div className="absolute top-2 left-2 px-3 py-1 bg-emerald-600 text-white font-headline text-xs font-bold rounded uppercase tracking-wider flex items-center gap-1 shadow-md">
@@ -355,47 +394,47 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col w-full">
-                      <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1 flex flex-col w-full space-y-5">
+                      <div className="flex justify-between items-start gap-4">
                         <div>
-                          <h3 className="font-headline font-bold text-xl text-white mb-1">
+                          <h3 className="font-headline font-bold text-xl sm:text-2xl text-white mb-1">
                             {upcomingTournaments[0].title}
                           </h3>
-                          <p className="text-[#9CA3AF] text-sm flex items-center gap-2">
+                          <p className="text-[#9CA3AF] text-sm flex items-center gap-2 font-medium">
                             <Gamepad2 className="w-4 h-4 text-[#00F2FF]" /> {upcomingTournaments[0].game}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xs text-[#9CA3AF] uppercase font-semibold mb-1">Prize Pool</p>
-                          <p className="font-headline font-bold text-[#FE6B00] text-lg">{upcomingTournaments[0].prizePool || upcomingTournaments[0].prize_pool}</p>
+                        <div className="text-right shrink-0">
+                          <p className="text-xs text-[#9CA3AF] uppercase font-bold tracking-wider mb-1">Prize Pool</p>
+                          <p className="font-headline font-black text-[#FE6B00] text-2xl sm:text-3xl lg:text-4xl drop-shadow-[0_0_12px_rgba(254,107,0,0.4)]">{upcomingTournaments[0].prizePool || upcomingTournaments[0].prize_pool}</p>
                         </div>
                       </div>
 
-                      <div className="flex justify-between my-3 text-sm">
+                      <div className="flex justify-between items-center text-sm pt-3 border-t border-[#374151]/40 gap-4">
                         <div className="flex flex-col">
-                          <span className="text-xs text-[#9CA3AF] uppercase mb-1 font-semibold">Entry Fee</span>
-                          <span className="font-headline font-bold text-[#00F2FF]">{upcomingTournaments[0].entryFee || upcomingTournaments[0].entry_fee || 'Free'}</span>
+                          <span className="text-xs text-[#9CA3AF] uppercase font-bold tracking-wider mb-1">Entry Fee</span>
+                          <span className="font-headline font-black text-[#00F2FF] text-lg sm:text-xl">{upcomingTournaments[0].entryFee || upcomingTournaments[0].entry_fee || 'Free'}</span>
                         </div>
                         <div className="flex flex-col items-end">
-                          <span className="text-xs text-[#9CA3AF] uppercase mb-1 font-semibold">Registration Closes</span>
-                          <span className="font-headline font-bold text-white">{upcomingTournaments[0].startDate} &bull; {upcomingTournaments[0].startTime}</span>
+                          <span className="text-xs text-[#9CA3AF] uppercase font-bold tracking-wider mb-1">Registration Closes</span>
+                          <span className="font-headline font-bold text-white text-sm sm:text-base">{upcomingTournaments[0].startDate} &bull; {upcomingTournaments[0].startTime}</span>
                         </div>
                       </div>
 
-                      <div className="bg-[#2A3441]/50 rounded-lg p-3 border border-[#374151]/30 mb-4">
-                        <p className="text-xs text-[#9CA3AF] uppercase mb-1 font-semibold">Slots Filled</p>
-                        <div className="flex items-center gap-2">
-                          <p className="font-display font-bold text-lg text-white tracking-wider">{upcomingTournaments[0].registeredTeams || 0}/{upcomingTournaments[0].maxTeams || 32}</p>
-                          <div className="flex-1 h-1.5 bg-[#0B0E11] rounded-full overflow-hidden">
-                            <div className="h-full bg-[#FE6B00]" style={{ width: `${Math.round(((upcomingTournaments[0].registeredTeams || 0) / (upcomingTournaments[0].maxTeams || 32)) * 100)}%` }}></div>
+                      <div className="bg-[#2A3441]/60 rounded-xl p-4 border border-[#374151]/40">
+                        <p className="text-xs text-[#9CA3AF] uppercase font-bold tracking-wider mb-2">Slots Filled</p>
+                        <div className="flex items-center gap-3.5">
+                          <p className="font-display font-black text-lg sm:text-xl text-white tracking-wider shrink-0">{upcomingTournaments[0].registeredTeams || 0}/{upcomingTournaments[0].maxTeams || 32}</p>
+                          <div className="flex-1 h-3 sm:h-3.5 bg-[#0B0E11] rounded-full overflow-hidden border border-white/10 shadow-inner">
+                            <div className="h-full bg-gradient-to-r from-[#FE6B00] via-[#FF8800] to-[#00F2FF] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(254,107,0,0.5)]" style={{ width: `${Math.round(((upcomingTournaments[0].registeredTeams || 0) / (upcomingTournaments[0].maxTeams || 32)) * 100)}%` }}></div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex gap-4">
+                      <div className="flex gap-4 pt-1">
                         <Link
                           to={`/tournaments/${upcomingTournaments[0].id}`}
-                          className="flex-1 py-3 bg-[#00F2FF] hover:bg-[#00C2CC] text-[#0B0E11] font-headline font-bold uppercase tracking-wider rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-center"
+                          className="flex-1 py-3 bg-[#00F2FF] hover:bg-[#00C2CC] text-[#0B0E11] font-headline font-bold uppercase tracking-wider rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-center min-h-[48px] shadow-[0_0_15px_rgba(0,242,255,0.3)]"
                         >
                           Register Now
                         </Link>
@@ -409,6 +448,7 @@ export default function Home() {
         )}
 
       </div>
-    </main>
+    </div>
   )
 }
+

@@ -156,9 +156,29 @@
   display: none;
 }
 
-/* Touch Action Manipulation for Mobile Fast Taps */
-.touch-manipulation {
-  touch-action: manipulation;
+/* Hardware Acceleration & GPU Rendering Fixes */
+.transform-gpu {
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Rendering Stability & Reduced Motion */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Custom Scrollbar */

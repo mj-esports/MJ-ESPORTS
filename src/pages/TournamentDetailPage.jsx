@@ -30,7 +30,7 @@ import PointsTable from '../components/bracket/PointsTable'
 import BracketViewer from '../components/bracket/BracketViewer'
 import TournamentScheduleForm from '../components/common/TournamentScheduleForm'
 import EntryPrizeSystem from '../components/common/EntryPrizeSystem'
-import OfficialRulebook, { OFFICIAL_MJ_RULES } from '../components/common/OfficialRulebook'
+import { getTournamentImage } from '../utils/tournamentImageUtils'
 
 export default function TournamentDetailPage() {
   const { id } = useParams()
@@ -135,10 +135,7 @@ export default function TournamentDetailPage() {
         <div
           className="absolute inset-0 bg-cover bg-center opacity-60"
           style={{
-            backgroundImage: `url(${
-              tournament.imageUrl ||
-              'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80'
-            })`
+            backgroundImage: `url(${getTournamentImage(tournament)})`
           }}
         ></div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent"></div>
