@@ -1,4 +1,5 @@
 import React from 'react'
+import { formatTournamentPrize } from '../../../utils/tournamentPrizeUtils'
 
 export default function TournamentTable({ tournaments = [] }) {
   return (
@@ -45,7 +46,7 @@ export default function TournamentTable({ tournaments = [] }) {
 
                 {/* Prize Pool */}
                 <td className="px-4 py-4 font-mono font-extrabold text-emerald-400">
-                  {t.prize_pool || t.prizePool || '₹0'}
+                  {formatTournamentPrize(t)}
                 </td>
 
                 {/* Entry Fee */}

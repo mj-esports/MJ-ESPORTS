@@ -1,4 +1,4 @@
-export const SUPPORTED_GAMES = ['Free Fire', 'BGMI']
+export const SUPPORTED_GAMES = ['Free Fire MAX', 'BGMI']
 
 export const INITIAL_TOURNAMENTS = []
 export const MOCK_LEADERBOARD = []

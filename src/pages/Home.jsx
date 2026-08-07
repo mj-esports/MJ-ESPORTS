@@ -13,6 +13,9 @@ import {
   Calendar
 } from 'lucide-react'
 
+import { getTournamentImage } from '../utils/tournamentImageUtils'
+import { formatTournamentPrize } from '../utils/tournamentPrizeUtils'
+
 export default function Home() {
   const { tournaments, loading } = useTournaments()
   const { user } = useAuth()
@@ -99,7 +102,7 @@ export default function Home() {
             decoding="async"
             width="2000"
             height="1000"
-            src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=2000&q=80"
+            src={getTournamentImage(upcomingTournaments[0])}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E11] via-[#0B0E11]/60 to-transparent transform-gpu"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0E11] via-transparent to-[#0B0E11] hidden md:block transform-gpu"></div>
@@ -228,7 +231,7 @@ export default function Home() {
                             loading="lazy"
                             width="400"
                             height="200"
-                            src={t.imageUrl || "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80"}
+                            src={getTournamentImage(t)}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-[#1C232B] to-transparent"></div>
                           <div className="absolute bottom-3 left-4 flex gap-2">
@@ -248,7 +251,7 @@ export default function Home() {
                             </div>
                             <div className="flex flex-col items-end">
                               <span className="text-[10px] text-[#9CA3AF] uppercase font-semibold">Prize Pool</span>
-                              <span className="font-bold text-[#FE6B00] text-sm">{t.prizePool || t.prize_pool}</span>
+                              <span className="font-bold text-[#FE6B00] text-sm">{formatTournamentPrize(t)}</span>
                             </div>
                           </div>
 

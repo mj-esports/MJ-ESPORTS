@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 
 import { OFFICIAL_MJ_RULES } from '../common/OfficialRulebook'
+import { getTournamentImage } from '../../utils/tournamentImageUtils'
 
 export default function ReviewSummaryStep({ form }) {
   const rulesList = Array.isArray(form.rules) && form.rules.length > 0
@@ -54,23 +55,11 @@ export default function ReviewSummaryStep({ form }) {
         
         {/* Banner Image Preview Header */}
         <div className="relative h-40 sm:h-48 bg-[#151a21] overflow-hidden flex items-center justify-center border-b border-[#3a494b]/60">
-          {form.bannerUrl ? (
-            <img
-              src={form.bannerUrl}
-              alt="Tournament Banner Preview"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none'
-              }}
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-r from-[#07090c] via-[#151a21] to-[#07090c] flex flex-col items-center justify-center p-6 text-center space-y-2">
-              <Gamepad2 className="w-10 h-10 text-[#00f2ff]/40" />
-              <span className="text-xs font-bold text-[#8e9dae] uppercase tracking-wider">
-                Default Cyberpunk Visual Banner Active
-              </span>
-            </div>
-          )}
+          <img
+            src={getTournamentImage(form)}
+            alt="Tournament Background"
+            className="w-full h-full object-cover"
+          />
 
           {/* Floating Badges */}
           <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-10">

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Trophy, Calendar, ArrowRight, Gamepad2, Flame, Sparkles } from 'lucide-react'
 import { useTournaments } from '../../contexts/TournamentContext'
+import { formatTournamentPrize } from '../../utils/tournamentPrizeUtils'
 
 export default function FeaturedTournaments() {
   const { tournaments } = useTournaments()
@@ -110,7 +111,7 @@ export default function FeaturedTournaments() {
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="bg-[#07090c] p-2.5 rounded border border-[#3a494b]/60">
                         <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase block">Prize Pool</span>
-                        <span className="font-mono text-sm font-extrabold text-[#fe6b00]">{t.prizePool}</span>
+                        <span className="font-mono text-sm font-extrabold text-[#fe6b00]">{formatTournamentPrize(t)}</span>
                       </div>
                       <div className="bg-[#07090c] p-2.5 rounded border border-[#3a494b]/60">
                         <span className="font-label-caps text-[10px] text-[#8e9dae] uppercase block">Entry Fee</span>

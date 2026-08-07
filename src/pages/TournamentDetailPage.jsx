@@ -28,9 +28,10 @@ import { DetailSkeleton } from '../components/common/SkeletonLoader'
 import SlotBookingModal from '../components/tournament/SlotBookingModal'
 import PointsTable from '../components/bracket/PointsTable'
 import BracketViewer from '../components/bracket/BracketViewer'
+import { getTournamentImage } from '../utils/tournamentImageUtils'
+import { formatTournamentPrize } from '../utils/tournamentPrizeUtils'
 import TournamentScheduleForm from '../components/common/TournamentScheduleForm'
 import EntryPrizeSystem from '../components/common/EntryPrizeSystem'
-import { getTournamentImage } from '../utils/tournamentImageUtils'
 
 export default function TournamentDetailPage() {
   const { id } = useParams()
@@ -214,7 +215,7 @@ export default function TournamentDetailPage() {
                       <Award className="w-5 h-5 text-[#f97316]" />
                       <h3 className="font-headline font-semibold text-white">Prize Pool</h3>
                     </div>
-                    <p className="text-3xl font-display font-black text-white">{tournament.prizePool || '₹25,000'}</p>
+                    <p className="text-3xl font-display font-black text-white">{formatTournamentPrize(tournament)}</p>
                     <p className="text-sm text-[#a3a3a3] mt-1">Distributed among top 3 teams</p>
                   </div>
 

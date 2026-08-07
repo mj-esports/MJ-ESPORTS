@@ -1,5 +1,6 @@
 import React from 'react'
 import { Trophy, Users } from 'lucide-react'
+import { formatTournamentPrize } from '../../../utils/tournamentPrizeUtils'
 
 export default function TournamentCard({ tournament }) {
   const {
@@ -69,7 +70,7 @@ export default function TournamentCard({ tournament }) {
         </div>
         <div>
           <span className="text-[10px] text-slate-400 uppercase font-semibold">Prize Pool</span>
-          <p className="font-mono font-extrabold text-emerald-400 mt-0.5">{prize_pool || prizePool || '₹0'}</p>
+          <p className="font-mono font-extrabold text-emerald-400 mt-0.5">{formatTournamentPrize(tournament)}</p>
         </div>
         <div>
           <span className="text-[10px] text-slate-400 uppercase font-semibold">Entry Fee</span>

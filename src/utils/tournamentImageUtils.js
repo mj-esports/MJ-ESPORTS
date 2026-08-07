@@ -1,45 +1,25 @@
 /**
- * Official Esports Tournament Banner Resolver
- * Restores the original esports tournament arena background showing players competing on an esports stage.
- * Ensures zero hardware, keyboard, mouse, or controller images are ever displayed.
+ * Built-in Esports Tournament Background Assets
+ * Provides official hardcoded backgrounds for Free Fire / Free Fire MAX and BGMI tournaments.
  */
 
-export const ORIGINAL_ESPORTS_ARENA_IMAGE =
+export const FREE_FIRE_BANNER =
   'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80'
 
+export const BGMI_BANNER =
+  'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80'
+
+export const ORIGINAL_ESPORTS_ARENA_IMAGE = FREE_FIRE_BANNER
+
 /**
- * Returns the original esports tournament arena image URL for a given tournament.
+ * Returns the built-in default background image for a given tournament based on its game title.
  * @param {Object} tournament
  * @returns {string} Image URL
  */
 export function getTournamentImage(tournament) {
-  if (!tournament) {
-    return ORIGINAL_ESPORTS_ARENA_IMAGE
+  const gameStr = String(tournament?.game || '').toLowerCase()
+  if (gameStr.includes('bgmi') || gameStr.includes('battlegrounds')) {
+    return BGMI_BANNER
   }
-
-  // If custom image URL is provided, validate that it is NOT a hardware photo
-  if (tournament.imageUrl && typeof tournament.imageUrl === 'string' && tournament.imageUrl.trim()) {
-    const url = tournament.imageUrl.trim()
-    const lowerUrl = url.toLowerCase()
-    
-    // Strict Blacklist: ZERO keyboards, mice, controllers, consoles, headsets, desks, or hardware stock photos
-    const isHardwarePhoto =
-      lowerUrl.includes('keyboard') ||
-      lowerUrl.includes('mouse') ||
-      lowerUrl.includes('controller') ||
-      lowerUrl.includes('console') ||
-      lowerUrl.includes('desk') ||
-      lowerUrl.includes('headset') ||
-      lowerUrl.includes('laptop') ||
-      lowerUrl.includes('hardware') ||
-      lowerUrl.includes('photo-1538481199705-c710c4e965fc') ||
-      lowerUrl.includes('photo-1550745165-9bc0b252726f')
-
-    if (!isHardwarePhoto && (url.startsWith('http') || url.startsWith('/assets/'))) {
-      return url
-    }
-  }
-
-  // Restore the original esports tournament stage arena background
-  return ORIGINAL_ESPORTS_ARENA_IMAGE
+  return FREE_FIRE_BANNER
 }

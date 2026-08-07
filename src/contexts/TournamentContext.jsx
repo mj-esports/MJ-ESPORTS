@@ -2,6 +2,12 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef } f
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import { useAuth } from './AuthContext'
 import { INITIAL_TOURNAMENTS } from '../data/mockData'
+import { generateUUID } from '../utils/uuid'
+import {
+  normalizeLifecycleStatus,
+  getNextLifecycleStage,
+  isValidLifecycleTransition
+} from '../constants/tournamentLifecycle'
 
 const TournamentContext = createContext(null)
 
@@ -19,7 +25,7 @@ export function mapTournamentFromDb(row) {
   }
 
   const formatStr = row.format || row.match_format || 'SQUAD (4P)'
-  const statusStr = row.status || 'Registration Open'
+  const statusStr = normalizeLifecycleStatus(row.status)
 
   return {
     id: String(row.id),
@@ -69,7 +75,7 @@ export function mapTournamentToDb(t) {
     rulesArray = t.rules.split('\n').map((r) => r.trim()).filter(Boolean)
   }
 
-  const idVal = t.id && !String(t.id).startsWith('t-') ? String(t.id) : crypto.randomUUID()
+  const idVal = t.id && !String(t.id).startsWith('t-') ? String(t.id) : generateUUID()
   const teamsListVal = Array.isArray(t.teams_list) ? t.teams_list : Array.isArray(t.teamsList) ? t.teamsList : []
 
   const payload = {
@@ -208,6 +214,7 @@ export function TournamentProvider({ children }) {
 
     try {
       const payload = mapTournamentToDb(tournamentData)
+      console.log('Complete tournament payload immediately before insert():', payload)
 
       const { data, error } = await supabase
         .from('tournaments')
@@ -215,7 +222,13 @@ export function TournamentProvider({ children }) {
         .select()
 
       if (error) {
-        console.error('Create tournament error:', error)
+        console.error("Supabase Error:", {
+          code: error?.code,
+          message: error?.message,
+          details: error?.details,
+          hint: error?.hint,
+          status: error?.status
+        })
         throw error
       }
 
@@ -236,6 +249,7 @@ export function TournamentProvider({ children }) {
     const existing = tournaments.find((t) => String(t.id) === String(id))
     const merged = existing ? { ...existing, ...updatedFields, id } : { ...updatedFields, id }
     const payload = mapTournamentToDb(merged)
+    console.log('Complete tournament payload immediately before update():', payload)
 
     const { data, error } = await supabase
       .from('tournaments')
@@ -244,7 +258,13 @@ export function TournamentProvider({ children }) {
       .select()
 
     if (error) {
-      console.error('Update tournament error:', error)
+      console.error("Supabase Error:", {
+        code: error?.code,
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        status: error?.status
+      })
       throw error
     }
 
@@ -265,7 +285,13 @@ export function TournamentProvider({ children }) {
       .eq('id', id)
 
     if (error) {
-      console.error('Delete tournament error:', error)
+      console.error("Supabase Error:", {
+        code: error?.code,
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        status: error?.status
+      })
       throw error
     }
 
@@ -427,6 +453,20 @@ export function TournamentProvider({ children }) {
     return Promise.resolve()
   }
 
+  const advanceTournamentLifecycle = async (tournamentId) => {
+    const target = tournaments.find((t) => String(t.id) === String(tournamentId))
+    if (!target) return { success: false, error: 'Tournament not found.' }
+
+    const nextStage = getNextLifecycleStage(target.status)
+    if (!nextStage) return { success: false, error: 'Tournament is already at final stage.' }
+
+    if (!isValidLifecycleTransition(target.status, nextStage)) {
+      return { success: false, error: `Invalid transition from ${target.status} to ${nextStage}.` }
+    }
+
+    return updateTournament(tournamentId, { status: nextStage })
+  }
+
   const value = {
     tournaments,
     loading,
@@ -438,6 +478,7 @@ export function TournamentProvider({ children }) {
     editTournament: updateTournament,
     deleteTournament,
     updateTournamentStatus,
+    advanceTournamentLifecycle,
     registerTeam,
     withdrawTeam,
     updateRegistrationStatus,

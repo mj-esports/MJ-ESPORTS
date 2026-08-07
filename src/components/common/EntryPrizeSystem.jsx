@@ -7,26 +7,35 @@ import {
   Target,
   Award,
   CreditCard,
+  CheckCircle2,
+  ToggleLeft,
+  ToggleRight,
   ShieldCheck,
-  CheckCircle2
+  Zap,
+  Sparkles
 } from 'lucide-react'
 
-// Section 2: 4 Prize Types (Radio Cards)
+// Section 3: Prize Types (Radio Cards)
 const PRIZE_TYPES = [
-  { id: 'placement_kill', label: 'Placement + Per Kill', icon: Swords, desc: 'Rank position & kill bounties' },
   { id: 'placement', label: 'Placement Only', icon: Trophy, desc: 'Leaderboard rank placement rewards' },
+  { id: 'placement_kill', label: 'Placement + Per Kill', icon: Swords, desc: 'Rank position & kill bounties' },
   { id: 'per_kill', label: 'Per Kill Only', icon: Target, desc: 'Flat reward per confirmed kill' },
   { id: 'winner_takes_all', label: 'Winner Takes All', icon: Award, desc: 'Single prize for #1 Champion' },
 ]
 
 export default function EntryPrizeSystem({
-  entryFee = 50,
+  entryFee = 0,
   maxTeams = 32,
-  game = 'Free Fire',
+  game = 'Free Fire MAX',
   mode = 'squad',
-  prizeType = 'placement_kill',
+  registrationApproval = 'Automatic',
+  allowWaitlist = false,
+  maxWaitlistSize = 10,
+  paymentEnabled = false,
+  paymentGateway = 'Razorpay',
+  prizeType = 'placement',
   perKillReward = 30,
-  prizes = { firstPrize: 800, secondPrize: 400, thirdPrize: 200, fourthPrize: 0, mvpBonus: 0, winnerPrize: 1500 },
+  prizes = { firstPrize: 1000, secondPrize: 500, thirdPrize: 250, fourthPrize: 0, fifthPrize: 0, mvpBonus: 0, winnerPrize: 1500 },
   onChange,
   errors = {},
   readOnly = false
@@ -39,33 +48,61 @@ export default function EntryPrizeSystem({
     return isNaN(parsed) ? fallback : parsed
   }
 
-  const [localEntryFee, setLocalEntryFee] = useState(() => parseNum(entryFee, 50))
+  const [localPaymentEnabled, setLocalPaymentEnabled] = useState(paymentEnabled)
+  const [localEntryFee, setLocalEntryFee] = useState(() => (paymentEnabled ? parseNum(entryFee, 50) : 0))
   const [localSlots, setLocalSlots] = useState(() => parseNum(maxTeams, 32))
-  const [localPrizeType, setLocalPrizeType] = useState(prizeType || 'placement_kill')
+  const [localApproval, setLocalApproval] = useState(registrationApproval || 'Automatic')
+  const [localAllowWaitlist, setLocalAllowWaitlist] = useState(allowWaitlist)
+  const [localMaxWaitlist, setLocalMaxWaitlist] = useState(() => parseNum(maxWaitlistSize, 10))
+
+  const [localPrizeType, setLocalPrizeType] = useState(prizeType || 'placement')
   const [localPerKill, setLocalPerKill] = useState(() => parseNum(perKillReward, 30))
   const [localPrizes, setLocalPrizes] = useState({
-    firstPrize: parseNum(prizes?.firstPrize, 800),
-    secondPrize: parseNum(prizes?.secondPrize, 400),
-    thirdPrize: parseNum(prizes?.thirdPrize, 200),
+    firstPrize: parseNum(prizes?.firstPrize, 1000),
+    secondPrize: parseNum(prizes?.secondPrize, 500),
+    thirdPrize: parseNum(prizes?.thirdPrize, 250),
     fourthPrize: parseNum(prizes?.fourthPrize, 0),
+    fifthPrize: parseNum(prizes?.fifthPrize, 0),
     mvpBonus: parseNum(prizes?.mvpBonus, 0),
     winnerPrize: parseNum(prizes?.winnerPrize, 1500),
   })
 
-  // Synchronize state back to parent (No profit or revenue calculations)
+  // Synchronize state back to parent form
   useEffect(() => {
     if (onChange && !readOnly) {
+      const effectiveEntryFee = localPaymentEnabled ? localEntryFee : 0
       onChange({
-        entryFee: localEntryFee === 0 ? 'Free' : `₹${localEntryFee}`,
-        entryFeeNum: localEntryFee,
+        paymentEnabled: localPaymentEnabled,
+        entryFee: localPaymentEnabled && effectiveEntryFee > 0 ? `₹${effectiveEntryFee}` : 'Free',
+        entryFeeNum: effectiveEntryFee,
         maxTeams: localSlots,
-        paymentGateway: 'Razorpay',
+        registrationApproval: localApproval,
+        allowWaitlist: localAllowWaitlist,
+        maxWaitlistSize: localMaxWaitlist,
+        paymentGateway: localPaymentEnabled ? 'Razorpay' : 'None',
         prizeType: localPrizeType,
         perKillReward: localPerKill,
         prizes: localPrizes,
       })
     }
-  }, [localEntryFee, localSlots, localPrizeType, localPerKill, localPrizes])
+  }, [localPaymentEnabled, localEntryFee, localSlots, localApproval, localAllowWaitlist, localMaxWaitlist, localPrizeType, localPerKill, localPrizes])
+
+  // Calculate Live Estimated Total Prize Pool
+  const calculateTotalPrize = () => {
+    if (localPrizeType === 'winner_takes_all') {
+      return localPrizes.winnerPrize
+    }
+    if (localPrizeType === 'per_kill') {
+      return (localSlots * 4) * localPerKill
+    }
+    const placementSum = (localPrizes.firstPrize || 0) + (localPrizes.secondPrize || 0) + (localPrizes.thirdPrize || 0) + (localPrizes.fourthPrize || 0) + (localPrizes.fifthPrize || 0) + (localPrizes.mvpBonus || 0)
+    if (localPrizeType === 'placement_kill') {
+      return placementSum + ((localSlots * 4) * localPerKill)
+    }
+    return placementSum
+  }
+
+  const estimatedTotalPrize = calculateTotalPrize()
 
   if (readOnly) {
     return (
@@ -74,11 +111,11 @@ export default function EntryPrizeSystem({
           <div className="flex items-center gap-2 text-[#00f2ff]">
             <Trophy className="w-5 h-5 text-[#ffd700]" />
             <h3 className="font-headline text-sm font-black uppercase text-white tracking-wider">
-              Financials & Prize Pool Overview
+              Registration, Payment & Prize Overview
             </h3>
           </div>
           <span className="px-3 py-1 rounded-full text-[10px] font-black bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
-            Razorpay UPI
+            {localPaymentEnabled ? 'Paid Entry' : 'Free Entry'}
           </span>
         </div>
 
@@ -86,12 +123,12 @@ export default function EntryPrizeSystem({
           <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-1">
             <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Entry Fee</span>
             <span className="text-[#00f2ff] font-bold text-sm block">
-              {localEntryFee === 0 ? 'Free' : `₹${localEntryFee}`}
+              {!localPaymentEnabled || localEntryFee === 0 ? 'Free' : `₹${localEntryFee}`}
             </span>
           </div>
 
           <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-1">
-            <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Squad Slots</span>
+            <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Total Slots</span>
             <span className="text-white font-bold text-sm block">{localSlots} Slots</span>
           </div>
 
@@ -103,39 +140,9 @@ export default function EntryPrizeSystem({
           </div>
 
           <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-1">
-            <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Gateway</span>
-            <span className="text-[#00ff9d] font-bold text-xs block">Razorpay</span>
+            <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Est. Total Prize</span>
+            <span className="text-[#00ff9d] font-extrabold text-sm block">₹{estimatedTotalPrize.toLocaleString()}</span>
           </div>
-        </div>
-
-        {/* Dynamic Display of Configured Prizes */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-          {localPrizeType === 'winner_takes_all' ? (
-            <div className="p-3 bg-[#151a21] border border-[#ffd700]/40 rounded-xl col-span-2 sm:col-span-3">
-              <span className="text-[10px] text-[#ffd700] uppercase font-bold block">1st Winner Champion</span>
-              <span className="text-white font-extrabold text-base">₹{localPrizes.winnerPrize}</span>
-            </div>
-          ) : localPrizeType === 'per_kill' ? (
-            <div className="p-3 bg-[#151a21] border border-[#fe6b00]/40 rounded-xl col-span-2 sm:col-span-3">
-              <span className="text-[10px] text-[#fe6b00] uppercase font-bold block">Per Kill Reward</span>
-              <span className="text-white font-extrabold text-base">₹{localPerKill} / Kill</span>
-            </div>
-          ) : (
-            <>
-              <div className="p-3 bg-[#151a21] border border-[#ffd700]/40 rounded-xl">
-                <span className="text-[10px] text-[#ffd700] uppercase font-bold block">1st Prize</span>
-                <span className="text-white font-extrabold text-base">₹{localPrizes.firstPrize}</span>
-              </div>
-              <div className="p-3 bg-[#151a21] border border-[#c0c0c0]/40 rounded-xl">
-                <span className="text-[10px] text-[#c0c0c0] uppercase font-bold block">2nd Prize</span>
-                <span className="text-white font-bold text-sm">₹{localPrizes.secondPrize}</span>
-              </div>
-              <div className="p-3 bg-[#151a21] border border-[#cd7f32]/40 rounded-xl">
-                <span className="text-[10px] text-[#cd7f32] uppercase font-bold block">3rd Prize</span>
-                <span className="text-white font-bold text-sm">₹{localPrizes.thirdPrize}</span>
-              </div>
-            </>
-          )}
         </div>
       </div>
     )
@@ -144,46 +151,48 @@ export default function EntryPrizeSystem({
   return (
     <div className="space-y-6 text-white font-mono text-xs">
       
-      {/* SECTION 1: TOURNAMENT ENTRY */}
+      {/* SECTION 1: REGISTRATION SETTINGS */}
       <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
         <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-3">
           <div className="flex items-center gap-2 text-[#00f2ff]">
-            <IndianRupee className="w-4 h-4" />
+            <Users className="w-4.5 h-4.5" />
             <h3 className="font-headline text-xs font-black uppercase tracking-wider text-white">
-              Section 1: Tournament Entry Parameters
+              Section 1: Registration Settings
             </h3>
           </div>
-          <span className="text-[10px] text-[#8e9dae] font-semibold uppercase">5 Parameters</span>
+          <span className="text-[10px] text-[#8e9dae] font-semibold uppercase">Capacity & Approval</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           
-          {/* Entry Fee */}
+          {/* Entry Fee (₹) */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">
-              Entry Fee (₹) *
+              Entry Fee (₹) {localPaymentEnabled && '*'}
             </label>
             <input
               type="number"
               min="0"
-              value={localEntryFee}
+              disabled={!localPaymentEnabled}
+              value={localPaymentEnabled ? localEntryFee : 0}
               onChange={(e) => setLocalEntryFee(Math.max(0, parseNum(e.target.value, 0)))}
-              className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
+              className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
                 errors.entryFee ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#00f2ff]'
               }`}
+              placeholder={localPaymentEnabled ? 'e.g. 50' : 'Free Entry (0)'}
             />
             {errors.entryFee && <p className="text-red-400 text-[10px] font-bold mt-1">{errors.entryFee}</p>}
           </div>
 
-          {/* Total Slots */}
+          {/* Total Team Slots */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">
-              Total Squad Slots *
+              Total Team Slots *
             </label>
             <input
               type="number"
               min="1"
-              max="200"
+              max="500"
               value={localSlots}
               onChange={(e) => setLocalSlots(Math.max(1, parseNum(e.target.value, 32)))}
               className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
@@ -193,53 +202,146 @@ export default function EntryPrizeSystem({
             {errors.maxTeams && <p className="text-red-400 text-[10px] font-bold mt-1">{errors.maxTeams}</p>}
           </div>
 
-          {/* Game (Read-only) */}
+          {/* Registration Approval Options */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">Game Title</label>
-            <input
-              type="text"
-              readOnly
-              value={game}
-              className="w-full bg-[#151a21]/60 border border-[#3a494b]/60 rounded-xl px-3.5 py-2.5 text-[#8e9dae] text-xs font-semibold"
-            />
-          </div>
-
-          {/* Match Mode (Read-only) */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">Match Mode</label>
-            <input
-              type="text"
-              readOnly
-              value={mode.toUpperCase()}
-              className="w-full bg-[#151a21]/60 border border-[#3a494b]/60 rounded-xl px-3.5 py-2.5 text-[#8e9dae] text-xs font-semibold"
-            />
-          </div>
-
-          {/* Fixed Payment Gateway: Razorpay */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-[#00ff9d] uppercase block">Payment Gateway</label>
-            <div className="w-full bg-[#151a21] border border-[#00ff9d]/50 rounded-xl px-3.5 py-2.5 text-[#00ff9d] text-xs font-bold flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#00ff9d]" />
-              <span>Razorpay (Fixed)</span>
+            <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">
+              Registration Approval *
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setLocalApproval('Automatic')}
+                className={`py-2.5 px-3 rounded-xl border text-xs font-bold uppercase transition-all cursor-pointer ${
+                  localApproval === 'Automatic'
+                    ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff]'
+                    : 'bg-[#151a21] text-[#8e9dae] border-[#3a494b]'
+                }`}
+              >
+                Automatic
+              </button>
+              <button
+                type="button"
+                onClick={() => setLocalApproval('Manual')}
+                className={`py-2.5 px-3 rounded-xl border text-xs font-bold uppercase transition-all cursor-pointer ${
+                  localApproval === 'Manual'
+                    ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff]'
+                    : 'bg-[#151a21] text-[#8e9dae] border-[#3a494b]'
+                }`}
+              >
+                Manual
+              </button>
             </div>
           </div>
 
-        </div>
+          {/* Allow Waitlist Toggle */}
+          <div className="space-y-1.5 sm:col-span-2 lg:col-span-3 flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[#151a21] border border-[#3a494b]/60 rounded-xl gap-3">
+            <div>
+              <span className="text-xs font-bold text-white uppercase tracking-wide block">Allow Waitlist</span>
+              <span className="text-[10px] text-[#8e9dae] block">Automatically queue teams when total slots are full.</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setLocalAllowWaitlist(!localAllowWaitlist)}
+              className={`px-4 py-2 rounded-xl border text-xs font-extrabold uppercase transition-all cursor-pointer flex items-center gap-2 ${
+                localAllowWaitlist
+                  ? 'bg-[#00ff9d]/20 text-[#00ff9d] border-[#00ff9d]'
+                  : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b]'
+              }`}
+            >
+              {localAllowWaitlist ? <ToggleRight className="w-4 h-4 text-[#00ff9d]" /> : <ToggleLeft className="w-4 h-4 text-[#8e9dae]" />}
+              <span>{localAllowWaitlist ? 'Waitlist Enabled' : 'Waitlist Disabled'}</span>
+            </button>
+          </div>
 
-        {/* Gateway Notice Box */}
-        <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl flex items-center gap-2 text-xs text-[#8e9dae]">
-          <CreditCard className="w-4 h-4 text-[#00f2ff] shrink-0" />
-          <span>Players pay securely using UPI via Razorpay. Gateway configuration is fixed for all matches.</span>
+          {/* Maximum Waitlist Size (Visible only when Waitlist is enabled) */}
+          {localAllowWaitlist && (
+            <div className="space-y-1.5 sm:col-span-2 lg:col-span-3">
+              <label className="text-[11px] font-bold text-[#00ff9d] uppercase block">
+                Maximum Waitlist Size *
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={localMaxWaitlist}
+                onChange={(e) => setLocalMaxWaitlist(Math.max(1, parseNum(e.target.value, 10)))}
+                className="w-full bg-[#151a21] border border-[#00ff9d]/40 rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none focus:border-[#00ff9d]"
+                placeholder="e.g. 10"
+              />
+            </div>
+          )}
+
         </div>
       </div>
 
-      {/* SECTION 2: PRIZE TYPE (RADIO CARDS) */}
+      {/* SECTION 2: PAYMENT SETTINGS */}
       <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
         <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-3">
           <div className="flex items-center gap-2 text-[#00f2ff]">
-            <Trophy className="w-4 h-4" />
+            <CreditCard className="w-4.5 h-4.5" />
             <h3 className="font-headline text-xs font-black uppercase tracking-wider text-white">
-              Section 2: Select Prize Type *
+              Section 2: Payment Settings
+            </h3>
+          </div>
+          <span className="text-[10px] text-[#8e9dae] font-semibold uppercase">Gateway & Status</span>
+        </div>
+
+        {/* Large Toggle: Payment Enabled */}
+        <div className="p-4 bg-[#151a21] border border-[#3a494b]/60 rounded-xl flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-white uppercase tracking-wide block">Payment Status</span>
+            <span className="text-[10px] text-[#8e9dae] block">
+              {localPaymentEnabled ? 'Tournament requires paid entry fee' : 'Tournament is FREE ENTRY'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const nextState = !localPaymentEnabled
+              setLocalPaymentEnabled(nextState)
+              if (!nextState) setLocalEntryFee(0)
+            }}
+            className={`px-5 py-2.5 rounded-xl border text-xs font-extrabold uppercase transition-all cursor-pointer flex items-center gap-2 min-h-[44px] ${
+              localPaymentEnabled
+                ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff] shadow-[0_0_12px_rgba(0,242,255,0.3)]'
+                : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b]'
+            }`}
+          >
+            {localPaymentEnabled ? <ToggleRight className="w-5 h-5 text-[#00f2ff]" /> : <ToggleLeft className="w-5 h-5 text-[#8e9dae]" />}
+            <span>{localPaymentEnabled ? 'PAYMENT ON' : 'PAYMENT OFF (FREE ENTRY)'}</span>
+          </button>
+        </div>
+
+        {/* Payment Gateway Options (Visible when Payment Enabled is ON) */}
+        {localPaymentEnabled && (
+          <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-[#00f2ff] uppercase block">
+                Payment Gateway
+              </label>
+              <span className="text-[10px] text-[#8e9dae]">Razorpay Active</span>
+            </div>
+            <div className="p-3 bg-[#151a21] border border-[#00f2ff]/40 rounded-xl flex items-center justify-between text-xs text-white">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#00f2ff]" />
+                <span className="font-bold">Razorpay UPI & Cards</span>
+              </div>
+              <span className="text-[10px] text-[#00ff9d] font-bold uppercase">Supported</span>
+            </div>
+            <p className="text-[10px] text-[#8e9dae] italic pt-1">
+              More gateways can be added in future. Payment is optional for testing or free scrims.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* SECTION 3: PRIZE TYPE (RADIO CARDS) */}
+      <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
+        <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-3">
+          <div className="flex items-center gap-2 text-[#00f2ff]">
+            <Trophy className="w-4.5 h-4.5 text-[#ffd700]" />
+            <h3 className="font-headline text-xs font-black uppercase tracking-wider text-white">
+              Section 3: Select Prize Type *
             </h3>
           </div>
           <span className="text-[10px] text-[#00ff9d] font-bold uppercase">Single Selection</span>
@@ -284,37 +386,33 @@ export default function EntryPrizeSystem({
         </div>
       </div>
 
-      {/* SECTION 3: DYNAMIC PRIZE CONFIGURATION */}
+      {/* SECTION 4: PRIZE CONFIGURATION */}
       <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
         <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-3">
           <div className="flex items-center gap-2 text-[#00f2ff]">
             <Trophy className="w-4 h-4" />
             <h3 className="font-headline text-xs font-black uppercase tracking-wider text-white">
-              Section 3: Prize Configuration ({localPrizeType.replace('_', ' ').toUpperCase()})
+              Section 4: Prize Configuration ({localPrizeType.replace('_', ' ').toUpperCase()})
             </h3>
           </div>
-          <span className="text-[10px] text-[#fe6b00] font-bold uppercase">Manual Admin Control</span>
+          <span className="text-[10px] text-[#fe6b00] font-bold uppercase">Dynamic Inputs</span>
         </div>
 
-        {/* Dynamic Fields based on active Prize Type */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           
           {/* Winner Takes All UI */}
           {localPrizeType === 'winner_takes_all' && (
             <div className="space-y-1.5 col-span-1 sm:col-span-2 lg:col-span-3">
               <label className="text-[11px] font-bold text-[#ffd700] uppercase block">
-                1st Winner Champion Prize (₹) *
+                Winner Prize (₹) *
               </label>
               <input
                 type="number"
                 min="1"
                 value={localPrizes.winnerPrize}
                 onChange={(e) => setLocalPrizes((p) => ({ ...p, winnerPrize: parseNum(e.target.value, 0) }))}
-                className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
-                  errors.winnerPrize ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#ffd700]'
-                }`}
+                className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#ffd700] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
               />
-              {errors.winnerPrize && <p className="text-red-400 text-[10px] font-bold mt-1">{errors.winnerPrize}</p>}
             </div>
           )}
 
@@ -329,18 +427,14 @@ export default function EntryPrizeSystem({
                 min="1"
                 value={localPerKill}
                 onChange={(e) => setLocalPerKill(parseNum(e.target.value, 0))}
-                className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
-                  errors.perKillReward ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#fe6b00]'
-                }`}
+                className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#fe6b00] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
               />
-              {errors.perKillReward && <p className="text-red-400 text-[10px] font-bold mt-1">{errors.perKillReward}</p>}
             </div>
           )}
 
           {/* Placement Only & Placement + Per Kill UI */}
           {(localPrizeType === 'placement' || localPrizeType === 'placement_kill') && (
             <>
-              {/* Per Kill Reward if Placement + Per Kill */}
               {localPrizeType === 'placement_kill' && (
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-[#fe6b00] uppercase block">
@@ -351,69 +445,57 @@ export default function EntryPrizeSystem({
                     min="1"
                     value={localPerKill}
                     onChange={(e) => setLocalPerKill(parseNum(e.target.value, 0))}
-                    className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
-                      errors.perKillReward ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#fe6b00]'
-                    }`}
+                    className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#fe6b00] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
                   />
-                  {errors.perKillReward && <p className="text-red-400 text-[10px] font-bold mt-1">{errors.perKillReward}</p>}
                 </div>
               )}
 
               {/* 1st Prize */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-[#ffd700] uppercase block">
-                  1st Prize Champion (₹) *
+                  1st Prize (₹) *
                 </label>
                 <input
                   type="number"
                   min="1"
                   value={localPrizes.firstPrize}
                   onChange={(e) => setLocalPrizes((p) => ({ ...p, firstPrize: parseNum(e.target.value, 0) }))}
-                  className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
-                    errors.firstPrize ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#ffd700]'
-                  }`}
+                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#ffd700] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
                 />
-                {errors.firstPrize && <p className="text-red-400 text-[10px] font-bold mt-1">{errors.firstPrize}</p>}
               </div>
 
               {/* 2nd Prize */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-[#c0c0c0] uppercase block">
-                  2nd Runner-up (₹) *
+                  2nd Prize (₹)
                 </label>
                 <input
                   type="number"
                   min="0"
                   value={localPrizes.secondPrize}
                   onChange={(e) => setLocalPrizes((p) => ({ ...p, secondPrize: parseNum(e.target.value, 0) }))}
-                  className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
-                    errors.secondPrize ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#c0c0c0]'
-                  }`}
+                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#c0c0c0] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
                 />
-                {errors.secondPrize && <p className="text-red-400 text-[10px] font-bold mt-1">{errors.secondPrize}</p>}
               </div>
 
               {/* 3rd Prize */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-[#cd7f32] uppercase block">
-                  3rd Place (₹) *
+                  3rd Prize (₹)
                 </label>
                 <input
                   type="number"
                   min="0"
                   value={localPrizes.thirdPrize}
                   onChange={(e) => setLocalPrizes((p) => ({ ...p, thirdPrize: parseNum(e.target.value, 0) }))}
-                  className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
-                    errors.thirdPrize ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#cd7f32]'
-                  }`}
+                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#cd7f32] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
                 />
-                {errors.thirdPrize && <p className="text-red-400 text-[10px] font-bold mt-1">{errors.thirdPrize}</p>}
               </div>
 
               {/* 4th Prize (Optional) */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">
-                  4th Place (Optional ₹)
+                  4th Prize (Optional ₹)
                 </label>
                 <input
                   type="number"
@@ -424,54 +506,74 @@ export default function EntryPrizeSystem({
                 />
               </div>
 
-              {/* MVP Bonus (Optional) */}
+              {/* 5th Prize (Optional) */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-[#00ff9d] uppercase block">
-                  MVP Bonus (Optional ₹)
+                <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">
+                  5th Prize (Optional ₹)
                 </label>
                 <input
                   type="number"
                   min="0"
-                  value={localPrizes.mvpBonus}
-                  onChange={(e) => setLocalPrizes((p) => ({ ...p, mvpBonus: parseNum(e.target.value, 0) }))}
-                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#00ff9d] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                  value={localPrizes.fifthPrize}
+                  onChange={(e) => setLocalPrizes((p) => ({ ...p, fifthPrize: parseNum(e.target.value, 0) }))}
+                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#00f2ff] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
                 />
               </div>
+
+              {/* MVP Bonus (Optional - placement + per kill) */}
+              {localPrizeType === 'placement_kill' && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#00ff9d] uppercase block">
+                    MVP Bonus (Optional ₹)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={localPrizes.mvpBonus}
+                    onChange={(e) => setLocalPrizes((p) => ({ ...p, mvpBonus: parseNum(e.target.value, 0) }))}
+                    className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#00ff9d] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                  />
+                </div>
+              )}
             </>
           )}
 
         </div>
       </div>
 
-      {/* SECTION 4: TOURNAMENT SUMMARY (EXACT MANUALLY ENTERED VALUES) */}
-      <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 space-y-3">
+      {/* SECTION 5: LIVE SUMMARY */}
+      <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-3">
         <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2.5">
           <span className="font-headline text-xs font-black uppercase text-[#00f2ff] flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00f2ff]" />
-            <span>Section 4: Configured Tournament Summary</span>
+            <Sparkles className="w-4 h-4 text-[#00f2ff]" />
+            <span>Section 5: Live Tournament Summary</span>
           </span>
-          <span className="text-[10px] text-[#8e9dae] font-bold uppercase">Manual Admin Control</span>
+          <span className="text-[10px] text-[#00ff9d] font-bold uppercase">Auto-Calculating</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 text-xs font-mono">
-          <div><span className="text-[#8e9dae] block">Game Title:</span> <strong className="text-white">{game}</strong></div>
-          <div><span className="text-[#8e9dae] block">Match Mode:</span> <strong className="text-white">{mode.toUpperCase()}</strong></div>
-          <div><span className="text-[#8e9dae] block">Entry Fee:</span> <strong className="text-[#00f2ff]">₹{localEntryFee}</strong></div>
+          <div><span className="text-[#8e9dae] block">Game:</span> <strong className="text-white">{game}</strong></div>
+          <div><span className="text-[#8e9dae] block">Mode:</span> <strong className="text-white">{mode.toUpperCase()}</strong></div>
+          <div><span className="text-[#8e9dae] block">Entry Fee:</span> <strong className="text-[#00f2ff]">{!localPaymentEnabled || localEntryFee === 0 ? 'Free' : `₹${localEntryFee}`}</strong></div>
           <div><span className="text-[#8e9dae] block">Total Slots:</span> <strong className="text-white">{localSlots} Slots</strong></div>
+          <div><span className="text-[#8e9dae] block">Payment Status:</span> <strong className={localPaymentEnabled ? 'text-[#00f2ff]' : 'text-[#8e9dae]'}>{localPaymentEnabled ? 'Enabled (Razorpay)' : 'Disabled (Free Entry)'}</strong></div>
           <div><span className="text-[#8e9dae] block">Prize Type:</span> <strong className="text-[#fe6b00] uppercase">{localPrizeType.replace('_', ' ')}</strong></div>
-          <div><span className="text-[#8e9dae] block">Payment Gateway:</span> <strong className="text-[#00ff9d]">Razorpay (UPI)</strong></div>
           
-          {/* Dynamic Display of Configured Prizes */}
-          {localPrizeType === 'winner_takes_all' ? (
-            <div className="col-span-2"><span className="text-[#8e9dae] block">Winner Prize:</span> <strong className="text-[#ffd700]">₹{localPrizes.winnerPrize}</strong></div>
-          ) : localPrizeType === 'per_kill' ? (
-            <div className="col-span-2"><span className="text-[#8e9dae] block">Per Kill Bounty:</span> <strong className="text-[#fe6b00]">₹{localPerKill} / Kill</strong></div>
-          ) : (
-            <div className="col-span-2">
-              <span className="text-[#8e9dae] block">Placement Payouts:</span>
-              <strong className="text-[#ffd700]">1st: ₹{localPrizes.firstPrize} &bull; 2nd: ₹{localPrizes.secondPrize} &bull; 3rd: ₹{localPrizes.thirdPrize}</strong>
-            </div>
-          )}
+          <div className="col-span-2 sm:col-span-3 lg:col-span-2">
+            <span className="text-[#8e9dae] block">Prize Distribution:</span>
+            <strong className="text-[#ffd700]">
+              {localPrizeType === 'winner_takes_all'
+                ? `1st: ₹${localPrizes.winnerPrize}`
+                : localPrizeType === 'per_kill'
+                ? `₹${localPerKill} / Kill`
+                : `1st: ₹${localPrizes.firstPrize} • 2nd: ₹${localPrizes.secondPrize} • 3rd: ₹${localPrizes.thirdPrize}`}
+            </strong>
+          </div>
+
+          <div className="col-span-2 sm:col-span-3 lg:col-span-4 p-3 bg-[#151a21] border border-[#00ff9d]/30 rounded-xl flex items-center justify-between mt-1">
+            <span className="text-xs text-[#8e9dae] uppercase font-bold">Estimated Total Prize Pool</span>
+            <span className="text-base font-black text-[#00ff9d]">₹{estimatedTotalPrize.toLocaleString()}</span>
+          </div>
         </div>
       </div>
 

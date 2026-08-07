@@ -7,6 +7,7 @@ import EmptyState from '../components/common/EmptyState'
 import { SUPPORTED_GAMES } from '../data/mockData'
 import { useDebounce } from '../hooks/useDebounce'
 import { getTournamentImage } from '../utils/tournamentImageUtils'
+import { formatTournamentPrize } from '../utils/tournamentPrizeUtils'
 
 export default function TournamentsPage() {
   const { tournaments, loading } = useTournaments()
@@ -133,7 +134,7 @@ export default function TournamentsPage() {
                 <div className="text-left md:text-right">
                   <div className="text-[#A0A0A0] text-xs uppercase font-semibold font-label tracking-wider mb-0.5">Prize Pool</div>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-black font-headline text-[#00FFFF] drop-shadow-sm">
-                    {featuredTournament.prizePool || '₹50,000'}
+                    {formatTournamentPrize(featuredTournament)}
                   </div>
                 </div>
                 <Link
@@ -404,7 +405,7 @@ export default function TournamentsPage() {
                         <div className="grid grid-cols-2 gap-3">
                           <div className="bg-[#252525] p-3.5 rounded-lg border border-[#333333] flex flex-col justify-center">
                             <div className="text-[11px] text-[#A0A0A0] font-label uppercase tracking-wider mb-0.5">Prize Pool</div>
-                            <div className="font-headline font-black text-[#00FFFF] text-lg sm:text-xl leading-tight">{t.prizePool}</div>
+                            <div className="font-headline font-black text-[#00FFFF] text-lg sm:text-xl leading-tight">{formatTournamentPrize(t)}</div>
                           </div>
                           <div className="bg-[#252525] p-3.5 rounded-lg border border-[#333333] flex flex-col justify-center">
                             <div className="text-[11px] text-[#A0A0A0] font-label uppercase tracking-wider mb-0.5">Entry Fee</div>
