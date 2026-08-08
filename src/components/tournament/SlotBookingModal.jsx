@@ -347,8 +347,14 @@ export default function SlotBookingModal({ tournament, onClose }) {
         registeredRecord,
       })
     } catch (err) {
-      console.warn('[Registration Fallback]:', err)
-      // Local fallback in case context/network encounters issue
+      console.warn('[Registration Execution Result]:', err)
+      if (isSupabaseConfigured) {
+        setError(err.message || 'Registration failed. Please check your inputs and try again.')
+        showError(err.message || 'Registration failed.', 'Registration Failed')
+        return
+      }
+
+      // Local fallback in unconfigured local preview mode
       setRegistrationSummary({
         refId,
         teamName: sanitizeString(formData.teamName),

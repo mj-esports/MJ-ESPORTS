@@ -334,8 +334,12 @@ export function TournamentProvider({ children }) {
       const refId = teamInfo.refId || `REG-MJ-${Date.now().toString(36).toUpperCase()}`
 
       if (isSupabaseConfigured) {
-        // Authoritative Path: Call Atomic Supabase PostgreSQL RPC
-        const { data, error } = await supabase.rpc('register_tournament_team', {
+        // 1. Check authenticated session
+        const { data: sessionData } = await supabase.auth.getSession()
+        const hasSession = Boolean(sessionData?.session?.user)
+        const sessionUserId = sessionData?.session?.user?.id || null
+
+        const rpcPayload = {
           p_tournament_id: String(tournamentId),
           p_team_name: teamInfo.name,
           p_captain_name: teamInfo.captain,
@@ -351,19 +355,51 @@ export function TournamentProvider({ children }) {
           p_enable_sms_alerts: Boolean(teamInfo.enableSmsAlerts !== false),
           p_mode: teamInfo.mode || 'Squad',
           p_ref_id: refId,
+        }
+
+        console.log('[RPC Diagnostic]: Session Status ->', {
+          hasSession,
+          sessionUserId,
+          isSupabaseConfigured,
+        })
+
+        console.log('[RPC Diagnostic]: Invoking register_tournament_team with payload ->', {
+          p_tournament_id: rpcPayload.p_tournament_id,
+          p_team_name: rpcPayload.p_team_name,
+          p_captain_name: rpcPayload.p_captain_name,
+          p_captain_uid: rpcPayload.p_captain_uid,
+          p_teammate_uids: rpcPayload.p_teammate_uids,
+          p_substitute_uids: rpcPayload.p_substitute_uids,
+          p_mode: rpcPayload.p_mode,
+          p_ref_id: rpcPayload.p_ref_id,
+        })
+
+        // Authoritative Path: Call Atomic Supabase PostgreSQL RPC
+        const { data, error } = await supabase.rpc('register_tournament_team', rpcPayload)
+
+        console.log('[RPC Diagnostic]: Response ->', {
+          data,
+          error: error ? {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+            status: error.status,
+          } : null,
         })
 
         if (error) {
           console.error('[RPC register_tournament_team error]:', error)
           // Fallback if RPC migration hasn't been executed on Supabase DB yet
           if (error.code === 'PGRST202' || error.message?.includes('function') || error.message?.includes('schema cache')) {
-            console.warn('[RPC Fallback]: RPC function not deployed yet, falling back to client context migration mode...')
+            console.warn('[RPC Diagnostic]: Entering legacy fallback branch because RPC function is missing/schema cache error.')
             return await legacyRegisterTeam(tournamentId, teamInfo, target, refId, regStatus)
           }
           throw new Error(error.message || 'Database error processing tournament registration.')
         }
 
         if (data && data.success === false) {
+          console.warn('[RPC Diagnostic]: RPC returned unsuccessful response ->', data.error_code, data.message)
           // Map structured RPC error codes to clear, user-friendly UI messages
           switch (data.error_code) {
             case 'DUPLICATE_GAME_UID':
@@ -383,12 +419,12 @@ export function TournamentProvider({ children }) {
           }
         }
 
-        // Synchronize local tournaments state from database after RPC success
+        console.log('[RPC Diagnostic]: RPC Registration Success! Synchronizing tournaments state...')
         await fetchTournaments()
         return data.teamRecord || { ...teamInfo, id: refId, refId, status: regStatus }
       }
 
-      // Local / Mock fallback when Supabase client is unconfigured
+      console.warn('[RPC Diagnostic]: Entering legacy fallback branch because isSupabaseConfigured is FALSE.')
       return await legacyRegisterTeam(tournamentId, teamInfo, target, refId, regStatus)
     } finally {
       activeSubmissionsRef.current.delete(lockKey)
