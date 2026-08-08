@@ -37,7 +37,7 @@ import { useAuth } from '../../contexts/AuthContext'
 
 export default function MatchControlView({ tournaments = [], setActiveTab }) {
   const { showSuccess, showError } = useToast()
-  const { updateRoomDetails, updateTournamentStatus } = useTournaments()
+  const { updateRoomDetails, updateTournamentStatus, getRoomCredentials } = useTournaments()
   const { user } = useAuth()
 
   const [activeSubTab, setActiveSubTab] = useState('COMMAND_CENTER') // 'COMMAND_CENTER' | 'UPCOMING' | 'LIVE' | 'ROOM_MANAGEMENT' | 'RESULTS' | 'MATCH_HISTORY'
@@ -84,16 +84,30 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
 
   const adminName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Admin'
 
-  // Synchronize inputs when selected tournament changes
+  // Synchronize inputs when selected tournament changes via secure RPC
   useEffect(() => {
+    let isMounted = true
     if (selectedTourney) {
-      setRoomIdInput(selectedTourney.roomId || '')
-      setRoomPasswordInput(selectedTourney.roomPassword || '')
       setRoomStatus(selectedTourney.roomStatus || 'Draft')
       setIsLocked(selectedTourney.status === 'Bracket Locked' || selectedTourney.status === 'Completed')
       setAlert(null)
+
+      if (getRoomCredentials) {
+        getRoomCredentials(selectedTourney.id).then((res) => {
+          if (isMounted) {
+            if (res && res.success) {
+              setRoomIdInput(res.room_id || '')
+              setRoomPasswordInput(res.room_password || '')
+            } else {
+              setRoomIdInput('')
+              setRoomPasswordInput('')
+            }
+          }
+        })
+      }
     }
-  }, [selectedTourneyId, selectedTourney])
+    return () => { isMounted = false }
+  }, [selectedTourneyId, selectedTourney, getRoomCredentials])
 
   const handleCopy = (text, label) => {
     if (!text) return

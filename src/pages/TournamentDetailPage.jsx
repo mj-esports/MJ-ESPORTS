@@ -36,7 +36,7 @@ import EntryPrizeSystem from '../components/common/EntryPrizeSystem'
 export default function TournamentDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getTournamentById, isUserRegistered, loading } = useTournaments()
+  const { getTournamentById, isUserRegistered, getRoomCredentials, loading } = useTournaments()
   const { user, isAuthenticated, isAdmin } = useAuth()
   const { showSuccess } = useToast()
 
@@ -45,6 +45,29 @@ export default function TournamentDetailPage() {
   const [activeTab, setActiveTab] = useState('overview')
   const [showSlotModal, setShowSlotModal] = useState(false)
   const [openFaqIndex, setOpenFaqIndex] = useState(0)
+  const [secureRoomDetails, setSecureRoomDetails] = useState(null)
+
+  const userIdentifier = user?.email || user?.id || user?.user_metadata?.username
+  const isAlreadyRegistered = useMemo(() => {
+    return isUserRegistered(id, userIdentifier)
+  }, [isUserRegistered, id, userIdentifier])
+
+  useEffect(() => {
+    let isMounted = true
+    if (tournament && tournament.roomStatus === 'Published' && (isAlreadyRegistered || isAdmin) && getRoomCredentials) {
+      getRoomCredentials(tournament.id).then((res) => {
+        if (isMounted && res && res.success && res.room_id) {
+          setSecureRoomDetails({
+            roomId: res.room_id,
+            roomPassword: res.room_password,
+          })
+        }
+      })
+    } else {
+      setSecureRoomDetails(null)
+    }
+    return () => { isMounted = false }
+  }, [tournament, isAlreadyRegistered, isAdmin, getRoomCredentials])
 
   const handleCopy = (text, label) => {
     if (!text) return
@@ -99,7 +122,6 @@ export default function TournamentDetailPage() {
 
   const isFull = regTeams >= maxTeams
   const isClosed = tournament.status === 'Registration Closed' || tournament.status === 'Bracket Locked' || tournament.status === 'Completed'
-  const isAlreadyRegistered = isUserRegistered(tournament.id, user?.email || user?.id || user?.user_metadata?.username)
   const isRegistrationDisabled = isFull || isClosed || isAlreadyRegistered
 
   const handleRegisterClick = () => {
@@ -259,8 +281,8 @@ export default function TournamentDetailPage() {
                   </div>
                 </div>
 
-                {/* Custom Room Credentials (If Published) */}
-                {tournament.roomStatus === 'Published' && (isAlreadyRegistered || isAdmin) ? (
+                {/* Custom Room Credentials (If Published and Securely Verified) */}
+                {tournament.roomStatus === 'Published' && (isAlreadyRegistered || isAdmin) && secureRoomDetails?.roomId ? (
                   <div className="bg-[#111111] border border-[#f97316]/60 rounded-xl p-6 space-y-4 shadow-[0_0_20px_rgba(249,115,22,0.15)]">
                     <div className="flex items-center justify-between">
                       <h3 className="font-headline text-lg font-bold text-white flex items-center gap-2 uppercase">
@@ -276,21 +298,19 @@ export default function TournamentDetailPage() {
                       <div className="space-y-1">
                         <span className="text-xs text-[#a3a3a3] uppercase block font-label">Room ID</span>
                         <div className="flex items-center justify-between bg-[#111111] px-3 py-2 rounded border border-[#333333]">
-                          <span className="font-mono text-base font-extrabold text-[#f97316]">{tournament.roomId || 'Not set'}</span>
-                          {tournament.roomId && (
-                            <button onClick={() => handleCopy(tournament.roomId, 'Room ID')} className="p-1.5 hover:bg-[#262626] text-[#f97316] rounded">
-                              <Copy className="w-4 h-4" />
-                            </button>
-                          )}
+                          <span className="font-mono text-base font-extrabold text-[#f97316]">{secureRoomDetails.roomId}</span>
+                          <button onClick={() => handleCopy(secureRoomDetails.roomId, 'Room ID')} className="p-1.5 hover:bg-[#262626] text-[#f97316] rounded">
+                            <Copy className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
 
                       <div className="space-y-1">
                         <span className="text-xs text-[#a3a3a3] uppercase block font-label">Password</span>
                         <div className="flex items-center justify-between bg-[#111111] px-3 py-2 rounded border border-[#333333]">
-                          <span className="font-mono text-base font-extrabold text-white">{tournament.roomPassword || 'Not set'}</span>
-                          {tournament.roomPassword && (
-                            <button onClick={() => handleCopy(tournament.roomPassword, 'Password')} className="p-1.5 hover:bg-[#262626] text-white rounded">
+                          <span className="font-mono text-base font-extrabold text-white">{secureRoomDetails.roomPassword || 'Not set'}</span>
+                          {secureRoomDetails.roomPassword && (
+                            <button onClick={() => handleCopy(secureRoomDetails.roomPassword, 'Password')} className="p-1.5 hover:bg-[#262626] text-white rounded">
                               <Copy className="w-4 h-4" />
                             </button>
                           )}

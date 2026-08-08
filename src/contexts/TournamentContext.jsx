@@ -54,10 +54,10 @@ export function mapTournamentFromDb(row) {
     rules: rulesArray,
     teamsList: Array.isArray(row.teams_list) ? row.teams_list : [],
     teams_list: Array.isArray(row.teams_list) ? row.teams_list : [],
-    roomId: row.room_id || '',
-    room_id: row.room_id || '',
-    roomPassword: row.room_password || '',
-    room_password: row.room_password || '',
+    roomId: '',
+    room_id: '',
+    roomPassword: '',
+    room_password: '',
     roomStatus: row.room_status || 'Draft',
     room_status: row.room_status || 'Draft',
     roomLastUpdated: row.room_last_updated || null,
@@ -163,7 +163,7 @@ export function TournamentProvider({ children }) {
       try {
         const { data, error } = await supabase
           .from('tournaments')
-          .select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, room_id, room_password, room_status, room_last_updated, room_published_by, winner_team, winner_captain, created_at, updated_at')
+          .select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, room_status, room_last_updated, room_published_by, winner_team, winner_captain, created_at, updated_at')
           .order('created_at', { ascending: false })
 
         if (error) {
@@ -567,6 +567,23 @@ export function TournamentProvider({ children }) {
     })
   }
 
+  const getRoomCredentials = useCallback(async (tournamentId) => {
+    if (!isSupabaseConfigured || !tournamentId) return null
+    try {
+      const { data, error } = await supabase.rpc('get_tournament_room_credentials', {
+        p_tournament_id: String(tournamentId),
+      })
+      if (error) {
+        console.warn('[getRoomCredentials RPC Notice]:', error.message)
+        return null
+      }
+      return data
+    } catch (err) {
+      console.warn('[getRoomCredentials exception]:', err)
+      return null
+    }
+  }, [])
+
   const advanceTournamentLifecycle = async (tournamentId) => {
     const target = tournaments.find((t) => String(t.id) === String(tournamentId))
     if (!target) return { success: false, error: 'Tournament not found.' }
@@ -598,6 +615,7 @@ export function TournamentProvider({ children }) {
     updateRegistrationStatus,
     updateTournamentScores,
     updateRoomDetails,
+    getRoomCredentials,
   }
 
   return <TournamentContext.Provider value={value}>{children}</TournamentContext.Provider>
