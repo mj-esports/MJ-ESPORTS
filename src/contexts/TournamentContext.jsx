@@ -8,6 +8,7 @@ import {
   getNextLifecycleStage,
   isValidLifecycleTransition
 } from '../constants/tournamentLifecycle'
+import { parseTournamentDeadline } from '../utils/validationUtils'
 
 const TournamentContext = createContext(null)
 
@@ -320,8 +321,8 @@ export function TournamentProvider({ children }) {
       }
 
       if (target.startDate) {
-        const startDate = new Date(target.startDate)
-        if (!isNaN(startDate.getTime()) && startDate < new Date()) {
+        const deadlineDate = parseTournamentDeadline(target.startDate, target.startTime || target.start_time)
+        if (deadlineDate && deadlineDate < new Date()) {
           throw new Error('The registration deadline for this tournament has passed.')
         }
       }

@@ -192,6 +192,76 @@ export function isEndDateAfterStartDate(startDateStr, endDateStr) {
 }
 
 /**
+ * Parses tournament date and time strings into a precise Date object in IST (Asia/Kolkata, UTC+05:30).
+ * Combines start_date ("YYYY-MM-DD") and start_time ("06:00 PM IST", "18:00", etc.).
+ */
+export function parseTournamentDeadline(startDateStr, startTimeStr) {
+  if (!startDateStr || typeof startDateStr !== 'string') return null
+
+  const trimmedDate = startDateStr.trim()
+  if (!trimmedDate) return null
+
+  // If startDate is already a full ISO string, parse directly
+  if (trimmedDate.includes('T') || trimmedDate.includes('Z')) {
+    const d = new Date(trimmedDate)
+    return isNaN(d.getTime()) ? null : d
+  }
+
+  // Extract YYYY-MM-DD
+  const dateMatch = trimmedDate.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/)
+  if (!dateMatch) {
+    const fallbackDate = new Date(trimmedDate)
+    return isNaN(fallbackDate.getTime()) ? null : fallbackDate
+  }
+
+  const [, yearStr, monthStr, dayStr] = dateMatch
+  const year = yearStr
+  const month = monthStr.padStart(2, '0')
+  const day = dayStr.padStart(2, '0')
+
+  // Parse Time (Default to 23:59:59 IST if time not provided so registration is open throughout match day until start)
+  let hours = 23
+  let minutes = 59
+  let seconds = 59
+
+  if (startTimeStr && typeof startTimeStr === 'string' && startTimeStr.trim()) {
+    const rawTime = startTimeStr.trim().toUpperCase()
+
+    const isPm = rawTime.includes('PM')
+    const isAm = rawTime.includes('AM')
+
+    const timeMatch = rawTime.match(/(\d{1,2}):(\d{2})/)
+    if (timeMatch) {
+      let parsedHours = parseInt(timeMatch[1], 10)
+      const parsedMinutes = parseInt(timeMatch[2], 10)
+
+      if (isPm || isAm) {
+        if (isPm && parsedHours < 12) parsedHours += 12
+        if (isAm && parsedHours === 12) parsedHours = 0
+      }
+
+      if (!isNaN(parsedHours) && parsedHours >= 0 && parsedHours <= 23) {
+        hours = parsedHours
+      }
+      if (!isNaN(parsedMinutes) && parsedMinutes >= 0 && parsedMinutes <= 59) {
+        minutes = parsedMinutes
+        seconds = 0
+      }
+    }
+  }
+
+  const hoursStr = String(hours).padStart(2, '0')
+  const minutesStr = String(minutes).padStart(2, '0')
+  const secondsStr = String(seconds).padStart(2, '0')
+
+  // Format as ISO string in IST (Asia/Kolkata +05:30)
+  const istIsoString = `${year}-${month}-${day}T${hoursStr}:${minutesStr}:${secondsStr}+05:30`
+  const parsedDate = new Date(istIsoString)
+
+  return isNaN(parsedDate.getTime()) ? null : parsedDate
+}
+
+/**
  * Validates player username/handle.
  * Accepts ANY character set (including symbols, emojis, unicode, international scripts).
  * Rules: Cannot be empty or only whitespace, automatically trimmed, maximum 50 characters.
