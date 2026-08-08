@@ -161,10 +161,6 @@ export default function EditProfilePage() {
                 id: user.id,
                 username: cleanUsername,
                 game_uid: cleanFreeFireUid, // Free Fire UID defaults to game_uid
-                bgmi_uid: cleanBgmiUid,
-                instagram: cleanInstagram,
-                whatsapp_channel: cleanWhatsapp,
-                bio: cleanBio,
                 avatar_url: avatarUrl,
                 updated_at: new Date().toISOString(),
               },
