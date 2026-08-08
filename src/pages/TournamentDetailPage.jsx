@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   Trophy,
@@ -19,7 +19,9 @@ import {
   Users,
   MapPin,
   Share2,
-  Bookmark
+  Bookmark,
+  Eye,
+  EyeOff
 } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -32,6 +34,7 @@ import { getTournamentImage } from '../utils/tournamentImageUtils'
 import { formatTournamentPrize } from '../utils/tournamentPrizeUtils'
 import TournamentScheduleForm from '../components/common/TournamentScheduleForm'
 import EntryPrizeSystem from '../components/common/EntryPrizeSystem'
+import OfficialRulebook, { OFFICIAL_MJ_RULES } from '../components/common/OfficialRulebook'
 
 export default function TournamentDetailPage() {
   const { id } = useParams()
@@ -46,6 +49,9 @@ export default function TournamentDetailPage() {
   const [showSlotModal, setShowSlotModal] = useState(false)
   const [openFaqIndex, setOpenFaqIndex] = useState(0)
   const [secureRoomDetails, setSecureRoomDetails] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [roomLoading, setRoomLoading] = useState(false)
+  const [roomErrorMessage, setRoomErrorMessage] = useState(null)
 
   const userIdentifier = user?.email || user?.id || user?.user_metadata?.username
   const isAlreadyRegistered = useMemo(() => {
@@ -54,25 +60,51 @@ export default function TournamentDetailPage() {
 
   useEffect(() => {
     let isMounted = true
-    if (tournament && tournament.roomStatus === 'Published' && (isAlreadyRegistered || isAdmin) && getRoomCredentials) {
+    if (tournament && tournament.roomStatus === 'Published' && isAuthenticated && (isAlreadyRegistered || isAdmin) && getRoomCredentials) {
+      setRoomLoading(true)
+      setRoomErrorMessage(null)
       getRoomCredentials(tournament.id).then((res) => {
-        if (isMounted && res && res.success && res.room_id) {
+        if (!isMounted) return
+        setRoomLoading(false)
+        if (res && res.success && (res.roomId || res.room_id)) {
           setSecureRoomDetails({
-            roomId: res.room_id,
-            roomPassword: res.room_password,
+            roomId: res.roomId || res.room_id,
+            roomPassword: res.roomPassword || res.room_password,
           })
+        } else {
+          setSecureRoomDetails(null)
+          if (res?.message) {
+            setRoomErrorMessage(res.message)
+          }
         }
       })
     } else {
       setSecureRoomDetails(null)
+      setRoomLoading(false)
+      setRoomErrorMessage(null)
     }
     return () => { isMounted = false }
-  }, [tournament, isAlreadyRegistered, isAdmin, getRoomCredentials])
+  }, [tournament, isAlreadyRegistered, isAuthenticated, isAdmin, getRoomCredentials])
 
-  const handleCopy = (text, label) => {
+  const handleCopy = async (text, label) => {
     if (!text) return
-    navigator.clipboard.writeText(text)
-    showSuccess(`${label} copied to clipboard!`, 'Copied')
+    try {
+      await navigator.clipboard.writeText(text)
+      showSuccess(`${label} copied to clipboard!`, 'Copied')
+    } catch (err) {
+      showSuccess(`${label}: ${text}`, 'Copy Info')
+    }
+  }
+
+  const handleCopyCredentials = async (tournamentTitle, roomId, password) => {
+    if (!roomId) return
+    const formattedText = `Tournament: ${tournamentTitle || 'Tournament'}\nRoom ID: ${roomId}\nPassword: ${password || ''}`
+    try {
+      await navigator.clipboard.writeText(formattedText)
+      showSuccess('Room credentials copied to clipboard!', 'Credentials Copied')
+    } catch (err) {
+      showSuccess(`Credentials:\n${formattedText}`, 'Copy Info')
+    }
   }
 
   // Derive prize breakdown values
@@ -281,44 +313,143 @@ export default function TournamentDetailPage() {
                   </div>
                 </div>
 
-                {/* Custom Room Credentials (If Published and Securely Verified) */}
-                {tournament.roomStatus === 'Published' && (isAlreadyRegistered || isAdmin) && secureRoomDetails?.roomId ? (
-                  <div className="bg-[#111111] border border-[#f97316]/60 rounded-xl p-6 space-y-4 shadow-[0_0_20px_rgba(249,115,22,0.15)]">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-headline text-lg font-bold text-white flex items-center gap-2 uppercase">
-                        <Key className="w-5 h-5 text-[#f97316]" />
-                        <span>Custom Match Room Credentials</span>
-                      </h3>
-                      <span className="px-2.5 py-1 rounded bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/40 text-xs font-mono font-bold uppercase">
-                        Broadcast Live
-                      </span>
+                {/* Custom Match Room Credentials Panel */}
+                {tournament.roomStatus === 'Published' ? (
+                  !isAuthenticated ? (
+                    <div className="bg-[#111111] border border-[#333333] rounded-xl p-5 sm:p-6 space-y-3">
+                      <div className="flex items-center gap-2 text-[#00FFFF] font-headline font-bold text-sm uppercase">
+                        <Lock className="w-4 h-4 text-[#A0A0A0]" />
+                        <span>Match Room Credentials</span>
+                      </div>
+                      <p className="text-xs text-[#A0A0A0] font-label leading-relaxed">
+                        Sign in and register for this tournament to view custom room credentials.
+                      </p>
+                      <Link
+                        to="/login"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-[#00FFFF]/10 border border-[#00FFFF]/40 text-[#00FFFF] font-label font-extrabold text-xs uppercase hover:bg-[#00FFFF]/20 transition-all"
+                      >
+                        Sign In to View
+                      </Link>
                     </div>
+                  ) : (isAlreadyRegistered || isAdmin) ? (
+                    secureRoomDetails?.roomId ? (
+                      <div className="bg-[#111111] border border-[#00FFFF]/50 rounded-xl p-5 sm:p-6 space-y-4 shadow-[0_0_20px_rgba(0,255,255,0.15)] relative overflow-hidden">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#262626] pb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#FF0055] animate-pulse"></span>
+                            <h3 className="font-headline text-base sm:text-lg font-bold text-white flex items-center gap-2 uppercase tracking-wide">
+                              <Key className="w-5 h-5 text-[#00FFFF]" />
+                              <span>MATCH ROOM LIVE</span>
+                            </h3>
+                          </div>
+                          <span className="px-3 py-1 rounded bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/30 text-xs font-mono font-bold uppercase tracking-wider">
+                            Room Status: Published
+                          </span>
+                        </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#1a1a1a] rounded-lg border border-[#333333]">
-                      <div className="space-y-1">
-                        <span className="text-xs text-[#a3a3a3] uppercase block font-label">Room ID</span>
-                        <div className="flex items-center justify-between bg-[#111111] px-3 py-2 rounded border border-[#333333]">
-                          <span className="font-mono text-base font-extrabold text-[#f97316]">{secureRoomDetails.roomId}</span>
-                          <button onClick={() => handleCopy(secureRoomDetails.roomId, 'Room ID')} className="p-1.5 hover:bg-[#262626] text-[#f97316] rounded">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* ROOM ID CARD */}
+                          <div className="bg-[#1A1A1A] p-4 rounded-lg border border-[#333333] space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[11px] font-extrabold text-[#A0A0A0] uppercase font-label tracking-wider">ROOM ID</span>
+                              <button
+                                onClick={() => handleCopy(secureRoomDetails.roomId, 'Room ID')}
+                                className="px-2.5 py-1 rounded bg-[#252525] hover:bg-[#00FFFF]/20 border border-[#333333] hover:border-[#00FFFF]/50 text-[#00FFFF] text-xs font-bold font-label flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer min-h-[32px]"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>COPY ID</span>
+                              </button>
+                            </div>
+                            <div className="font-mono text-xl font-black text-[#00FFFF] tracking-wider select-all">
+                              {secureRoomDetails.roomId}
+                            </div>
+                          </div>
+
+                          {/* ROOM PASSWORD CARD */}
+                          <div className="bg-[#1A1A1A] p-4 rounded-lg border border-[#333333] space-y-2">
+                            <div className="flex justify-between items-center gap-2">
+                              <span className="text-[11px] font-extrabold text-[#A0A0A0] uppercase font-label tracking-wider">PASSWORD</span>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => setShowPassword((prev) => !prev)}
+                                  className="p-1.5 rounded hover:bg-[#252525] text-[#A0A0A0] hover:text-white transition-colors"
+                                  title={showPassword ? 'Hide Password' : 'Show Password'}
+                                >
+                                  {showPassword ? <EyeOff className="w-4 h-4 text-[#00FFFF]" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                                <button
+                                  onClick={() => handleCopy(secureRoomDetails.roomPassword, 'Password')}
+                                  className="px-2.5 py-1 rounded bg-[#252525] hover:bg-[#00FFFF]/20 border border-[#333333] hover:border-[#00FFFF]/50 text-white hover:text-[#00FFFF] text-xs font-bold font-label flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer min-h-[32px]"
+                                >
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>COPY PASSWORD</span>
+                                </button>
+                              </div>
+                            </div>
+                            <div className="font-mono text-xl font-black text-white tracking-wider select-all">
+                              {showPassword ? (secureRoomDetails.roomPassword || 'None') : '••••••••'}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* COMBINED COPY CREDENTIALS BUTTON */}
+                        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#262626]">
+                          <button
+                            onClick={() => handleCopyCredentials(tournament?.title, secureRoomDetails.roomId, secureRoomDetails.roomPassword)}
+                            className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-[#00FFFF] text-black font-label font-extrabold text-xs uppercase tracking-wider hover:bg-[#00FFFF]/90 transition-all flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(0,255,255,0.25)] active:scale-98 cursor-pointer min-h-[40px]"
+                          >
                             <Copy className="w-4 h-4" />
+                            <span>COPY CREDENTIALS</span>
                           </button>
+                          <span className="text-xs font-label text-[#22c55e] flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Match room is ready.</span>
+                          </span>
                         </div>
                       </div>
-
-                      <div className="space-y-1">
-                        <span className="text-xs text-[#a3a3a3] uppercase block font-label">Password</span>
-                        <div className="flex items-center justify-between bg-[#111111] px-3 py-2 rounded border border-[#333333]">
-                          <span className="font-mono text-base font-extrabold text-white">{secureRoomDetails.roomPassword || 'Not set'}</span>
-                          {secureRoomDetails.roomPassword && (
-                            <button onClick={() => handleCopy(secureRoomDetails.roomPassword, 'Password')} className="p-1.5 hover:bg-[#262626] text-white rounded">
-                              <Copy className="w-4 h-4" />
-                            </button>
-                          )}
+                    ) : roomLoading ? (
+                      <div className="bg-[#111111] border border-[#00FFFF]/30 rounded-xl p-5 sm:p-6 space-y-2 animate-pulse">
+                        <div className="flex items-center gap-2 text-[#00FFFF] font-headline font-bold text-sm uppercase">
+                          <Key className="w-4 h-4 text-[#00FFFF]" />
+                          <span>Verifying Match Room Credentials...</span>
                         </div>
+                        <p className="text-xs text-[#A0A0A0] font-label">
+                          Loading secure room credentials for registered participants...
+                        </p>
                       </div>
+                    ) : (
+                      <div className="bg-[#111111] border border-[#00FFFF]/40 rounded-xl p-5 sm:p-6 space-y-2">
+                        <div className="flex items-center gap-2 text-[#00FFFF] font-headline font-bold text-sm uppercase">
+                          <Key className="w-4 h-4 text-[#00FFFF]" />
+                          <span>Match Room Credentials</span>
+                        </div>
+                        <p className="text-xs text-[#A0A0A0] font-label leading-relaxed">
+                          {roomErrorMessage || 'Match room credentials have been published. Re-verifying participant session details...'}
+                        </p>
+                      </div>
+                    )
+                  ) : (
+                    <div className="bg-[#111111] border border-[#333333] rounded-xl p-5 sm:p-6 space-y-2">
+                      <div className="flex items-center gap-2 text-[#00FFFF] font-headline font-bold text-sm uppercase">
+                        <Lock className="w-4 h-4 text-[#A0A0A0]" />
+                        <span>Match Room Credentials</span>
+                      </div>
+                      <p className="text-xs text-[#A0A0A0] font-label leading-relaxed">
+                        Room credentials are available only to registered participants.
+                      </p>
                     </div>
+                  )
+                ) : (
+                  <div className="bg-[#111111] border border-[#333333] rounded-xl p-5 sm:p-6 space-y-2">
+                    <div className="flex items-center gap-2 text-[#00FFFF] font-headline font-bold text-sm uppercase">
+                      <Key className="w-4 h-4 text-[#A0A0A0]" />
+                      <span>Match Room Credentials</span>
+                    </div>
+                    <p className="text-xs text-[#A0A0A0] font-label leading-relaxed">
+                      Room credentials will appear here when the admin publishes the room.
+                    </p>
                   </div>
-                ) : null}
+                )}
 
                 {/* Tactical Map Banner */}
                 <div className="mt-8 rounded-xl overflow-hidden border border-[#333333] shadow-lg">

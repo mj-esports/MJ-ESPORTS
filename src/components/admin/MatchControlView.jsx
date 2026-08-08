@@ -84,7 +84,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
 
   const adminName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Admin'
 
-  // Synchronize inputs when selected tournament changes via secure RPC
+  // Synchronize inputs when selected tournament ID changes via secure RPC
   useEffect(() => {
     let isMounted = true
     if (selectedTourney) {
@@ -98,6 +98,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
             if (res && res.success) {
               setRoomIdInput(res.room_id || '')
               setRoomPasswordInput(res.room_password || '')
+              if (res.room_status) setRoomStatus(res.room_status)
             } else {
               setRoomIdInput('')
               setRoomPasswordInput('')
@@ -107,7 +108,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
       }
     }
     return () => { isMounted = false }
-  }, [selectedTourneyId, selectedTourney, getRoomCredentials])
+  }, [selectedTourneyId, getRoomCredentials])
 
   const handleCopy = (text, label) => {
     if (!text) return
@@ -341,6 +342,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
         <MatchControlCommandCenter
           tournaments={tournaments}
           selectedTourney={selectedTourney}
+          activeRoomId={roomIdInput}
           onOpenMatch={handleOpenMatch}
           onToggleLock={handleToggleLock}
           onNavigateSubTab={setActiveSubTab}

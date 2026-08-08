@@ -138,7 +138,7 @@ export default function TournamentsPage() {
                   </div>
                 </div>
                 <Link
-                  to={`/tournaments/${featuredTournament.id}`}
+                  to={featuredTournament?.id ? `/tournaments/${featuredTournament.id}` : '/tournaments'}
                   className="bg-[#00FFFF] text-black font-bold px-8 py-3.5 rounded-lg hover:bg-[#00FFFF]/90 transition-all active:scale-95 font-label w-full md:w-auto text-center shadow-[0_0_20px_rgba(0,255,255,0.3)] uppercase tracking-wider text-sm min-h-[44px] flex items-center justify-center"
                 >
                   Register Now
@@ -436,14 +436,14 @@ export default function TournamentsPage() {
                         {/* CTA Button */}
                         {isCompleted ? (
                           <Link
-                            to={`/tournaments/${t.id}`}
+                            to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
                             className="w-full py-3 rounded-lg bg-[#252525] text-[#A0A0A0] hover:text-white font-label font-extrabold text-xs transition-colors text-center block uppercase tracking-wider border border-[#333333]"
                           >
                             View Results & Summary
                           </Link>
                         ) : (
                           <Link
-                            to={`/tournaments/${t.id}`}
+                            to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
                             className="w-full py-3 rounded-lg border border-[#00FFFF] text-[#00FFFF] hover:bg-[#00FFFF] hover:text-black font-label font-extrabold text-sm transition-all duration-200 text-center block uppercase tracking-wider shadow-[0_0_12px_rgba(0,255,255,0.15)] active:scale-98"
                           >
                             View Details

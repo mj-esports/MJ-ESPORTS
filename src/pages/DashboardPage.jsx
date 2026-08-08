@@ -542,7 +542,7 @@ export default function DashboardPage() {
 
                   <div className="pt-2 flex items-center justify-between gap-3 border-t border-[#232C36]">
                     <Link
-                      to={`/tournaments/${t.id}`}
+                      to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
                       className="px-4 py-2.5 rounded bg-[#00E5FF] text-[#000000] font-headline font-bold text-xs hover:bg-cyan-300 transition-all flex items-center gap-1.5 uppercase tracking-wider min-h-[38px]"
                     >
                       <span>View Details</span>

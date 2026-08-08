@@ -71,18 +71,13 @@ BEGIN
     );
   END IF;
 
-  -- 5. Verify participant registration for this tournament
-  SELECT (
-    EXISTS (
-      SELECT 1 FROM public.tournament_players
-      WHERE tournament_id = p_tournament_id AND user_id = v_user_id
-    ) OR EXISTS (
-      SELECT 1 FROM public.tournament_registrations
-      WHERE tournament_id = p_tournament_id AND user_id = v_user_id
-    ) OR EXISTS (
-      SELECT 1 FROM jsonb_array_elements(COALESCE(v_tourn.teams_list, '[]'::jsonb)) elem
-      WHERE elem->>'userId' = v_user_id::text
-    )
+  -- 5. Verify participant registration for p_tournament_id using strictly auth.uid() against public.tournament_registrations
+  SELECT EXISTS (
+    SELECT 1 
+    FROM public.tournament_registrations
+    WHERE tournament_id = p_tournament_id
+      AND user_id = v_user_id
+      AND (status IS NULL OR LOWER(status) IN ('approved', 'confirmed', 'active'))
   ) INTO v_is_registered;
 
   IF NOT v_is_registered THEN
@@ -147,3 +142,8 @@ GRANT SELECT (
 ) ON public.tournaments TO anon, authenticated;
 
 GRANT SELECT ON public.tournaments TO service_role;
+
+-- 3. Grant INSERT, UPDATE, DELETE privileges on public.tournaments to authenticated role
+-- Row modifications remain strictly enforced by RLS policies ("Admins insert tournaments", "Admins update tournaments", "Admins delete tournaments")
+GRANT INSERT, UPDATE, DELETE ON public.tournaments TO authenticated;
+GRANT ALL ON public.tournaments TO service_role;

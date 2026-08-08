@@ -143,6 +143,107 @@ export function mapTournamentToDb(t) {
   return payload
 }
 
+/**
+ * Maps only the provided partial frontend fields to allowed database columns for targeted UPDATE queries.
+ */
+export function mapPartialTournamentToDb(fields) {
+  if (!fields || typeof fields !== 'object') return {}
+
+  const payload = {}
+
+  if (fields.title !== undefined) payload.title = String(fields.title || '').trim()
+  if (fields.game !== undefined) payload.game = String(fields.game || 'Free Fire').trim()
+
+  if (fields.format !== undefined || fields.match_format !== undefined || fields.matchFormat !== undefined) {
+    payload.format = String(fields.format || fields.match_format || fields.matchFormat || 'SQUAD (4P)').trim()
+  }
+
+  if (fields.prizePool !== undefined || fields.prize_pool !== undefined) {
+    payload.prize_pool = String(fields.prize_pool || fields.prizePool || '₹0').trim()
+  }
+
+  if (fields.entryFee !== undefined || fields.entry_fee !== undefined) {
+    payload.entry_fee = String(fields.entry_fee || fields.entryFee || 'Free').trim()
+  }
+
+  if (fields.maxTeams !== undefined || fields.max_teams !== undefined) {
+    payload.max_teams = Number(fields.max_teams ?? fields.maxTeams ?? 32)
+  }
+
+  if (fields.registeredTeams !== undefined || fields.registered_teams !== undefined) {
+    payload.registered_teams = Number(fields.registered_teams ?? fields.registeredTeams ?? 0)
+  }
+
+  if (fields.startDate !== undefined || fields.start_date !== undefined) {
+    payload.start_date = String(fields.start_date || fields.startDate || '').trim()
+  }
+
+  if (fields.startTime !== undefined || fields.start_time !== undefined) {
+    payload.start_time = String(fields.start_time || fields.startTime || '').trim()
+  }
+
+  if (fields.status !== undefined) {
+    let s = String(fields.status || '').trim()
+    if (s === 'Live') s = 'Live Now'
+    payload.status = s
+  }
+
+  if (fields.organizer !== undefined) payload.organizer = String(fields.organizer || 'MJ ESPORTS Official').trim()
+  if (fields.description !== undefined) payload.description = String(fields.description || '').trim()
+
+  if (fields.rules !== undefined) {
+    if (Array.isArray(fields.rules)) {
+      payload.rules = fields.rules.map((r) => String(r).trim()).filter(Boolean)
+    } else if (typeof fields.rules === 'string' && fields.rules.trim()) {
+      payload.rules = fields.rules.split('\n').map((r) => r.trim()).filter(Boolean)
+    } else {
+      payload.rules = []
+    }
+  }
+
+  if (fields.teamsList !== undefined || fields.teams_list !== undefined) {
+    payload.teams_list = Array.isArray(fields.teams_list)
+      ? fields.teams_list
+      : Array.isArray(fields.teamsList)
+      ? fields.teamsList
+      : []
+  }
+
+  if (fields.roomId !== undefined || fields.room_id !== undefined) {
+    payload.room_id = fields.roomId ?? fields.room_id ?? null
+  }
+
+  if (fields.roomPassword !== undefined || fields.room_password !== undefined) {
+    payload.room_password = fields.roomPassword ?? fields.room_password ?? null
+  }
+
+  if (fields.roomStatus !== undefined || fields.room_status !== undefined) {
+    payload.room_status = fields.roomStatus ?? fields.room_status ?? 'Draft'
+  }
+
+  if (fields.roomLastUpdated !== undefined || fields.room_last_updated !== undefined) {
+    payload.room_last_updated = fields.roomLastUpdated ?? fields.room_last_updated ?? null
+  }
+
+  if (fields.roomPublishedBy !== undefined || fields.room_published_by !== undefined) {
+    payload.room_published_by = fields.roomPublishedBy ?? fields.room_published_by ?? null
+  }
+
+  if (fields.winnerTeam !== undefined || fields.winner_team !== undefined) {
+    payload.winner_team = fields.winnerTeam ?? fields.winner_team ?? null
+  }
+
+  if (fields.winnerCaptain !== undefined || fields.winner_captain !== undefined) {
+    payload.winner_captain = fields.winnerCaptain ?? fields.winner_captain ?? null
+  }
+
+  if (fields.updatedAt !== undefined || fields.updated_at !== undefined) {
+    payload.updated_at = fields.updated_at ?? fields.updatedAt ?? new Date().toISOString()
+  }
+
+  return payload
+}
+
 export function TournamentProvider({ children }) {
   const { isAdmin } = useAuth()
   const [tournaments, setTournaments] = useState(INITIAL_TOURNAMENTS)
@@ -253,10 +354,9 @@ export function TournamentProvider({ children }) {
       const payload = mapTournamentToDb(tournamentData)
       console.log('Complete tournament payload immediately before insert():', payload)
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('tournaments')
         .insert([payload])
-        .select()
 
       if (error) {
         console.error("Supabase Error:", {
@@ -269,30 +369,25 @@ export function TournamentProvider({ children }) {
         throw error
       }
 
-      const insertedRow = data && data[0] ? data[0] : payload
-      const newTournament = mapTournamentFromDb(insertedRow)
+      const newTournament = mapTournamentFromDb(payload)
       setTournaments((prev) => [newTournament, ...prev.filter((t) => String(t.id) !== String(newTournament.id))])
       return newTournament
     } finally {
       activeSubmissionsRef.current.delete(lockKey)
     }
   }
-
   const updateTournament = async (id, updatedFields) => {
     if (!isSupabaseConfigured) {
       throw new Error('Supabase client is not configured.')
     }
 
-    const existing = tournaments.find((t) => String(t.id) === String(id))
-    const merged = existing ? { ...existing, ...updatedFields, id } : { ...updatedFields, id }
-    const payload = mapTournamentToDb(merged)
-    console.log('Complete tournament payload immediately before update():', payload)
+    const payload = mapPartialTournamentToDb(updatedFields)
+    console.log('Partial tournament payload immediately before update():', payload)
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('tournaments')
       .update(payload)
       .eq('id', id)
-      .select()
 
     if (error) {
       console.error("Supabase Error:", {
@@ -305,8 +400,9 @@ export function TournamentProvider({ children }) {
       throw error
     }
 
-    const updatedRow = data && data[0] ? data[0] : payload
-    const updatedTournament = mapTournamentFromDb(updatedRow)
+    const existing = tournaments.find((t) => String(t.id) === String(id))
+    const merged = existing ? { ...existing, ...updatedFields, id } : { ...updatedFields, id }
+    const updatedTournament = mapTournamentFromDb(merged)
     setTournaments((prev) => prev.map((t) => (String(t.id) === String(id) ? updatedTournament : t)))
     return updatedTournament
   }
@@ -568,19 +664,54 @@ export function TournamentProvider({ children }) {
   }
 
   const getRoomCredentials = useCallback(async (tournamentId) => {
-    if (!isSupabaseConfigured || !tournamentId) return null
+    if (!isSupabaseConfigured || !tournamentId) return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase client is not configured.' }
     try {
       const { data, error } = await supabase.rpc('get_tournament_room_credentials', {
         p_tournament_id: String(tournamentId),
       })
       if (error) {
         console.warn('[getRoomCredentials RPC Notice]:', error.message)
-        return null
+        return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
       }
-      return data
+
+      // Safely handle both JSONB Object and JSONB Array returned by Supabase RPC
+      const payload = Array.isArray(data) ? data[0] : data
+
+      if (!payload) {
+        return { success: false, error_code: 'EMPTY_RESPONSE', message: 'No credential record returned from server.' }
+      }
+
+      if (payload.success === false) {
+        return {
+          success: false,
+          errorCode: payload.error_code || 'DENIED',
+          message: payload.message || 'Access to room credentials was denied.',
+        }
+      }
+
+      // Map snake_case database response keys to camelCase & preserve snake_case aliases for full compatibility
+      const roomId = payload.roomId ?? payload.room_id ?? ''
+      const roomPassword = payload.roomPassword ?? payload.room_password ?? ''
+      const roomStatus = payload.roomStatus ?? payload.room_status ?? 'Draft'
+      const roomLastUpdated = payload.roomLastUpdated ?? payload.room_last_updated ?? null
+      const roomPublishedBy = payload.roomPublishedBy ?? payload.room_published_by ?? null
+
+      return {
+        success: true,
+        roomId,
+        roomPassword,
+        roomStatus,
+        roomLastUpdated,
+        roomPublishedBy,
+        room_id: roomId,
+        room_password: roomPassword,
+        room_status: roomStatus,
+        room_last_updated: roomLastUpdated,
+        room_published_by: roomPublishedBy,
+      }
     } catch (err) {
       console.warn('[getRoomCredentials exception]:', err)
-      return null
+      return { success: false, error_code: 'EXCEPTION', message: err.message || 'An error occurred while retrieving room credentials.' }
     }
   }, [])
 

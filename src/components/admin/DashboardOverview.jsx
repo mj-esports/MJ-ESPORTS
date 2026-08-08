@@ -50,7 +50,7 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
           { data: dbRegistrations, error: regsErr },
         ] = await Promise.all([
           supabase.from('user_roles').select('*', { count: 'exact', head: true }),
-          supabase.from('tournaments').select('*').order('created_at', { ascending: false }),
+          supabase.from('tournaments').select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, room_status, room_last_updated, room_published_by, winner_team, winner_captain, created_at, updated_at').order('created_at', { ascending: false }),
           supabase.from('tournament_registrations').select('*').order('created_at', { ascending: false }),
         ])
 

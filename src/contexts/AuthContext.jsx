@@ -20,8 +20,11 @@ export function AuthProvider({ children }) {
   const [roleLoading, setRoleLoading] = useState(true)
 
   // Resolve user role with complete loading lock & ensure user profile
-  const syncUserAndRole = useCallback(async (currentUser, currentSession) => {
-    setRoleLoading(true)
+  const syncUserAndRole = useCallback(async (currentUser, currentSession, options = {}) => {
+    const { isExplicit = false } = options
+    if (isExplicit || !role) {
+      setRoleLoading(true)
+    }
     setSession(currentSession ?? null)
     setUser(currentUser ?? null)
 
@@ -63,7 +66,7 @@ export function AuthProvider({ children }) {
     }
     setRoleLoading(false)
     setLoading(false)
-  }, [])
+  }, [role])
 
   useEffect(() => {
     let isSubscribed = true
@@ -75,7 +78,7 @@ export function AuthProvider({ children }) {
           try {
             const parsed = JSON.parse(storedSession)
             if (isSubscribed) {
-              syncUserAndRole(parsed?.user ?? null, parsed)
+              syncUserAndRole(parsed?.user ?? null, parsed, { isExplicit: true })
               return
             }
           } catch (e) {
@@ -96,7 +99,7 @@ export function AuthProvider({ children }) {
       .getSession()
       .then(({ data: { session: initialSession } }) => {
         if (isSubscribed) {
-          syncUserAndRole(initialSession?.user ?? null, initialSession)
+          syncUserAndRole(initialSession?.user ?? null, initialSession, { isExplicit: true })
         }
       })
       .catch((err) => {
@@ -111,9 +114,12 @@ export function AuthProvider({ children }) {
     // Listen for auth state transitions (login, logout, token refresh, password recovery)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+    } = supabase.auth.onAuthStateChange((event, currentSession) => {
       if (isSubscribed) {
-        syncUserAndRole(currentSession?.user ?? null, currentSession)
+        // Token refresh or window focus events should update session silently without unmounting active routes
+        const isUserChange = currentSession?.user?.id !== user?.id
+        const shouldLockRoleLoading = isUserChange || event === 'SIGNED_IN' || event === 'SIGNED_OUT'
+        syncUserAndRole(currentSession?.user ?? null, currentSession, { isExplicit: shouldLockRoleLoading })
       }
     })
 
@@ -121,7 +127,7 @@ export function AuthProvider({ children }) {
       isSubscribed = false
       subscription?.unsubscribe()
     }
-  }, [syncUserAndRole])
+  }, [syncUserAndRole, user?.id])
 
   const signUp = async (email, password, metadata) => {
     setRoleLoading(true)

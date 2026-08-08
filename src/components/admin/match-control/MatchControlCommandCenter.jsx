@@ -19,6 +19,7 @@ import {
 export default function MatchControlCommandCenter({
   tournaments = [],
   selectedTourney,
+  activeRoomId = '',
   onOpenMatch,
   onToggleLock,
   onNavigateSubTab,
@@ -147,7 +148,7 @@ export default function MatchControlCommandCenter({
             <div className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/40 space-y-1">
               <span className="text-[10px] text-[#8e9dae] font-bold uppercase block">Room ID & Password</span>
               <span className="font-mono text-white font-extrabold block">
-                {selectedTourney.roomId || selectedTourney.room_id || 'Not Assigned'}
+                {activeRoomId || selectedTourney?.roomId || selectedTourney?.room_id || 'Not Assigned'}
               </span>
               <span className="text-[10px] text-[#fe6b00] font-mono">
                 {roomPublished ? 'Live on Player Dashboard' : 'Hidden from Competitors'}
