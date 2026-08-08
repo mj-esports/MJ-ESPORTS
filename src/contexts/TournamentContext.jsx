@@ -330,69 +330,103 @@ export function TournamentProvider({ children }) {
         throw new Error('Tournament slots are full!')
       }
 
-      const isDuplicate = target.teamsList?.some(
-        (item) =>
-          (item.email && teamInfo.email && item.email.toLowerCase() === teamInfo.email.toLowerCase()) ||
-          (item.freeFireUid && teamInfo.freeFireUid && item.freeFireUid === teamInfo.freeFireUid) ||
-          (item.userId && teamInfo.userId && item.userId === teamInfo.userId) ||
-          (teamInfo.teammates && item.teammates?.some((tUid) => teamInfo.teammates.includes(tUid)))
-      )
-
-      if (isDuplicate) {
-        throw new Error('You, your squad, or one of your teammate Game UIDs has already registered for this tournament!')
-      }
-
       const regStatus = teamInfo.status || 'Approved'
       const refId = teamInfo.refId || `REG-MJ-${Date.now().toString(36).toUpperCase()}`
 
       if (isSupabaseConfigured) {
-        const { data: existingRegs } = await supabase
-          .from('tournament_registrations')
-          .select('id')
-          .eq('tournament_id', tournamentId)
-          .or(`email.eq.${teamInfo.email},free_fire_uid.eq.${teamInfo.freeFireUid}${teamInfo.userId ? `,user_id.eq.${teamInfo.userId}` : ''}`)
+        // Authoritative Path: Call Atomic Supabase PostgreSQL RPC
+        const { data, error } = await supabase.rpc('register_tournament_team', {
+          p_tournament_id: String(tournamentId),
+          p_team_name: teamInfo.name,
+          p_captain_name: teamInfo.captain,
+          p_email: teamInfo.email,
+          p_whatsapp_number: teamInfo.whatsappNumber,
+          p_captain_uid: teamInfo.freeFireUid,
+          p_teammate_uids: teamInfo.teammates || [],
+          p_substitute_uids: teamInfo.substitutes || [],
+          p_captain_dob: teamInfo.captainDob || null,
+          p_player_age: teamInfo.playerAge ? Number(teamInfo.playerAge) : null,
+          p_preferred_seed: teamInfo.preferredSeed ? Number(teamInfo.preferredSeed) : 1,
+          p_has_substitutes: Boolean(teamInfo.hasSubstitutes),
+          p_enable_sms_alerts: Boolean(teamInfo.enableSmsAlerts !== false),
+          p_mode: teamInfo.mode || 'Squad',
+          p_ref_id: refId,
+        })
 
-        if (existingRegs && existingRegs.length > 0) {
-          throw new Error('You or your team has already registered for this tournament!')
+        if (error) {
+          console.error('[RPC register_tournament_team error]:', error)
+          // Fallback if RPC migration hasn't been executed on Supabase DB yet
+          if (error.code === 'PGRST202' || error.message?.includes('function') || error.message?.includes('schema cache')) {
+            console.warn('[RPC Fallback]: RPC function not deployed yet, falling back to client context migration mode...')
+            return await legacyRegisterTeam(tournamentId, teamInfo, target, refId, regStatus)
+          }
+          throw new Error(error.message || 'Database error processing tournament registration.')
         }
 
-        await supabase.from('tournament_registrations').insert([
-          {
-            tournament_id: tournamentId,
-            team_name: teamInfo.name,
-            captain_name: teamInfo.captain,
-            free_fire_uid: teamInfo.freeFireUid,
-            whatsapp_number: teamInfo.whatsappNumber,
-            email: teamInfo.email,
-            user_id: teamInfo.userId || null,
-            status: regStatus,
-            registered_at: new Date().toISOString(),
-          },
-        ])
+        if (data && data.success === false) {
+          // Map structured RPC error codes to clear, user-friendly UI messages
+          switch (data.error_code) {
+            case 'DUPLICATE_GAME_UID':
+              throw new Error(data.message || 'One of the Game UIDs is already registered in this tournament.')
+            case 'DUPLICATE_USER_ACCOUNT':
+              throw new Error('You have already registered for this tournament.')
+            case 'TOURNAMENT_FULL':
+              throw new Error('All registration slots for this tournament are full.')
+            case 'REGISTRATION_CLOSED':
+              throw new Error('Registration for this tournament is currently closed.')
+            case 'UNAUTHENTICATED':
+              throw new Error('You must be logged in to register for a tournament.')
+            case 'INVALID_ROSTER':
+              throw new Error(data.message || 'Please check your player roster and try again.')
+            default:
+              throw new Error(data.message || 'Registration failed.')
+          }
+        }
+
+        // Synchronize local tournaments state from database after RPC success
+        await fetchTournaments()
+        return data.teamRecord || { ...teamInfo, id: refId, refId, status: regStatus }
       }
 
-      const updatedTeamRecord = {
-        ...teamInfo,
-        id: refId,
-        refId,
-        status: regStatus,
-        teammates: teamInfo.teammates || [],
-        rank: (target.teamsList?.length || 0) + 1,
-        registeredAt: new Date().toISOString(),
-      }
-
-      const newTeamsList = [...(target.teamsList || []), updatedTeamRecord]
-      const newRegisteredCount = (target.registeredTeams || 0) + 1
-
-      await updateTournament(tournamentId, {
-        registeredTeams: newRegisteredCount,
-        teamsList: newTeamsList,
-      })
-
-      return updatedTeamRecord
+      // Local / Mock fallback when Supabase client is unconfigured
+      return await legacyRegisterTeam(tournamentId, teamInfo, target, refId, regStatus)
     } finally {
       activeSubmissionsRef.current.delete(lockKey)
     }
+  }
+
+  const legacyRegisterTeam = async (tournamentId, teamInfo, target, refId, regStatus) => {
+    const isDuplicate = target.teamsList?.some(
+      (item) =>
+        (item.email && teamInfo.email && item.email.toLowerCase() === teamInfo.email.toLowerCase()) ||
+        (item.freeFireUid && teamInfo.freeFireUid && item.freeFireUid === teamInfo.freeFireUid) ||
+        (item.userId && teamInfo.userId && item.userId === teamInfo.userId) ||
+        (teamInfo.teammates && item.teammates?.some((tUid) => teamInfo.teammates.includes(tUid)))
+    )
+
+    if (isDuplicate) {
+      throw new Error('You, your squad, or one of your teammate Game UIDs has already registered for this tournament!')
+    }
+
+    const updatedTeamRecord = {
+      ...teamInfo,
+      id: refId,
+      refId,
+      status: regStatus,
+      teammates: teamInfo.teammates || [],
+      rank: (target.teamsList?.length || 0) + 1,
+      registeredAt: new Date().toISOString(),
+    }
+
+    const newTeamsList = [...(target.teamsList || []), updatedTeamRecord]
+    const newRegisteredCount = (target.registeredTeams || 0) + 1
+
+    await updateTournament(tournamentId, {
+      registeredTeams: newRegisteredCount,
+      teamsList: newTeamsList,
+    })
+
+    return updatedTeamRecord
   }
 
   const withdrawTeam = async (tournamentId, identifier) => {

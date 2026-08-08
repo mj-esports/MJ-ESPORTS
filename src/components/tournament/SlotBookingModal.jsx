@@ -297,6 +297,13 @@ export default function SlotBookingModal({ tournament, onClose }) {
       .slice(0, requiredTeammatesCount)
       .map((t) => sanitizeString(t))
 
+    const activeSubstitutes = formData.hasSubstitutes
+      ? formData.substituteUids
+          .slice(0, Number(formData.substituteCount) || 1)
+          .map((s) => sanitizeString(s))
+          .filter(Boolean)
+      : []
+
     const refId = `REG-MJ-${Date.now().toString(36).toUpperCase()}`
 
     try {
@@ -314,6 +321,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
           playerAge: formData.playerAge,
           preferredSeed: formData.preferredSeed,
           hasSubstitutes: formData.hasSubstitutes,
+          substitutes: activeSubstitutes,
           enableSmsAlerts: formData.enableSmsAlerts,
           mode,
           teammates: activeTeammates,
