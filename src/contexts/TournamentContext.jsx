@@ -54,6 +54,20 @@ export function mapTournamentFromDb(row) {
     rules: rulesArray,
     teamsList: Array.isArray(row.teams_list) ? row.teams_list : [],
     teams_list: Array.isArray(row.teams_list) ? row.teams_list : [],
+    roomId: row.room_id || '',
+    room_id: row.room_id || '',
+    roomPassword: row.room_password || '',
+    room_password: row.room_password || '',
+    roomStatus: row.room_status || 'Draft',
+    room_status: row.room_status || 'Draft',
+    roomLastUpdated: row.room_last_updated || null,
+    room_last_updated: row.room_last_updated || null,
+    roomPublishedBy: row.room_published_by || '',
+    room_published_by: row.room_published_by || '',
+    winnerTeam: row.winner_team || '',
+    winner_team: row.winner_team || '',
+    winnerCaptain: row.winner_captain || '',
+    winner_captain: row.winner_captain || '',
     createdAt: row.created_at || null,
     created_at: row.created_at || null,
     updatedAt: row.updated_at || null,
@@ -97,6 +111,28 @@ export function mapTournamentToDb(t) {
     teams_list: teamsListVal,
   }
 
+  if (t.roomId !== undefined || t.room_id !== undefined) {
+    payload.room_id = t.roomId ?? t.room_id ?? null
+  }
+  if (t.roomPassword !== undefined || t.room_password !== undefined) {
+    payload.room_password = t.roomPassword ?? t.room_password ?? null
+  }
+  if (t.roomStatus !== undefined || t.room_status !== undefined) {
+    payload.room_status = t.roomStatus ?? t.room_status ?? 'Draft'
+  }
+  if (t.roomLastUpdated !== undefined || t.room_last_updated !== undefined) {
+    payload.room_last_updated = t.roomLastUpdated ?? t.room_last_updated ?? null
+  }
+  if (t.roomPublishedBy !== undefined || t.room_published_by !== undefined) {
+    payload.room_published_by = t.roomPublishedBy ?? t.roomPublishedBy ?? null
+  }
+  if (t.winnerTeam !== undefined || t.winner_team !== undefined) {
+    payload.winner_team = t.winnerTeam ?? t.winner_team ?? null
+  }
+  if (t.winnerCaptain !== undefined || t.winner_captain !== undefined) {
+    payload.winner_captain = t.winnerCaptain ?? t.winner_captain ?? null
+  }
+
   if (t.created_at || t.createdAt) {
     payload.created_at = t.created_at || t.createdAt
   }
@@ -127,7 +163,7 @@ export function TournamentProvider({ children }) {
       try {
         const { data, error } = await supabase
           .from('tournaments')
-          .select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, created_at, updated_at')
+          .select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, room_id, room_password, room_status, room_last_updated, room_published_by, winner_team, winner_captain, created_at, updated_at')
           .order('created_at', { ascending: false })
 
         if (error) {
@@ -520,8 +556,15 @@ export function TournamentProvider({ children }) {
     return updateTournament(tournamentId, { teamsList: updatedTeams })
   }
 
-  const updateRoomDetails = async () => {
-    return Promise.resolve()
+  const updateRoomDetails = async (tournamentId, roomData) => {
+    if (!roomData) return
+    return updateTournament(tournamentId, {
+      roomId: roomData.roomId,
+      roomPassword: roomData.roomPassword,
+      roomStatus: roomData.roomStatus,
+      roomLastUpdated: new Date().toISOString(),
+      roomPublishedBy: roomData.roomPublishedBy,
+    })
   }
 
   const advanceTournamentLifecycle = async (tournamentId) => {

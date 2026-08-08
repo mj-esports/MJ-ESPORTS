@@ -43,9 +43,20 @@ export default function PaymentVerificationView({ tournaments = [] }) {
         } else if (data && data.length > 0) {
           const mapped = data.map((r) => {
             const tourn = tournaments.find((t) => String(t.id) === String(r.tournament_id))
-            const rawStatus = r.payment_status || r.status || 'Pending'
+            const rawEntryFee = String(r.entry_fee || tourn?.entryFee || tourn?.entry_fee || '0').trim().toLowerCase()
+            const isFreeTournament =
+              rawEntryFee === 'free' ||
+              rawEntryFee.includes('free') ||
+              rawEntryFee === '0' ||
+              rawEntryFee === '₹0' ||
+              rawEntryFee === '0.00' ||
+              r.entry_fee === 0 ||
+              tourn?.entryFee === 0 ||
+              tourn?.entry_fee === 0
+
+            const rawStatus = r.payment_status || r.status || (isFreeTournament ? 'Approved' : 'Pending')
             const paymentStatus =
-              rawStatus === 'Approved' || rawStatus === 'Verified' || rawStatus === 'Confirmed'
+              isFreeTournament || rawStatus === 'Approved' || rawStatus === 'Verified' || rawStatus === 'Confirmed'
                 ? 'Verified'
                 : rawStatus === 'Rejected'
                 ? 'Rejected'
@@ -59,7 +70,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
               captainName: r.captain_name || 'Captain',
               email: r.email || 'user@example.com',
               freeFireUid: r.free_fire_uid || '518920412',
-              entryFee: r.entry_fee || tourn?.entryFee || '₹50',
+              entryFee: isFreeTournament ? 'Free' : (r.entry_fee || tourn?.entryFee || '₹50'),
               transactionId: r.transaction_id || `UPI-${Math.floor(100000000000 + Math.random() * 900000000000)}`,
               screenshotUrl: r.screenshot_url || r.payment_screenshot || null,
               status: paymentStatus,

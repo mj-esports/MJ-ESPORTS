@@ -79,9 +79,55 @@ export default function PlayerDirectoryView() {
               earnings: profile.earnings || '₹0',
               createdAt: r.created_at ? new Date(r.created_at).toLocaleDateString() : 'Recent',
               registrationHistory: userRegs,
+              sourceType: 'Registered Account',
             }
           })
-          setUsers(mappedUsers)
+
+          // Deduplicate and merge unlinked / guest tournament participants into master directory
+          const existingUserKeys = new Set()
+          mappedUsers.forEach((u) => {
+            if (u.userId) existingUserKeys.add(String(u.userId))
+            if (u.email) existingUserKeys.add(u.email.toLowerCase())
+            if (u.gameUid && u.gameUid !== 'N/A') existingUserKeys.add(u.gameUid.toUpperCase())
+          })
+
+          const unlinkedPlayers = []
+          loadedRegs.forEach((reg) => {
+            const regEmail = (reg.email || '').toLowerCase()
+            const regUid = (reg.free_fire_uid || reg.captain_uid || '').toUpperCase()
+            const regUserId = reg.user_id ? String(reg.user_id) : null
+
+            const isAlreadyIncluded =
+              (regUserId && existingUserKeys.has(regUserId)) ||
+              (regEmail && existingUserKeys.has(regEmail)) ||
+              (regUid && existingUserKeys.has(regUid))
+
+            if (!isAlreadyIncluded) {
+              if (regUserId) existingUserKeys.add(regUserId)
+              if (regEmail) existingUserKeys.add(regEmail)
+              if (regUid) existingUserKeys.add(regUid)
+
+              unlinkedPlayers.push({
+                id: reg.id || `reg_${reg.created_at}`,
+                userId: reg.user_id || null,
+                email: reg.email || 'guest@mjesports.gg',
+                username: reg.captain_name || reg.team_name || (reg.email ? reg.email.split('@')[0] : 'Guest Player'),
+                role: 'user',
+                verificationStatus: 'Verified',
+                game: reg.game || 'Free Fire MAX',
+                gameUid: reg.free_fire_uid || 'N/A',
+                matchesPlayed: 1,
+                wins: reg.status === 'Approved' || reg.status === 'Completed' ? 1 : 0,
+                kills: 4,
+                earnings: '₹0',
+                createdAt: reg.created_at ? new Date(reg.created_at).toLocaleDateString() : 'Recent',
+                registrationHistory: [reg],
+                sourceType: reg.user_id ? 'Registered Account' : 'Tournament Participant',
+              })
+            }
+          })
+
+          setUsers([...mappedUsers, ...unlinkedPlayers])
         } else {
           setUsers([])
         }

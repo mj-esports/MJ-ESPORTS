@@ -424,7 +424,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
               </div>
               <div>
                 <h3 className="font-display-lg text-lg font-bold text-white uppercase tracking-wide">Slot Registration Confirmed!</h3>
-                <p className="text-xs text-[#8e9dae] mt-0.5">Your entry has been validated and recorded into local state.</p>
+                <p className="text-xs text-[#8e9dae] mt-0.5">Your registration has been securely recorded.</p>
               </div>
 
               {/* Reference Ticket Card */}

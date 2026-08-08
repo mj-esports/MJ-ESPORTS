@@ -262,13 +262,13 @@ export default function ReviewSummaryStep({ form }) {
               Ready for Execution
             </h4>
             <p className="text-[11px] text-[#8e9dae]">
-              Click <strong>Publish</strong> to open squad registration or <strong>Save Draft</strong> to store in local memory.
+              Click <strong>Publish</strong> to open squad registration or <strong>Save Draft</strong> to store in database.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 font-mono text-[10px] text-[#00ff9d] font-bold uppercase bg-[#00ff9d]/10 px-3 py-1.5 rounded-lg border border-[#00ff9d]/30 shrink-0">
-          <span>0 Errors &bull; Local State Sync</span>
+          <span>0 Errors &bull; Validated</span>
         </div>
       </div>
 
