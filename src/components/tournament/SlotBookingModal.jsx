@@ -19,6 +19,7 @@ import {
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
+import { isSupabaseConfigured } from '../../lib/supabase'
 import FormInput from '../common/FormInput'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
@@ -347,25 +348,10 @@ export default function SlotBookingModal({ tournament, onClose }) {
         registeredRecord,
       })
     } catch (err) {
-      console.warn('[Registration Execution Result]:', err)
-      if (isSupabaseConfigured) {
-        setError(err.message || 'Registration failed. Please check your inputs and try again.')
-        showError(err.message || 'Registration failed.', 'Registration Failed')
-        return
-      }
-
-      // Local fallback in unconfigured local preview mode
-      setRegistrationSummary({
-        refId,
-        teamName: sanitizeString(formData.teamName),
-        captain: sanitizeString(formData.captainName),
-        mode,
-        freeFireUid: sanitizeString(formData.freeFireUid),
-        teammates: activeTeammates,
-        status: 'Approved (Local)',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      })
-      showSuccess('Registration Confirmed (Local State)', 'Entry Confirmed')
+      console.error('[Registration Submission Error]:', err)
+      const errorMsg = err?.message || 'Registration failed. Please check your inputs and try again.'
+      setError(errorMsg)
+      showError(errorMsg, 'Registration Failed')
     } finally {
       setIsSubmitting(false)
     }
