@@ -7,12 +7,11 @@
 --              3. Restricts UPDATE on public.profiles with USING and WITH CHECK to prevent
 --                 updating row identity to another user's UUID.
 --              4. Revokes all direct base-table privileges on public.profiles from anon/PUBLIC.
---              5. Creates public.public_profiles view exposing ONLY non-sensitive
---                 player fields (id, username, avatar_url, game, wins, matches_played, verification_status).
---              6. Configures view execution context (security_invoker = false) so
---                 authenticated users can query all usernames for uniqueness validation.
---              7. Restricts view SELECT privileges strictly to authenticated & service_role
---                 (Revokes SELECT from anon and PUBLIC).
+--              5. Drops obsolete public.public_profiles view to eliminate SECURITY DEFINER view.
+--              6. Creates public.check_username_available SECURITY DEFINER RPC that returns
+--                 ONLY boolean availability without exposing any profile data.
+--              7. Restricts RPC EXECUTE privileges strictly to authenticated & service_role
+--                 (Revokes EXECUTE from anon and PUBLIC).
 -- ============================================================================
 
 -- 1. Enable RLS on public.profiles
@@ -56,26 +55,53 @@ REVOKE ALL ON public.profiles FROM PUBLIC, anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO authenticated;
 GRANT ALL ON public.profiles TO service_role;
 
--- 6. Create public.public_profiles view for non-sensitive public display & username uniqueness checks
---    Exposes ONLY: id, username, avatar_url, game, wins, matches_played, verification_status
---    Excludes: email, game_uid, earnings, statistics, created_at, updated_at
---    Explicitly set security_invoker = false so the view queries all rows for username uniqueness validation
-CREATE OR REPLACE VIEW public.public_profiles
-WITH (security_invoker = false) AS
-SELECT 
-  id,
-  username,
-  avatar_url,
-  game,
-  wins,
-  matches_played,
-  verification_status
-FROM public.profiles;
+-- 6. Drop obsolete public_profiles view (eliminating SECURITY DEFINER view finding)
+DROP VIEW IF EXISTS public.public_profiles;
 
--- 7. Revoke view access from unauthenticated roles; Grant SELECT ONLY to authenticated and service_role
-REVOKE SELECT ON public.public_profiles FROM PUBLIC, anon;
-GRANT SELECT ON public.public_profiles TO authenticated;
-GRANT SELECT ON public.public_profiles TO service_role;
+-- 7. Create narrowly scoped SECURITY DEFINER RPC for username availability checks
+--    Returns ONLY boolean (TRUE = available, FALSE = taken/invalid)
+--    Never returns profile rows, emails, UIDs, earnings, or user identity details
+CREATE OR REPLACE FUNCTION public.check_username_available(
+  p_username text,
+  p_exclude_user_id uuid DEFAULT NULL
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public', 'pg_temp'
+AS $$
+DECLARE
+  v_clean_username text;
+  v_exists boolean;
+BEGIN
+  -- Handle NULL / empty / whitespace input safely
+  IF p_username IS NULL THEN
+    RETURN FALSE;
+  END IF;
+
+  v_clean_username := TRIM(p_username);
+
+  IF v_clean_username = '' THEN
+    RETURN FALSE;
+  END IF;
+
+  -- Check if another profile already uses this username (case-insensitive trim match)
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE LOWER(TRIM(username)) = LOWER(v_clean_username)
+      AND (p_exclude_user_id IS NULL OR id <> p_exclude_user_id)
+  ) INTO v_exists;
+
+  -- Returns TRUE if available (does NOT exist), FALSE if taken
+  RETURN NOT v_exists;
+END;
+$$;
+
+-- 8. Revoke RPC access from unauthenticated roles; Grant EXECUTE ONLY to authenticated and service_role
+REVOKE EXECUTE ON FUNCTION public.check_username_available(text, uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.check_username_available(text, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.check_username_available(text, uuid) TO service_role;
 
 -- ============================================================================
 -- VERIFICATION QUERIES (RUN IN SUPABASE SQL EDITOR TO AUDIT MIGRATION)
@@ -84,34 +110,37 @@ GRANT SELECT ON public.public_profiles TO service_role;
 --    SELECT relname, relrowsecurity FROM pg_class WHERE relname = 'profiles';
 --
 -- B. Verify RLS policies on public.profiles:
---    SELECT tablename, policyname, permissive, roles, cmd, qual, with_check 
+--    SELECT tablename, policyname, permissive, roles, cmd, qual, with_check
 --    FROM pg_policies WHERE tablename = 'profiles';
 --
 -- C. Verify profiles privileges for anon/public/authenticated:
---    SELECT grantee, privilege_type 
---    FROM information_schema.role_table_grants 
+--    SELECT grantee, privilege_type
+--    FROM information_schema.role_table_grants
 --    WHERE table_name = 'profiles';
 --
--- D. Verify columns exposed by public.public_profiles view:
---    SELECT column_name, data_type 
---    FROM information_schema.columns 
+-- D. Confirm public.public_profiles does NOT exist:
+--    SELECT table_name, table_type
+--    FROM information_schema.tables
 --    WHERE table_schema = 'public' AND table_name = 'public_profiles';
 --
--- E. Verify privileges on public.public_profiles view:
---    SELECT grantee, privilege_type 
---    FROM information_schema.role_table_grants 
---    WHERE table_name = 'public_profiles';
+-- E. Confirm check_username_available function exists:
+--    SELECT routine_name, routine_type, security_type
+--    FROM information_schema.routines
+--    WHERE routine_schema = 'public' AND routine_name = 'check_username_available';
 --
--- F. Verify public.public_profiles view definition:
---    SELECT view_definition 
---    FROM information_schema.views 
---    WHERE table_schema = 'public' AND table_name = 'public_profiles';
+-- F. Confirm RPC EXECUTE privileges:
+--    SELECT grantee, privilege_type
+--    FROM information_schema.routine_privileges
+--    WHERE routine_schema = 'public' AND routine_name = 'check_username_available';
 --
--- G. Verify public.public_profiles view owner:
---    SELECT table_owner 
---    FROM information_schema.tables 
---    WHERE table_schema = 'public' AND table_name = 'public_profiles';
+-- G. Confirm RPC function definition/security properties:
+--    SELECT p.proname, p.prosecdef, pg_get_functiondef(p.oid)
+--    FROM pg_proc p
+--    JOIN pg_namespace n ON p.pronamespace = n.oid
+--    WHERE n.nspname = 'public' AND p.proname = 'check_username_available';
 --
--- H. Verify current PostgreSQL server version:
---    SELECT version();
+-- H. Check whether a username UNIQUE constraint/index exists:
+--    SELECT indexname, indexdef
+--    FROM pg_indexes
+--    WHERE schemaname = 'public' AND tablename = 'profiles' AND indexdef LIKE '%username%';
 -- ============================================================================
