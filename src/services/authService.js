@@ -88,7 +88,7 @@ export async function getUserRole(user) {
   }
 
   // 3. Return role from authenticated user metadata or fallback 'user'
-  return user.user_metadata?.role || 'user'
+  return 'user'
 }
 
 /**
