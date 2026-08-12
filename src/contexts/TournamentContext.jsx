@@ -523,11 +523,6 @@ export function TournamentProvider({ children }) {
 
         if (error) {
           console.error('[RPC register_tournament_team error]:', error)
-          // Fallback if RPC migration hasn't been executed on Supabase DB yet
-          if (error.code === 'PGRST202' || error.message?.includes('function') || error.message?.includes('schema cache')) {
-            console.warn('[RPC Diagnostic]: Entering legacy fallback branch because RPC function is missing/schema cache error.')
-            return await legacyRegisterTeam(tournamentId, teamInfo, target, refId, regStatus)
-          }
           throw new Error(error.message || 'Database error processing tournament registration.')
         }
 
@@ -557,45 +552,10 @@ export function TournamentProvider({ children }) {
         return data.teamRecord || { ...teamInfo, id: refId, refId, status: regStatus }
       }
 
-      console.warn('[RPC Diagnostic]: Entering legacy fallback branch because isSupabaseConfigured is FALSE.')
-      return await legacyRegisterTeam(tournamentId, teamInfo, target, refId, regStatus)
+      throw new Error('Supabase client is not configured.')
     } finally {
       activeSubmissionsRef.current.delete(lockKey)
     }
-  }
-
-  const legacyRegisterTeam = async (tournamentId, teamInfo, target, refId, regStatus) => {
-    const isDuplicate = target.teamsList?.some(
-      (item) =>
-        (item.email && teamInfo.email && item.email.toLowerCase() === teamInfo.email.toLowerCase()) ||
-        (item.freeFireUid && teamInfo.freeFireUid && item.freeFireUid === teamInfo.freeFireUid) ||
-        (item.userId && teamInfo.userId && item.userId === teamInfo.userId) ||
-        (teamInfo.teammates && item.teammates?.some((tUid) => teamInfo.teammates.includes(tUid)))
-    )
-
-    if (isDuplicate) {
-      throw new Error('You, your squad, or one of your teammate Game UIDs has already registered for this tournament!')
-    }
-
-    const updatedTeamRecord = {
-      ...teamInfo,
-      id: refId,
-      refId,
-      status: regStatus,
-      teammates: teamInfo.teammates || [],
-      rank: (target.teamsList?.length || 0) + 1,
-      registeredAt: new Date().toISOString(),
-    }
-
-    const newTeamsList = [...(target.teamsList || []), updatedTeamRecord]
-    const newRegisteredCount = (target.registeredTeams || 0) + 1
-
-    await updateTournament(tournamentId, {
-      registeredTeams: newRegisteredCount,
-      teamsList: newTeamsList,
-    })
-
-    return updatedTeamRecord
   }
 
   const withdrawTeam = async (tournamentId, identifier) => {
