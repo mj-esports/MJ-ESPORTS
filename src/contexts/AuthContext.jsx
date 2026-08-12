@@ -162,9 +162,12 @@ export function AuthProvider({ children }) {
   }
 
   const updateProfile = async (profileData) => {
+    // Explicitly strip financial columns from client profile updates
+    const { wallet_balance, earnings, walletBalance, ...sanitizedProfileData } = profileData || {}
+
     if (isSupabaseConfigured) {
       const { data: authData, error: authErr } = await supabase.auth.updateUser({
-        data: profileData
+        data: sanitizedProfileData
       })
       if (authErr) throw authErr
 
@@ -175,7 +178,7 @@ export function AuthProvider({ children }) {
     } else {
       const updatedMetadata = {
         ...(user?.user_metadata || {}),
-        ...profileData,
+        ...sanitizedProfileData,
       }
       const updatedUser = {
         ...(user || {}),

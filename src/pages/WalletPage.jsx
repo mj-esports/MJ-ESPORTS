@@ -10,7 +10,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
-import { fetchWalletTransactions, addWalletTransaction } from '../services/walletService'
+import { fetchWalletTransactions, depositMoney, requestWithdrawal } from '../services/walletService'
 
 export default function WalletPage() {
   const { user, updateProfile } = useAuth()
@@ -107,7 +107,7 @@ export default function WalletPage() {
     syncWalletData()
   }
 
-  // Handle Add Money / Deposit
+  // Handle Add Money / Deposit via Secure RPC
   const handleDepositSubmit = async (e) => {
     e.preventDefault()
     const num = parseFloat(amountInput)
@@ -117,29 +117,26 @@ export default function WalletPage() {
     }
 
     try {
-      const newBal = userWalletBalance + num
-      
       if (user?.id) {
-        // Insert transaction record
-        await addWalletTransaction({
-          userId: user.id,
-          type: 'Deposit',
+        const res = await depositMoney({
           amount: num,
-          description: `Instant Add Money via ${paymentMethod}`
+          paymentMethod: paymentMethod,
         })
-        // Update user profile balance
-        await updateProfile({ wallet_balance: newBal })
+        if (res && res.success === false) {
+          throw new Error(res.message || 'Deposit processing failed.')
+        }
       }
 
       showSuccess('Wallet Updated', 'Deposit Successful')
       setIsDepositModalOpen(false)
       setAmountInput('')
+      await syncWalletData()
     } catch (err) {
-      showError(err.message, 'Deposit Failed')
+      showError(err.message || 'Deposit Failed', 'Deposit Failed')
     }
   }
 
-  // Handle Withdrawal Request
+  // Handle Withdrawal Request via Secure RPC
   const handleWithdrawSubmit = async (e) => {
     e.preventDefault()
     const num = parseFloat(amountInput)
@@ -147,32 +144,25 @@ export default function WalletPage() {
       showError('Please enter a valid withdrawal amount.', 'Invalid Amount')
       return
     }
-    if (num > userWalletBalance) {
-      showError('Insufficient wallet balance for this withdrawal.', 'Low Balance')
-      return
-    }
 
     try {
-      const newBal = userWalletBalance - num
-
       if (user?.id) {
-        // Insert transaction record
-        await addWalletTransaction({
-          userId: user.id,
-          type: 'Withdrawal',
+        const res = await requestWithdrawal({
           amount: num,
-          description: `Bank Payout (${upiIdInput || 'UPI Transfer'})`
+          payoutDetails: `Bank Payout (${upiIdInput || 'UPI Transfer'})`,
         })
-        // Update user profile balance
-        await updateProfile({ wallet_balance: newBal })
+        if (res && res.success === false) {
+          throw new Error(res.message || 'Withdrawal processing failed.')
+        }
       }
 
-      showSuccess('Payment Submitted', 'Payout Pending')
+      showSuccess('Payment Submitted', 'Payout Request Pending')
       setIsWithdrawModalOpen(false)
       setAmountInput('')
       setUpiIdInput('')
+      await syncWalletData()
     } catch (err) {
-      showError(err.message, 'Withdrawal Failed')
+      showError(err.message || 'Withdrawal Failed', 'Withdrawal Failed')
     }
   }
 
@@ -387,39 +377,35 @@ export default function WalletPage() {
                             </span>
                           </td>
                           <td className="py-4 px-6">
-                            <span className={`px-2 py-0.5 rounded text-[9.5px] font-bold uppercase tracking-wider ${
-                              tx.category === 'DEPOSIT'
+                            <span className={`px-2 py-0.5 rounded text-[9.5px] font-bold uppercase tracking-wider ${tx.category === 'DEPOSIT'
                                 ? 'bg-cyan-950 text-[#00f2ff]'
                                 : tx.category === 'WITHDRAWAL'
-                                ? 'bg-orange-950/40 text-[#fe6b00]'
-                                : tx.category === 'ENTRY_FEE'
-                                ? 'bg-red-950/40 text-red-400'
-                                : 'bg-[#00ff9d]/10 text-[#00ff9d]'
-                            }`}>
+                                  ? 'bg-orange-950/40 text-[#fe6b00]'
+                                  : tx.category === 'ENTRY_FEE'
+                                    ? 'bg-red-950/40 text-red-400'
+                                    : 'bg-[#00ff9d]/10 text-[#00ff9d]'
+                              }`}>
                               {tx.category}
                             </span>
                           </td>
                           <td className="py-4 px-6">
-                            <span className={`flex items-center gap-1.5 ${
-                              isPending
+                            <span className={`flex items-center gap-1.5 ${isPending
                                 ? 'text-[#fe6b00]'
                                 : isFailed
-                                ? 'text-red-500'
-                                : 'text-[#00ff9d]'
-                            }`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${
-                                isPending
+                                  ? 'text-red-500'
+                                  : 'text-[#00ff9d]'
+                              }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${isPending
                                   ? 'bg-[#fe6b00] animate-pulse'
                                   : isFailed
-                                  ? 'bg-red-500'
-                                  : 'bg-[#00ff9d]'
-                              }`}></span>
+                                    ? 'bg-red-500'
+                                    : 'bg-[#00ff9d]'
+                                }`}></span>
                               <span className="font-bold uppercase text-[10px]">{tx.status}</span>
                             </span>
                           </td>
-                          <td className={`py-4 px-6 text-right pr-6 font-bold text-sm font-sans ${
-                            isPositive ? 'text-[#00ff9d]' : 'text-red-400'
-                          }`}>
+                          <td className={`py-4 px-6 text-right pr-6 font-bold text-sm font-sans ${isPositive ? 'text-[#00ff9d]' : 'text-red-400'
+                            }`}>
                             {isPositive ? '+' : ''}₹{Math.abs(tx.amount).toFixed(2)}
                           </td>
                         </tr>
@@ -468,27 +454,24 @@ export default function WalletPage() {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('UPI')}
-                    className={`py-2 text-[10px] font-bold uppercase rounded-lg border transition-all ${
-                      paymentMethod === 'UPI' ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]' : 'bg-[#18181b] border-[#27272a] text-[#a1a1aa]'
-                    }`}
+                    className={`py-2 text-[10px] font-bold uppercase rounded-lg border transition-all ${paymentMethod === 'UPI' ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]' : 'bg-[#18181b] border-[#27272a] text-[#a1a1aa]'
+                      }`}
                   >
                     UPI / QR
                   </button>
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('CARD')}
-                    className={`py-2 text-[10px] font-bold uppercase rounded-lg border transition-all ${
-                      paymentMethod === 'CARD' ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]' : 'bg-[#18181b] border-[#27272a] text-[#a1a1aa]'
-                    }`}
+                    className={`py-2 text-[10px] font-bold uppercase rounded-lg border transition-all ${paymentMethod === 'CARD' ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]' : 'bg-[#18181b] border-[#27272a] text-[#a1a1aa]'
+                      }`}
                   >
                     Credit Card
                   </button>
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('NETBANK')}
-                    className={`py-2 text-[10px] font-bold uppercase rounded-lg border transition-all ${
-                      paymentMethod === 'NETBANK' ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]' : 'bg-[#18181b] border-[#27272a] text-[#a1a1aa]'
-                    }`}
+                    className={`py-2 text-[10px] font-bold uppercase rounded-lg border transition-all ${paymentMethod === 'NETBANK' ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]' : 'bg-[#18181b] border-[#27272a] text-[#a1a1aa]'
+                      }`}
                   >
                     NetBanking
                   </button>

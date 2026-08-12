@@ -20,61 +20,101 @@ export async function fetchWalletTransactions(userId) {
   }
 }
 
-const activeTxLocks = new Set()
-
-export async function addWalletTransaction({ userId, type, amount, description, tournamentId }) {
-  if (!isSupabaseConfigured || !userId) return null
-
-  const lockKey = `tx_${userId}_${type}_${amount}_${tournamentId || ''}`
-  if (activeTxLocks.has(lockKey)) {
-    console.warn('[walletService] Duplicate transaction request blocked:', lockKey)
-    return null
+/**
+ * Secure Deposit RPC Call
+ */
+export async function depositMoney({ amount, paymentMethod = 'UPI', gatewayOrderId = null, gatewayPaymentId = null }) {
+  if (!isSupabaseConfigured) {
+    return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
   }
-  activeTxLocks.add(lockKey)
 
   try {
-    const numAmount = Number(amount)
-    const { data, error } = await supabase
-      .from('wallet_transactions')
-      .insert([
-        {
-          user_id: userId,
-          type: type, // 'Entry Fee Debit' | 'Prize Credit' | 'Refund' | 'Bonus Credit' | 'Deposit' | 'Withdrawal'
-          amount: numAmount,
-          description: description,
-          tournament_id: tournamentId || null,
-          status: 'Completed',
-        },
-      ])
-      .select('id, user_id, type, amount, description, tournament_id, status, created_at')
-      .single()
+    const { data, error } = await supabase.rpc('process_wallet_deposit', {
+      p_amount: Number(amount),
+      p_payment_method: paymentMethod,
+      p_gateway_order_id: gatewayOrderId,
+      p_gateway_payment_id: gatewayPaymentId,
+    })
 
     if (error) {
-      console.error('[walletService] insert error:', error)
-      return null
+      console.error('[walletService] deposit RPC error:', error)
+      return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
     }
 
-    // Also update public.profiles wallet_balance / earnings if applicable
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('earnings')
-      .eq('id', userId)
-      .maybeSingle()
-
-    if (profile && type === 'Prize Credit') {
-      const currentEarned = parseFloat(String(profile.earnings || '0').replace(/[^0-9.]/g, '')) || 0
-      const newEarned = currentEarned + numAmount
-      await supabase
-        .from('profiles')
-        .update({ earnings: `₹${newEarned.toLocaleString()}` })
-        .eq('id', userId)
-    }
-
-    return data
+    return data || { success: true }
   } catch (err) {
-    console.error('[walletService] exception:', err)
-    return null
-  } finally {
-    activeTxLocks.delete(lockKey)
+    console.error('[walletService] deposit exception:', err)
+    return { success: false, error_code: 'EXCEPTION', message: err.message }
   }
+}
+
+/**
+ * Secure Withdrawal Request RPC Call
+ */
+export async function requestWithdrawal({ amount, payoutDetails }) {
+  if (!isSupabaseConfigured) {
+    return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('request_wallet_withdrawal', {
+      p_amount: Number(amount),
+      p_payout_details: payoutDetails || 'Bank Payout Request',
+    })
+
+    if (error) {
+      console.error('[walletService] withdrawal RPC error:', error)
+      return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
+    }
+
+    return data || { success: true }
+  } catch (err) {
+    console.error('[walletService] withdrawal exception:', err)
+    return { success: false, error_code: 'EXCEPTION', message: err.message }
+  }
+}
+
+/**
+ * Secure Admin Prize Allocation RPC Call
+ */
+export async function adminAwardPrize({ targetUserId, tournamentId, amount, description }) {
+  if (!isSupabaseConfigured) {
+    return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('admin_process_prize_credit', {
+      p_target_user_id: targetUserId,
+      p_tournament_id: tournamentId,
+      p_amount: Number(amount),
+      p_description: description || 'Tournament Prize Allocation',
+    })
+
+    if (error) {
+      console.error('[walletService] prize credit RPC error:', error)
+      return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
+    }
+
+    return data || { success: true }
+  } catch (err) {
+    console.error('[walletService] prize credit exception:', err)
+    return { success: false, error_code: 'EXCEPTION', message: err.message }
+  }
+}
+
+/**
+ * Legacy Adapter: Routes callers to secure RPC implementations
+ */
+export async function addWalletTransaction({ userId, type, amount, description, tournamentId }) {
+  if (type === 'Deposit') {
+    return await depositMoney({ amount, paymentMethod: 'UPI' })
+  }
+  if (type === 'Withdrawal') {
+    return await requestWithdrawal({ amount, payoutDetails: description })
+  }
+  if (type === 'Prize Credit' && tournamentId) {
+    return await adminAwardPrize({ targetUserId: userId, tournamentId, amount, description })
+  }
+  console.warn('[walletService] Direct addWalletTransaction is deprecated. Use secure RPC calls.')
+  return null
 }
