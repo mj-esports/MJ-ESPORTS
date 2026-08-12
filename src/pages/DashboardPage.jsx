@@ -106,19 +106,17 @@ export default function DashboardPage() {
 
     try {
       if (isSupabaseConfigured && user) {
-        const { data: isAvailable, error: checkError } = await supabase.rpc(
-          'check_username_available',
-          {
-            p_username: cleanUsername,
-            p_exclude_user_id: user.id,
-          }
-        )
+        const { data: existingUsernames, error: checkError } = await supabase
+          .from('public_profiles')
+          .select('id, username')
+          .ilike('username', cleanUsername.replace(/[%_\\]/g, '\\$&'))
+          .neq('id', user.id)
 
         if (checkError) {
           console.warn('[Username Uniqueness Check Warning]:', checkError)
         }
 
-        if (isAvailable === false) {
+        if (existingUsernames && existingUsernames.length > 0) {
           setProfileErrors((prev) => ({
             ...prev,
             username: 'Username is already taken by another player.',

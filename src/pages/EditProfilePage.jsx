@@ -124,20 +124,18 @@ export default function EditProfilePage() {
 
     try {
       if (isSupabaseConfigured && user) {
-        // Check username uniqueness via RPC
-        const { data: isAvailable, error: checkError } = await supabase.rpc(
-          'check_username_available',
-          {
-            p_username: cleanUsername,
-            p_exclude_user_id: user.id,
-          }
-        )
+        // Check username uniqueness via public_profiles view
+        const { data: existingProfiles, error: checkError } = await supabase
+          .from('public_profiles')
+          .select('id, username')
+          .ilike('username', cleanUsername.replace(/[%_\\]/g, '\\$&'))
+          .neq('id', user.id)
 
         if (checkError) {
           console.warn('[Username uniqueness warning]:', checkError.message)
         }
 
-        if (isAvailable === false) {
+        if (existingProfiles && existingProfiles.length > 0) {
           setErrors((prev) => ({ ...prev, username: 'Player name is already taken.' }))
           setAlert({ type: 'error', message: 'Display Name is taken. Choose another name.' })
           setIsSaving(false)
