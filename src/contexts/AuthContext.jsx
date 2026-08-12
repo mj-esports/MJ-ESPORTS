@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import {
   signUp as apiSignUp,
@@ -19,19 +19,37 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [roleLoading, setRoleLoading] = useState(true)
 
-  // Resolve user role with complete loading lock & ensure user profile
+  // Use refs to track current user and role inside async callbacks without stale closures or re-subscription triggers
+  const userRef = useRef(null)
+  userRef.current = user
+
+  const roleRef = useRef(null)
+  roleRef.current = role
+
+  // Synchronizes user and role state smoothly with stable reference
   const syncUserAndRole = useCallback(async (currentUser, currentSession, options = {}) => {
     const { isExplicit = false } = options
-    if (isExplicit || !role) {
-      setRoleLoading(true)
-    }
+
+    const previousUserId = userRef.current?.id
+    const currentUserId = currentUser?.id
+    const isUserIdentityChange = currentUserId !== previousUserId
+    const needsRoleFetch = !roleRef.current || isUserIdentityChange || isExplicit
+
+    // 1. Update session & user state
     setSession(currentSession ?? null)
     setUser(currentUser ?? null)
+    userRef.current = currentUser ?? null
 
     if (currentUser) {
+      // Only lock roleLoading during explicit identity changes or initial load
+      if (needsRoleFetch) {
+        setRoleLoading(true)
+      }
+
       try {
         const resolvedRole = await getUserRole(currentUser)
         setRole(resolvedRole)
+        roleRef.current = resolvedRole
 
         // Automatically ensure user profile exists in public.profiles table (e.g. for Google Sign-In & new users)
         if (isSupabaseConfigured) {
@@ -60,14 +78,18 @@ export function AuthProvider({ children }) {
       } catch (err) {
         console.error('[Role Resolution Error]:', err)
         setRole('user')
+        roleRef.current = 'user'
       }
     } else {
       setRole(null)
+      roleRef.current = null
     }
+
     setRoleLoading(false)
     setLoading(false)
-  }, [role])
+  }, []) // Stable callback reference with empty dependency array
 
+  // Global Auth lifecycle listener — runs ONCE on mount
   useEffect(() => {
     let isSubscribed = true
 
@@ -94,7 +116,7 @@ export function AuthProvider({ children }) {
       return
     }
 
-    // Fetch initial session on mount
+    // 1. Initial Session Fetch on Application Mount
     supabase.auth
       .getSession()
       .then(({ data: { session: initialSession } }) => {
@@ -111,23 +133,26 @@ export function AuthProvider({ children }) {
         }
       })
 
-    // Listen for auth state transitions (login, logout, token refresh, password recovery)
+    // 2. Auth State Transition Listener (Login, Logout, Silent Token Refresh)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, currentSession) => {
-      if (isSubscribed) {
-        // Token refresh or window focus events should update session silently without unmounting active routes
-        const isUserChange = currentSession?.user?.id !== user?.id
-        const shouldLockRoleLoading = isUserChange || event === 'SIGNED_IN' || event === 'SIGNED_OUT'
-        syncUserAndRole(currentSession?.user ?? null, currentSession, { isExplicit: shouldLockRoleLoading })
-      }
+      if (!isSubscribed) return
+
+      const previousUserId = userRef.current?.id
+      const currentUserId = currentSession?.user?.id
+      const isUserChange = currentUserId !== previousUserId
+
+      // Token refresh or window focus events for the same user update session silently without locking roleLoading
+      const isExplicitUserChange = isUserChange || event === 'SIGNED_IN' || event === 'SIGNED_OUT'
+      syncUserAndRole(currentSession?.user ?? null, currentSession, { isExplicit: isExplicitUserChange })
     })
 
     return () => {
       isSubscribed = false
       subscription?.unsubscribe()
     }
-  }, [syncUserAndRole, user?.id])
+  }, [syncUserAndRole]) // Stable effect dependency that never tears down on role/user state changes
 
   const signUp = async (email, password, metadata) => {
     setRoleLoading(true)
@@ -135,7 +160,7 @@ export function AuthProvider({ children }) {
     const activeUser = data?.user ?? null
     const activeSession = data?.session ?? null
 
-    await syncUserAndRole(activeUser, activeSession)
+    await syncUserAndRole(activeUser, activeSession, { isExplicit: true })
     return data
   }
 
@@ -145,7 +170,7 @@ export function AuthProvider({ children }) {
     const activeUser = data?.user ?? null
     const activeSession = data?.session ?? null
 
-    await syncUserAndRole(activeUser, activeSession)
+    await syncUserAndRole(activeUser, activeSession, { isExplicit: true })
     return data
   }
 
@@ -173,6 +198,7 @@ export function AuthProvider({ children }) {
 
       if (authData?.user) {
         setUser(authData.user)
+        userRef.current = authData.user
       }
       return authData
     } else {
@@ -193,6 +219,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem('mj_esports_mock_session', JSON.stringify(updatedSession))
       }
       setUser(updatedUser)
+      userRef.current = updatedUser
       setSession(updatedSession)
       return { user: updatedUser, session: updatedSession }
     }
@@ -202,8 +229,10 @@ export function AuthProvider({ children }) {
     setRoleLoading(true)
     await apiSignOut()
     setUser(null)
+    userRef.current = null
     setSession(null)
     setRole(null)
+    roleRef.current = null
     setRoleLoading(false)
     setLoading(false)
   }
