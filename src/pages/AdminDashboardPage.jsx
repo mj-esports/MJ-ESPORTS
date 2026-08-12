@@ -3,6 +3,7 @@ import { useParams, useLocation } from 'react-router-dom'
 import { useTournaments } from '../contexts/TournamentContext'
 import AdminHeader from '../components/admin/AdminHeader'
 import AdminSidebar, { NAV_ITEMS } from '../components/admin/AdminSidebar'
+import CommandCenterView from '../components/admin/CommandCenterView'
 import DashboardOverview from '../components/admin/DashboardOverview'
 import FinanceDashboardView from '../components/admin/FinanceDashboardView'
 import TournamentCenterView from '../components/admin/TournamentCenterView'
@@ -16,6 +17,7 @@ import AnalyticsView from '../components/admin/AnalyticsView'
 import SettingsView from '../components/admin/SettingsView'
 import AdminNotificationsView from '../components/admin/AdminNotificationsView'
 import AdminAuditLogsView from '../components/admin/AdminAuditLogsView'
+import ResultVerificationView from '../components/admin/ResultVerificationView'
 
 export default function AdminDashboardPage({ defaultTab }) {
   const {
@@ -191,8 +193,8 @@ export default function AdminDashboardPage({ defaultTab }) {
 
           {/* Main View Pages */}
           <div className="space-y-6">
-            {activeTab === 'dashboard' && (
-              <DashboardOverview tournaments={tournaments} setActiveTab={setActiveTab} />
+            {(activeTab === 'dashboard' || activeTab === 'command-center') && (
+              <CommandCenterView tournaments={tournaments} setActiveTab={setActiveTab} />
             )}
 
             {activeTab === 'tournaments' && (
@@ -234,6 +236,10 @@ export default function AdminDashboardPage({ defaultTab }) {
                 tournaments={tournaments}
                 updateRegistrationStatus={updateRegistrationStatus}
               />
+            )}
+
+            {activeTab === 'results' && (
+              <ResultVerificationView tournaments={tournaments} />
             )}
 
             {activeTab === 'analytics' && (

@@ -10,23 +10,26 @@ import {
   Shield,
   X,
   Bell,
-  FileSpreadsheet
+  FileSpreadsheet,
+  CheckCircle2,
+  Lock
 } from 'lucide-react'
 
 export const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+  { id: 'dashboard', label: 'Command Center', icon: LayoutDashboard, badge: null },
   { id: 'tournaments', label: 'Tournaments', icon: Trophy, badge: null },
   { id: 'players', label: 'Players', icon: Users, badge: null },
   {
     id: 'payments',
-    label: 'Payments',
+    label: 'Finance',
     icon: CreditCard,
     badge: '5 PENDING',
     badgeColor: 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40',
   },
+  { id: 'results', label: 'Result Verification', icon: CheckCircle2, badge: null },
+  { id: 'notifications', label: 'Communication', icon: Bell, badge: null },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, badge: null },
-  { id: 'notifications', label: 'Notifications', icon: Bell, badge: null },
-  { id: 'audit', label: 'Audit Logs', icon: FileSpreadsheet, badge: null },
+  { id: 'audit', label: 'Security & Audit', icon: Shield, badge: null },
   { id: 'settings', label: 'Settings', icon: Settings, badge: null },
 ]
 
@@ -50,9 +53,12 @@ export default function AdminSidebar({ activeTab, setActiveTab, mobileOpen, setM
           const Icon = item.icon
           const isActive =
             activeTab === item.id ||
-            (activeTab === 'finance' && item.id === 'analytics') ||
+            (activeTab === 'command-center' && item.id === 'dashboard') ||
+            (activeTab === 'finance' && item.id === 'payments') ||
             (activeTab === 'matches' && item.id === 'tournaments') ||
-            (activeTab === 'teams' && item.id === 'players')
+            (activeTab === 'teams' && item.id === 'players') ||
+            (activeTab === 'security' && item.id === 'audit') ||
+            (activeTab === 'communication' && item.id === 'notifications')
           return (
             <button
               key={`nav-item-${item.id}${isMobile ? '-m' : ''}`}

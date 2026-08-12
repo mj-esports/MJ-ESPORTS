@@ -48,6 +48,10 @@ import { useTournaments } from '../../contexts/TournamentContext'
 import { useToast } from '../../contexts/ToastContext'
 import { telemetry } from '../../services/telemetryService'
 import ReviewSummaryStep from './ReviewSummaryStep'
+import AllTournamentsView from './tournaments/AllTournamentsView'
+import TournamentOperationsWorkspace from './tournaments/TournamentOperationsWorkspace'
+import RegistrationQueueView from './RegistrationQueueView'
+import MatchControlView from './MatchControlView'
 
 export default function TournamentCenterView({
   tournaments = [],
@@ -58,6 +62,8 @@ export default function TournamentCenterView({
 }) {
   const { advanceTournamentLifecycle } = useTournaments()
   const { showSuccess, showError } = useToast()
+  const [activeOpsTab, setActiveOpsTab] = useState('ALL_TOURNAMENTS')
+  const [selectedTournamentId, setSelectedTournamentId] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [currentStep, setCurrentStep] = useState(0)
@@ -710,213 +716,115 @@ export default function TournamentCenterView({
     },
   ]
 
+  const activeTournament = tournaments.find((t) => t.id === selectedTournamentId)
+
   return (
-    <div className="space-y-6 antialiased font-mono text-xs">
-      
-      {/* HEADER SECTION */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-bold uppercase tracking-wider mb-1">
-            <Trophy className="w-3.5 h-3.5" />
-            <span>Tournament Management</span>
-          </div>
-          <h2 className="font-display-lg text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
-            Tournament Operations Hub
-          </h2>
-        </div>
-
-        <button
-          onClick={handleOpenCreateModal}
-          className="btn-cyber text-xs py-3 px-5 uppercase tracking-wider flex items-center gap-2 min-h-[44px] cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>New Tournament Wizard</span>
-        </button>
-      </div>
-
+    <div className="space-y-6 antialiased">
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
-      {/* FILTER & SEARCH BAR */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 shadow-lg">
-        <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search tournaments by name or game..."
-            className="w-full bg-[#07090c] border border-[#3a494b] rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:border-[#00f2ff] focus:outline-none h-[38px]"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Filter className="w-4 h-4 text-[#8e9dae]" />
-          <select
-            value={gameFilter}
-            onChange={(e) => setGameFilter(e.target.value)}
-            className="bg-[#07090c] border border-[#3a494b] rounded-lg px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none h-[38px]"
+      {/* Admin V2 Tournaments Information Architecture Navigation */}
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 shadow-xl flex items-center gap-2 overflow-x-auto text-xs font-mono font-bold">
+        {[
+          { id: 'ALL_TOURNAMENTS', label: 'ALL TOURNAMENTS' },
+          { id: 'CREATE_TOURNAMENT', label: '+ CREATE TOURNAMENT' },
+          { id: 'REGISTRATION_QUEUE', label: 'REGISTRATION QUEUE' },
+          { id: 'MATCH_OPERATIONS', label: 'MATCH OPERATIONS' },
+          { id: 'RESULTS', label: 'RESULTS PIPELINE' },
+          { id: 'HISTORY', label: 'HISTORY & ARCHIVE' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => {
+              if (tab.id === 'CREATE_TOURNAMENT') {
+                handleOpenCreateModal()
+              } else {
+                setSelectedTournamentId(null)
+                setActiveOpsTab(tab.id)
+              }
+            }}
+            className={`px-3.5 py-2 rounded-lg transition-all whitespace-nowrap ${
+              activeOpsTab === tab.id && !selectedTournamentId
+                ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
+                : 'bg-[#07090c] text-[#8e9dae] hover:text-white border border-[#3a494b]/60'
+            }`}
           >
-            <option value="">All Games</option>
-            {SUPPORTED_GAMES.map((g) => (
-              <option key={`filter-${g}`} value={g}>{g}</option>
-            ))}
-          </select>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-[#07090c] border border-[#3a494b] rounded-lg px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none h-[38px]"
-          >
-            <option value="">All Statuses</option>
-            <option value="Registration Open">Registration Open</option>
-            <option value="Live Now">Live Now</option>
-            <option value="Registration Closed">Registration Closed</option>
-            <option value="Draft">Draft</option>
-            <option value="Completed">Completed</option>
-          </select>
-        </div>
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* TOURNAMENTS GRID DISPLAY */}
-      {filteredTournaments.length === 0 ? (
-        <div className="py-16 text-center border border-[#3a494b]/60 bg-[#151a21]/60 rounded-xl p-6 space-y-3 shadow-lg">
-          <Trophy className="w-10 h-10 text-[#8e9dae] mx-auto opacity-50" />
-          <p className="text-xs font-bold text-white uppercase">No Tournaments Found</p>
-          <p className="text-[10px] text-[#8e9dae]">No tournaments match the selected filters.</p>
-        </div>
+      {/* VIEW SWITCHING */}
+      {selectedTournamentId ? (
+        <TournamentOperationsWorkspace
+          tournament={activeTournament}
+          onBackToRoster={() => setSelectedTournamentId(null)}
+          updateRegistrationStatus={updateTournamentStatus}
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredTournaments.map((t) => (
-            <div
-              key={t.id}
-              className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff]/50 rounded-xl p-5 space-y-4 shadow-xl flex flex-col justify-between transition-all"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
-                    {t.game}
-                  </span>
-                  <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
-                    t.status === 'Registration Open'
-                      ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
-                      : t.status === 'Live'
-                      ? 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40 animate-pulse'
-                      : t.status === 'Published' || t.status === 'Check-in Open' || t.status === 'Room Released'
-                      ? 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40'
-                      : t.status === 'Completed' || t.status === 'Prize Distributed'
-                      ? 'bg-purple-500/10 text-purple-400 border-purple-500/30'
-                      : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b]'
-                  }`}>
-                    {t.status || 'Draft'}
-                  </span>
-                </div>
+        <>
+          {activeOpsTab === 'ALL_TOURNAMENTS' && (
+            <AllTournamentsView
+              tournaments={tournaments}
+              onSelectTournament={(id) => setSelectedTournamentId(id)}
+              onOpenCreateWizard={handleOpenCreateModal}
+              onEditTournament={handleOpenEditModal}
+              onDuplicateTournament={handleDuplicate}
+              onDeleteTournament={(t) => handleDelete(t.id, t.title)}
+              onAdvanceStage={handleAdvanceStage}
+              actionId={actionId}
+            />
+          )}
 
-                <div className="h-28 relative rounded-lg overflow-hidden border border-[#3a494b]/60 bg-[#07090c] mb-2">
-                  <img
-                    src={getTournamentImage(t)}
-                    alt={t.title}
-                    className="w-full h-full object-cover opacity-90"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#151a21] via-transparent to-transparent" />
-                </div>
+          {activeOpsTab === 'REGISTRATION_QUEUE' && (
+            <RegistrationQueueView
+              tournaments={tournaments}
+              updateRegistrationStatus={updateTournamentStatus}
+            />
+          )}
 
-                <h3 className="font-display-lg font-extrabold text-white text-base uppercase">{t.title}</h3>
-                
-                {/* Match Type (Own Line) */}
-                <div className="text-xs text-[#8e9dae] font-label font-bold uppercase tracking-wider mt-1 mb-2.5">
-                  {t.format || 'SQUAD (4P)'}
-                </div>
+          {activeOpsTab === 'MATCH_OPERATIONS' && (
+            <MatchControlView
+              tournaments={tournaments}
+              updateTournamentScores={() => {}}
+            />
+          )}
 
-                {/* Responsive 2-Column Info Row (Entry Fee & Prize) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/60 mb-3">
-                  <div className="flex flex-col justify-center">
-                    <span className="text-[10px] uppercase font-bold text-[#8e9dae] font-label tracking-wider mb-0.5">
-                      Entry Fee
-                    </span>
-                    <span className="text-sm font-extrabold text-[#00f2ff] font-headline">
-                      {t.entryFee || t.entry_fee || 'Free'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col justify-center">
-                    <span className="text-[10px] uppercase font-bold text-[#8e9dae] font-label tracking-wider mb-0.5">
-                      Prize
-                    </span>
-                    <span className="text-sm font-black text-[#ffb693] font-headline">
-                      {formatTournamentPrize(t)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Slots & Progress Bar */}
-                <div className="p-3.5 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-2 text-xs">
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-[#8e9dae] font-semibold">Slot Progress</span>
-                    <span className="font-mono font-bold text-[#00f2ff]">{t.registeredTeams || 0} / {t.maxTeams || 32} Teams</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-[#151a21] rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[#00f2ff] rounded-full"
-                      style={{ width: `${Math.min(100, ((t.registeredTeams || 0) / (t.maxTeams || 32)) * 100)}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] text-[#8e9dae] pt-0.5 font-mono">
-                    <span>Date: {t.startDate}</span>
-                    <span>Time: {t.startTime}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* ACTION CONTROL BUTTONS */}
-              <div className="space-y-2 pt-3 border-t border-[#3a494b]/60">
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <button
-                    onClick={() => handleOpenEditModal(t)}
-                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5 cursor-pointer"
-                  >
-                    <Edit3 className="w-3.5 h-3.5 text-[#00f2ff]" />
-                    <span>Edit</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleDuplicate(t)}
-                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2.5 cursor-pointer"
-                  >
-                    <Copy className="w-3.5 h-3.5 text-[#00f2ff]" />
-                    <span>Duplicate</span>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <button
-                    onClick={() => handleAdvanceStage(t)}
-                    disabled={actionId === t.id || !getNextLifecycleStage(t.status)}
-                    className="btn-cyber-outline text-[11px] min-h-[38px] py-1.5 px-2 text-[#00f2ff] hover:border-[#00f2ff] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 truncate"
-                    title={getNextLifecycleStage(t.status) ? `Advance to ${getNextLifecycleStage(t.status)}` : 'Terminal Stage'}
-                  >
-                    <ChevronRight className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
-                    <span className="truncate">{getNextLifecycleStage(t.status) || 'Archived'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(t.id, t.title)}
-                    className="btn-cyber-danger text-[11px] min-h-[38px] py-1.5 px-2.5 cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Delete</span>
-                  </button>
-                </div>
-              </div>
-
+          {activeOpsTab === 'RESULTS' && (
+            <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 text-center space-y-3 font-mono">
+              <CheckCircle2 className="w-8 h-8 text-[#00ff9d] mx-auto" />
+              <h3 className="text-sm font-bold text-white uppercase">RESULT VERIFICATION PIPELINE</h3>
+              <p className="text-xs text-[#8e9dae] max-w-md mx-auto">
+                Official match scorecard submission and automated OCR extraction workflow will be integrated in Phase 3.
+              </p>
             </div>
-          ))}
-        </div>
+          )}
+
+          {activeOpsTab === 'HISTORY' && (
+            <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 font-mono space-y-3">
+              <h3 className="text-sm font-bold text-white uppercase border-b border-[#3a494b]/60 pb-2">
+                COMPLETED TOURNAMENT ARCHIVE
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {tournaments.filter(t => t.status === 'Completed' || t.status === 'Prize Distributed').length === 0 ? (
+                  <p className="text-xs text-[#8e9dae]">No completed tournaments found in historical logs.</p>
+                ) : (
+                  tournaments.filter(t => t.status === 'Completed' || t.status === 'Prize Distributed').map((t) => (
+                    <div key={t.id} className="p-3 bg-[#07090c] border border-[#3a494b] rounded-lg text-xs space-y-1">
+                      <span className="font-bold text-white block">{t.title}</span>
+                      <span className="text-[#8e9dae]">{t.game} • Prize: {t.prizePool || t.prize_pool}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* REUSABLE STEP WIZARD MODAL DIALOG */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-[#151a21] border border-[#3a494b] rounded-2xl max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-[0_0_50px_rgba(0,242,255,0.15)] relative max-h-[92vh] overflow-y-auto">
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-2xl max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-[0_0_50px_rgba(0,242,255,0.15)] relative max-h-[92vh] overflow-y-auto font-mono">
             
             <button
               onClick={() => setShowModal(false)}
