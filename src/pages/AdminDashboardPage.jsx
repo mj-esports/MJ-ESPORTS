@@ -37,7 +37,11 @@ export default function AdminDashboardPage({ defaultTab }) {
     if (defaultTab) return defaultTab
     if (params.tab) {
       const normalizedParam = params.tab.toLowerCase()
-      if (normalizedParam === 'finance' || normalizedParam === 'reports') return 'analytics'
+      if (normalizedParam === 'finance') {
+        setPaymentsSubTab('finance')
+        return 'payments'
+      }
+      if (normalizedParam === 'reports') return 'analytics'
       if (normalizedParam === 'matches' || normalizedParam === 'registrations') return 'tournaments'
       if (normalizedParam === 'teams') return 'players'
       const found = NAV_ITEMS.find((item) => item.id === normalizedParam)
@@ -47,7 +51,11 @@ export default function AdminDashboardPage({ defaultTab }) {
     const tabQuery = searchParams.get('tab')
     if (tabQuery) {
       const normalizedQuery = tabQuery.toLowerCase()
-      if (normalizedQuery === 'finance' || normalizedQuery === 'reports') return 'analytics'
+      if (normalizedQuery === 'finance') {
+        setPaymentsSubTab('finance')
+        return 'payments'
+      }
+      if (normalizedQuery === 'reports') return 'analytics'
       if (normalizedQuery === 'matches' || normalizedQuery === 'registrations') return 'tournaments'
       if (normalizedQuery === 'teams') return 'players'
       const found = NAV_ITEMS.find((item) => item.id === normalizedQuery)
@@ -63,6 +71,7 @@ export default function AdminDashboardPage({ defaultTab }) {
   // Sub-tab states for advanced options inside pages
   const [tournamentsSubTab, setTournamentsSubTab] = useState('center') // 'center' | 'matches' | 'queue'
   const [playersSubTab, setPlayersSubTab] = useState('directory') // 'directory' | 'teams'
+  const [paymentsSubTab, setPaymentsSubTab] = useState('finance') // 'finance' | 'verification'
   const [analyticsSubTab, setAnalyticsSubTab] = useState('telemetry') // 'telemetry' | 'finance' | 'reports'
 
   useEffect(() => {
@@ -161,6 +170,27 @@ export default function AdminDashboardPage({ defaultTab }) {
               </div>
             )}
 
+            {(activeTab === 'payments' || activeTab === 'finance') && (
+              <div className="flex items-center bg-[#07090c] p-1 rounded-lg border border-[#3a494b]/60 text-xs font-mono font-bold">
+                <button
+                  onClick={() => setPaymentsSubTab('finance')}
+                  className={`px-3 py-1.5 rounded-md transition-all ${
+                    paymentsSubTab === 'finance' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                  }`}
+                >
+                  Finance Dashboard
+                </button>
+                <button
+                  onClick={() => setPaymentsSubTab('verification')}
+                  className={`px-3 py-1.5 rounded-md transition-all ${
+                    paymentsSubTab === 'verification' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
+                  }`}
+                >
+                  Payment Verification
+                </button>
+              </div>
+            )}
+
             {activeTab === 'analytics' && (
               <div className="flex items-center bg-[#07090c] p-1 rounded-lg border border-[#3a494b]/60 text-xs font-mono font-bold">
                 <button
@@ -231,11 +261,16 @@ export default function AdminDashboardPage({ defaultTab }) {
               </>
             )}
 
-            {activeTab === 'payments' && (
-              <PaymentVerificationView
-                tournaments={tournaments}
-                updateRegistrationStatus={updateRegistrationStatus}
-              />
+            {(activeTab === 'payments' || activeTab === 'finance') && (
+              <>
+                {paymentsSubTab === 'finance' && <FinanceDashboardView tournaments={tournaments} />}
+                {paymentsSubTab === 'verification' && (
+                  <PaymentVerificationView
+                    tournaments={tournaments}
+                    updateRegistrationStatus={updateRegistrationStatus}
+                  />
+                )}
+              </>
             )}
 
             {activeTab === 'results' && (

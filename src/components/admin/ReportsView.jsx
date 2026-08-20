@@ -18,6 +18,7 @@ import {
   ArrowDownToLine
 } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
+import { calculateFilledPlayerSlots } from '../../utils/tournamentUtils'
 import AuthAlert from '../common/AuthAlert'
 import { useToast } from '../../contexts/ToastContext'
 
@@ -78,7 +79,7 @@ export default function ReportsView({ tournaments = [] }) {
         format: t.format,
         date: t.startDate || t.start_date || '2026-08-01',
         registeredTeams: regCount,
-        registeredPlayers: regCount * (t.format?.toLowerCase().includes('solo') ? 1 : 4),
+        registeredPlayers: calculateFilledPlayerSlots(t),
         matchCount: matchesCount,
         winner: t.winnerTeam || t.winner_team || (t.status === 'Completed' ? 'Champions' : 'N/A'),
         status: t.status,

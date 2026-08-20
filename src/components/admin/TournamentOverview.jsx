@@ -1,5 +1,6 @@
 import React from 'react'
 import { Trophy, Gamepad2 } from 'lucide-react'
+import { getCapacityLabel } from '../../utils/tournamentUtils'
 
 export default function TournamentOverview({ tournaments = [], loading, onManageClick }) {
   const getStatusStyle = (status) => {
@@ -60,7 +61,7 @@ export default function TournamentOverview({ tournaments = [], loading, onManage
                 </div>
                 <div className="flex items-center gap-3 text-[11px] text-[#a1a1aa]">
                   <span>Prize: <strong className="text-[#fe6b00]">{t.prizePool}</strong></span>
-                  <span>Capacity: <strong className="text-[#00f2ff]">{t.registeredTeams}/{t.maxTeams}</strong></span>
+                  <span>Capacity: <strong className="text-[#00f2ff]">{getCapacityLabel(t)}</strong></span>
                 </div>
               </div>
               <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase border shrink-0 ${getStatusStyle(t.status)}`}>

@@ -25,6 +25,11 @@ import TournamentLifecycleTracker from './TournamentLifecycleTracker'
 import RegistrationQueueView from '../RegistrationQueueView'
 import { useTournaments } from '../../../contexts/TournamentContext'
 import { useToast } from '../../../contexts/ToastContext'
+import {
+  getTournamentMode,
+  calculateFilledPlayerSlots,
+  calculateTotalPlayerSlots
+} from '../../../utils/tournamentUtils'
 
 export default function TournamentOperationsWorkspace({ tournament, onBackToRoster, updateRegistrationStatus }) {
   const { showSuccess, showError } = useToast()
@@ -148,7 +153,7 @@ export default function TournamentOperationsWorkspace({ tournament, onBackToRost
           <div className="flex items-center gap-2 font-mono text-xs">
             <span className="text-[#8e9dae]">Registered:</span>
             <span className="font-bold text-[#00ff9d]">
-              {tournament.registeredTeams ?? tournament.registered_teams ?? 0} / {tournament.maxTeams ?? tournament.max_teams ?? 32} Teams
+              {calculateFilledPlayerSlots(tournament)} / {calculateTotalPlayerSlots(tournament)} Players ({tournament.registeredTeams ?? tournament.registered_teams ?? 0} / {tournament.maxTeams ?? tournament.max_teams ?? 12} {getTournamentMode(tournament).teamUnit})
             </span>
           </div>
         </div>
@@ -225,7 +230,9 @@ export default function TournamentOperationsWorkspace({ tournament, onBackToRost
               </div>
               <div className="flex justify-between p-2.5 bg-[#07090c] rounded border border-[#3a494b]">
                 <span className="text-[#8e9dae]">Slot Capacity:</span>
-                <span className="font-bold text-white">{tournament.maxTeams || 32} Max Teams</span>
+                <span className="font-bold text-white">
+                  {tournament.maxTeams ?? tournament.max_teams ?? 12} {getTournamentMode(tournament).teamUnit} ({calculateTotalPlayerSlots(tournament)} Players)
+                </span>
               </div>
             </div>
           </div>

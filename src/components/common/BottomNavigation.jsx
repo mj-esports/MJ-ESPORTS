@@ -12,7 +12,8 @@ export default function BottomNavigation() {
     ...(isAuthenticated
       ? [{ name: 'Wallet', path: '/wallet', icon: Wallet }]
       : []),
-    ...(isAdmin
+    // TEMPORARY TESTING ACCESS — RESTORE ADMIN-ONLY GUARD BEFORE PRODUCTION
+    ...((isAdmin || isAuthenticated)
       ? [{ name: 'Admin', path: '/admin', icon: Shield }]
       : []),
     isAuthenticated

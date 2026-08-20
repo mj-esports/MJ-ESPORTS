@@ -30,6 +30,7 @@ import {
 import { SUPPORTED_GAMES } from '../../data/mockData'
 import { getTournamentImage } from '../../utils/tournamentImageUtils'
 import { calculateFormattedPrize, formatTournamentPrize } from '../../utils/tournamentPrizeUtils'
+import { getDefaultGameCapacity } from '../../utils/tournamentUtils'
 import {
   TOURNAMENT_LIFECYCLE_STAGES,
   getNextLifecycleStage,
@@ -101,7 +102,7 @@ export default function TournamentCenterView({
     mode: 'squad',
     prizePool: '₹0',
     entryFee: 'Free',
-    maxTeams: 32,
+    maxTeams: 12, // Free Fire MAX Squad default (12 Squads = 48 Players)
     startDate: '',
     startTime: '06:00 PM IST',
     registrationStart: 'Immediate',
@@ -125,8 +126,10 @@ export default function TournamentCenterView({
 
   const handleOpenCreateModal = () => {
     setFormErrors({})
+    const defaultCap = getDefaultGameCapacity(defaultFormState.game, defaultFormState.mode)
     setForm({
       ...defaultFormState,
+      maxTeams: defaultCap.maxTeams,
       startDate: new Date().toISOString().split('T')[0]
     })
     setEditingId(null)
@@ -215,7 +218,7 @@ export default function TournamentCenterView({
         errors.entryFee = 'Entry Fee must be greater than or equal to 0.'
       }
       if (!slotsNum || slotsNum <= 0) {
-        errors.maxTeams = 'Total Team Slots must be greater than 0.'
+        errors.maxTeams = 'Total Team / Squad Slots must be greater than 0.'
       }
 
       // 2. PAYMENT VALIDATION (Skipped completely if Payment Status is OFF)
@@ -508,7 +511,15 @@ export default function TournamentCenterView({
               label="Game"
               name="game"
               value={form.game}
-              onChange={(e) => setForm((prev) => ({ ...prev, game: e.target.value }))}
+              onChange={(e) => {
+                const nextGame = e.target.value
+                const nextCap = getDefaultGameCapacity(nextGame, form.mode)
+                setForm((prev) => ({
+                  ...prev,
+                  game: nextGame,
+                  maxTeams: editingId ? prev.maxTeams : nextCap.maxTeams,
+                }))
+              }}
               options={SUPPORTED_GAMES}
               required
               icon={Gamepad2}
@@ -517,7 +528,14 @@ export default function TournamentCenterView({
             <FormModeSelector
               label="Match Mode"
               value={form.mode}
-              onChange={(newMode) => setForm((prev) => ({ ...prev, mode: newMode }))}
+              onChange={(newMode) => {
+                const nextCap = getDefaultGameCapacity(form.game, newMode)
+                setForm((prev) => ({
+                  ...prev,
+                  mode: newMode,
+                  maxTeams: editingId ? prev.maxTeams : nextCap.maxTeams,
+                }))
+              }}
               options={[
                 { key: 'solo', label: 'Solo (1 Player)', size: 1 },
                 { key: 'duo', label: 'Duo (2 Players)', size: 2 },
@@ -528,42 +546,58 @@ export default function TournamentCenterView({
           </div>
 
           {/* 4. LIVE PREVIEW CARD */}
-          <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-2.5 shadow-inner">
-            <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2">
-              <span className="font-label-caps text-[10px] font-bold text-[#00f2ff] uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#00f2ff]" />
-                <span>Live Configuration Preview</span>
-              </span>
-              <span className="px-2 py-0.5 rounded text-[9px] font-extrabold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase font-mono">
-                Read-Only
-              </span>
-            </div>
+          {(() => {
+            const previewCap = getDefaultGameCapacity(form.game, form.mode)
+            const currentTeams = Number(form.maxTeams || previewCap.maxTeams)
+            const currentPlayers = currentTeams * previewCap.teamSize
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div>
-                <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
-                  Selected Game
-                </span>
-                <p className="font-bold text-white font-headline uppercase">{form.game || 'Free Fire MAX'}</p>
+            return (
+              <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-2.5 shadow-inner">
+                <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2">
+                  <span className="font-label-caps text-[10px] font-bold text-[#00f2ff] uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[#00f2ff]" />
+                    <span>Live Configuration & Capacity Preview</span>
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[9px] font-extrabold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase font-mono">
+                    {previewCap.roomCap} Player Room Cap
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
+                      Selected Game
+                    </span>
+                    <p className="font-bold text-white font-headline uppercase truncate">{form.game || 'Free Fire MAX'}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
+                      Match Mode
+                    </span>
+                    <p className="font-bold text-white font-headline uppercase">
+                      {form.mode === 'solo' ? 'Solo (1P)' : form.mode === 'duo' ? 'Duo (2P)' : 'Squad (4P)'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
+                      Max Teams / Squads
+                    </span>
+                    <p className="font-mono font-extrabold text-[#00f2ff] text-sm">
+                      {currentTeams} {previewCap.teamUnit}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
+                      Active Player Capacity
+                    </span>
+                    <p className="font-mono font-extrabold text-[#00ff9d] text-sm">
+                      {currentPlayers} / {previewCap.roomCap} Players
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
-                  Match Mode
-                </span>
-                <p className="font-bold text-white font-headline uppercase">
-                  {form.mode === 'solo' ? 'Solo Battle Royale' : form.mode === 'duo' ? 'Duo Battle Royale' : 'Squad Battle Royale'}
-                </p>
-              </div>
-              <div>
-                <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
-                  Required Players
-                </span>
-                <p className="font-mono font-extrabold text-[#00ff9d] text-sm">
-                  {form.mode === 'solo' ? '1' : form.mode === 'duo' ? '2' : '4'}
-                </p>
-              </div>
-            </div>
-          </div>
+            )
+          })()}
         </div>
       ),
     },

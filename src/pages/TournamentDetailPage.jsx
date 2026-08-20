@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   Trophy,
@@ -32,6 +32,12 @@ import PointsTable from '../components/bracket/PointsTable'
 import BracketViewer from '../components/bracket/BracketViewer'
 import { getTournamentImage } from '../utils/tournamentImageUtils'
 import { formatTournamentPrize } from '../utils/tournamentPrizeUtils'
+import {
+  calculateFilledPlayerSlots,
+  calculateTotalPlayerSlots,
+  calculateSlotFillPercentage,
+  getTournamentMode,
+} from '../utils/tournamentUtils'
 import TournamentScheduleForm from '../components/common/TournamentScheduleForm'
 import EntryPrizeSystem from '../components/common/EntryPrizeSystem'
 import OfficialRulebook, { OFFICIAL_MJ_RULES } from '../components/common/OfficialRulebook'
@@ -39,8 +45,8 @@ import OfficialRulebook, { OFFICIAL_MJ_RULES } from '../components/common/Offici
 export default function TournamentDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getTournamentById, isUserRegistered, getRoomCredentials, loading } = useTournaments()
-  const { user, isAuthenticated, isAdmin } = useAuth()
+  const { getTournamentById, isUserRegistered, getUserRegistration, fetchTournaments, getRoomCredentials, loading } = useTournaments()
+  const { user, isAuthenticated, isAdmin, loading: authLoading } = useAuth()
   const { showSuccess } = useToast()
 
   const tournament = getTournamentById(id)
@@ -53,10 +59,39 @@ export default function TournamentDetailPage() {
   const [roomLoading, setRoomLoading] = useState(false)
   const [roomErrorMessage, setRoomErrorMessage] = useState(null)
 
-  const userIdentifier = user?.email || user?.id || user?.user_metadata?.username
-  const isAlreadyRegistered = useMemo(() => {
-    return isUserRegistered(id, userIdentifier)
-  }, [isUserRegistered, id, userIdentifier])
+  // Asynchronous authoritative database registration state
+  const [userRegistration, setUserRegistration] = useState(null)
+  const [isCheckingRegistration, setIsCheckingRegistration] = useState(true)
+
+  // Authoritative registration fetch directly from public.tournament_registrations (RLS-guaranteed)
+  const fetchRegistrationStatus = useCallback(async () => {
+    if (!id || !user?.id) {
+      setUserRegistration(null)
+      setIsCheckingRegistration(false)
+      return
+    }
+    setIsCheckingRegistration(true)
+    try {
+      const reg = await getUserRegistration(id, user.id)
+      setUserRegistration(reg)
+    } catch (err) {
+      console.warn('[Fetch Registration Status Error]:', err)
+    } finally {
+      setIsCheckingRegistration(false)
+    }
+  }, [id, user?.id, getUserRegistration])
+
+  useEffect(() => {
+    fetchRegistrationStatus()
+  }, [fetchRegistrationStatus])
+
+  // Context-cached registration fallback for instant UI response
+  const isCachedRegistered = useMemo(() => {
+    if (!user) return false
+    return isUserRegistered(id, user)
+  }, [isUserRegistered, id, user])
+
+  const isAlreadyRegistered = Boolean(userRegistration || isCachedRegistered)
 
   useEffect(() => {
     let isMounted = true
@@ -148,9 +183,13 @@ export default function TournamentDetailPage() {
     )
   }
 
+  const modeInfo = getTournamentMode(tournament)
+  const filledPlayerSlots = calculateFilledPlayerSlots(tournament)
+  const totalPlayerSlots = calculateTotalPlayerSlots(tournament)
+  const fillPercentage = calculateSlotFillPercentage(tournament)
+
   const regTeams = Number(tournament.registeredTeams || tournament.registered_teams || 0)
-  const maxTeams = Number(tournament.maxTeams || tournament.max_teams || 32)
-  const fillPercentage = Math.min(100, Math.round((regTeams / maxTeams) * 100))
+  const maxTeams = Number(tournament.maxTeams || tournament.max_teams || 12)
 
   const isFull = regTeams >= maxTeams
   const isClosed = tournament.status === 'Registration Closed' || tournament.status === 'Bracket Locked' || tournament.status === 'Completed'
@@ -287,7 +326,7 @@ export default function TournamentDetailPage() {
                 <div className="mt-6">
                   <EntryPrizeSystem
                     entryFee={tournament.entryFee || '₹50'}
-                    maxTeams={tournament.maxTeams || 32}
+                    maxTeams={tournament.maxTeams || tournament.max_teams || 12}
                     game={tournament.game}
                     mode={tournament.mode}
                     readOnly={true}
@@ -300,7 +339,12 @@ export default function TournamentDetailPage() {
                     <div>
                       <h4 className="font-headline font-semibold text-white">Slot Capacity</h4>
                       <p className="text-sm text-[#a3a3a3]">
-                        {regTeams} / {maxTeams} Squads registered
+                        {filledPlayerSlots} / {totalPlayerSlots} Players registered
+                        {modeInfo.mode !== 'Solo' && (
+                          <span className="text-xs text-[#737373] ml-1.5 font-mono">
+                            ({regTeams} / {maxTeams} {modeInfo.teamUnit})
+                          </span>
+                        )}
                       </p>
                     </div>
                     <span className="text-[#f97316] font-bold">{fillPercentage}% Full</span>
@@ -558,28 +602,76 @@ export default function TournamentDetailPage() {
                 </ul>
               </div>
 
-              <div className="pt-4 border-t border-[#333333]">
-                <div className="flex justify-between items-center mb-4">
+              <div className="pt-4 border-t border-[#333333] space-y-3">
+                <div className="flex justify-between items-center mb-1">
                   <span className="font-bold text-lg text-white">Total</span>
                   <span className="font-display font-black text-2xl text-[#f97316]">
                     {tournament.entryFee || 'Free'}
                   </span>
                 </div>
-                <button
-                  onClick={handleRegisterClick}
-                  disabled={isRegistrationDisabled}
-                  className="w-full bg-[#f97316] text-white font-headline font-bold text-lg py-4 rounded-xl hover:bg-orange-600 transition-colors shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isAlreadyRegistered
-                    ? 'Already Registered'
-                    : isFull
-                    ? 'Registration Full'
-                    : isClosed
-                    ? 'Registration Closed'
-                    : 'Register Squad Now'}
-                </button>
-                <p className="text-center text-xs text-[#a3a3a3] mt-3">
-                  By registering, you agree to the tournament rules.
+
+                {authLoading || (isAuthenticated && isCheckingRegistration && !isAlreadyRegistered) ? (
+                  <button
+                    disabled
+                    className="w-full bg-[#1e1e1e] text-[#a3a3a3] border border-[#333333] font-headline font-bold text-sm sm:text-base py-4 rounded-xl flex items-center justify-center gap-2 cursor-wait animate-pulse"
+                  >
+                    <Clock className="w-4 h-4 text-[#f97316] animate-spin" />
+                    <span>Verifying Registration...</span>
+                  </button>
+                ) : isAlreadyRegistered ? (
+                  <div className="space-y-3">
+                    <button
+                      disabled
+                      className="w-full bg-emerald-950/60 text-[#22c55e] border border-[#22c55e]/50 font-headline font-bold text-base py-4 rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center gap-2 cursor-default select-none"
+                    >
+                      <CheckCircle2 className="w-5 h-5 text-[#22c55e]" />
+                      <span>
+                        {modeInfo.mode === 'Solo'
+                          ? 'Player Registered'
+                          : modeInfo.mode === 'Duo'
+                          ? 'Duo Registered'
+                          : 'Squad Registered'}
+                      </span>
+                    </button>
+
+                    <div className="p-3.5 bg-[#111111] border border-[#22c55e]/30 rounded-xl space-y-2 text-xs font-mono">
+                      <div className="flex justify-between items-center text-white">
+                        <span className="text-[#a3a3a3]">Roster Status:</span>
+                        <span className="text-[#22c55e] font-bold uppercase flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Confirmed
+                        </span>
+                      </div>
+                      {userRegistration?.team_name && (
+                        <div className="flex justify-between items-center text-white">
+                          <span className="text-[#a3a3a3]">Registered Entry:</span>
+                          <span className="font-bold text-[#00FFFF] truncate max-w-[160px]">
+                            {userRegistration.team_name}
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-[11px] text-[#a3a3a3] pt-1.5 border-t border-[#262626] font-body leading-relaxed">
+                        Match room credentials will automatically appear in the credentials panel above when published.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleRegisterClick}
+                    disabled={isRegistrationDisabled}
+                    className="w-full bg-[#f97316] text-white font-headline font-bold text-lg py-4 rounded-xl hover:bg-orange-600 transition-colors shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {!isAuthenticated
+                      ? 'Sign In to Register'
+                      : isFull
+                      ? 'Registration Full'
+                      : isClosed
+                      ? 'Registration Closed'
+                      : `Register ${modeInfo.mode} Now`}
+                  </button>
+                )}
+
+                <p className="text-center text-xs text-[#a3a3a3] mt-2">
+                  By registering, you agree to the official MJ tournament rules.
                 </p>
               </div>
 
@@ -606,6 +698,10 @@ export default function TournamentDetailPage() {
         <SlotBookingModal
           tournament={tournament}
           onClose={() => setShowSlotModal(false)}
+          onRegistered={async () => {
+            await fetchRegistrationStatus()
+            if (fetchTournaments) await fetchTournaments()
+          }}
         />
       )}
 

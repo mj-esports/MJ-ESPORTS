@@ -12,8 +12,10 @@ import {
   ToggleRight,
   ShieldCheck,
   Zap,
-  Sparkles
+  Sparkles,
+  Gamepad2
 } from 'lucide-react'
+import { getDefaultGameCapacity } from '../../utils/tournamentUtils'
 
 // Section 3: Prize Types (Radio Cards)
 const PRIZE_TYPES = [
@@ -48,12 +50,20 @@ export default function EntryPrizeSystem({
     return isNaN(parsed) ? fallback : parsed
   }
 
+  const defaultCap = getDefaultGameCapacity(game, mode)
+
   const [localPaymentEnabled, setLocalPaymentEnabled] = useState(paymentEnabled)
   const [localEntryFee, setLocalEntryFee] = useState(() => (paymentEnabled ? parseNum(entryFee, 50) : 0))
-  const [localSlots, setLocalSlots] = useState(() => parseNum(maxTeams, 32))
+  const [localSlots, setLocalSlots] = useState(() => parseNum(maxTeams, defaultCap.maxTeams))
   const [localApproval, setLocalApproval] = useState(registrationApproval || 'Automatic')
   const [localAllowWaitlist, setLocalAllowWaitlist] = useState(allowWaitlist)
   const [localMaxWaitlist, setLocalMaxWaitlist] = useState(() => parseNum(maxWaitlistSize, 10))
+
+  useEffect(() => {
+    if (maxTeams !== undefined) {
+      setLocalSlots(parseNum(maxTeams, defaultCap.maxTeams))
+    }
+  }, [maxTeams, defaultCap.maxTeams])
 
   const [localPrizeType, setLocalPrizeType] = useState(prizeType || 'placement')
   const [localPerKill, setLocalPerKill] = useState(() => parseNum(perKillReward, 30))
@@ -92,12 +102,13 @@ export default function EntryPrizeSystem({
     if (localPrizeType === 'winner_takes_all') {
       return localPrizes.winnerPrize
     }
+    const totalEstPlayers = localSlots * defaultCap.teamSize
     if (localPrizeType === 'per_kill') {
-      return (localSlots * 4) * localPerKill
+      return totalEstPlayers * localPerKill
     }
     const placementSum = (localPrizes.firstPrize || 0) + (localPrizes.secondPrize || 0) + (localPrizes.thirdPrize || 0) + (localPrizes.fourthPrize || 0) + (localPrizes.fifthPrize || 0) + (localPrizes.mvpBonus || 0)
     if (localPrizeType === 'placement_kill') {
-      return placementSum + ((localSlots * 4) * localPerKill)
+      return placementSum + (totalEstPlayers * localPerKill)
     }
     return placementSum
   }
@@ -128,8 +139,13 @@ export default function EntryPrizeSystem({
           </div>
 
           <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-1">
-            <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Total Slots</span>
-            <span className="text-white font-bold text-sm block">{localSlots} Slots</span>
+            <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Capacity</span>
+            <span className="text-white font-bold text-sm block">
+              {localSlots} {defaultCap.teamUnit}
+            </span>
+            <span className="text-[9px] text-[#00ff9d] block">
+              {localSlots * defaultCap.teamSize} Players ({defaultCap.roomCap} Cap)
+            </span>
           </div>
 
           <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-1">
@@ -150,34 +166,33 @@ export default function EntryPrizeSystem({
 
   return (
     <div className="space-y-6 text-white font-mono text-xs">
-      
-      {/* SECTION 1: REGISTRATION SETTINGS */}
-      <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
-        <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-3">
-          <div className="flex items-center gap-2 text-[#00f2ff]">
-            <Users className="w-4.5 h-4.5" />
-            <h3 className="font-headline text-xs font-black uppercase tracking-wider text-white">
-              Section 1: Registration Settings
-            </h3>
-          </div>
-          <span className="text-[10px] text-[#8e9dae] font-semibold uppercase">Capacity & Approval</span>
+      {/* SECTION 1: REGISTRATION & SLOTS */}
+      <div className="p-5 bg-[#07090c] border border-[#00f2ff]/30 rounded-2xl space-y-4 shadow-inner">
+        <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2.5">
+          <span className="text-xs font-bold text-[#00f2ff] uppercase flex items-center gap-2 font-headline">
+            <Users className="w-4 h-4 text-[#00f2ff]" />
+            <span>Section 1: Registration, Slots & Approvals</span>
+          </span>
+          <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase font-mono">
+            {defaultCap.roomCap} Max Room
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          
-          {/* Entry Fee (₹) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Entry Fee Input */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">
-              Entry Fee (₹) {localPaymentEnabled && '*'}
+              Entry Fee (INR) *
             </label>
             <input
-              type="number"
-              min="0"
+              type="text"
               disabled={!localPaymentEnabled}
-              value={localPaymentEnabled ? localEntryFee : 0}
-              onChange={(e) => setLocalEntryFee(Math.max(0, parseNum(e.target.value, 0)))}
-              className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
-                errors.entryFee ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#00f2ff]'
+              value={localPaymentEnabled ? (localEntryFee === 0 ? '' : localEntryFee) : 'Free Entry'}
+              onChange={(e) => setLocalEntryFee(parseNum(e.target.value, 0))}
+              className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
+                !localPaymentEnabled
+                  ? 'opacity-60 cursor-not-allowed border-[#3a494b]'
+                  : errors.entryFee ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#00f2ff]'
               }`}
               placeholder={localPaymentEnabled ? 'e.g. 50' : 'Free Entry (0)'}
             />
@@ -186,19 +201,34 @@ export default function EntryPrizeSystem({
 
           {/* Total Team Slots */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">
-              Total Team Slots *
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">
+                Total {defaultCap.teamUnit} Slots *
+              </label>
+              <span className="text-[10px] font-mono text-[#00f2ff]">
+                Preset: {defaultCap.maxTeams} {defaultCap.teamUnit}
+              </span>
+            </div>
             <input
               type="number"
               min="1"
               max="500"
               value={localSlots}
-              onChange={(e) => setLocalSlots(Math.max(1, parseNum(e.target.value, 32)))}
+              onChange={(e) => setLocalSlots(Math.max(1, parseNum(e.target.value, defaultCap.maxTeams)))}
               className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
                 errors.maxTeams ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#00ff9d]'
               }`}
             />
+            {/* Live Capacity Info Banner */}
+            <div className="p-2.5 bg-[#151a21] border border-[#3a494b]/60 rounded-lg flex items-center justify-between text-[10px] font-mono">
+              <span className="text-[#8e9dae] flex items-center gap-1">
+                <Users className="w-3 h-3 text-[#00f2ff]" />
+                <span>{localSlots} Complete {defaultCap.teamUnit}</span>
+              </span>
+              <span className="text-[#00ff9d] font-bold">
+                {localSlots * defaultCap.teamSize} Active Players / {defaultCap.roomCap} Room Capacity
+              </span>
+            </div>
             {errors.maxTeams && <p className="text-red-400 text-[10px] font-bold mt-1">{errors.maxTeams}</p>}
           </div>
 

@@ -17,6 +17,12 @@ import {
 } from 'lucide-react'
 import { getTournamentImage } from '../../../utils/tournamentImageUtils'
 import {
+  getTournamentMode,
+  calculateFilledPlayerSlots,
+  calculateTotalPlayerSlots,
+  calculateSlotFillPercentage
+} from '../../../utils/tournamentUtils'
+import {
   TOURNAMENT_LIFECYCLE_STAGES,
   getNextLifecycleStage,
   normalizeLifecycleStatus
@@ -133,9 +139,12 @@ export default function AllTournamentsView({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTournaments.map((t) => {
             const canonicalStatus = normalizeLifecycleStatus(t.status)
-            const filledCount = Number(t.registeredTeams ?? t.registered_teams ?? 0)
-            const maxCap = Number(t.maxTeams ?? t.max_teams ?? 32)
-            const fillPct = Math.min(100, Math.round((filledCount / maxCap) * 100))
+            const modeInfo = getTournamentMode(t)
+            const filledPlayers = calculateFilledPlayerSlots(t)
+            const totalPlayers = calculateTotalPlayerSlots(t)
+            const regTeams = Number(t.registeredTeams ?? t.registered_teams ?? 0)
+            const maxTeams = Number(t.maxTeams ?? t.max_teams ?? 12)
+            const fillPct = calculateSlotFillPercentage(t)
             const imageSrc = getTournamentImage(t)
             const nextStage = getNextLifecycleStage(t.status)
 
@@ -180,7 +189,7 @@ export default function AllTournamentsView({
                     {/* Capacity Fill Progress Bar */}
                     <div className="space-y-1">
                       <div className="flex justify-between text-[10px] font-mono text-[#8e9dae]">
-                        <span>Capacity: {filledCount} / {maxCap} Slots</span>
+                        <span>{filledPlayers} / {totalPlayers} Players ({regTeams} / {maxTeams} {modeInfo.teamUnit})</span>
                         <span className="font-bold text-[#00f2ff]">{fillPct}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-[#07090c] rounded-full overflow-hidden border border-[#3a494b]/60">

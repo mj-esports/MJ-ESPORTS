@@ -15,6 +15,12 @@ import {
 
 import { getTournamentImage } from '../utils/tournamentImageUtils'
 import { formatTournamentPrize } from '../utils/tournamentPrizeUtils'
+import {
+  calculateFilledPlayerSlots,
+  calculateTotalPlayerSlots,
+  calculateSlotFillPercentage,
+  getTournamentMode,
+} from '../utils/tournamentUtils'
 
 export default function Home() {
   const { tournaments, loading } = useTournaments()
@@ -46,8 +52,7 @@ export default function Home() {
 
   const totalRegisteredPlayers = useMemo(() => {
     return tournaments.reduce((acc, t) => {
-      const sizeMultiplier = t.format?.toLowerCase().includes('solo') ? 1 : 4
-      return acc + (Number(t.registeredTeams || t.registered_teams || 0) * sizeMultiplier)
+      return acc + calculateFilledPlayerSlots(t)
     }, 0)
   }, [tournaments])
 
@@ -262,10 +267,10 @@ export default function Home() {
                           <div className="mb-4 mt-auto">
                             <div className="flex justify-between text-xs mb-1">
                               <span className="text-[#9CA3AF]">Registration</span>
-                              <span className="text-[#00F2FF] font-bold">{t.registeredTeams || 0}/{t.maxTeams || 32} Teams</span>
+                              <span className="text-[#00F2FF] font-bold">{calculateFilledPlayerSlots(t)}/{calculateTotalPlayerSlots(t)} Slots</span>
                             </div>
                             <div className="w-full h-1.5 bg-[#2A3441] rounded-full overflow-hidden">
-                              <div className="h-full bg-[#00F2FF]" style={{ width: `${Math.round(((t.registeredTeams || 0) / (t.maxTeams || 32)) * 100)}%` }}></div>
+                              <div className="h-full bg-[#00F2FF]" style={{ width: `${calculateSlotFillPercentage(t)}%` }}></div>
                             </div>
                           </div>
 
@@ -427,9 +432,14 @@ export default function Home() {
                       <div className="bg-[#2A3441]/60 rounded-xl p-4 border border-[#374151]/40">
                         <p className="text-xs text-[#9CA3AF] uppercase font-bold tracking-wider mb-2">Slots Filled</p>
                         <div className="flex items-center gap-3.5">
-                          <p className="font-display font-black text-lg sm:text-xl text-white tracking-wider shrink-0">{upcomingTournaments[0].registeredTeams || 0}/{upcomingTournaments[0].maxTeams || 32}</p>
+                          <p className="font-display font-black text-lg sm:text-xl text-white tracking-wider shrink-0">
+                            {calculateFilledPlayerSlots(upcomingTournaments[0])}/{calculateTotalPlayerSlots(upcomingTournaments[0])} Slots
+                          </p>
                           <div className="flex-1 h-3 sm:h-3.5 bg-[#0B0E11] rounded-full overflow-hidden border border-white/10 shadow-inner">
-                            <div className="h-full bg-gradient-to-r from-[#FE6B00] via-[#FF8800] to-[#00F2FF] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(254,107,0,0.5)]" style={{ width: `${Math.round(((upcomingTournaments[0].registeredTeams || 0) / (upcomingTournaments[0].maxTeams || 32)) * 100)}%` }}></div>
+                            <div
+                              className="h-full bg-gradient-to-r from-[#FE6B00] via-[#FF8800] to-[#00F2FF] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(254,107,0,0.5)]"
+                              style={{ width: `${calculateSlotFillPercentage(upcomingTournaments[0])}%` }}
+                            ></div>
                           </div>
                         </div>
                       </div>

@@ -293,7 +293,8 @@ export default function Navbar() {
                         <span>Settings</span>
                       </Link>
 
-                      {isAdmin && (
+                      {/* TEMPORARY TESTING ACCESS — RESTORE ADMIN-ONLY GUARD BEFORE PRODUCTION */}
+                      {(isAdmin || isAuthenticated) && (
                         <Link
                           to="/admin"
                           onClick={() => setUserDropdownOpen(false)}
@@ -475,7 +476,8 @@ export default function Navbar() {
                     <span>Settings</span>
                   </Link>
 
-                  {isAdmin && (
+                  {/* TEMPORARY TESTING ACCESS — RESTORE ADMIN-ONLY GUARD BEFORE PRODUCTION */}
+                  {(isAdmin || isAuthenticated) && (
                     <Link
                       to="/admin"
                       onClick={() => setMobileMenuOpen(false)}

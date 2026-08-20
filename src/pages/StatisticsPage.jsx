@@ -31,6 +31,7 @@ export default function StatisticsPage() {
       const teams = Array.isArray(reg.teams_list) ? reg.teams_list : (Array.isArray(reg.teamsList) ? reg.teamsList : [])
       const myTeam = teams.find(
         (team) =>
+          (user?.id && team.userId && String(team.userId) === String(user.id)) ||
           team.captain?.toLowerCase() === user?.email?.toLowerCase() ||
           team.email?.toLowerCase() === user?.email?.toLowerCase()
       )
@@ -48,6 +49,7 @@ export default function StatisticsPage() {
       const teams = Array.isArray(reg.teams_list) ? reg.teams_list : (Array.isArray(reg.teamsList) ? reg.teamsList : [])
       const myTeam = teams.find(
         (team) =>
+          (user?.id && team.userId && String(team.userId) === String(user.id)) ||
           team.captain?.toLowerCase() === user?.email?.toLowerCase() ||
           team.email?.toLowerCase() === user?.email?.toLowerCase()
       )

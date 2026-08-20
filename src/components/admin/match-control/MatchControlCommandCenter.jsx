@@ -15,6 +15,7 @@ import {
   Sparkles,
   ArrowRight
 } from 'lucide-react'
+import { getTournamentMode } from '../../../utils/tournamentUtils'
 
 export default function MatchControlCommandCenter({
   tournaments = [],
@@ -140,7 +141,7 @@ export default function MatchControlCommandCenter({
             <div className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/40 space-y-1">
               <span className="text-[10px] text-[#8e9dae] font-bold uppercase block">Participating Teams</span>
               <span className="font-extrabold text-[#00ff9d] block">
-                {selectedTourney.registeredTeams || 0} / {selectedTourney.maxTeams || 32} Squads
+                {selectedTourney.registeredTeams ?? selectedTourney.registered_teams ?? 0} / {selectedTourney.maxTeams ?? selectedTourney.max_teams ?? 12} {getTournamentMode(selectedTourney).teamUnit}
               </span>
               <span className="text-[#8e9dae] font-mono text-[10px]">Rosters Checked & Ready</span>
             </div>

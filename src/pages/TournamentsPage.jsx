@@ -8,6 +8,12 @@ import { SUPPORTED_GAMES } from '../data/mockData'
 import { useDebounce } from '../hooks/useDebounce'
 import { getTournamentImage } from '../utils/tournamentImageUtils'
 import { formatTournamentPrize } from '../utils/tournamentPrizeUtils'
+import {
+  calculateFilledPlayerSlots,
+  calculateTotalPlayerSlots,
+  calculateSlotFillPercentage,
+  getTournamentMode,
+} from '../utils/tournamentUtils'
 
 export default function TournamentsPage() {
   const { tournaments, loading } = useTournaments()
@@ -125,7 +131,7 @@ export default function TournamentsPage() {
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Users className="w-4 h-4 text-[#00FFFF]" />
-                    {featuredTournament.registeredTeams || 42}/{featuredTournament.maxTeams || 100} Teams
+                    {featuredTournament.registeredTeams || 0}/{featuredTournament.maxTeams || 100} {getTournamentMode(featuredTournament).teamUnit}
                   </span>
                 </div>
               </div>
@@ -308,11 +314,15 @@ export default function TournamentsPage() {
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
               {visibleTournaments.map((t) => {
-                const filled = Number(t.registeredTeams || t.registered_teams || 0)
-                const total = Number(t.maxTeams || t.max_teams || 32)
-                const fillPercentage = Math.min(100, Math.round((filled / total) * 100))
+                const modeInfo = getTournamentMode(t)
+                const filledPlayerSlots = calculateFilledPlayerSlots(t)
+                const totalPlayerSlots = calculateTotalPlayerSlots(t)
+                const fillPercentage = calculateSlotFillPercentage(t)
+
+                const filledTeams = Number(t.registeredTeams || t.registered_teams || 0)
+                const totalTeams = Number(t.maxTeams || t.max_teams || 12)
                 const isCompleted = t.status === 'Completed' || t.status === 'Closed' || t.status === 'Finished'
-                const isFull = filled >= total || isCompleted
+                const isFull = filledTeams >= totalTeams || isCompleted
                 const entryFee = t.entryFee || t.entry_fee || 'Free'
                 const startTime = t.startDate || t.start_date || 'Today, 18:00 IST'
                 const formatLabel = t.mode || t.format || t.matchFormat || t.match_format || 'Squad'
@@ -418,7 +428,7 @@ export default function TournamentsPage() {
                           <div className="flex justify-between text-xs font-label">
                             <span className="text-[#A0A0A0] font-medium">Registration Progress</span>
                             <span className={isFull ? 'text-[#FF0055] font-extrabold' : 'text-white font-extrabold'}>
-                              {isCompleted ? 'Finished' : isFull ? 'Closed (Full)' : `${filled}/${total} Teams`}
+                              {isCompleted ? 'Finished' : isFull ? 'Closed (Full)' : `${filledPlayerSlots}/${totalPlayerSlots} Players (${filledTeams}/${totalTeams} ${modeInfo.teamUnit})`}
                             </span>
                           </div>
                           <div className="w-full bg-[#262626] border border-[#333333]/80 rounded-full h-2.5 sm:h-3 overflow-hidden p-0.5">

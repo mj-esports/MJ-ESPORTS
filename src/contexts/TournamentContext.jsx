@@ -39,8 +39,8 @@ export function mapTournamentFromDb(row) {
     prize_pool: row.prize_pool || '₹0',
     entryFee: row.entry_fee || 'Free',
     entry_fee: row.entry_fee || 'Free',
-    maxTeams: Number(row.max_teams ?? 32),
-    max_teams: Number(row.max_teams ?? 32),
+    maxTeams: Number(row.max_teams ?? 12),
+    max_teams: Number(row.max_teams ?? 12),
     registeredTeams: Number(row.registered_teams ?? 0),
     registered_teams: Number(row.registered_teams ?? 0),
     startDate: row.start_date || '',
@@ -100,7 +100,7 @@ export function mapTournamentToDb(t) {
     format: formatVal,
     prize_pool: String(t.prize_pool || t.prizePool || '₹0').trim(),
     entry_fee: String(t.entry_fee || t.entryFee || 'Free').trim(),
-    max_teams: Number(t.max_teams ?? t.maxTeams ?? 32),
+    max_teams: Number(t.max_teams ?? t.maxTeams ?? 12),
     registered_teams: Number(t.registered_teams ?? t.registeredTeams ?? 0),
     start_date: String(t.start_date || t.startDate || '').trim(),
     start_time: String(t.start_time || t.startTime || '').trim(),
@@ -167,7 +167,7 @@ export function mapPartialTournamentToDb(fields) {
   }
 
   if (fields.maxTeams !== undefined || fields.max_teams !== undefined) {
-    payload.max_teams = Number(fields.max_teams ?? fields.maxTeams ?? 32)
+    payload.max_teams = Number(fields.max_teams ?? fields.maxTeams ?? 12)
   }
 
   if (fields.registeredTeams !== undefined || fields.registered_teams !== undefined) {
@@ -324,20 +324,26 @@ export function TournamentProvider({ children }) {
     return tournaments.find((t) => String(t.id) === String(id))
   }
 
-  const isUserRegistered = (tournamentId, identifier) => {
-    if (!tournamentId || !identifier) return false
+  const isUserRegistered = useCallback((tournamentId, identifierOrUser) => {
+    if (!tournamentId || !identifierOrUser) return false
     const target = tournaments.find((t) => String(t.id) === String(tournamentId))
     if (!target) return false
 
-    return (
-      target.teamsList?.some(
-        (item) =>
-          (item.email && identifier && item.email.toLowerCase() === identifier.toLowerCase()) ||
-          (item.userId && identifier && item.userId === identifier) ||
-          (item.captain && identifier && item.captain.toLowerCase() === identifier.toLowerCase())
-      ) || false
-    )
-  }
+    const userId = typeof identifierOrUser === 'object' ? identifierOrUser?.id : (typeof identifierOrUser === 'string' && identifierOrUser.length === 36 ? identifierOrUser : null)
+    const userEmail = typeof identifierOrUser === 'object' ? identifierOrUser?.email : (typeof identifierOrUser === 'string' && identifierOrUser.includes('@') ? identifierOrUser : null)
+    const rawStr = typeof identifierOrUser === 'string' ? identifierOrUser.toLowerCase().trim() : ''
+
+    const teams = target.teamsList || target.teams_list || []
+    return teams.some((item) => {
+      if (!item) return false
+      if (userId && item.userId && String(item.userId) === String(userId)) return true
+      if (userEmail && item.email && String(item.email).toLowerCase() === userEmail.toLowerCase()) return true
+      if (rawStr && item.userId && String(item.userId).toLowerCase() === rawStr) return true
+      if (rawStr && item.email && String(item.email).toLowerCase() === rawStr) return true
+      if (rawStr && item.captain && String(item.captain).toLowerCase() === rawStr) return true
+      return false
+    })
+  }, [tournaments])
 
   const createTournament = async (tournamentData) => {
     if (!isSupabaseConfigured) {
@@ -459,7 +465,7 @@ export function TournamentProvider({ children }) {
         }
       }
 
-      if ((target.registeredTeams || 0) >= (target.maxTeams || 32)) {
+      if ((target.registeredTeams || 0) >= (target.maxTeams || target.max_teams || 12)) {
         throw new Error('Tournament slots are full!')
       }
 
@@ -675,6 +681,34 @@ export function TournamentProvider({ children }) {
     }
   }, [])
 
+  const getUserRegistration = useCallback(async (tournamentId, userIdOverride = null) => {
+    if (!isSupabaseConfigured || !tournamentId) return null
+    try {
+      let targetUserId = userIdOverride
+      if (!targetUserId) {
+        const { data: sessionData } = await supabase.auth.getSession()
+        targetUserId = sessionData?.session?.user?.id
+      }
+      if (!targetUserId) return null
+
+      const { data, error } = await supabase
+        .from('tournament_registrations')
+        .select('id, tournament_id, team_name, captain_name, free_fire_uid, status, registered_at, user_id')
+        .eq('tournament_id', String(tournamentId))
+        .eq('user_id', targetUserId)
+        .maybeSingle()
+
+      if (error) {
+        console.warn('[getUserRegistration Notice]:', error.message)
+        return null
+      }
+      return data
+    } catch (err) {
+      console.warn('[getUserRegistration Exception]:', err)
+      return null
+    }
+  }, [])
+
   const advanceTournamentLifecycle = async (tournamentId) => {
     const target = tournaments.find((t) => String(t.id) === String(tournamentId))
     if (!target) return { success: false, error: 'Tournament not found.' }
@@ -695,6 +729,7 @@ export function TournamentProvider({ children }) {
     fetchTournaments,
     getTournamentById,
     isUserRegistered,
+    getUserRegistration,
     createTournament,
     updateTournament,
     editTournament: updateTournament,

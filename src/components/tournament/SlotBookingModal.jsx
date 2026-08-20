@@ -31,47 +31,15 @@ import {
   isValidTeamName,
   sanitizeString,
 } from '../../utils/validationUtils'
+import {
+  getTournamentMode,
+  calculateRemainingPlayerSlots,
+  calculateTotalPlayerSlots,
+} from '../../utils/tournamentUtils'
 
-// Helper function to resolve tournament format mode
-export function getTournamentMode(tournament) {
-  if (!tournament) {
-    return { mode: 'Squad', requiredPlayers: 4, formatTitle: 'Squad Battle Royale' }
-  }
+export { getTournamentMode }
 
-  const rawFormat = (
-    tournament.match_format ||
-    tournament.matchFormat ||
-    tournament.format ||
-    ''
-  ).trim()
-
-  const lowerFmt = rawFormat.toLowerCase()
-  const teamSize = Number(tournament.team_size ?? tournament.teamSize ?? 0)
-
-  if (teamSize === 1 || lowerFmt.includes('solo')) {
-    return {
-      mode: 'Solo',
-      requiredPlayers: 1,
-      formatTitle: rawFormat || 'Solo Battle Royale',
-    }
-  }
-
-  if (teamSize === 2 || lowerFmt.includes('duo')) {
-    return {
-      mode: 'Duo',
-      requiredPlayers: 2,
-      formatTitle: rawFormat || 'Duo Battle Royale',
-    }
-  }
-
-  return {
-    mode: 'Squad',
-    requiredPlayers: 4,
-    formatTitle: rawFormat || 'Squad Battle Royale',
-  }
-}
-
-export default function SlotBookingModal({ tournament, onClose }) {
+export default function SlotBookingModal({ tournament, onClose, onRegistered }) {
   const { registerTeam } = useTournaments()
   const { user } = useAuth()
   const { showSuccess, showError } = useToast()
@@ -157,7 +125,7 @@ export default function SlotBookingModal({ tournament, onClose }) {
       return 'Registration for this tournament is currently closed.'
     }
 
-    if ((tournament.registeredTeams || 0) >= (tournament.maxTeams || 32)) {
+    if ((tournament.registeredTeams || 0) >= (tournament.maxTeams || tournament.max_teams || 12)) {
       return 'All registration slots for this tournament are full.'
     }
 
@@ -219,8 +187,9 @@ export default function SlotBookingModal({ tournament, onClose }) {
 
     // Number Input: Preferred Seed Validation
     const seedNum = Number(formData.preferredSeed)
-    if (isNaN(seedNum) || seedNum < 1 || seedNum > (tournament.maxTeams || 32)) {
-      newFieldErrors.preferredSeed = `Seed must be between 1 and ${tournament.maxTeams || 32}`
+    const allowedMaxTeams = Number(tournament.maxTeams || tournament.max_teams || 12)
+    if (isNaN(seedNum) || seedNum < 1 || seedNum > allowedMaxTeams) {
+      newFieldErrors.preferredSeed = `Seed must be between 1 and ${allowedMaxTeams}`
     }
 
     // Dynamic Teammate UIDs Validation
@@ -333,6 +302,10 @@ export default function SlotBookingModal({ tournament, onClose }) {
 
       showSuccess('Tournament Registered', 'Registration Confirmed')
 
+      if (onRegistered) {
+        onRegistered(registeredRecord)
+      }
+
       setRegistrationSummary({
         refId,
         teamName: sanitizeString(formData.teamName),
@@ -365,7 +338,11 @@ export default function SlotBookingModal({ tournament, onClose }) {
     }
   }
 
-  const remainingSlots = Math.max(0, (tournament.maxTeams || 32) - (tournament.registeredTeams || 0))
+  const remainingPlayerSlots = calculateRemainingPlayerSlots(tournament)
+  const totalPlayerSlots = calculateTotalPlayerSlots(tournament)
+  const regTeams = Number(tournament.registeredTeams || tournament.registered_teams || 0)
+  const maxTeams = Number(tournament.maxTeams || tournament.max_teams || 12)
+  const remainingTeams = Math.max(0, maxTeams - regTeams)
 
   return (
     <div
@@ -406,9 +383,14 @@ export default function SlotBookingModal({ tournament, onClose }) {
             <span>
               Slots Remaining:{' '}
               <span className="font-mono text-[#00ff9d] font-bold">
-                {remainingSlots}
+                {remainingPlayerSlots}
               </span>{' '}
-              / {tournament.maxTeams || 32}
+              / {totalPlayerSlots} Players
+              {modeConfig.mode !== 'Solo' && (
+                <span className="text-xs text-[#8e9dae] ml-1 font-mono">
+                  ({remainingTeams} {modeConfig.teamUnit} left)
+                </span>
+              )}
             </span>
           </div>
         </div>
@@ -653,13 +635,13 @@ export default function SlotBookingModal({ tournament, onClose }) {
                       <Hash className="w-3.5 h-3.5 text-[#a855f7]" />
                       Preferred Slot Position
                     </span>
-                    <span className="text-[#a855f7] text-[10px]">1 - {tournament.maxTeams || 32}</span>
+                    <span className="text-[#a855f7] text-[10px]">1 - {tournament.maxTeams || tournament.max_teams || 12}</span>
                   </label>
                   <input
                     type="number"
                     name="preferredSeed"
                     min={1}
-                    max={tournament.maxTeams || 32}
+                    max={tournament.maxTeams || tournament.max_teams || 12}
                     value={formData.preferredSeed}
                     onChange={handleChange}
                     className="w-full p-2.5 bg-[#07090c] border border-[#3a494b] rounded-lg text-white text-xs font-bold font-mono focus:outline-none focus:border-[#a855f7]"

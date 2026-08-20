@@ -1,6 +1,12 @@
 import React from 'react'
 import { Trophy, Users } from 'lucide-react'
 import { formatTournamentPrize } from '../../../utils/tournamentPrizeUtils'
+import {
+  getTournamentMode,
+  calculateFilledPlayerSlots,
+  calculateTotalPlayerSlots,
+  calculateSlotFillPercentage
+} from '../../../utils/tournamentUtils'
 
 export default function TournamentCard({ tournament }) {
   const {
@@ -23,9 +29,12 @@ export default function TournamentCard({ tournament }) {
     status
   } = tournament
 
-  const maxVal = max_teams ?? maxTeams ?? 32
+  const modeInfo = getTournamentMode(tournament)
+  const filledPlayers = calculateFilledPlayerSlots(tournament)
+  const totalPlayers = calculateTotalPlayerSlots(tournament)
+  const maxVal = max_teams ?? maxTeams ?? 12
   const regVal = registered_teams ?? registeredTeams ?? 0
-  const progressPercent = Math.min(100, Math.round((regVal / maxVal) * 100))
+  const progressPercent = calculateSlotFillPercentage(tournament)
 
   return (
     <div className="rounded-2xl bg-slate-900/60 border border-slate-800/80 p-5 flex flex-col justify-between hover:border-slate-700 transition-all duration-200 group relative overflow-hidden">
@@ -90,10 +99,10 @@ export default function TournamentCard({ tournament }) {
       <div className="space-y-1.5 mt-1">
         <div className="flex items-center justify-between text-[11px]">
           <span className="text-slate-400 flex items-center gap-1">
-            <Users className="w-3 h-3" /> Registered Teams
+            <Users className="w-3 h-3" /> {modeInfo.teamUnit} / Players
           </span>
-          <span className="font-mono font-bold text-white">
-            {regVal} / {maxVal}
+          <span className="font-mono font-bold text-white text-[10px]">
+            {filledPlayers} / {totalPlayers} Players ({regVal} / {maxVal} {modeInfo.teamUnit})
           </span>
         </div>
         <div className="w-full h-1.5 rounded-full bg-slate-950 overflow-hidden border border-slate-800">

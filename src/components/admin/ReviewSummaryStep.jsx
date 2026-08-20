@@ -23,11 +23,14 @@ import {
 
 import { OFFICIAL_MJ_RULES } from '../common/OfficialRulebook'
 import { getTournamentImage } from '../../utils/tournamentImageUtils'
+import { getDefaultGameCapacity } from '../../utils/tournamentUtils'
 
 export default function ReviewSummaryStep({ form }) {
   const rulesList = Array.isArray(form.rules) && form.rules.length > 0
     ? form.rules
     : (form.rulesText ? form.rulesText.split('\n').filter(Boolean) : OFFICIAL_MJ_RULES)
+
+  const capInfo = getDefaultGameCapacity(form.game, form.mode)
 
   return (
     <div className="space-y-6 text-white font-mono text-xs">
@@ -203,9 +206,14 @@ export default function ReviewSummaryStep({ form }) {
               <strong className="text-[#00f2ff] font-bold">{form.entryFee}</strong>
             </div>
 
-            <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
-              <span className="text-[#8e9dae]">Max Squad Slots:</span>
-              <strong className="text-white font-bold">{form.maxTeams} Slots</strong>
+            <div className="flex justify-between items-start py-1 border-b border-[#3a494b]/40">
+              <span className="text-[#8e9dae]">Tournament Capacity:</span>
+              <div className="text-right font-mono">
+                <strong className="text-white font-bold block">{form.maxTeams} {capInfo.teamUnit}</strong>
+                <span className="text-[10px] text-[#00ff9d] block">
+                  {Number(form.maxTeams || 0) * capInfo.teamSize} Active Players / {capInfo.roomCap} Room Capacity
+                </span>
+              </div>
             </div>
 
             <div className="flex justify-between py-1 border-b border-[#3a494b]/40">

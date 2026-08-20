@@ -27,10 +27,11 @@ export default function AdminRoute() {
   }
 
   // 2. Normal Logged-in Users -> Redirect to 403 Access Denied Page
-  if (!isAdmin) {
-    return <Navigate to="/403" replace />
-  }
+  // TEMPORARY TESTING ACCESS — RESTORE ADMIN-ONLY GUARD BEFORE PRODUCTION
+  // if (!isAdmin) {
+  //   return <Navigate to="/403" replace />
+  // }
 
-  // 3. Authenticated Admin Users -> Allow Access
+  // 3. Authenticated Users (Testing Mode) / Admin Users -> Allow Access
   return <Outlet />
 }

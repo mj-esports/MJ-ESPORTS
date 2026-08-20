@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom'
 import { Trophy, Calendar, ArrowRight, Gamepad2, Flame, Sparkles } from 'lucide-react'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { formatTournamentPrize } from '../../utils/tournamentPrizeUtils'
+import {
+  calculateFilledPlayerSlots,
+  calculateTotalPlayerSlots,
+  getTournamentMode,
+} from '../../utils/tournamentUtils'
 
 export default function FeaturedTournaments() {
   const { tournaments } = useTournaments()
@@ -125,7 +130,7 @@ export default function FeaturedTournaments() {
                         <span className="font-mono text-[11px] font-semibold">{t.startDate}</span>
                       </div>
                       <span className="font-mono text-xs font-bold text-[#00f2ff]">
-                        {t.registeredTeams}/{t.maxTeams} Squads
+                        {calculateFilledPlayerSlots(t)}/{calculateTotalPlayerSlots(t)} Slots
                       </span>
                     </div>
 
