@@ -47,4 +47,5 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 export const AVATAR_BUCKET = 'avatars'
 export const PROFILE_PROOFS_BUCKET = 'profile-proofs'
+export const SCOREBOARD_PROOFS_BUCKET = 'scoreboard-proofs'
 
