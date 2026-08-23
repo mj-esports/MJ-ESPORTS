@@ -494,6 +494,8 @@ export function TournamentProvider({ children }) {
           p_enable_sms_alerts: Boolean(teamInfo.enableSmsAlerts !== false),
           p_mode: teamInfo.mode || 'Squad',
           p_ref_id: refId,
+          p_teammate_igns: teamInfo.teammateIgns || [],
+          p_substitute_igns: teamInfo.substituteIgns || [],
         }
 
         console.log('[RPC Diagnostic]: Session Status ->', {
@@ -508,7 +510,9 @@ export function TournamentProvider({ children }) {
           p_captain_name: rpcPayload.p_captain_name,
           p_captain_uid: rpcPayload.p_captain_uid,
           p_teammate_uids: rpcPayload.p_teammate_uids,
+          p_teammate_igns: rpcPayload.p_teammate_igns,
           p_substitute_uids: rpcPayload.p_substitute_uids,
+          p_substitute_igns: rpcPayload.p_substitute_igns,
           p_mode: rpcPayload.p_mode,
           p_ref_id: rpcPayload.p_ref_id,
         })

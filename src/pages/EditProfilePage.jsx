@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { uploadAvatarFile } from '../services/avatarService'
+import { uploadProfileProof, getPlayerProof } from '../services/playerEvidenceService'
 import {
   User,
   ArrowLeft,
@@ -13,13 +14,21 @@ import {
   MessageSquare,
   FileText,
   Gamepad2,
-  Trash2
+  Trash2,
+  ShieldCheck,
+  Upload,
+  FileImage,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react'
 import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'
 import LoadingButton from '../components/common/LoadingButton'
 import AvatarUploadModal from '../components/common/AvatarUploadModal'
 import { isValidGameUid, sanitizeString } from '../utils/validationUtils'
+import { toCanonicalIgn } from '../utils/playerIdentityUtils'
 
 export default function EditProfilePage() {
   const { user, updateProfile } = useAuth()
@@ -43,6 +52,86 @@ export default function EditProfilePage() {
     meta.avatarUrl ||
     'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=400&q=80'
   )
+
+  // Profile Proof Evidence State
+  const [proofEvidence, setProofEvidence] = useState(null)
+  const [proofPreviewUrl, setProofPreviewUrl] = useState('')
+  const [isProofUploading, setIsProofUploading] = useState(false)
+  const [proofError, setProofError] = useState(null)
+
+  // Load existing player proof evidence on mount
+  useEffect(() => {
+    async function loadEvidence() {
+      if (user?.id) {
+        try {
+          const ev = await getPlayerProof(user.id)
+          if (ev) {
+            setProofEvidence(ev)
+            if (ev.signedUrl) {
+              setProofPreviewUrl(ev.signedUrl)
+            }
+          }
+        } catch (err) {
+          console.warn('[Edit Profile] Load evidence notice:', err)
+        }
+      }
+    }
+    loadEvidence()
+  }, [user?.id])
+
+  const handleProofFileChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setProofError(null)
+
+    // Validate image format & size
+    const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+    if (!allowed.includes(file.type)) {
+      setProofError('Invalid file type. Please upload a PNG, JPG, or WEBP screenshot.')
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setProofError('File size exceeds 10 MB limit.')
+      return
+    }
+
+    if (!formData.freeFireUid) {
+      setProofError('Please enter your Free Fire UID above before uploading profile proof.')
+      return
+    }
+
+    setIsProofUploading(true)
+
+    // Generate local preview immediately
+    const reader = new FileReader()
+    reader.onload = async (event) => {
+      const dataUrl = event.target?.result
+      setProofPreviewUrl(dataUrl)
+
+      try {
+        const result = await uploadProfileProof(file, {
+          userId: user?.id,
+          gameUid: formData.freeFireUid,
+          gameIgn: formData.username,
+          fallbackDataUrl: dataUrl,
+        })
+
+        setProofEvidence(result.evidence)
+        if (result.signedUrl) {
+          setProofPreviewUrl(result.signedUrl)
+        }
+        showSuccess('Profile screenshot uploaded. Status: Awaiting Admin Verification.', 'Evidence Submitted')
+      } catch (err) {
+        console.error('[Upload Proof Error]:', err)
+        setProofError(err.message || 'Failed to upload profile screenshot.')
+        showError(err.message || 'Upload failed', 'Evidence Error')
+      } finally {
+        setIsProofUploading(false)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
 
   const [errors, setErrors] = useState({})
   const [isSaving, setIsSaving] = useState(false)
@@ -286,6 +375,94 @@ export default function EditProfilePage() {
                 placeholder="e.g. 5521098234"
                 icon={Gamepad2}
               />
+            </div>
+
+            {/* FREE FIRE IN-GAME PROFILE EVIDENCE PROOF */}
+            <div className="p-4 bg-[#09090b] border border-[#27272a] rounded-xl space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#27272a] pb-2.5">
+                <div>
+                  <span className="font-headline text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#00f2ff]" />
+                    Free Fire Profile Evidence Proof
+                  </span>
+                  <p className="text-[11px] text-[#849495] mt-0.5">
+                    Upload your in-game Free Fire profile screenshot clearly showing your Character UID and In-Game Name (IGN).
+                  </p>
+                </div>
+
+                {/* Evidence Verification Status Badge */}
+                {proofEvidence && (
+                  <div className="shrink-0">
+                    {proofEvidence.status === 'VERIFIED' && (
+                      <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 uppercase flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Verified by Admin
+                      </span>
+                    )}
+                    {proofEvidence.status === 'PENDING' && (
+                      <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/30 uppercase flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        Pending Verification
+                      </span>
+                    )}
+                    {(proofEvidence.status === 'REJECTED' || proofEvidence.status === 'REQUIRES_REUPLOAD') && (
+                      <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-[#ff4655]/10 text-[#ff4655] border border-[#ff4655]/30 uppercase flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {proofEvidence.status === 'REQUIRES_REUPLOAD' ? 'Re-upload Required' : 'Proof Rejected'}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Rejection Notice if applicable */}
+              {proofEvidence && (proofEvidence.status === 'REJECTED' || proofEvidence.status === 'REQUIRES_REUPLOAD') && proofEvidence.rejection_reason && (
+                <div className="p-3 bg-[#ff4655]/10 border border-[#ff4655]/30 rounded-lg text-xs text-[#ff4655] space-y-1">
+                  <span className="font-bold block uppercase text-[10px]">Admin Feedback / Reason:</span>
+                  <p>{proofEvidence.rejection_reason}</p>
+                </div>
+              )}
+
+              {/* Screenshot Preview & Upload Controls */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                <div className="sm:col-span-4 aspect-video bg-[#141416] border border-[#27272a] rounded-lg overflow-hidden flex items-center justify-center relative">
+                  {proofPreviewUrl ? (
+                    <img
+                      src={proofPreviewUrl}
+                      alt="Free Fire Profile Proof"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-center p-3 space-y-1 text-[#849495]">
+                      <FileImage className="w-6 h-6 mx-auto opacity-60" />
+                      <span className="text-[10px] block">No screenshot uploaded yet</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="sm:col-span-8 space-y-2">
+                  <label className="text-[11px] font-bold text-[#849495] uppercase block">
+                    {proofEvidence ? 'Replace / Re-upload Profile Proof' : 'Upload Profile Screenshot Proof'}
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <label className="px-3.5 py-2 bg-[#141416] border border-[#27272a] hover:border-[#00f2ff] text-white hover:text-[#00f2ff] rounded-lg text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-2">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{isProofUploading ? 'Uploading...' : 'Choose Screenshot'}</span>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        onChange={handleProofFileChange}
+                        disabled={isProofUploading}
+                        className="hidden"
+                      />
+                    </label>
+                    <span className="text-[10px] text-[#849495]">PNG, JPG, WEBP (Max 10 MB)</span>
+                  </div>
+                  {proofError && (
+                    <p className="text-[11px] text-[#ff4655] font-medium" role="alert">{proofError}</p>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Social Links */}

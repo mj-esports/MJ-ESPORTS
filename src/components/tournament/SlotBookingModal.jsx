@@ -25,6 +25,11 @@ import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
 import ToggleSwitch from '../common/ToggleSwitch'
 import {
+  toCanonicalIgn,
+  normalizeIgn,
+  isValidIgn,
+} from '../../utils/playerIdentityUtils'
+import {
   isValidEmail,
   isValidGameUid,
   isValidPhoneNumber,
@@ -70,11 +75,13 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     availabilityDate: tournament?.startDate || '2026-08-06',
     hasSubstitutes: false,
     substituteCount: 1,
-    substituteUids: [''],
+    substituteUids: ['', ''],
+    substituteIgns: ['', ''],
     enableSmsAlerts: true,
     antiCheatAgreement: true,
     acceptRules: false,
     teammates: ['', '', ''],
+    teammateIgns: ['', '', ''],
   })
 
   const [fieldErrors, setFieldErrors] = useState({})
@@ -95,26 +102,46 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     }
   }
 
-  const handleTeammateChange = (index, value) => {
-    const updated = [...formData.teammates]
-    updated[index] = value
-    setFormData((prev) => ({ ...prev, teammates: updated }))
-    const fieldKey = `teammate_${index}`
-    if (fieldErrors[fieldKey]) {
-      setFieldErrors((prev) => ({ ...prev, [fieldKey]: null }))
+  const handleTeammateChange = (index, field, value) => {
+    if (field === 'uid') {
+      const updatedUids = [...formData.teammates]
+      updatedUids[index] = value
+      setFormData((prev) => ({ ...prev, teammates: updatedUids }))
+      const fieldKey = `teammate_${index}`
+      if (fieldErrors[fieldKey]) {
+        setFieldErrors((prev) => ({ ...prev, [fieldKey]: null }))
+      }
+    } else if (field === 'ign') {
+      const updatedIgns = [...formData.teammateIgns]
+      updatedIgns[index] = value
+      setFormData((prev) => ({ ...prev, teammateIgns: updatedIgns }))
+      const fieldKey = `teammate_ign_${index}`
+      if (fieldErrors[fieldKey]) {
+        setFieldErrors((prev) => ({ ...prev, [fieldKey]: null }))
+      }
     }
     if (fieldErrors.teammates) {
       setFieldErrors((prev) => ({ ...prev, teammates: null }))
     }
   }
 
-  const handleSubstituteUidChange = (index, value) => {
-    const updated = [...formData.substituteUids]
-    updated[index] = value
-    setFormData((prev) => ({ ...prev, substituteUids: updated }))
-    const fieldKey = `sub_uid_${index}`
-    if (fieldErrors[fieldKey]) {
-      setFieldErrors((prev) => ({ ...prev, [fieldKey]: null }))
+  const handleSubstituteChange = (index, field, value) => {
+    if (field === 'uid') {
+      const updated = [...formData.substituteUids]
+      updated[index] = value
+      setFormData((prev) => ({ ...prev, substituteUids: updated }))
+      const fieldKey = `sub_uid_${index}`
+      if (fieldErrors[fieldKey]) {
+        setFieldErrors((prev) => ({ ...prev, [fieldKey]: null }))
+      }
+    } else if (field === 'ign') {
+      const updated = [...formData.substituteIgns]
+      updated[index] = value
+      setFormData((prev) => ({ ...prev, substituteIgns: updated }))
+      const fieldKey = `sub_ign_${index}`
+      if (fieldErrors[fieldKey]) {
+        setFieldErrors((prev) => ({ ...prev, [fieldKey]: null }))
+      }
     }
   }
 
@@ -192,17 +219,28 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       newFieldErrors.preferredSeed = `Seed must be between 1 and ${allowedMaxTeams}`
     }
 
-    // Dynamic Teammate UIDs Validation
+    // Dynamic Teammate UIDs & IGNs Validation
     const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
     for (let i = 0; i < requiredTeammatesCount; i++) {
       const uid = sanitizeString(formData.teammates[i])
-      const fieldKey = `teammate_${i}`
+      const ign = sanitizeString(formData.teammateIgns[i])
+      const uidFieldKey = `teammate_${i}`
+      const ignFieldKey = `teammate_ign_${i}`
+
+      // Validate Teammate UID
       if (!uid) {
-        newFieldErrors[fieldKey] = `Game UID for Teammate ${i + 1} is required for ${mode} mode`
+        newFieldErrors[uidFieldKey] = `Game UID for Teammate ${i + 1} is required for ${mode} mode`
       } else if (!isValidGameUid(uid)) {
-        newFieldErrors[fieldKey] = `Teammate ${i + 1} Game UID must be 8-12 alphanumeric characters`
+        newFieldErrors[uidFieldKey] = `Teammate ${i + 1} Game UID must be 8-12 alphanumeric characters`
       } else if (uid === cleanCaptainUid) {
-        newFieldErrors[fieldKey] = `Teammate ${i + 1} Game UID cannot be identical to Captain's UID`
+        newFieldErrors[uidFieldKey] = `Teammate ${i + 1} Game UID cannot be identical to Captain's UID`
+      }
+
+      // Validate Teammate In-Game Name (IGN)
+      if (!ign) {
+        newFieldErrors[ignFieldKey] = `In-Game Name (IGN) for Teammate ${i + 1} is required`
+      } else if (!isValidIgn(ign)) {
+        newFieldErrors[ignFieldKey] = `Teammate ${i + 1} IGN must be 1-30 characters`
       }
     }
 
@@ -226,9 +264,16 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       }
       for (let s = 0; s < subCount; s++) {
         const subUid = sanitizeString(formData.substituteUids[s])
+        const subIgn = sanitizeString(formData.substituteIgns[s])
         const subKey = `sub_uid_${s}`
+        const subIgnKey = `sub_ign_${s}`
         if (subUid && !isValidGameUid(subUid)) {
           newFieldErrors[subKey] = `Substitute ${s + 1} UID must be 8-12 characters`
+        }
+        if (subUid && !subIgn) {
+          newFieldErrors[subIgnKey] = `Substitute ${s + 1} IGN is required when UID is provided`
+        } else if (subIgn && !isValidIgn(subIgn)) {
+          newFieldErrors[subIgnKey] = `Substitute ${s + 1} IGN must be 1-30 characters`
         }
       }
     }
@@ -266,11 +311,21 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     const activeTeammates = formData.teammates
       .slice(0, requiredTeammatesCount)
       .map((t) => sanitizeString(t))
+    const activeTeammateIgns = formData.teammateIgns
+      .slice(0, requiredTeammatesCount)
+      .map((t) => toCanonicalIgn(t))
 
     const activeSubstitutes = formData.hasSubstitutes
       ? formData.substituteUids
           .slice(0, Number(formData.substituteCount) || 1)
           .map((s) => sanitizeString(s))
+          .filter(Boolean)
+      : []
+
+    const activeSubstituteIgns = formData.hasSubstitutes
+      ? formData.substituteIgns
+          .slice(0, Number(formData.substituteCount) || 1)
+          .map((s) => toCanonicalIgn(s))
           .filter(Boolean)
       : []
 
@@ -283,7 +338,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         registeredRecord = await registerTeam(tournament.id, {
           refId,
           name: sanitizeString(formData.teamName),
-          captain: sanitizeString(formData.captainName),
+          captain: toCanonicalIgn(formData.captainName),
           email: sanitizeString(formData.email),
           freeFireUid: sanitizeString(formData.freeFireUid),
           whatsappNumber: sanitizeString(formData.whatsappNumber),
@@ -292,9 +347,11 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
           preferredSeed: formData.preferredSeed,
           hasSubstitutes: formData.hasSubstitutes,
           substitutes: activeSubstitutes,
+          substituteIgns: activeSubstituteIgns,
           enableSmsAlerts: formData.enableSmsAlerts,
           mode,
           teammates: activeTeammates,
+          teammateIgns: activeTeammateIgns,
           userId: user?.id || `guest-${Date.now()}`,
           status: 'Approved',
         })
@@ -309,10 +366,11 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       setRegistrationSummary({
         refId,
         teamName: sanitizeString(formData.teamName),
-        captain: sanitizeString(formData.captainName),
+        captain: toCanonicalIgn(formData.captainName),
         mode,
         freeFireUid: sanitizeString(formData.freeFireUid),
         teammates: activeTeammates,
+        teammateIgns: activeTeammateIgns,
         captainDob: formData.captainDob,
         playerAge: formData.playerAge,
         preferredSeed: formData.preferredSeed,
@@ -656,61 +714,81 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               </div>
             </div>
 
-            {/* DYNAMIC TEAMMATE UID FIELDS BASED ON TOURNAMENT FORMAT MODE */}
+            {/* DYNAMIC TEAMMATE UID & IGN FIELDS BASED ON TOURNAMENT FORMAT MODE */}
             {mode === 'Duo' && (
               <div className="p-4 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-3">
-                <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
-                  Duo Teammate Details (1 Required Teammate)
-                </span>
-                <FormInput
-                  label="Teammate 1 Game UID"
-                  name="teammate-0"
-                  value={formData.teammates[0]}
-                  onChange={(e) => handleTeammateChange(0, e.target.value)}
-                  placeholder="e.g. 518920413"
-                  required
-                  error={fieldErrors.teammate_0}
-                  icon={ShieldCheck}
-                />
-              </div>
-            )}
-
-            {mode === 'Squad' && (
-              <div className="p-4 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-3">
-                <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
-                  Squad Teammates Details (3 Required Teammates)
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
+                    Duo Teammate Details (1 Required Teammate)
+                  </span>
+                  <span className="text-[10px] text-[#8e9dae] font-mono">UID + Canonical IGN</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <FormInput
-                    label="Teammate 1 UID"
-                    name="teammate-0"
+                    label="Teammate 1 Game UID"
+                    name="teammate_0"
                     value={formData.teammates[0]}
-                    onChange={(e) => handleTeammateChange(0, e.target.value)}
+                    onChange={(e) => handleTeammateChange(0, 'uid', e.target.value)}
                     placeholder="e.g. 518920413"
                     required
                     error={fieldErrors.teammate_0}
                     icon={ShieldCheck}
                   />
                   <FormInput
-                    label="Teammate 2 UID"
-                    name="teammate-1"
-                    value={formData.teammates[1]}
-                    onChange={(e) => handleTeammateChange(1, e.target.value)}
-                    placeholder="e.g. 518920414"
+                    label="Teammate 1 In-Game Name (IGN)"
+                    name="teammate_ign_0"
+                    value={formData.teammateIgns[0]}
+                    onChange={(e) => handleTeammateChange(0, 'ign', e.target.value)}
+                    placeholder="e.g. 亗 Ꭲ ɪ ᴛ ᴀ ɴ 亗"
                     required
-                    error={fieldErrors.teammate_1}
-                    icon={ShieldCheck}
+                    error={fieldErrors.teammate_ign_0}
+                    icon={User}
                   />
-                  <FormInput
-                    label="Teammate 3 UID"
-                    name="teammate-2"
-                    value={formData.teammates[2]}
-                    onChange={(e) => handleTeammateChange(2, e.target.value)}
-                    placeholder="e.g. 518920415"
-                    required
-                    error={fieldErrors.teammate_2}
-                    icon={ShieldCheck}
-                  />
+                </div>
+              </div>
+            )}
+
+            {mode === 'Squad' && (
+              <div className="p-4 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-3">
+                <div className="flex items-center justify-between border-b border-[#3a494b]/40 pb-2">
+                  <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
+                    Squad Teammates Details (3 Required Teammates)
+                  </span>
+                  <span className="text-[10px] text-[#8e9dae] font-mono">All Roster Members</span>
+                </div>
+                <div className="space-y-3">
+                  {[0, 1, 2].map((idx) => (
+                    <div key={`squad-member-input-${idx}`} className="p-3 bg-[#151a21]/60 rounded-lg border border-[#3a494b]/40 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-[#00f2ff]/80 uppercase tracking-wide">
+                          Teammate #{idx + 1}
+                        </span>
+                        <span className="text-[10px] text-[#8e9dae]">Active Player {idx + 2}/4</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <FormInput
+                          label={`Teammate ${idx + 1} Game UID`}
+                          name={`teammate_${idx}`}
+                          value={formData.teammates[idx]}
+                          onChange={(e) => handleTeammateChange(idx, 'uid', e.target.value)}
+                          placeholder={`e.g. ${518920413 + idx}`}
+                          required
+                          error={fieldErrors[`teammate_${idx}`]}
+                          icon={ShieldCheck}
+                        />
+                        <FormInput
+                          label={`Teammate ${idx + 1} In-Game Name (IGN)`}
+                          name={`teammate_ign_${idx}`}
+                          value={formData.teammateIgns[idx]}
+                          onChange={(e) => handleTeammateChange(idx, 'ign', e.target.value)}
+                          placeholder={idx === 0 ? "e.g. KA¹⁷ Mjᶠᶠ" : idx === 1 ? "e.g. ꧁༺NINJA༻꧂" : "e.g. V² | ᴀ ᴋ ᴀ ʏ"}
+                          required
+                          error={fieldErrors[`teammate_ign_${idx}`]}
+                          icon={User}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -766,18 +844,31 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-3">
                       {Array.from({ length: formData.substituteCount }).map((_, idx) => (
-                        <FormInput
-                          key={`sub-uid-field-${idx}`}
-                          label={`Substitute ${idx + 1} Game UID`}
-                          name={`sub_uid_${idx}`}
-                          value={formData.substituteUids[idx] || ''}
-                          onChange={(e) => handleSubstituteUidChange(idx, e.target.value)}
-                          placeholder="e.g. 518920499"
-                          error={fieldErrors[`sub_uid_${idx}`]}
-                          icon={ShieldCheck}
-                        />
+                        <div key={`sub-member-card-${idx}`} className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b] space-y-2">
+                          <span className="text-[11px] font-bold text-[#b9cacb] uppercase">Reserve Player #{idx + 1}</span>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <FormInput
+                              label={`Substitute ${idx + 1} Game UID`}
+                              name={`sub_uid_${idx}`}
+                              value={formData.substituteUids[idx] || ''}
+                              onChange={(e) => handleSubstituteChange(idx, 'uid', e.target.value)}
+                              placeholder="e.g. 518920499"
+                              error={fieldErrors[`sub_uid_${idx}`]}
+                              icon={ShieldCheck}
+                            />
+                            <FormInput
+                              label={`Substitute ${idx + 1} In-Game Name (IGN)`}
+                              name={`sub_ign_${idx}`}
+                              value={formData.substituteIgns[idx] || ''}
+                              onChange={(e) => handleSubstituteChange(idx, 'ign', e.target.value)}
+                              placeholder="e.g. Reserve_Striker"
+                              error={fieldErrors[`sub_ign_${idx}`]}
+                              icon={User}
+                            />
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
