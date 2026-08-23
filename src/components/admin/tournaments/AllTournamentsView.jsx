@@ -10,12 +10,17 @@ import {
   Copy,
   Trash2,
   Lock,
+  Unlock,
   ChevronRight,
   Plus,
   Gamepad2,
-  RefreshCw
+  MoreVertical,
+  AlertTriangle,
+  X,
+  Eye,
+  CheckCircle2
 } from 'lucide-react'
-import { getTournamentImage } from '../../../utils/tournamentImageUtils'
+import AdminStatusBadge from '../AdminStatusBadge'
 import {
   getTournamentMode,
   calculateFilledPlayerSlots,
@@ -27,6 +32,7 @@ import {
   getNextLifecycleStage,
   normalizeLifecycleStatus
 } from '../../../constants/tournamentLifecycle'
+import { formatTournamentPrize } from '../../../utils/tournamentPrizeUtils'
 
 export default function AllTournamentsView({
   tournaments = [],
@@ -41,217 +47,477 @@ export default function AllTournamentsView({
   const [searchQuery, setSearchQuery] = useState('')
   const [gameFilter, setGameFilter] = useState('ALL')
   const [statusFilter, setStatusFilter] = useState('ALL')
+  const [dateFilter, setDateFilter] = useState('')
+  const [openMenuId, setOpenMenuId] = useState(null)
+  const [deleteConfirmTarget, setDeleteConfirmTarget] = useState(null)
 
   const filteredTournaments = useMemo(() => {
     return tournaments.filter((t) => {
       const matchesSearch =
+        !searchQuery.trim() ||
         t.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         t.game?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.organizer?.toLowerCase().includes(searchQuery.toLowerCase())
+        String(t.id).toLowerCase().includes(searchQuery.toLowerCase())
 
       const matchesGame =
-        gameFilter === 'ALL' || (t.game || '').includes(gameFilter)
+        gameFilter === 'ALL' || (t.game || '').toLowerCase().includes(gameFilter.toLowerCase())
 
       const matchesStatus =
         statusFilter === 'ALL' ||
-        normalizeLifecycleStatus(t.status) === statusFilter
+        normalizeLifecycleStatus(t.status) === statusFilter ||
+        String(t.status || '').toUpperCase() === statusFilter.toUpperCase()
 
-      return matchesSearch && matchesGame && matchesStatus
+      const matchesDate =
+        !dateFilter ||
+        (t.start_date && t.start_date.includes(dateFilter)) ||
+        (t.startDate && t.startDate.includes(dateFilter))
+
+      return matchesSearch && matchesGame && matchesStatus && matchesDate
     })
-  }, [tournaments, searchQuery, gameFilter, statusFilter])
+  }, [tournaments, searchQuery, gameFilter, statusFilter, dateFilter])
+
+  const handleDeleteClick = (t) => {
+    setOpenMenuId(null)
+    setDeleteConfirmTarget(t)
+  }
+
+  const confirmDelete = () => {
+    if (deleteConfirmTarget && onDeleteTournament) {
+      onDeleteTournament(deleteConfirmTarget)
+    }
+    setDeleteConfirmTarget(null)
+  }
 
   return (
-    <div className="space-y-6">
-
-      {/* Header Actions & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
-        <div>
-          <h2 className="font-headline text-lg font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-[#00f2ff]" />
-            <span>ALL TOURNAMENT ARENAS</span>
-          </h2>
-          <p className="text-xs text-[#8e9dae] font-mono mt-0.5">
-            Active Roster • {filteredTournaments.length} Arena(s) Found
-          </p>
-        </div>
-
-        <button
-          onClick={onOpenCreateWizard}
-          className="px-4 py-2.5 bg-[#fe6b00] hover:bg-[#fe6b00]/90 text-black font-extrabold rounded-lg text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(254,107,0,0.3)] shrink-0"
-        >
-          <Plus className="w-4 h-4 text-black stroke-[3]" />
-          <span>CREATE NEW TOURNAMENT</span>
-        </button>
-      </div>
-
-      {/* Filters Bar */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl flex flex-col md:flex-row items-center justify-between gap-3">
-        <div className="relative w-full md:w-72">
-          <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-1/2 -translate-y-1/2" />
+    <div className="space-y-4 font-body antialiased">
+      
+      {/* 1. COMPACT FILTER TOOLBAR */}
+      <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 shadow-xl flex flex-col md:flex-row items-center justify-between gap-3">
+        {/* Search */}
+        <div className="relative w-full md:w-80">
+          <Search className="w-4 h-4 text-[#849495] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search tournament title..."
-            className="w-full bg-[#07090c] border border-[#3a494b] rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:border-[#00f2ff] focus:outline-none font-mono"
+            placeholder="Search tournament title or ID..."
+            className="w-full bg-[#1c1b1c] border border-[#27272a] rounded pl-9 pr-3 py-2 text-xs text-white placeholder-[#849495] focus:border-[#00f2ff] focus:outline-none transition-colors"
           />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#849495] hover:text-white p-0.5"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
+        {/* Dropdown Filters */}
         <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
-          <div className="flex items-center gap-1 bg-[#07090c] border border-[#3a494b] rounded-lg px-3 py-1.5 text-xs text-white">
-            <Gamepad2 className="w-3.5 h-3.5 text-[#00f2ff]" />
+          {/* Game Filter */}
+          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-1.5 text-xs text-white">
+            <Gamepad2 className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
             <select
               value={gameFilter}
               onChange={(e) => setGameFilter(e.target.value)}
-              className="bg-transparent text-xs text-white font-mono focus:outline-none"
+              className="bg-transparent text-xs text-white font-headline font-bold focus:outline-none cursor-pointer"
             >
-              <option value="ALL" className="bg-[#151a21]">All Games</option>
-              <option value="Free Fire" className="bg-[#151a21]">Free Fire MAX</option>
-              <option value="BGMI" className="bg-[#151a21]">BGMI Mobile</option>
+              <option value="ALL" className="bg-[#141416]">All Games</option>
+              <option value="Free Fire" className="bg-[#141416]">Free Fire MAX</option>
+              <option value="BGMI" className="bg-[#141416]">BGMI Mobile</option>
             </select>
           </div>
 
-          <div className="flex items-center gap-1 bg-[#07090c] border border-[#3a494b] rounded-lg px-3 py-1.5 text-xs text-white">
-            <Filter className="w-3.5 h-3.5 text-[#00f2ff]" />
+          {/* Status Filter */}
+          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-1.5 text-xs text-white">
+            <Filter className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-transparent text-xs text-white font-mono focus:outline-none"
+              className="bg-transparent text-xs text-white font-headline font-bold focus:outline-none cursor-pointer"
             >
-              <option value="ALL" className="bg-[#151a21]">All Lifecycle Stages</option>
-              {TOURNAMENT_LIFECYCLE_STAGES.map((s) => (
-                <option key={s} value={s} className="bg-[#151a21]">
-                  {s}
-                </option>
-              ))}
+              <option value="ALL" className="bg-[#141416]">All Status</option>
+              <option value="Registration Open" className="bg-[#141416]">Registration Open</option>
+              <option value="Live Now" className="bg-[#141416]">Live Now</option>
+              <option value="Upcoming" className="bg-[#141416]">Upcoming</option>
+              <option value="Full" className="bg-[#141416]">Full</option>
+              <option value="Completed" className="bg-[#141416]">Completed</option>
+              <option value="Cancelled" className="bg-[#141416]">Cancelled</option>
+              <option value="Draft" className="bg-[#141416]">Draft</option>
             </select>
+          </div>
+
+          {/* Date Filter */}
+          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-1.5 text-xs text-white">
+            <Calendar className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="bg-transparent text-xs text-white focus:outline-none cursor-pointer"
+            />
+            {dateFilter && (
+              <button
+                onClick={() => setDateFilter('')}
+                className="text-[#849495] hover:text-white p-0.5"
+                title="Clear date filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Tournament Cards List */}
-      {filteredTournaments.length === 0 ? (
-        <div className="p-8 bg-[#151a21] border border-[#3a494b]/60 rounded-xl text-center space-y-2 font-mono">
-          <Trophy className="w-8 h-8 text-[#8e9dae] mx-auto opacity-50" />
-          <p className="text-xs text-[#8e9dae]">No tournaments match your current filter parameters.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTournaments.map((t) => {
-            const canonicalStatus = normalizeLifecycleStatus(t.status)
-            const modeInfo = getTournamentMode(t)
-            const filledPlayers = calculateFilledPlayerSlots(t)
-            const totalPlayers = calculateTotalPlayerSlots(t)
-            const regTeams = Number(t.registeredTeams ?? t.registered_teams ?? 0)
-            const maxTeams = Number(t.maxTeams ?? t.max_teams ?? 12)
-            const fillPct = calculateSlotFillPercentage(t)
-            const imageSrc = getTournamentImage(t)
-            const nextStage = getNextLifecycleStage(t.status)
-
-            return (
-              <div
-                key={t.id}
-                className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff]/50 rounded-xl overflow-hidden shadow-xl transition-all flex flex-col justify-between group"
+      {/* 2. TOURNAMENTS OPERATIONS TABLE (DESKTOP >= 768px) */}
+      <div className="bg-[#141416] border border-[#27272a] rounded overflow-hidden shadow-xl">
+        {filteredTournaments.length === 0 ? (
+          <div className="p-12 text-center space-y-3 font-body">
+            <Trophy className="w-10 h-10 text-[#849495] mx-auto opacity-40" />
+            <p className="text-sm font-bold text-white uppercase font-headline">
+              {tournaments.length === 0 ? 'No Tournaments Found' : 'No Matching Results'}
+            </p>
+            <p className="text-xs text-[#849495] max-w-md mx-auto">
+              {tournaments.length === 0
+                ? 'No arena tournaments exist in database. Click + CREATE TOURNAMENT to launch the first arena.'
+                : 'No tournament arenas match the search and filter criteria. Try clearing the filters.'}
+            </p>
+            {tournaments.length === 0 && (
+              <button
+                onClick={onOpenCreateWizard}
+                className="mt-2 px-4 py-2 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded text-xs uppercase tracking-wider transition-all inline-flex items-center gap-2"
               >
-                {/* Banner & Badge Overlay */}
-                <div className="relative h-32 bg-slate-950 overflow-hidden">
-                  <img
-                    src={imageSrc}
-                    alt={t.title}
-                    className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#151a21] via-transparent to-transparent" />
-                  
-                  <span className="absolute top-3 left-3 px-2.5 py-0.5 bg-[#07090c]/80 backdrop-blur border border-[#00f2ff]/40 text-[#00f2ff] text-[9px] font-mono font-extrabold rounded uppercase">
-                    {canonicalStatus}
-                  </span>
+                <Plus className="w-4 h-4" />
+                <span>Create First Tournament</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto w-full">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-[#27272a] bg-[#1c1b1c] text-[#849495] text-[10px] font-headline uppercase font-bold tracking-wider">
+                    <th className="py-3.5 px-4">Tournament</th>
+                    <th className="py-3.5 px-4">Game / Format</th>
+                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-4 min-w-[160px]">Registration</th>
+                    <th className="py-3.5 px-4">Prize Pool / Fee</th>
+                    <th className="py-3.5 px-4">Start</th>
+                    <th className="py-3.5 px-4 text-right pr-4">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#27272a]">
+                  {filteredTournaments.map((t) => {
+                    const modeInfo = getTournamentMode(t)
+                    const filledPlayers = calculateFilledPlayerSlots(t)
+                    const totalPlayers = calculateTotalPlayerSlots(t)
+                    const regTeams = Number(t.registeredTeams ?? t.registered_teams ?? 0)
+                    const maxTeams = Number(t.maxTeams ?? t.max_teams ?? 12)
+                    const fillPct = calculateSlotFillPercentage(t)
+                    const prizeDisplay = formatTournamentPrize(t)
+                    const feeDisplay = t.entryFee || t.entry_fee || 'Free'
+                    const nextStage = getNextLifecycleStage(t.status)
+                    const isMenuOpen = openMenuId === t.id
 
-                  <span className="absolute top-3 right-3 px-2.5 py-0.5 bg-[#fe6b00]/80 backdrop-blur text-black font-headline font-extrabold text-[10px] rounded uppercase">
-                    {t.prizePool || t.prize_pool || '₹0'}
-                  </span>
-                </div>
+                    return (
+                      <tr
+                        key={t.id}
+                        className="hover:bg-[#1c1b1c]/80 transition-colors group"
+                      >
+                        {/* Tournament Info */}
+                        <td className="py-3.5 px-4 min-w-[200px] max-w-[280px]">
+                          <span
+                            onClick={() => onSelectTournament(t.id)}
+                            className="font-headline font-bold text-white block truncate hover:text-[#00f2ff] cursor-pointer transition-colors"
+                            title={t.title}
+                          >
+                            {t.title}
+                          </span>
+                          <span className="text-[10px] text-[#849495] font-mono block mt-0.5">
+                            ID: {String(t.id).substring(0, 8)}...
+                          </span>
+                        </td>
 
-                {/* Content Details */}
-                <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                  <div className="space-y-2">
-                    <h3 className="font-headline text-sm font-bold text-white uppercase tracking-wide group-hover:text-[#00f2ff] transition-colors line-clamp-1">
-                      {t.title}
-                    </h3>
+                        {/* Game / Format */}
+                        <td className="py-3.5 px-4">
+                          <span className="font-headline font-bold text-white block">
+                            {t.game || 'Free Fire MAX'}
+                          </span>
+                          <span className="text-[10px] text-[#849495] font-body block uppercase">
+                            {t.format || t.match_format || `${modeInfo.label} (${modeInfo.size}P)`}
+                          </span>
+                        </td>
 
-                    <div className="flex items-center gap-3 text-[11px] text-[#8e9dae] font-mono">
-                      <span>{t.game}</span>
-                      <span>•</span>
-                      <span>{t.format || t.match_format || 'SQUAD'}</span>
-                      <span>•</span>
-                      <span className="text-[#00ff9d]">{t.entryFee || t.entry_fee || 'Free'}</span>
+                        {/* Status Badge */}
+                        <td className="py-3.5 px-4">
+                          <AdminStatusBadge status={t.status || 'OPEN'} size="xs" />
+                        </td>
+
+                        {/* Registration Progress Bar */}
+                        <td className="py-3.5 px-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-[10px] font-body">
+                              <span className="text-white font-headline font-bold">
+                                {regTeams} / {maxTeams} {modeInfo.teamUnit}
+                              </span>
+                              <span className="text-[#849495] text-[9px]">
+                                {fillPct}% ({filledPlayers}/{totalPlayers}P)
+                              </span>
+                            </div>
+                            <div className="w-full h-1.5 bg-[#1c1b1c] rounded-full overflow-hidden border border-[#27272a]">
+                              <div
+                                className={`h-full transition-all duration-300 ${
+                                  fillPct >= 100
+                                    ? 'bg-[#ff5e07]'
+                                    : fillPct >= 75
+                                    ? 'bg-[#fed83a]'
+                                    : 'bg-[#00f2ff]'
+                                }`}
+                                style={{ width: `${Math.min(fillPct, 100)}%` }}
+                              />
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Prize Pool & Fee */}
+                        <td className="py-3.5 px-4">
+                          <span className="font-headline font-bold text-[#fed83a] block">
+                            {prizeDisplay}
+                          </span>
+                          <span className="text-[10px] text-[#849495] font-body block">
+                            Fee: <span className="text-[#10b981] font-bold">{feeDisplay}</span>
+                          </span>
+                        </td>
+
+                        {/* Start Schedule */}
+                        <td className="py-3.5 px-4 text-[#849495] text-[11px] font-body">
+                          <span className="text-white block font-headline font-bold">
+                            {t.startDate || t.start_date || 'TBD'}
+                          </span>
+                          <span className="text-[10px] text-[#849495] block">
+                            {t.startTime || t.start_time || '06:00 PM IST'}
+                          </span>
+                        </td>
+
+                        {/* Actions (Manage + Overflow Menu) */}
+                        <td className="py-3.5 px-4 text-right pr-4">
+                          <div className="flex items-center justify-end gap-1.5 relative">
+                            <button
+                              onClick={() => onSelectTournament(t.id)}
+                              className="px-3 py-1.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded text-[11px] uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shadow-sm"
+                            >
+                              <span>MANAGE</span>
+                              <ChevronRight className="w-3 h-3" />
+                            </button>
+
+                            {/* Dropdown Menu Trigger */}
+                            <div className="relative">
+                              <button
+                                onClick={() => setOpenMenuId(isMenuOpen ? null : t.id)}
+                                className="p-1.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded transition-colors cursor-pointer"
+                                title="More Actions"
+                              >
+                                <MoreVertical className="w-3.5 h-3.5" />
+                              </button>
+
+                              {/* Dropdown Options */}
+                              {isMenuOpen && (
+                                <>
+                                  <div
+                                    className="fixed inset-0 z-20"
+                                    onClick={() => setOpenMenuId(null)}
+                                  />
+                                  <div className="absolute right-0 top-full mt-1 z-30 w-44 bg-[#141416] border border-[#27272a] rounded shadow-2xl py-1 text-left">
+                                    <button
+                                      onClick={() => {
+                                        setOpenMenuId(null)
+                                        onSelectTournament(t.id)
+                                      }}
+                                      className="w-full px-3 py-1.5 text-xs text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer"
+                                    >
+                                      <Eye className="w-3.5 h-3.5 text-[#00f2ff]" />
+                                      <span>View Operations</span>
+                                    </button>
+
+                                    <button
+                                      onClick={() => {
+                                        setOpenMenuId(null)
+                                        onEditTournament(t)
+                                      }}
+                                      className="w-full px-3 py-1.5 text-xs text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer"
+                                    >
+                                      <Edit3 className="w-3.5 h-3.5 text-[#00f2ff]" />
+                                      <span>Edit Tournament</span>
+                                    </button>
+
+                                    <button
+                                      onClick={() => {
+                                        setOpenMenuId(null)
+                                        onDuplicateTournament(t)
+                                      }}
+                                      className="w-full px-3 py-1.5 text-xs text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer"
+                                    >
+                                      <Copy className="w-3.5 h-3.5 text-[#fed83a]" />
+                                      <span>Duplicate Arena</span>
+                                    </button>
+
+                                    {nextStage && (
+                                      <button
+                                        onClick={() => {
+                                          setOpenMenuId(null)
+                                          onAdvanceStage(t)
+                                        }}
+                                        className="w-full px-3 py-1.5 text-xs text-[#10b981] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer font-bold"
+                                      >
+                                        <CheckCircle2 className="w-3.5 h-3.5" />
+                                        <span>Advance → {nextStage}</span>
+                                      </button>
+                                    )}
+
+                                    <div className="border-t border-[#27272a] my-1" />
+
+                                    <button
+                                      onClick={() => handleDeleteClick(t)}
+                                      className="w-full px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-950/40 flex items-center gap-2 text-left cursor-pointer"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                      <span>Delete Tournament</span>
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Stacked Cards (< 768px) */}
+            <div className="md:hidden divide-y divide-[#27272a]">
+              {filteredTournaments.map((t) => {
+                const modeInfo = getTournamentMode(t)
+                const regTeams = Number(t.registeredTeams ?? t.registered_teams ?? 0)
+                const maxTeams = Number(t.maxTeams ?? t.max_teams ?? 12)
+                const fillPct = calculateSlotFillPercentage(t)
+                const prizeDisplay = formatTournamentPrize(t)
+                const feeDisplay = t.entryFee || t.entry_fee || 'Free'
+
+                return (
+                  <div key={`m-tourn-${t.id}`} className="p-4 space-y-3">
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <span
+                          onClick={() => onSelectTournament(t.id)}
+                          className="font-headline font-bold text-sm text-white block truncate"
+                        >
+                          {t.title}
+                        </span>
+                        <span className="text-[10px] text-[#849495] font-body">
+                          {t.game || 'Free Fire MAX'} &bull; {t.format || modeInfo.label}
+                        </span>
+                      </div>
+                      <AdminStatusBadge status={t.status || 'OPEN'} size="xs" />
                     </div>
 
-                    {/* Capacity Fill Progress Bar */}
+                    {/* Registration Progress */}
                     <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-mono text-[#8e9dae]">
-                        <span>{filledPlayers} / {totalPlayers} Players ({regTeams} / {maxTeams} {modeInfo.teamUnit})</span>
-                        <span className="font-bold text-[#00f2ff]">{fillPct}%</span>
+                      <div className="flex justify-between text-[10px] font-body text-[#849495]">
+                        <span className="text-white font-bold">{regTeams} / {maxTeams} {modeInfo.teamUnit}</span>
+                        <span>{fillPct}%</span>
                       </div>
-                      <div className="w-full h-1.5 bg-[#07090c] rounded-full overflow-hidden border border-[#3a494b]/60">
+                      <div className="w-full h-1.5 bg-[#1c1b1c] rounded-full overflow-hidden border border-[#27272a]">
                         <div
-                          className="h-full bg-gradient-to-r from-[#00f2ff] to-[#00ff9d] transition-all"
-                          style={{ width: `${fillPct}%` }}
+                          className="h-full bg-[#00f2ff]"
+                          style={{ width: `${Math.min(fillPct, 100)}%` }}
                         />
                       </div>
                     </div>
-                  </div>
 
-                  {/* Actions Bar */}
-                  <div className="pt-2 border-t border-[#3a494b]/60 space-y-2">
-                    <button
-                      onClick={() => onSelectTournament(t.id)}
-                      className="w-full py-2 bg-[#07090c] hover:bg-[#00f2ff] text-[#00f2ff] hover:text-black border border-[#00f2ff]/40 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
-                    >
-                      <span>MANAGE OPERATIONS</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
+                    {/* Financials & Schedule */}
+                    <div className="flex items-center justify-between text-[11px] font-body pt-1">
+                      <div>
+                        <span className="text-[9px] text-[#849495] block uppercase">Prize Pool</span>
+                        <span className="font-headline font-bold text-[#fed83a]">{prizeDisplay}</span>
+                      </div>
+                      <div className="text-center">
+                        <span className="text-[9px] text-[#849495] block uppercase">Entry Fee</span>
+                        <span className="font-headline font-bold text-[#10b981]">{feeDisplay}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[9px] text-[#849495] block uppercase">Start Date</span>
+                        <span className="font-headline font-bold text-white">{t.startDate || t.start_date || 'TBD'}</span>
+                      </div>
+                    </div>
 
-                    <div className="grid grid-cols-4 gap-1.5 text-xs">
-                      {nextStage && (
-                        <button
-                          onClick={() => onAdvanceStage(t)}
-                          disabled={actionId === t.id}
-                          className="col-span-2 px-2 py-1.5 bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/30 rounded text-[10px] font-mono font-bold uppercase transition-colors truncate"
-                          title={`Advance stage to ${nextStage}`}
-                        >
-                          {actionId === t.id ? 'Advancing...' : `→ ${nextStage}`}
-                        </button>
-                      )}
-
+                    {/* Primary Manage Action */}
+                    <div className="flex items-center gap-2 pt-2 border-t border-[#27272a]">
+                      <button
+                        onClick={() => onSelectTournament(t.id)}
+                        className="flex-1 py-2 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <span>MANAGE</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
                       <button
                         onClick={() => onEditTournament(t)}
-                        className="px-2 py-1.5 bg-[#07090c] hover:bg-[#1d232c] text-[#e1e2e7] border border-[#3a494b] rounded text-[10px] font-mono font-bold uppercase transition-colors flex items-center justify-center gap-1"
+                        className="p-2 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded cursor-pointer"
                         title="Edit Tournament"
                       >
-                        <Edit3 className="w-3 h-3 text-[#00f2ff]" />
-                      </button>
-
-                      <button
-                        onClick={() => onDuplicateTournament(t)}
-                        className="px-2 py-1.5 bg-[#07090c] hover:bg-[#1d232c] text-[#e1e2e7] border border-[#3a494b] rounded text-[10px] font-mono font-bold uppercase transition-colors flex items-center justify-center gap-1"
-                        title="Duplicate Draft"
-                      >
-                        <Copy className="w-3 h-3 text-[#fe6b00]" />
-                      </button>
-
-                      <button
-                        onClick={() => onDeleteTournament(t)}
-                        className="px-2 py-1.5 bg-[#07090c] hover:bg-red-950 text-red-400 border border-[#3a494b] rounded text-[10px] font-mono font-bold uppercase transition-colors flex items-center justify-center gap-1"
-                        title="Delete Tournament"
-                      >
-                        <Trash2 className="w-3 h-3" />
+                        <Edit3 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
-                </div>
+                )
+              })}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* 3. CONFIRMATION MODAL FOR DELETION */}
+      {deleteConfirmTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#141416] border border-[#27272a] rounded p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-red-400">
+              <div className="w-9 h-9 rounded bg-red-950/60 border border-red-500/30 flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
               </div>
-            )
-          })}
+              <div>
+                <h3 className="font-headline font-extrabold text-sm uppercase text-white">
+                  Confirm Tournament Deletion
+                </h3>
+                <p className="text-xs text-[#849495] font-body">This action cannot be undone.</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#b9cacb] font-body">
+              Are you sure you want to permanently delete tournament{' '}
+              <span className="font-bold text-white font-headline">"{deleteConfirmTarget.title}"</span>? All associated match sessions and registration linkages will be removed.
+            </p>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={() => setDeleteConfirmTarget(null)}
+                className="flex-1 py-2 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-headline font-bold uppercase transition-colors cursor-pointer shadow-lg shadow-red-600/30"
+              >
+                Delete Tournament
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

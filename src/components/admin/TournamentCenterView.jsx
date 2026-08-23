@@ -25,7 +25,11 @@ import {
   Shield,
   Target,
   Crosshair,
-  ChevronRight
+  ChevronRight,
+  Swords,
+  Award,
+  History,
+  ClipboardList
 } from 'lucide-react'
 import { SUPPORTED_GAMES } from '../../data/mockData'
 import { getTournamentImage } from '../../utils/tournamentImageUtils'
@@ -48,7 +52,6 @@ import OfficialRulebook, { OFFICIAL_MJ_RULES } from '../common/OfficialRulebook'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useToast } from '../../contexts/ToastContext'
 import { telemetry } from '../../services/telemetryService'
-import ReviewSummaryStep from './ReviewSummaryStep'
 import AllTournamentsView from './tournaments/AllTournamentsView'
 import TournamentOperationsWorkspace from './tournaments/TournamentOperationsWorkspace'
 import RegistrationQueueView from './RegistrationQueueView'
@@ -63,17 +66,15 @@ export default function TournamentCenterView({
 }) {
   const { advanceTournamentLifecycle } = useTournaments()
   const { showSuccess, showError } = useToast()
-  const [activeOpsTab, setActiveOpsTab] = useState('ALL_TOURNAMENTS')
+  const [activeOpsTab, setActiveOpsTab] = useState('ALL_TOURNAMENTS') // 'ALL_TOURNAMENTS' | 'REGISTRATION_QUEUE' | 'MATCH_OPERATIONS' | 'RESULTS' | 'HISTORY'
   const [selectedTournamentId, setSelectedTournamentId] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [currentStep, setCurrentStep] = useState(0)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [gameFilter, setGameFilter] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [actionId, setActionId] = useState(null)
   const [formErrors, setFormErrors] = useState({})
+  const [alert, setAlert] = useState(null)
 
   const handleAdvanceStage = async (t) => {
     const nextStage = getNextLifecycleStage(t.status)
@@ -102,14 +103,14 @@ export default function TournamentCenterView({
     mode: 'squad',
     prizePool: '₹0',
     entryFee: 'Free',
-    maxTeams: 12, // Free Fire MAX Squad default (12 Squads = 48 Players)
+    maxTeams: 12,
     startDate: '',
     startTime: '06:00 PM IST',
     registrationStart: 'Immediate',
     registrationEnd: '1 Hour Prior to Kickoff',
     checkInTime: '05:15 PM IST',
     roomPublishTime: '05:45 PM IST',
-    description: 'Official high-stakes tournament.',
+    description: 'Official high-stakes esports tournament.',
     status: 'Registration Open',
     // Free Fire Specifics
     ffMap: 'Bermuda',
@@ -122,7 +123,6 @@ export default function TournamentCenterView({
   }
 
   const [form, setForm] = useState(defaultFormState)
-  const [alert, setAlert] = useState(null)
 
   const handleOpenCreateModal = () => {
     setFormErrors({})
@@ -150,18 +150,18 @@ export default function TournamentCenterView({
 
     setForm({
       title: t.title || '',
-      game: t.game || 'Free Fire',
+      game: t.game || 'Free Fire MAX',
       mode: resolvedMode,
       prizePool: formatTournamentPrize(t),
       entryFee: t.entryFee || t.entry_fee || 'Free',
-      maxTeams: t.maxTeams || 32,
-      startDate: t.startDate || new Date().toISOString().split('T')[0],
-      startTime: t.startTime || '06:00 PM IST',
+      maxTeams: t.maxTeams || 12,
+      startDate: t.startDate || t.start_date || new Date().toISOString().split('T')[0],
+      startTime: t.startTime || t.start_time || '06:00 PM IST',
       registrationStart: t.registrationStart || 'Immediate',
       registrationEnd: t.registrationEnd || '1 Hour Prior to Kickoff',
       checkInTime: t.checkInTime || '05:15 PM IST',
       roomPublishTime: t.roomPublishTime || '05:45 PM IST',
-      description: t.description || 'Official high-stakes tournament.',
+      description: t.description || 'Official high-stakes esports tournament.',
       status: t.status || 'Registration Open',
       ffMap: t.ffMap || 'Bermuda',
       ffGunAttributes: t.ffGunAttributes || 'Disabled',
@@ -207,7 +207,6 @@ export default function TournamentCenterView({
         errors.roomPublishTime = 'Room Publish Time is required.'
       }
     } else if (stepIdx === 2) {
-      // 1. REGISTRATION VALIDATION
       const isPaymentOn = Boolean(form.paymentEnabled)
       const entryFeeNum = isPaymentOn
         ? (typeof form.entryFeeNum === 'number' ? form.entryFeeNum : (parseFloat(String(form.entryFee || 0).replace(/[^0-9.]/g, '')) || 0))
@@ -221,20 +220,13 @@ export default function TournamentCenterView({
         errors.maxTeams = 'Total Team / Squad Slots must be greater than 0.'
       }
 
-      // 2. PAYMENT VALIDATION (Skipped completely if Payment Status is OFF)
       if (isPaymentOn) {
         if (!form.paymentGateway || !String(form.paymentGateway).trim()) {
           errors.paymentGateway = 'Payment Gateway is required when Payment Status is ON.'
         }
       }
 
-      // 3. PRIZE TYPE VALIDATION
       const pType = form.prizeType || 'placement'
-      if (!pType) {
-        errors.prizeType = 'Exactly one Prize Type must be selected.'
-      }
-
-      // 4. PRIZE CONFIGURATION VALIDATION (Dynamic based on selected Prize Type)
       const prizesObj = form.prizes || {}
       const perKill = Number(form.perKillReward || 0)
 
@@ -261,12 +253,6 @@ export default function TournamentCenterView({
     }
 
     return errors
-  }
-
-  const validateStep = (stepIdx) => {
-    const errors = getStepValidationErrors(stepIdx)
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
   }
 
   const handleWizardNext = () => {
@@ -303,31 +289,15 @@ export default function TournamentCenterView({
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault()
 
-    const step0Errors = getStepValidationErrors(0)
-    if (Object.keys(step0Errors).length > 0) {
-      setFormErrors(step0Errors)
-      setCurrentStep(0)
-      const firstErrorMsg = Object.values(step0Errors)[0] || 'General Information validation failed.'
-      showError(firstErrorMsg, 'Validation Error')
-      return
-    }
-
-    const step1Errors = getStepValidationErrors(1)
-    if (Object.keys(step1Errors).length > 0) {
-      setFormErrors(step1Errors)
-      setCurrentStep(1)
-      const firstErrorMsg = Object.values(step1Errors)[0] || 'Match Configuration & Schedule validation failed.'
-      showError(firstErrorMsg, 'Validation Error')
-      return
-    }
-
-    const step2Errors = getStepValidationErrors(2)
-    if (Object.keys(step2Errors).length > 0) {
-      setFormErrors(step2Errors)
-      setCurrentStep(2)
-      const firstErrorMsg = Object.values(step2Errors)[0] || 'Registration & Prize validation failed.'
-      showError(firstErrorMsg, 'Validation Error')
-      return
+    for (let step = 0; step <= 2; step++) {
+      const errs = getStepValidationErrors(step)
+      if (Object.keys(errs).length > 0) {
+        setFormErrors(errs)
+        setCurrentStep(step)
+        const firstErrorMsg = Object.values(errs)[0] || `Step ${step + 1} validation failed.`
+        showError(firstErrorMsg, 'Validation Error')
+        return
+      }
     }
 
     setFormErrors({})
@@ -337,29 +307,24 @@ export default function TournamentCenterView({
   }
 
   const submitFormData = async (payload, isDraft = false) => {
-    if (isSaving) {
-      console.warn('[Publish Blocked]: Save operation is already in progress.')
-      return
-    }
+    if (isSaving) return
     setIsSaving(true)
     setAlert(null)
     try {
-      const modeSize = payload.mode === 'solo' ? 1 : payload.mode === 'duo' ? 2 : 4
       const formatString = payload.mode === 'solo' ? 'SOLO (1P)' : payload.mode === 'duo' ? 'DUO (2P)' : 'SQUAD (4P)'
-
       const resolvedPrize = calculateFormattedPrize(payload)
 
       const tournamentPayload = {
         title: String(payload.title || '').trim(),
-        game: String(payload.game || 'Free Fire').trim(),
+        game: String(payload.game || 'Free Fire MAX').trim(),
         mode: String(payload.mode || 'squad').trim(),
         format: formatString,
         prize_pool: resolvedPrize,
         prizePool: resolvedPrize,
         entry_fee: String(payload.entryFee || 'Free').trim(),
         entryFee: String(payload.entryFee || 'Free').trim(),
-        max_teams: Number(payload.maxTeams || 32),
-        maxTeams: Number(payload.maxTeams || 32),
+        max_teams: Number(payload.maxTeams || 12),
+        maxTeams: Number(payload.maxTeams || 12),
         start_date: String(payload.startDate || '').trim(),
         startDate: String(payload.startDate || '').trim(),
         start_time: String(payload.startTime || '').trim(),
@@ -368,57 +333,30 @@ export default function TournamentCenterView({
         registrationEnd: payload.registrationEnd || null,
         status: String(payload.status || (isDraft ? 'Draft' : 'Registration Open')).trim(),
         rules: Array.isArray(payload.rules) ? payload.rules : OFFICIAL_MJ_RULES,
-        description: String(payload.description || 'Official high-stakes tournament.').trim(),
+        description: String(payload.description || 'Official high-stakes esports tournament.').trim(),
       }
-
-      console.log("STEP 4 : Tournament payload", tournamentPayload)
 
       if (editingId) {
         if (editTournament) await editTournament(editingId, tournamentPayload)
         telemetry.logAdminAction('update_tournament', editingId, { title: payload.title, status: payload.status })
-        if (isDraft) {
-          showSuccess(`Draft for "${payload.title}" updated successfully!`, 'Draft Updated')
-        } else {
-          showSuccess(`Tournament "${payload.title}" updated successfully!`, 'Tournament Updated')
-        }
+        showSuccess(`Tournament "${payload.title}" updated successfully!`, 'Tournament Updated')
       } else {
         if (createTournament) await createTournament(tournamentPayload)
         telemetry.logAdminAction('create_tournament', payload.title, { status: payload.status })
-        if (isDraft) {
-          showSuccess(`Draft for "${payload.title}" saved to database!`, 'Draft Saved')
-        } else {
-          showSuccess(`Tournament "${payload.title}" published! Registration is now OPEN.`, 'Tournament Published')
-        }
+        showSuccess(
+          isDraft ? `Draft for "${payload.title}" saved.` : `Tournament "${payload.title}" published! Registration is now OPEN.`,
+          'Tournament Published'
+        )
       }
 
       setShowModal(false)
     } catch (err) {
-      console.error("Supabase Error:", {
-        code: err?.code,
-        message: err?.message,
-        details: err?.details,
-        hint: err?.hint,
-        status: err?.status
-      })
       telemetry.logError(err, { action: 'submit_tournament', editingId })
-      const exactErrorMsg = err?.message || err?.details || (typeof err === 'string' ? err : 'Failed to insert tournament into database.')
+      const exactErrorMsg = err?.message || err?.details || (typeof err === 'string' ? err : 'Failed to save tournament.')
       setAlert({ type: 'error', message: exactErrorMsg })
-      showError(exactErrorMsg, exactErrorMsg)
+      showError(exactErrorMsg, 'Tournament Save Error')
     } finally {
       setIsSaving(false)
-    }
-  }
-
-  const handleToggleRegistration = async (t) => {
-    const nextStatus = t.status === 'Registration Open' ? 'Registration Closed' : 'Registration Open'
-    setActionId(t.id)
-    try {
-      if (updateTournamentStatus) await updateTournamentStatus(t.id, nextStatus)
-      showSuccess(`Registration status updated to "${nextStatus}" for ${t.title}`, 'Status Updated')
-    } catch (err) {
-      showError(err, 'Toggle Failed')
-    } finally {
-      setActionId(null)
     }
   }
 
@@ -435,8 +373,8 @@ export default function TournamentCenterView({
         prizePool: dupPrize,
         entry_fee: t.entry_fee || t.entryFee || 'Free',
         entryFee: t.entryFee || t.entry_fee || 'Free',
-        max_teams: t.max_teams || t.maxTeams || 32,
-        maxTeams: t.maxTeams || t.max_teams || 32,
+        max_teams: t.max_teams || t.maxTeams || 12,
+        maxTeams: t.maxTeams || t.max_teams || 12,
         start_date: t.start_date || t.startDate || '',
         startDate: t.startDate || t.start_date || '',
         start_time: t.start_time || t.startTime || '06:00 PM IST',
@@ -452,7 +390,6 @@ export default function TournamentCenterView({
   }
 
   const handleDelete = async (id, title) => {
-    if (!window.confirm(`Are you sure you want to delete tournament "${title}"?`)) return
     setActionId(id)
     try {
       if (deleteTournament) await deleteTournament(id)
@@ -464,17 +401,6 @@ export default function TournamentCenterView({
     }
   }
 
-  // Filter tournaments based on search and dropdown filters
-  const filteredTournaments = tournaments.filter((t) => {
-    const matchesSearch =
-      !searchQuery.trim() ||
-      t.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.game?.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesGame = !gameFilter || t.game === gameFilter
-    const matchesStatus = !statusFilter || t.status === statusFilter
-    return matchesSearch && matchesGame && matchesStatus
-  })
-
   // Define steps for Step Wizard
   const wizardSteps = [
     {
@@ -482,15 +408,14 @@ export default function TournamentCenterView({
       shortTitle: 'General',
       content: (
         <div className="space-y-4">
-          <div className="border-b border-[#3a494b]/50 pb-2">
-            <h3 className="text-sm font-extrabold text-white uppercase tracking-tight font-headline flex items-center gap-2">
+          <div className="border-b border-[#27272a] pb-2">
+            <h3 className="text-sm font-extrabold text-white uppercase font-headline flex items-center gap-2">
               <Trophy className="w-4 h-4 text-[#00f2ff]" />
               <span>General Information</span>
             </h3>
-            <p className="text-xs text-[#8e9dae]">Provide the basic details of the tournament.</p>
+            <p className="text-xs text-[#849495] font-body">Provide the basic details and game mode.</p>
           </div>
 
-          {/* 1. TOURNAMENT NAME (REQUIRED) */}
           <FormInput
             label="Tournament Name"
             name="title"
@@ -505,7 +430,6 @@ export default function TournamentCenterView({
             icon={Trophy}
           />
 
-          {/* 2. GAME (REQUIRED) & 3. MATCH MODE (REQUIRED) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormSelect
               label="Game"
@@ -545,54 +469,42 @@ export default function TournamentCenterView({
             />
           </div>
 
-          {/* 4. LIVE PREVIEW CARD */}
+          {/* Live Preview Card */}
           {(() => {
             const previewCap = getDefaultGameCapacity(form.game, form.mode)
             const currentTeams = Number(form.maxTeams || previewCap.maxTeams)
             const currentPlayers = currentTeams * previewCap.teamSize
 
             return (
-              <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-2.5 shadow-inner">
-                <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2">
-                  <span className="font-label-caps text-[10px] font-bold text-[#00f2ff] uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#00f2ff]" />
-                    <span>Live Configuration & Capacity Preview</span>
+              <div className="p-3.5 bg-[#1c1b1c] border border-[#00f2ff]/30 rounded space-y-2">
+                <div className="flex items-center justify-between border-b border-[#27272a] pb-1.5">
+                  <span className="text-[10px] font-headline font-bold text-[#00f2ff] uppercase flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Configuration & Capacity Preview</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded text-[9px] font-extrabold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase font-mono">
+                  <span className="px-2 py-0.5 rounded text-[9px] font-headline font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
                     {previewCap.roomCap} Player Room Cap
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-body">
                   <div>
-                    <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
-                      Selected Game
-                    </span>
-                    <p className="font-bold text-white font-headline uppercase truncate">{form.game || 'Free Fire MAX'}</p>
+                    <span className="text-[10px] text-[#849495] uppercase block">Selected Game</span>
+                    <p className="font-headline font-bold text-white uppercase truncate">{form.game || 'Free Fire MAX'}</p>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
-                      Match Mode
-                    </span>
-                    <p className="font-bold text-white font-headline uppercase">
+                    <span className="text-[10px] text-[#849495] uppercase block">Match Mode</span>
+                    <p className="font-headline font-bold text-white uppercase">
                       {form.mode === 'solo' ? 'Solo (1P)' : form.mode === 'duo' ? 'Duo (2P)' : 'Squad (4P)'}
                     </p>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
-                      Max Teams / Squads
-                    </span>
-                    <p className="font-mono font-extrabold text-[#00f2ff] text-sm">
-                      {currentTeams} {previewCap.teamUnit}
-                    </p>
+                    <span className="text-[10px] text-[#849495] uppercase block">Max Squads</span>
+                    <p className="font-headline font-bold text-[#00f2ff] text-sm">{currentTeams} {previewCap.teamUnit}</p>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#8e9dae] uppercase font-bold tracking-wider block mb-0.5">
-                      Active Player Capacity
-                    </span>
-                    <p className="font-mono font-extrabold text-[#00ff9d] text-sm">
-                      {currentPlayers} / {previewCap.roomCap} Players
-                    </p>
+                    <span className="text-[10px] text-[#849495] uppercase block">Player Cap</span>
+                    <p className="font-headline font-bold text-[#10b981] text-sm">{currentPlayers} / {previewCap.roomCap} Players</p>
                   </div>
                 </div>
               </div>
@@ -605,29 +517,27 @@ export default function TournamentCenterView({
       title: 'Match Configuration & Schedule',
       shortTitle: 'Match & Schedule',
       content: (
-        <div className="space-y-5">
-          <div className="border-b border-[#3a494b]/50 pb-2">
-            <h3 className="text-sm font-extrabold text-white uppercase tracking-tight font-headline flex items-center gap-2">
+        <div className="space-y-4">
+          <div className="border-b border-[#27272a] pb-2">
+            <h3 className="text-sm font-extrabold text-white uppercase font-headline flex items-center gap-2">
               <Gamepad2 className="w-4 h-4 text-[#00f2ff]" />
               <span>Match Configuration & Schedule</span>
             </h3>
-            <p className="text-xs text-[#8e9dae]">Configure map, rules, and match timeline execution.</p>
+            <p className="text-xs text-[#849495] font-body">Configure map, rules, and match timeline execution.</p>
           </div>
 
-          {/* SECTION 1: MATCH CONFIGURATION */}
-          <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-4 shadow-inner">
-            <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2">
-              <span className="text-xs font-bold text-[#00f2ff] uppercase flex items-center gap-2 font-headline">
-                <Target className="w-4 h-4 text-[#00f2ff]" />
-                <span>Section 1: Match Configuration</span>
+          <div className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded space-y-3">
+            <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
+              <span className="text-xs font-headline font-bold text-[#00f2ff] uppercase flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5" />
+                <span>Match Configuration Preset</span>
               </span>
-              <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase font-mono">
+              <span className="px-2 py-0.5 rounded text-[9px] font-headline font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
                 {form.game?.startsWith('Free Fire') ? 'Free Fire Preset' : 'BGMI Preset'}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* 1. Map (Required - Game Specific) */}
               <FormSelect
                 label="Map"
                 name="map"
@@ -649,7 +559,6 @@ export default function TournamentCenterView({
                 icon={MapPin}
               />
 
-              {/* 2. Match Type */}
               <FormSelect
                 label="Match Type"
                 name="matchType"
@@ -663,7 +572,6 @@ export default function TournamentCenterView({
                 icon={Flame}
               />
 
-              {/* 3. Gun Attributes */}
               <FormSelect
                 label="Gun Attributes"
                 name="gunAttributes"
@@ -673,7 +581,6 @@ export default function TournamentCenterView({
                 icon={Crosshair}
               />
 
-              {/* 4. Character Skills */}
               <FormSelect
                 label="Character Skills"
                 name="characterSkills"
@@ -685,11 +592,8 @@ export default function TournamentCenterView({
             </div>
           </div>
 
-          {/* SECTION 2: TOURNAMENT SCHEDULE */}
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-headline">
-              Section 2: Tournament Schedule
-            </h4>
+            <h4 className="text-xs font-headline font-bold text-white uppercase">Tournament Schedule</h4>
             <TournamentScheduleForm
               startDate={form.startDate}
               startTime={form.startTime}
@@ -701,20 +605,14 @@ export default function TournamentCenterView({
               roomPublishTime={form.roomPublishTime}
               errors={formErrors}
               onChange={(sched) => {
-                setForm((prev) => ({
-                  ...prev,
-                  ...sched
-                }))
+                setForm((prev) => ({ ...prev, ...sched }))
                 if (Object.keys(formErrors).length > 0) setFormErrors({})
               }}
             />
           </div>
 
-          {/* SECTION 3: RULEBOOK (READ-ONLY) */}
           <div className="space-y-2 pt-1">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-headline">
-              Section 3: Official Rulebook
-            </h4>
+            <h4 className="text-xs font-headline font-bold text-white uppercase">Official Rulebook</h4>
             <OfficialRulebook rules={OFFICIAL_MJ_RULES} />
           </div>
         </div>
@@ -739,10 +637,7 @@ export default function TournamentCenterView({
           prizes={form.prizes}
           errors={formErrors}
           onChange={(financialData) => {
-            setForm((prev) => ({
-              ...prev,
-              ...financialData
-            }))
+            setForm((prev) => ({ ...prev, ...financialData }))
             if (Object.keys(formErrors).length > 0) setFormErrors({})
           }}
         />
@@ -753,45 +648,71 @@ export default function TournamentCenterView({
   const activeTournament = tournaments.find((t) => t.id === selectedTournamentId)
 
   return (
-    <div className="space-y-6 antialiased">
+    <div className="space-y-5 font-body antialiased">
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
-      {/* Admin V2 Tournaments Information Architecture Navigation */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 shadow-xl flex items-center gap-2 overflow-x-auto text-xs font-mono font-bold">
-        {[
-          { id: 'ALL_TOURNAMENTS', label: 'ALL TOURNAMENTS' },
-          { id: 'CREATE_TOURNAMENT', label: '+ CREATE TOURNAMENT' },
-          { id: 'REGISTRATION_QUEUE', label: 'REGISTRATION QUEUE' },
-          { id: 'MATCH_OPERATIONS', label: 'MATCH OPERATIONS' },
-          { id: 'RESULTS', label: 'RESULTS PIPELINE' },
-          { id: 'HISTORY', label: 'HISTORY & ARCHIVE' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              if (tab.id === 'CREATE_TOURNAMENT') {
-                handleOpenCreateModal()
-              } else {
-                setSelectedTournamentId(null)
-                setActiveOpsTab(tab.id)
-              }
-            }}
-            className={`px-3.5 py-2 rounded-lg transition-all whitespace-nowrap ${
-              activeOpsTab === tab.id && !selectedTournamentId
-                ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
-                : 'bg-[#07090c] text-[#8e9dae] hover:text-white border border-[#3a494b]/60'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* 1. TOURNAMENTS CONSOLE PAGE HEADER */}
+      <div className="bg-[#141416] border border-[#27272a] rounded p-5 sm:p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-headline font-bold text-[#00f2ff] uppercase tracking-wider mb-1.5">
+            <Trophy className="w-4 h-4" />
+            <span>Tournaments Console</span>
+          </div>
+          <h1 className="font-headline text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-tight">
+            Arena Operations
+          </h1>
+          <p className="text-xs sm:text-sm text-[#849495] font-body mt-1 max-w-2xl">
+            Operational controls & real-time arena management
+          </p>
+        </div>
+
+        <button
+          onClick={handleOpenCreateModal}
+          className="px-4 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,242,255,0.25)] shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4 text-[#00363a] stroke-[3]" />
+          <span>+ CREATE TOURNAMENT</span>
+        </button>
       </div>
 
-      {/* VIEW SWITCHING */}
+      {/* 2. UNIFIED PRIMARY NAVIGATION BAR */}
+      <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-headline font-bold border-b border-[#27272a] pb-2">
+        {[
+          { id: 'ALL_TOURNAMENTS', label: 'ALL TOURNAMENTS', icon: Trophy },
+          { id: 'REGISTRATION_QUEUE', label: 'REGISTRATION QUEUE', icon: ClipboardList },
+          { id: 'MATCH_OPERATIONS', label: 'MATCH OPERATIONS', icon: Swords },
+          { id: 'RESULTS', label: 'RESULTS', icon: Award },
+          { id: 'HISTORY', label: 'HISTORY', icon: History },
+        ].map((tab) => {
+          const Icon = tab.icon
+          const active = activeOpsTab === tab.id && !selectedTournamentId
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setSelectedTournamentId(null)
+                setActiveOpsTab(tab.id)
+              }}
+              className={`px-3.5 py-2 rounded transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+                active
+                  ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-sm'
+                  : 'bg-[#141416] text-[#849495] hover:text-white border border-[#27272a]'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{tab.label}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* 3. VIEW SWITCHING CONTAINER */}
       {selectedTournamentId ? (
         <TournamentOperationsWorkspace
           tournament={activeTournament}
           onBackToRoster={() => setSelectedTournamentId(null)}
+          onEditTournament={handleOpenEditModal}
           updateRegistrationStatus={updateTournamentStatus}
         />
       ) : (
@@ -824,28 +745,30 @@ export default function TournamentCenterView({
           )}
 
           {activeOpsTab === 'RESULTS' && (
-            <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 text-center space-y-3 font-mono">
-              <CheckCircle2 className="w-8 h-8 text-[#00ff9d] mx-auto" />
-              <h3 className="text-sm font-bold text-white uppercase">RESULT VERIFICATION PIPELINE</h3>
-              <p className="text-xs text-[#8e9dae] max-w-md mx-auto">
-                Official match scorecard submission and automated OCR extraction workflow will be integrated in Phase 3.
+            <div className="bg-[#141416] border border-[#27272a] rounded p-8 text-center space-y-3 font-body">
+              <Award className="w-10 h-10 text-[#fed83a] mx-auto opacity-70" />
+              <h3 className="text-sm font-headline font-extrabold text-white uppercase tracking-wider">
+                Result Verification Pipeline
+              </h3>
+              <p className="text-xs text-[#849495] max-w-md mx-auto">
+                Official match scorecard submission and automated extraction workflow will be integrated in Phase 3.
               </p>
             </div>
           )}
 
           {activeOpsTab === 'HISTORY' && (
-            <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 font-mono space-y-3">
-              <h3 className="text-sm font-bold text-white uppercase border-b border-[#3a494b]/60 pb-2">
-                COMPLETED TOURNAMENT ARCHIVE
+            <div className="bg-[#141416] border border-[#27272a] rounded p-6 space-y-4">
+              <h3 className="text-sm font-headline font-extrabold text-white uppercase tracking-wider border-b border-[#27272a] pb-3">
+                Completed Tournament Archive
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {tournaments.filter(t => t.status === 'Completed' || t.status === 'Prize Distributed').length === 0 ? (
-                  <p className="text-xs text-[#8e9dae]">No completed tournaments found in historical logs.</p>
+                  <p className="text-xs text-[#849495] font-body py-4">No completed tournaments found in historical logs.</p>
                 ) : (
                   tournaments.filter(t => t.status === 'Completed' || t.status === 'Prize Distributed').map((t) => (
-                    <div key={t.id} className="p-3 bg-[#07090c] border border-[#3a494b] rounded-lg text-xs space-y-1">
-                      <span className="font-bold text-white block">{t.title}</span>
-                      <span className="text-[#8e9dae]">{t.game} • Prize: {t.prizePool || t.prize_pool}</span>
+                    <div key={t.id} className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded text-xs font-body space-y-1">
+                      <span className="font-headline font-bold text-white block">{t.title}</span>
+                      <span className="text-[#849495]">{t.game} &bull; Prize: {formatTournamentPrize(t)}</span>
                     </div>
                   ))
                 )}
@@ -855,24 +778,24 @@ export default function TournamentCenterView({
         </>
       )}
 
-      {/* REUSABLE STEP WIZARD MODAL DIALOG */}
+      {/* 4. STEP WIZARD MODAL DIALOG */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-[#151a21] border border-[#3a494b] rounded-2xl max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-[0_0_50px_rgba(0,242,255,0.15)] relative max-h-[92vh] overflow-y-auto font-mono">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="bg-[#141416] border border-[#27272a] rounded max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto font-body">
             
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-5 right-5 p-2 rounded-xl bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] cursor-pointer"
+              className="absolute top-5 right-5 p-2 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="space-y-1 border-b border-[#3a494b]/50 pb-3">
-              <h3 className="font-display-lg text-lg font-bold text-white uppercase tracking-tight flex items-center gap-2">
+            <div className="space-y-1 border-b border-[#27272a] pb-3">
+              <h3 className="font-headline text-lg sm:text-xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-[#00f2ff]" />
                 <span>{editingId ? 'Edit Tournament Configuration' : 'Tournament Creation Wizard'}</span>
               </h3>
-              <p className="text-xs text-[#8e9dae]">Configure general info, schedule, and registration/prizes in 3 guided steps.</p>
+              <p className="text-xs text-[#849495]">Configure general info, schedule, and registration/prizes in 3 guided steps.</p>
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="space-y-4">

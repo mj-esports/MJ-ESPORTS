@@ -4,7 +4,6 @@ import { useTournaments } from '../contexts/TournamentContext'
 import AdminHeader from '../components/admin/AdminHeader'
 import AdminSidebar, { NAV_ITEMS } from '../components/admin/AdminSidebar'
 import CommandCenterView from '../components/admin/CommandCenterView'
-import DashboardOverview from '../components/admin/DashboardOverview'
 import FinanceDashboardView from '../components/admin/FinanceDashboardView'
 import TournamentCenterView from '../components/admin/TournamentCenterView'
 import RegistrationQueueView from '../components/admin/RegistrationQueueView'
@@ -18,6 +17,7 @@ import SettingsView from '../components/admin/SettingsView'
 import AdminNotificationsView from '../components/admin/AdminNotificationsView'
 import AdminAuditLogsView from '../components/admin/AdminAuditLogsView'
 import ResultVerificationView from '../components/admin/ResultVerificationView'
+import MatchResultsWorkspaceView from '../components/admin/results/MatchResultsWorkspaceView'
 
 export default function AdminDashboardPage({ defaultTab }) {
   const {
@@ -37,13 +37,11 @@ export default function AdminDashboardPage({ defaultTab }) {
     if (defaultTab) return defaultTab
     if (params.tab) {
       const normalizedParam = params.tab.toLowerCase()
-      if (normalizedParam === 'finance') {
-        setPaymentsSubTab('finance')
-        return 'payments'
-      }
-      if (normalizedParam === 'reports') return 'analytics'
-      if (normalizedParam === 'matches' || normalizedParam === 'registrations') return 'tournaments'
-      if (normalizedParam === 'teams') return 'players'
+      if (normalizedParam === 'overview' || normalizedParam === 'command-center') return 'dashboard'
+      if (normalizedParam === 'match-control') return 'matches'
+      if (normalizedParam === 'leaderboards' || normalizedParam === 'leaderboard') return 'results'
+      if (normalizedParam === 'payments') return 'finance'
+      if (normalizedParam === 'analytics') return 'reports'
       const found = NAV_ITEMS.find((item) => item.id === normalizedParam)
       if (found) return found.id
     }
@@ -51,13 +49,11 @@ export default function AdminDashboardPage({ defaultTab }) {
     const tabQuery = searchParams.get('tab')
     if (tabQuery) {
       const normalizedQuery = tabQuery.toLowerCase()
-      if (normalizedQuery === 'finance') {
-        setPaymentsSubTab('finance')
-        return 'payments'
-      }
-      if (normalizedQuery === 'reports') return 'analytics'
-      if (normalizedQuery === 'matches' || normalizedQuery === 'registrations') return 'tournaments'
-      if (normalizedQuery === 'teams') return 'players'
+      if (normalizedQuery === 'overview' || normalizedQuery === 'command-center') return 'dashboard'
+      if (normalizedQuery === 'match-control') return 'matches'
+      if (normalizedQuery === 'leaderboards' || normalizedQuery === 'leaderboard') return 'results'
+      if (normalizedQuery === 'payments') return 'finance'
+      if (normalizedQuery === 'analytics') return 'reports'
       const found = NAV_ITEMS.find((item) => item.id === normalizedQuery)
       if (found) return found.id
     }
@@ -69,10 +65,10 @@ export default function AdminDashboardPage({ defaultTab }) {
   const [adminSearch, setAdminSearch] = useState('')
 
   // Sub-tab states for advanced options inside pages
-  const [tournamentsSubTab, setTournamentsSubTab] = useState('center') // 'center' | 'matches' | 'queue'
+  const [tournamentsSubTab, setTournamentsSubTab] = useState('center') // 'center' | 'queue'
   const [playersSubTab, setPlayersSubTab] = useState('directory') // 'directory' | 'teams'
   const [paymentsSubTab, setPaymentsSubTab] = useState('finance') // 'finance' | 'verification'
-  const [analyticsSubTab, setAnalyticsSubTab] = useState('telemetry') // 'telemetry' | 'finance' | 'reports'
+  const [reportsSubTab, setReportsSubTab] = useState('reports') // 'reports' | 'telemetry'
 
   useEffect(() => {
     const target = resolveTab()
@@ -84,9 +80,9 @@ export default function AdminDashboardPage({ defaultTab }) {
   const activeNavItem = NAV_ITEMS.find((item) => item.id === activeTab) || NAV_ITEMS[0]
 
   return (
-    <div className="min-h-screen min-h-dvh bg-[#09090b] text-[#f8fafc] font-body selection:bg-[#00f2ff] selection:text-black flex flex-col antialiased">
+    <div className="min-h-screen bg-[#131314] text-[#b9cacb] font-body selection:bg-[#00f2ff]/30 selection:text-[#00f2ff] flex flex-col antialiased">
       
-      {/* Compact Admin Header */}
+      {/* Stitch UI-2A Admin Top Header */}
       <AdminHeader
         pageTitle={activeNavItem.label}
         onSearch={(query) => setAdminSearch(query)}
@@ -94,7 +90,7 @@ export default function AdminDashboardPage({ defaultTab }) {
       />
 
       <div className="flex flex-1">
-        {/* Unified Sidebar */}
+        {/* Stitch UI-2A Left Sidebar & Mobile Drawer */}
         <AdminSidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -105,155 +101,137 @@ export default function AdminDashboardPage({ defaultTab }) {
         {/* Main Admin Content Area */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
           
-          {/* Compact Active Tab Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
-                <activeNavItem.icon className="w-4 h-4" />
+          {/* Sub-Tab Header for Generic Pages */}
+          {activeTab !== 'dashboard' && activeTab !== 'tournaments' && activeTab !== 'matches' && activeTab !== 'results' && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#141416] border border-[#27272a] rounded p-4 shadow-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+                  <activeNavItem.icon className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="font-headline text-sm sm:text-base font-extrabold text-white uppercase tracking-wider">
+                    {activeNavItem.label} Console
+                  </h2>
+                  <p className="text-[11px] text-[#849495] font-body">Operational controls & real-time management</p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-headline text-sm sm:text-base font-black text-white uppercase tracking-wider">
-                  {activeNavItem.label} Console
-                </h2>
-                <p className="text-[11px] text-[#a1a1aa] font-mono">Real-time match operations & telemetry stream</p>
-              </div>
+
+              {/* Sub-Tab Navigation for Specific Tabs */}
+              {activeTab === 'players' && (
+                <div className="flex items-center bg-[#1c1b1c] p-1 rounded border border-[#27272a] text-xs font-headline font-bold">
+                  <button
+                    onClick={() => setPlayersSubTab('directory')}
+                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                      playersSubTab === 'directory'
+                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
+                        : 'text-[#849495] hover:text-white'
+                    }`}
+                  >
+                    Directory
+                  </button>
+                  <button
+                    onClick={() => setPlayersSubTab('teams')}
+                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                      playersSubTab === 'teams'
+                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
+                        : 'text-[#849495] hover:text-white'
+                    }`}
+                  >
+                    Teams
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'finance' && (
+                <div className="flex items-center bg-[#1c1b1c] p-1 rounded border border-[#27272a] text-xs font-headline font-bold">
+                  <button
+                    onClick={() => setPaymentsSubTab('finance')}
+                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                      paymentsSubTab === 'finance'
+                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
+                        : 'text-[#849495] hover:text-white'
+                    }`}
+                  >
+                    Finance Dashboard
+                  </button>
+                  <button
+                    onClick={() => setPaymentsSubTab('verification')}
+                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                      paymentsSubTab === 'verification'
+                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
+                        : 'text-[#849495] hover:text-white'
+                    }`}
+                  >
+                    Payment Verification
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'reports' && (
+                <div className="flex items-center bg-[#1c1b1c] p-1 rounded border border-[#27272a] text-xs font-headline font-bold">
+                  <button
+                    onClick={() => setReportsSubTab('reports')}
+                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                      reportsSubTab === 'reports'
+                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
+                        : 'text-[#849495] hover:text-white'
+                    }`}
+                  >
+                    Reports
+                  </button>
+                  <button
+                    onClick={() => setReportsSubTab('telemetry')}
+                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                      reportsSubTab === 'telemetry'
+                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
+                        : 'text-[#849495] hover:text-white'
+                    }`}
+                  >
+                    Telemetry
+                  </button>
+                </div>
+              )}
             </div>
+          )}
 
-            {/* Sub-Tab Navigation for Advanced Options */}
-            {activeTab === 'tournaments' && (
-              <div className="flex items-center bg-[#09090b] p-1 rounded-xl border border-[#27272a] text-xs font-mono font-bold">
-                <button
-                  onClick={() => setTournamentsSubTab('center')}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    tournamentsSubTab === 'center' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
-                  }`}
-                >
-                  Tournament Center
-                </button>
-                <button
-                  onClick={() => setTournamentsSubTab('matches')}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    tournamentsSubTab === 'matches' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
-                  }`}
-                >
-                  Match Control
-                </button>
-                <button
-                  onClick={() => setTournamentsSubTab('queue')}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    tournamentsSubTab === 'queue' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
-                  }`}
-                >
-                  Queue
-                </button>
-              </div>
-            )}
-
-            {activeTab === 'players' && (
-              <div className="flex items-center bg-[#07090c] p-1 rounded-lg border border-[#3a494b]/60 text-xs font-mono font-bold">
-                <button
-                  onClick={() => setPlayersSubTab('directory')}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    playersSubTab === 'directory' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
-                  }`}
-                >
-                  Player Directory
-                </button>
-                <button
-                  onClick={() => setPlayersSubTab('teams')}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    playersSubTab === 'teams' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
-                  }`}
-                >
-                  Teams Roster
-                </button>
-              </div>
-            )}
-
-            {(activeTab === 'payments' || activeTab === 'finance') && (
-              <div className="flex items-center bg-[#07090c] p-1 rounded-lg border border-[#3a494b]/60 text-xs font-mono font-bold">
-                <button
-                  onClick={() => setPaymentsSubTab('finance')}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    paymentsSubTab === 'finance' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
-                  }`}
-                >
-                  Finance Dashboard
-                </button>
-                <button
-                  onClick={() => setPaymentsSubTab('verification')}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    paymentsSubTab === 'verification' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
-                  }`}
-                >
-                  Payment Verification
-                </button>
-              </div>
-            )}
-
-            {activeTab === 'analytics' && (
-              <div className="flex items-center bg-[#07090c] p-1 rounded-lg border border-[#3a494b]/60 text-xs font-mono font-bold">
-                <button
-                  onClick={() => setAnalyticsSubTab('telemetry')}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    analyticsSubTab === 'telemetry' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
-                  }`}
-                >
-                  Telemetry
-                </button>
-                <button
-                  onClick={() => setAnalyticsSubTab('finance')}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    analyticsSubTab === 'finance' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
-                  }`}
-                >
-                  Finance
-                </button>
-                <button
-                  onClick={() => setAnalyticsSubTab('reports')}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    analyticsSubTab === 'reports' ? 'bg-[#00f2ff] text-[#00363a] font-extrabold' : 'text-[#8e9dae] hover:text-white'
-                  }`}
-                >
-                  Reports
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Main View Pages */}
+          {/* Main View Container */}
           <div className="space-y-6">
-            {(activeTab === 'dashboard' || activeTab === 'command-center') && (
+            {/* Overview / Command Center (Stitch UI-2A) */}
+            {(activeTab === 'dashboard' || activeTab === 'overview' || activeTab === 'command-center') && (
               <CommandCenterView tournaments={tournaments} setActiveTab={setActiveTab} />
             )}
 
+            {/* Tournaments Management */}
             {activeTab === 'tournaments' && (
-              <>
-                {tournamentsSubTab === 'center' && (
-                  <TournamentCenterView
-                    tournaments={tournaments}
-                    createTournament={createTournament}
-                    editTournament={editTournament}
-                    deleteTournament={deleteTournament}
-                    updateTournamentStatus={updateTournamentStatus}
-                  />
-                )}
-                {tournamentsSubTab === 'matches' && (
-                  <MatchControlView
-                    tournaments={tournaments}
-                    updateTournamentScores={updateTournamentScores}
-                    setActiveTab={setActiveTab}
-                  />
-                )}
-                {tournamentsSubTab === 'queue' && (
-                  <RegistrationQueueView
-                    tournaments={tournaments}
-                    updateRegistrationStatus={updateRegistrationStatus}
-                  />
-                )}
-              </>
+              <TournamentCenterView
+                tournaments={tournaments}
+                createTournament={createTournament}
+                editTournament={editTournament}
+                deleteTournament={deleteTournament}
+                updateTournamentStatus={updateTournamentStatus}
+              />
             )}
 
+            {/* Match Control */}
+            {activeTab === 'matches' && (
+              <MatchControlView
+                tournaments={tournaments}
+                setActiveTab={setActiveTab}
+              />
+            )}
+
+            {/* Match Results & Standings */}
+            {activeTab === 'results' && (
+              <MatchResultsWorkspaceView
+                tournaments={tournaments}
+                updateTournamentScores={updateTournamentScores}
+                updateTournamentStatus={updateTournamentStatus}
+                editTournament={editTournament}
+                setActiveTab={setActiveTab}
+              />
+            )}
+
+            {/* Players & Teams */}
             {activeTab === 'players' && (
               <>
                 {playersSubTab === 'directory' && <PlayerDirectoryView tournaments={tournaments} />}
@@ -261,7 +239,8 @@ export default function AdminDashboardPage({ defaultTab }) {
               </>
             )}
 
-            {(activeTab === 'payments' || activeTab === 'finance') && (
+            {/* Finance Management */}
+            {activeTab === 'finance' && (
               <>
                 {paymentsSubTab === 'finance' && <FinanceDashboardView tournaments={tournaments} />}
                 {paymentsSubTab === 'verification' && (
@@ -273,22 +252,15 @@ export default function AdminDashboardPage({ defaultTab }) {
               </>
             )}
 
-            {activeTab === 'results' && (
-              <ResultVerificationView tournaments={tournaments} />
-            )}
-
-            {activeTab === 'analytics' && (
+            {/* Reports & Telemetry */}
+            {activeTab === 'reports' && (
               <>
-                {analyticsSubTab === 'telemetry' && <AnalyticsView tournaments={tournaments} />}
-                {analyticsSubTab === 'finance' && <FinanceDashboardView tournaments={tournaments} />}
-                {analyticsSubTab === 'reports' && <ReportsView tournaments={tournaments} />}
+                {reportsSubTab === 'reports' && <ReportsView tournaments={tournaments} />}
+                {reportsSubTab === 'telemetry' && <AnalyticsView tournaments={tournaments} />}
               </>
             )}
 
-            {activeTab === 'notifications' && <AdminNotificationsView />}
-
-            {activeTab === 'audit' && <AdminAuditLogsView />}
-
+            {/* System Settings */}
             {activeTab === 'settings' && <SettingsView />}
           </div>
 
@@ -298,3 +270,4 @@ export default function AdminDashboardPage({ defaultTab }) {
     </div>
   )
 }
+

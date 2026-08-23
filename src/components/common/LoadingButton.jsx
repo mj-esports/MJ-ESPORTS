@@ -21,21 +21,21 @@ export default function LoadingButton({
 }) {
   const isDisabled = disabled || loading
 
-  const baseStyles = 'inline-flex items-center justify-center font-bold tracking-wider transition-all select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00f2ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07090c] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
+  const baseStyles = 'inline-flex items-center justify-center font-bold tracking-wider transition-all select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00f2ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#131314] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
 
   const sizeStyles = {
-    sm: 'px-3 py-1.5 text-xs min-h-[36px] rounded-md font-headline',
-    md: 'px-4 py-2.5 text-xs min-h-[44px] rounded-md font-headline',
-    lg: 'px-6 py-3.5 text-sm min-h-[48px] rounded-md font-headline',
+    sm: 'px-3 py-1.5 text-xs min-h-[36px] rounded font-headline',
+    md: 'px-4 py-2.5 text-xs min-h-[44px] rounded font-headline',
+    lg: 'px-6 py-3.5 text-sm min-h-[48px] rounded font-headline',
   }
 
   const variantStyles = {
     primary:
       'bg-[#00f2ff] hover:bg-[#74f5ff] active:bg-[#00dbe7] text-[#00363a] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(0,242,255,0.35)] hover:shadow-[0_0_24px_rgba(0,242,255,0.5)] transition-all',
     secondary:
-      'bg-[#fe6b00] hover:bg-[#ff8533] active:bg-[#e05e00] text-[#170700] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(254,107,0,0.35)] hover:shadow-[0_0_24px_rgba(254,107,0,0.5)] transition-all',
+      'bg-[#ff5e07] hover:bg-[#ff7a33] active:bg-[#e04e00] text-[#170700] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(255,94,7,0.35)] hover:shadow-[0_0_24px_rgba(255,94,7,0.5)] transition-all',
     outline:
-      'bg-[#1d2023] hover:bg-[#1c232b] border border-[#3a494b] hover:border-[#00f2ff] text-[#e1e2e7] hover:text-[#00f2ff] font-headline font-semibold uppercase tracking-wider transition-all',
+      'bg-[#141416] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff] text-[#e5e2e3] hover:text-[#00f2ff] font-headline font-semibold uppercase tracking-wider transition-all',
     ghost:
       'bg-transparent hover:bg-[#00f2ff]/10 text-[#00f2ff] font-headline font-semibold uppercase tracking-wider transition-all',
     danger:

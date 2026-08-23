@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
-import { Trophy, Download, Sparkles, User } from 'lucide-react'
+import { Trophy, Download, Sparkles, User, Flame, Shield } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import { TableSkeleton } from '../components/common/SkeletonLoader.jsx'
 import EmptyState from '../components/common/EmptyState.jsx'
@@ -53,6 +53,37 @@ export default function LeaderboardPage() {
     }
   }, [fetchData])
 
+  // Dynamic Prize Pool calculation derived from actual tournaments data
+  const prizePoolSummary = useMemo(() => {
+    let totalPoolNum = 0
+    tournamentsList.forEach((t) => {
+      const raw = String(t.prize_pool || t.prizePool || '0').replace(/[^0-9]/g, '')
+      const num = parseInt(raw, 10)
+      if (!isNaN(num) && num > 0) {
+        totalPoolNum += num
+      }
+    })
+
+    // Fallback baseline if no prize pool amount set in tournaments list
+    if (totalPoolNum === 0) {
+      totalPoolNum = 25000
+    }
+
+    const firstPlacePrize = Math.round(totalPoolNum * 0.6)
+    const secondPlacePrize = Math.round(totalPoolNum * 0.25)
+    const thirdPlacePrize = Math.max(0, totalPoolNum - firstPlacePrize - secondPlacePrize)
+
+    return {
+      totalFormatted: `₹${totalPoolNum.toLocaleString('en-IN')}`,
+      firstFormatted: `60% (₹${firstPlacePrize.toLocaleString('en-IN')})`,
+      secondFormatted: `25% (₹${secondPlacePrize.toLocaleString('en-IN')})`,
+      thirdFormatted: `15% (₹${thirdPlacePrize.toLocaleString('en-IN')})`,
+      firstAmount: `₹${firstPlacePrize.toLocaleString('en-IN')}`,
+      secondAmount: `₹${secondPlacePrize.toLocaleString('en-IN')}`,
+      thirdAmount: `₹${thirdPlacePrize.toLocaleString('en-IN')}`,
+    }
+  }, [tournamentsList])
+
   // Aggregate Final Standings & Top Teams/Players
   const standings = useMemo(() => {
     const statsMap = {}
@@ -61,8 +92,9 @@ export default function LeaderboardPage() {
       const teams = Array.isArray(t.teams_list) ? t.teams_list : (Array.isArray(t.teamsList) ? t.teamsList : [])
 
       teams.forEach((team) => {
-        const name = team.team || team.name || team.captain || 'Team Apex'
-        const player = team.captain || team.player || team.name || 'Viper_XYZ'
+        if (!team) return
+        const name = team.team || team.teamName || team.team_name || team.name || team.captain || 'Team Apex'
+        const player = team.captain || team.captain_name || team.player || team.name || 'Player'
         const kills = Number(team.kills || team.finishes || 0)
         const points = Number(team.points || team.score || 0)
         const isWinner = team.rank === 1 || team.position === 1
@@ -75,31 +107,47 @@ export default function LeaderboardPage() {
             wins: 0,
             points: 0,
             kills: 0,
-            avatar: team.avatar || null,
+            avatar: team.avatar || team.logoUrl || null,
           }
         }
         statsMap[name].matches += 1
         if (isWinner) statsMap[name].wins += 1
         statsMap[name].points += points
         statsMap[name].kills += kills
+        if (team.avatar || team.logoUrl) {
+          statsMap[name].avatar = team.avatar || team.logoUrl
+        }
       })
     })
 
     const sortedList = Object.values(statsMap)
-      .sort((a, b) => b.points - a.points || b.wins - a.wins || b.kills - a.kills)
+      .sort((a, b) => b.points - a.points || b.wins - a.wins || b.kills - a.kills || a.team.localeCompare(b.team))
 
     return sortedList.slice(0, 50).map((item, index) => {
-      const payout = index === 0 ? '₹10,000' : index === 1 ? '₹7,500' : index === 2 ? '₹4,000' : '-'
+      const payout =
+        index === 0
+          ? prizePoolSummary.firstAmount
+          : index === 1
+          ? prizePoolSummary.secondAmount
+          : index === 2
+          ? prizePoolSummary.thirdAmount
+          : '-'
       return {
         ...item,
         rank: index + 1,
         payout,
       }
     })
-  }, [tournamentsList])
+  }, [tournamentsList, prizePoolSummary])
 
   const championTeam = standings[0] || null
-  const mvpPlayer = standings[1] || null
+
+  // Dynamic Tournament MVP based on maximum individual kills / impact
+  const mvpPlayer = useMemo(() => {
+    if (standings.length === 0) return null
+    const sortedByKills = [...standings].sort((a, b) => b.kills - a.kills || b.points - a.points)
+    return sortedByKills[0] || standings[0] || null
+  }, [standings])
 
   const handleDownloadCsv = () => {
     if (standings.length === 0) return
@@ -116,135 +164,133 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div className="bg-[#09090b] text-[#f8fafc] font-body min-h-screen flex flex-col antialiased">
-      <main className="flex-grow pt-8 pb-16 px-4 md:px-8 max-w-7xl mx-auto w-full">
+    <div className="w-full min-h-screen bg-[#131314] text-[#b9cacb] pb-28 sm:pb-32 font-body antialiased selection:bg-[#00f2ff]/30 selection:text-[#00f2ff] overflow-x-hidden">
+      <main className="max-w-7xl mx-auto pt-6 sm:pt-8 px-4 sm:px-6 lg:px-8">
         
-        {/* 1. HEADER */}
-        <header className="mb-10 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fbbf24]/10 border border-[#fbbf24]/20 text-[#fbbf24] font-label text-sm font-semibold mb-4">
-            <Trophy className="w-4 h-4 text-[#fbbf24]" />
-            <span>Tournament Concluded</span>
+        {/* 1. HEADER SECTION (Compact Mobile Padding) */}
+        <header className="mb-6 sm:mb-8 md:mb-10">
+          <div className="flex items-center gap-2 text-xs font-label-bold text-[#00f2ff] uppercase tracking-wider mb-2">
+            <span>Arena Statistics</span>
+            <span>&bull;</span>
+            <span>Tournament Leaderboard</span>
           </div>
-          <h1 className="font-headline text-4xl md:text-6xl font-black tracking-tighter mb-2 uppercase text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-zinc-400">
-            Summer Championship '26
+          <h1 className="font-headline text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2 sm:mb-3 uppercase">
+            Leaderboard Standings
           </h1>
-          <p className="text-[#a1a1aa] text-base md:text-lg max-w-2xl font-body">
-            The dust has settled. Witness the champions, the MVPs, and the final standings of the season's most grueling competition.
+          <p className="text-[#b9cacb] text-sm sm:text-base md:text-lg max-w-2xl font-body">
+            Witness the champions, the MVPs, and the final standings of India's most competitive esports tournaments.
           </p>
         </header>
 
         {/* 2. BENTO GRID TOP SECTION */}
         {standings.length > 0 && championTeam && (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
             
-            {/* Winner Podium */}
-            <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-[#18181b]/60 backdrop-blur-md rounded-xl border border-[#fbbf24]/30 p-6 md:p-8 flex flex-col justify-between relative overflow-hidden shadow-[0_0_40px_-10px_rgba(251,191,36,0.3)] group">
+            {/* Grand Champions Podium Card */}
+            <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-[#141416] rounded border border-[#fed83a]/40 p-5 sm:p-6 md:p-8 flex flex-col justify-between relative overflow-hidden shadow-[0_0_40px_-10px_rgba(254,216,58,0.25)] group">
               <div className="relative z-10">
-                <h2 className="font-label text-[#fbbf24] font-bold uppercase tracking-widest text-sm mb-1">
-                  Grand Champions
+                <h2 className="font-label-bold text-[#fed83a] font-bold uppercase tracking-wider text-xs mb-3 flex items-center gap-1.5">
+                  <Trophy className="w-3.5 h-3.5" />
+                  <span>Grand Champions</span>
                 </h2>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-full bg-[#18181b] flex items-center justify-center border-2 border-[#fbbf24] p-1 shadow-lg">
+                <div className="flex items-center gap-3.5 sm:gap-4 mb-4 sm:mb-6">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded bg-[#131314] flex items-center justify-center border-2 border-[#fed83a] p-1 shadow-lg shrink-0 overflow-hidden">
                     {championTeam.avatar ? (
-                      <img src={championTeam.avatar} alt={championTeam.team} className="w-full h-full rounded-full object-cover" />
+                      <img src={championTeam.avatar} alt={championTeam.team} className="w-full h-full rounded object-cover" />
                     ) : (
-                      <Trophy className="w-8 h-8 text-[#fbbf24]" />
+                      <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-[#fed83a]" />
                     )}
                   </div>
-                  <h3 className="font-headline text-3xl md:text-4xl font-black tracking-tight text-white uppercase">
-                    {championTeam.team}
-                  </h3>
+                  <div className="min-w-0">
+                    <h3 className="font-headline text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white uppercase truncate" title={championTeam.team}>
+                      {championTeam.team}
+                    </h3>
+                    <p className="text-xs text-[#849495] font-body truncate">Captain: {championTeam.player}</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="relative z-10 flex flex-wrap gap-6 items-end justify-between mt-6 pt-4 border-t border-white/5">
+              <div className="relative z-10 flex flex-wrap gap-4 sm:gap-6 items-end justify-between mt-4 sm:mt-6 pt-4 border-t border-[#27272a]">
                 <div>
-                  <p className="text-[#a1a1aa] font-label text-xs uppercase mb-1">Prize Money Won</p>
-                  <p className="font-headline text-3xl md:text-4xl font-bold text-[#fbbf24]">{championTeam.payout}</p>
+                  <p className="text-[#849495] font-label-bold text-[11px] sm:text-xs uppercase mb-0.5 sm:mb-1">Prize Money Won</p>
+                  <p className="font-headline text-2xl sm:text-3xl md:text-4xl font-bold text-[#fed83a]">{championTeam.payout}</p>
                 </div>
-                <div className="bg-[#09090b]/60 backdrop-blur px-4 py-2.5 rounded-lg border border-white/5 flex items-center gap-3">
-                  <Sparkles className="w-5 h-5 text-[#22d3ee]" />
-                  <div>
-                    <p className="text-xs text-[#a1a1aa] font-label">Team MVP</p>
-                    <p className="font-bold text-sm text-white">{championTeam.player}</p>
+                <div className="bg-[#1c1b1c] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded border border-[#27272a] flex items-center gap-2.5 sm:gap-3">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#00f2ff] shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[10px] sm:text-xs text-[#849495] font-label-bold uppercase">Team MVP</p>
+                    <p className="font-bold text-xs sm:text-sm text-white font-headline truncate max-w-[140px] sm:max-w-none">{championTeam.player}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Match MVP Badge */}
+            {/* Tournament MVP Card */}
             {mvpPlayer && (
-              <div className="col-span-1 bg-[#18181b]/60 backdrop-blur-md rounded-xl p-6 flex flex-col items-center text-center relative overflow-hidden shadow-[0_0_30px_-10px_rgba(34,211,238,0.2)] border border-[#27272a]">
-                <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-transparent via-[#22d3ee] to-transparent"></div>
-                <h2 className="font-label text-[#22d3ee] font-bold uppercase tracking-widest text-xs mb-6 w-full text-left">
-                  Tournament MVP
+              <div className="col-span-1 bg-[#141416] rounded p-5 sm:p-6 flex flex-col items-center text-center relative overflow-hidden shadow-[0_0_30px_-10px_rgba(0,242,255,0.15)] border border-[#27272a]">
+                <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00f2ff] to-transparent"></div>
+                <h2 className="font-label-bold text-[#00f2ff] font-bold uppercase tracking-wider text-xs mb-4 w-full text-left flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5" />
+                  <span>Tournament MVP</span>
                 </h2>
-                <div className="relative mb-4">
-                  <div className="w-20 h-20 rounded-full border-2 border-[#22d3ee] p-1 relative z-10 bg-[#09090b] flex items-center justify-center">
+                <div className="relative mb-3">
+                  <div className="w-16 h-16 sm:w-18 sm:h-18 rounded border-2 border-[#00f2ff] p-1 relative z-10 bg-[#131314] flex items-center justify-center overflow-hidden">
                     {mvpPlayer.avatar ? (
-                      <img src={mvpPlayer.avatar} alt={mvpPlayer.player} className="w-full h-full rounded-full object-cover" />
+                      <img src={mvpPlayer.avatar} alt={mvpPlayer.player} className="w-full h-full rounded object-cover" />
                     ) : (
-                      <User className="w-10 h-10 text-[#22d3ee]" />
+                      <User className="w-8 h-8 sm:w-9 sm:h-9 text-[#00f2ff]" />
                     )}
                   </div>
-                  <div className="absolute inset-0 bg-[#22d3ee] blur-xl opacity-20 rounded-full"></div>
+                  <div className="absolute inset-0 bg-[#00f2ff] blur-xl opacity-20 rounded-full"></div>
                 </div>
-                <h3 className="font-headline text-2xl font-bold mb-1 text-white">{mvpPlayer.player}</h3>
-                <p className="text-[#a1a1aa] text-xs font-mono mb-6">{mvpPlayer.team}</p>
+                <h3 className="font-headline text-xl sm:text-2xl font-bold mb-0.5 text-white truncate max-w-full" title={mvpPlayer.player}>
+                  {mvpPlayer.player}
+                </h3>
+                <p className="text-[#849495] text-xs font-body mb-4 truncate max-w-full">{mvpPlayer.team}</p>
                 <div className="w-full grid grid-cols-2 gap-2 mt-auto">
-                  <div className="bg-[#18181b] rounded-lg p-3 border border-white/5">
-                    <p className="text-[10px] text-[#a1a1aa] font-label uppercase mb-1">Total Kills</p>
-                    <p className="font-headline text-xl font-bold text-white">{mvpPlayer.kills}</p>
+                  <div className="bg-[#1c1b1c] rounded p-2.5 sm:p-3 border border-[#27272a]">
+                    <p className="text-[10px] text-[#849495] font-label-bold uppercase mb-0.5">Total Kills</p>
+                    <p className="font-headline text-lg sm:text-xl font-bold text-white">{mvpPlayer.kills}</p>
                   </div>
-                  <div className="bg-[#18181b] rounded-lg p-3 border border-white/5">
-                    <p className="text-[10px] text-[#a1a1aa] font-label uppercase mb-1">Total Matches</p>
-                    <p className="font-headline text-xl font-bold text-[#22d3ee]">{mvpPlayer.matches}</p>
+                  <div className="bg-[#1c1b1c] rounded p-2.5 sm:p-3 border border-[#27272a]">
+                    <p className="text-[10px] text-[#849495] font-label-bold uppercase mb-0.5">Matches</p>
+                    <p className="font-headline text-lg sm:text-xl font-bold text-[#00f2ff]">{mvpPlayer.matches}</p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Prize Distribution Summary */}
-            <div className="col-span-1 md:col-span-3 lg:col-span-1 bg-[#18181b]/60 backdrop-blur-md rounded-xl p-6 flex flex-col border border-[#27272a]">
-              <h2 className="font-label text-[#a1a1aa] font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-[#fbbf24]" />
+            {/* Dynamic Prize Pool Distribution Summary */}
+            <div className="col-span-1 md:col-span-2 lg:col-span-1 bg-[#141416] rounded p-5 sm:p-6 flex flex-col border border-[#27272a]">
+              <h2 className="font-label-bold text-[#849495] font-bold uppercase tracking-wider text-xs mb-3 flex items-center gap-1.5">
+                <Trophy className="w-3.5 h-3.5 text-[#fed83a]" />
                 <span>Prize Pool</span>
               </h2>
-              <div className="mb-6">
-                <p className="text-xs text-[#a1a1aa] font-label mb-1">Total Pool</p>
-                <p className="font-headline text-3xl font-bold text-white">₹25,000</p>
+              <div className="mb-4 sm:mb-5">
+                <p className="text-[11px] sm:text-xs text-[#849495] font-label-bold mb-0.5">Total Pool</p>
+                <p className="font-headline text-2xl sm:text-3xl font-bold text-white">{prizePoolSummary.totalFormatted}</p>
               </div>
-              <div className="space-y-3.5 mt-auto">
-                <div className="flex items-center justify-between">
+              <div className="space-y-2.5 sm:space-y-3 mt-auto">
+                <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#fbbf24]"></div>
-                    <span className="text-xs font-semibold text-white">1st Place</span>
+                    <div className="w-2 h-2 rounded-full bg-[#fed83a] shrink-0"></div>
+                    <span className="text-[#e5e2e3] font-headline font-bold">1st Place</span>
                   </div>
-                  <span className="text-xs text-[#fbbf24] font-bold">₹10,000</span>
+                  <span className="font-headline font-bold text-[#fed83a]">{prizePoolSummary.firstFormatted}</span>
                 </div>
-                <div className="w-full bg-[#18181b] h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-[#fbbf24] h-full w-[40%] rounded-full"></div>
-                </div>
-                <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-slate-300"></div>
-                    <span className="text-xs text-[#a1a1aa]">2nd Place</span>
+                    <div className="w-2 h-2 rounded-full bg-[#b9cacb] shrink-0"></div>
+                    <span className="text-[#e5e2e3] font-headline font-bold">2nd Place</span>
                   </div>
-                  <span className="text-xs text-white">₹7,500</span>
+                  <span className="font-headline font-bold text-[#b9cacb]">{prizePoolSummary.secondFormatted}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-amber-700"></div>
-                    <span className="text-xs text-[#a1a1aa]">3rd Place</span>
+                    <div className="w-2 h-2 rounded-full bg-[#ff5e07] shrink-0"></div>
+                    <span className="text-[#e5e2e3] font-headline font-bold">3rd Place</span>
                   </div>
-                  <span className="text-xs text-white">₹4,000</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#22d3ee]"></div>
-                    <span className="text-xs text-[#a1a1aa]">MVPs & Bonus</span>
-                  </div>
-                  <span className="text-xs text-[#22d3ee] font-bold">₹3,500</span>
+                  <span className="font-headline font-bold text-[#ff5e07]">{prizePoolSummary.thirdFormatted}</span>
                 </div>
               </div>
             </div>
@@ -253,21 +299,23 @@ export default function LeaderboardPage() {
         )}
 
         {/* 3. FINAL STANDINGS LEADERBOARD TABLE */}
-        <section className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h2 className="font-headline text-2xl font-bold tracking-tight text-white uppercase">Final Standings</h2>
+        <section className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <h2 className="font-headline text-xl sm:text-2xl font-extrabold tracking-tight text-white uppercase">
+              Final Standings
+            </h2>
             {standings.length > 0 && (
               <button
                 onClick={handleDownloadCsv}
-                className="text-xs font-label text-[#22d3ee] hover:text-white transition-colors flex items-center gap-1.5 bg-[#18181b] px-4 py-2 rounded-lg border border-[#27272a]"
+                className="text-xs font-headline font-bold text-[#00f2ff] hover:text-[#00363a] hover:bg-[#00f2ff] transition-all flex items-center gap-2 bg-[#141416] px-4 py-2.5 rounded border border-[#27272a] hover:border-[#00f2ff] cursor-pointer uppercase tracking-wider min-h-[40px] shadow-sm select-none"
               >
                 <span>Download Full CSV</span>
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4 shrink-0" />
               </button>
             )}
           </div>
 
-          <div className="bg-[#18181b]/60 backdrop-blur-md rounded-xl border border-[#27272a] overflow-hidden shadow-2xl">
+          <div className="bg-[#141416] rounded border border-[#27272a] overflow-hidden shadow-2xl">
             {loading ? (
               <div className="p-4">
                 <TableSkeleton rows={6} />
@@ -275,18 +323,18 @@ export default function LeaderboardPage() {
             ) : standings.length === 0 ? (
               <EmptyState type="leaderboard" sentence="No leaderboard data available yet." />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+              <div className="overflow-x-auto w-full">
+                <table className="w-full text-left border-collapse table-fixed sm:table-auto">
                   <thead>
-                    <tr className="border-b border-white/5 bg-[#18181b]/80 font-mono text-xs uppercase text-[#a1a1aa]">
-                      <th className="py-4 px-6 text-center w-16">Rank</th>
-                      <th className="py-4 px-6">Team / Squad</th>
-                      <th className="py-4 px-6 text-right">Kills</th>
-                      <th className="py-4 px-6 text-right">Total Pts</th>
-                      <th className="py-4 px-6 text-right pr-6">Payout</th>
+                    <tr className="border-b border-[#27272a] bg-[#1c1b1c] font-headline font-bold text-xs uppercase text-[#849495] tracking-wider">
+                      <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-center w-12 sm:w-16">Rank</th>
+                      <th className="py-3.5 sm:py-4 px-3 sm:px-6">Team / Squad</th>
+                      <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-right w-16 sm:w-24">Kills</th>
+                      <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-right w-16 sm:w-24 hidden xs:table-cell">Total Pts</th>
+                      <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-right pr-3 sm:pr-6 w-20 sm:w-28 hidden sm:table-cell">Payout</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5 font-mono text-xs">
+                  <tbody className="divide-y divide-[#27272a] text-xs">
                     {standings.map((s) => {
                       const isRank1 = s.rank === 1
                       const isRank2 = s.rank === 2
@@ -296,50 +344,63 @@ export default function LeaderboardPage() {
                         <tr
                           key={`standings-row-${s.rank}`}
                           onClick={() => setSelectedTeamModal(s)}
-                          className={`group hover:bg-white/5 transition-colors cursor-pointer ${
-                            isRank1 ? 'bg-[#fbbf24]/5' : ''
+                          className={`group hover:bg-[#201f20] transition-colors cursor-pointer ${
+                            isRank1 ? 'bg-[#fed83a]/5' : ''
                           }`}
                         >
-                          <td className="py-4 px-6 text-center">
+                          {/* Rank Badge */}
+                          <td className="py-3 sm:py-4 px-2 sm:px-6 text-center">
                             <div
-                              className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold ${
+                              className={`inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded font-headline font-bold text-xs sm:text-sm ${
                                 isRank1
-                                  ? 'bg-[#fbbf24] text-black shadow-md'
+                                  ? 'bg-[#fed83a] text-[#170700] shadow-md'
                                   : isRank2
-                                  ? 'bg-slate-300 text-black'
+                                  ? 'bg-[#b9cacb] text-[#131314]'
                                   : isRank3
-                                  ? 'bg-amber-700 text-white'
-                                  : 'text-[#a1a1aa]'
+                                  ? 'bg-[#ff5e07] text-[#170700]'
+                                  : 'text-[#849495] bg-[#1c1b1c] border border-[#27272a]'
                               }`}
                             >
                               {s.rank}
                             </div>
                           </td>
 
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-[#18181b] border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                          {/* Team & Player Info (Safely bounds width) */}
+                          <td className="py-3 sm:py-4 px-3 sm:px-6 min-w-0 max-w-[180px] sm:max-w-none">
+                            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#131314] border border-[#27272a] overflow-hidden flex items-center justify-center shrink-0">
                                 {s.avatar ? (
                                   <img src={s.avatar} alt={s.team} className="w-full h-full object-cover" />
                                 ) : (
-                                  <User className="w-4 h-4 text-[#22d3ee]" />
+                                  <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00f2ff]" />
                                 )}
                               </div>
-                              <div>
-                                <span className={`font-bold font-headline block ${
-                                  isRank1 ? 'text-[#fbbf24]' : 'text-white'
-                                }`}>
+                              <div className="min-w-0 flex-1">
+                                <span className={`font-bold font-headline block truncate text-xs sm:text-sm ${
+                                  isRank1 ? 'text-[#fed83a]' : 'text-white'
+                                }`} title={s.team}>
                                   {s.team}
                                 </span>
-                                <span className="text-[10px] text-[#a1a1aa] font-normal block">{s.player}</span>
+                                <span className="text-[10px] text-[#849495] font-body block truncate" title={s.player}>
+                                  {s.player}
+                                </span>
                               </div>
                             </div>
                           </td>
 
-                          <td className="py-4 px-6 text-right font-display text-[#a1a1aa]">{s.kills}</td>
-                          <td className="py-4 px-6 text-right font-display font-bold text-white">{s.points}</td>
-                          <td className={`py-4 px-6 text-right pr-6 font-display font-bold ${
-                            isRank1 ? 'text-[#fbbf24]' : isRank2 ? 'text-slate-300' : isRank3 ? 'text-amber-500' : 'text-[#a1a1aa]'
+                          {/* Kills */}
+                          <td className="py-3 sm:py-4 px-3 sm:px-6 text-right font-headline font-bold text-[#00f2ff] text-xs sm:text-sm whitespace-nowrap">
+                            {s.kills}
+                          </td>
+
+                          {/* Total Points (Hidden on extra-small mobile) */}
+                          <td className="py-3 sm:py-4 px-3 sm:px-6 text-right font-headline font-bold text-white text-xs sm:text-sm whitespace-nowrap hidden xs:table-cell">
+                            {s.points}
+                          </td>
+
+                          {/* Payout (Hidden on mobile, visible on tablet/desktop) */}
+                          <td className={`py-3 sm:py-4 px-3 sm:px-6 text-right pr-3 sm:pr-6 font-headline font-bold text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell ${
+                            isRank1 ? 'text-[#fed83a]' : isRank2 ? 'text-[#b9cacb]' : isRank3 ? 'text-[#ff5e07]' : 'text-[#849495]'
                           }`}>
                             {s.payout}
                           </td>
@@ -366,3 +427,4 @@ export default function LeaderboardPage() {
     </div>
   )
 }
+

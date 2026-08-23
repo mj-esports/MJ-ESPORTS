@@ -55,10 +55,10 @@ export default function FormInput({
             Icon ? 'pl-10' : 'pl-4'
           } ${
             isPassword ? 'pr-10' : 'pr-4'
-          } bg-[#1d2023] border ${
-            error ? 'border-[#ef4444] focus:border-[#ef4444] focus:ring-2 focus:ring-[#ef4444]/40' : 'border-[#3a494b] focus:border-[#00f2ff] focus:ring-2 focus:ring-[#00f2ff]/30'
-          } rounded-md text-sm text-[#e1e2e7] placeholder-[#b9cacb]/60 focus:outline-none transition-all ${
-            disabled ? 'opacity-60 cursor-not-allowed bg-[#191c1f]' : ''
+          } bg-[#141416] border ${
+            error ? 'border-[#ef4444] focus:border-[#ef4444] focus:ring-2 focus:ring-[#ef4444]/40' : 'border-[#27272a] focus:border-[#00f2ff] focus:ring-2 focus:ring-[#00f2ff]/25'
+          } rounded text-sm text-[#e5e2e3] placeholder-[#b9cacb]/60 focus:outline-none transition-all ${
+            disabled ? 'opacity-60 cursor-not-allowed bg-[#1c1b1c]' : ''
           }`}
         />
 

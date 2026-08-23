@@ -1,21 +1,22 @@
 /* 
-  MJ ESPORTS — Google Stitch Aether Elite Design System
-  Project ID: 16703084228305070522
+  MJ ESPORTS — Google Stitch UI-1 Design System
+  Project: MJ Esports Design System Shell
   Unified Design Tokens, Color Palette, Elevation & Components
 */
 
 :root {
-  /* Surfaces & Canvas Elevation (Aether Elite Tonal Depth) */
-  --color-background-deep: #0b0e11;
-  --color-surface: #111417;
-  --color-surface-dim: #111417;
-  --color-surface-bright: #37393d;
-  --color-surface-container-lowest: #0c0e12;
-  --color-surface-container-low: #191c1f;
-  --color-surface-container: #1d2023;
-  --color-surface-container-high: #282a2e;
-  --color-surface-container-highest: #323539;
-  --color-surface-elevated: #1c232b;
+  /* Surfaces & Canvas Elevation (Stitch Tonal Depth) */
+  --color-background-deep: #131314;
+  --color-surface: #131314;
+  --color-surface-dim: #131314;
+  --color-surface-bright: #3a393a;
+  --color-surface-container-lowest: #0e0e0f;
+  --color-surface-container-low: #1c1b1c;
+  --color-surface-container: #201f20;
+  --color-surface-container-high: #2a2a2b;
+  --color-surface-container-highest: #353436;
+  --color-surface-elevated: #141416;
+  --color-surface-stroke: #27272a;
 
   /* Primary Brand Accent (Cyan #00F2FF) */
   --color-primary: #e1fdff;
@@ -25,44 +26,44 @@
   --color-primary-fixed: #74f5ff;
   --color-primary-fixed-dim: #00dbe7;
 
-  /* Secondary Brand Accent (Navy Gray & Action Orange) */
-  --color-secondary: #c2c7d0;
-  --color-on-secondary: #2c3138;
-  --color-secondary-container: #42474f;
-  --color-on-secondary-container: #b1b5bf;
-  --color-action-orange: #fe6b00;
+  /* Secondary Brand Accent (Vibrant Action Orange #FF5E07) */
+  --color-secondary: #ffb59a;
+  --color-on-secondary: #5a1b00;
+  --color-secondary-container: #ff5e07;
+  --color-on-secondary-container: #531900;
+  --color-action-orange: #ff5e07;
 
   /* Status & Functional Accents */
   --color-tertiary: #fff6e4;
   --color-tertiary-container: #fed83a;
-  --color-success-emerald: #10b981;
-  --color-error-ruby: #ef4444;
-  --color-error: #ffb4ab;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
   --color-error-container: #93000a;
 
   /* Neutrals & Borders */
-  --color-on-surface: #e1e2e7;
+  --color-on-surface: #e5e2e3;
   --color-on-surface-variant: #b9cacb;
   --color-outline: #849495;
   --color-outline-variant: #3a494b;
 
   /* Typography Fonts */
-  --font-headline: 'Geist', system-ui, -apple-system, sans-serif;
+  --font-headline: 'Hanken Grotesk', 'Geist', system-ui, -apple-system, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-label: 'Geist', system-ui, -apple-system, sans-serif;
+  --font-label: 'Inter', 'Geist', system-ui, -apple-system, sans-serif;
 
-  /* Radius Scale */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 24px;
+  /* Radius Scale (Stitch Precision 4px Radii) */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
   --radius-full: 9999px;
 
-  /* Ambient Shadows */
-  --shadow-ambient: 0px 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-cyan-glow: 0px 0px 20px rgba(0, 242, 255, 0.35);
-  --shadow-orange-glow: 0px 0px 20px rgba(254, 107, 0, 0.35);
+  /* Ambient Shadows & Glows */
+  --shadow-ambient: 0px 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-cyan-glow: 0px 0px 16px rgba(0, 242, 255, 0.35);
+  --shadow-orange-glow: 0px 0px 16px rgba(255, 94, 7, 0.35);
 
   /* Micro-animations & Easing */
   --ease-stitch: cubic-bezier(0.16, 1, 0.3, 1);
@@ -85,11 +86,35 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Typography Classes matching Stitch Spec */
+/* Typography Classes matching Stitch UI-1 Spec */
+.font-display-xl {
+  font-family: var(--font-headline);
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 80px;
+  letter-spacing: -0.04em;
+}
+
+.font-display-xl-mobile {
+  font-family: var(--font-headline);
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 48px;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 768px) {
+  .font-display-xl {
+    font-size: 40px;
+    line-height: 48px;
+    letter-spacing: -0.02em;
+  }
+}
+
 .font-headline-xl {
   font-family: var(--font-headline);
   font-size: 40px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 48px;
   letter-spacing: -0.02em;
 }
@@ -104,22 +129,22 @@ body {
 .font-headline-lg {
   font-family: var(--font-headline);
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 40px;
   letter-spacing: -0.01em;
 }
 
 @media (max-width: 768px) {
   .font-headline-lg {
-    font-size: 28px;
-    line-height: 36px;
+    font-size: 26px;
+    line-height: 34px;
   }
 }
 
 .font-headline-md {
   font-family: var(--font-headline);
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 32px;
 }
 
@@ -142,6 +167,15 @@ body {
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
+}
+
+.font-label-bold {
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .font-label-md {

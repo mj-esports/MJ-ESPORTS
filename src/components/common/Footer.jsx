@@ -11,17 +11,17 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-[#0b0e11] border-t border-[#3a494b]/60 pt-7 sm:pt-9 pb-24 md:pb-8 text-[#b9cacb]">
+    <footer className="bg-[#0e0e0f] border-t border-[#27272a] pt-7 sm:pt-9 pb-24 md:pb-8 text-[#b9cacb]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Grid: Compact & Balanced 24px–32px Visual Hierarchy */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 pb-7 border-b border-[#3a494b]/40">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 pb-7 border-b border-[#27272a]">
           
           {/* Brand Info */}
           <div className="space-y-3 lg:col-span-1">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-md bg-[#00f2ff] p-[1px] shadow-[0_0_12px_rgba(0,242,255,0.4)]">
-                <div className="w-full h-full bg-[#0b0e11] rounded-[7px] flex items-center justify-center">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded bg-[#00f2ff] p-[1px] shadow-[0_0_12px_rgba(0,242,255,0.4)]">
+                <div className="w-full h-full bg-[#131314] rounded-[3px] flex items-center justify-center">
                   <Swords className="w-4 h-4 text-[#00f2ff]" />
                 </div>
               </div>

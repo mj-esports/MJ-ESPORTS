@@ -192,13 +192,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-8 px-4 sm:px-6 w-full">
-      
-      {/* 2-Column Split Authentication Arena Container */}
-      <div className="w-full max-w-5xl bg-[#151a21] border border-[#3a494b]/60 rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-0 md:min-h-[620px]">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-[#131314]">
+      {/* Centered Auth Card */}
+      <div className="w-full max-w-4xl bg-[#141416] border border-[#27272a] rounded overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
         
         {/* Left Column: Brand Visual (Desktop >= md) */}
-        <div className="hidden md:flex md:w-1/2 relative overflow-hidden bg-[#07090c] items-center justify-center p-8 border-r border-[#3a494b]/60">
+        <div className="hidden md:flex md:w-1/2 relative overflow-hidden bg-[#0e0e0f] items-center justify-center p-8 border-r border-[#27272a]">
           {/* Background Ambient Glow & Lighting Effects */}
           <div className="absolute inset-0 z-0">
             <div
@@ -207,54 +206,54 @@ export default function LoginPage() {
                 backgroundImage: `url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80')`,
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#07090c]/90 via-[#07090c]/70 to-[#151a21]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07090c] via-transparent to-[#07090c]/80" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0e0e0f]/90 via-[#0e0e0f]/70 to-[#141416]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0f] via-transparent to-[#0e0e0f]/80" />
           </div>
 
           {/* Left Column Content */}
           <div className="relative z-10 text-center space-y-6 max-w-sm">
-            <div className="w-16 h-16 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff] flex items-center justify-center mx-auto text-[#00f2ff] shadow-[0_0_20px_rgba(0,242,255,0.4)]">
+            <div className="w-16 h-16 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/40 flex items-center justify-center mx-auto text-[#00f2ff] shadow-[0_0_20px_rgba(0,242,255,0.3)]">
               <ShieldCheck className="w-8 h-8 text-[#00f2ff]" />
             </div>
 
             <div className="space-y-2">
-              <h1 className="font-display-lg text-3xl font-extrabold tracking-tight text-white uppercase italic">
+              <h1 className="font-headline text-3xl font-extrabold tracking-tight text-white uppercase italic">
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </h1>
-              <p className="text-xs text-[#8e9dae] leading-relaxed">
+              <p className="text-xs text-[#b9cacb] leading-relaxed font-body">
                 The premier destination for competitive gaming, high-stakes tournaments, and digital dominance.
               </p>
             </div>
 
             {/* Live Dynamic Statistics Pill (Fetched from Supabase) */}
-            <div className="pt-4 flex items-center justify-center gap-6 border-t border-[#3a494b]/60">
+            <div className="pt-4 flex items-center justify-center gap-6 border-t border-[#27272a]">
               <div className="flex flex-col items-center">
-                <span className="font-mono text-base font-extrabold text-[#00ff9d]">
+                <span className="font-headline text-base font-extrabold text-[#10b981]">
                   {loadingStats ? '...' : stats.activePlayers}
                 </span>
-                <span className="font-label-caps text-[9px] text-[#8e9dae] uppercase tracking-widest">Active Players</span>
+                <span className="font-label-bold text-[9px] text-[#849495] uppercase tracking-widest">Active Players</span>
               </div>
-              <div className="w-px h-8 bg-[#3a494b]/60"></div>
+              <div className="w-px h-8 bg-[#27272a]"></div>
               <div className="flex flex-col items-center">
-                <span className="font-mono text-base font-extrabold text-[#00f2ff]">
+                <span className="font-headline text-base font-extrabold text-[#00f2ff]">
                   {loadingStats ? '...' : stats.totalPrizePool}
                 </span>
-                <span className="font-label-caps text-[9px] text-[#8e9dae] uppercase tracking-widest">Total Prize Pool</span>
+                <span className="font-label-bold text-[9px] text-[#849495] uppercase tracking-widest">Total Prize Pool</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Right Column: Clear Professional Auth Form */}
-        <div className="w-full md:w-1/2 p-6 sm:p-10 flex flex-col justify-between bg-[#151a21]">
+        <div className="w-full md:w-1/2 p-6 sm:p-10 flex flex-col justify-between bg-[#141416]">
           <div className="space-y-6">
             
             {/* Form Header */}
             <div className="space-y-1">
-              <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
+              <h2 className="font-headline text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
                 WELCOME BACK
               </h2>
-              <p className="text-xs text-[#8e9dae]">
+              <p className="text-xs text-[#849495] font-body">
                 Sign in to access your MJ ESPORTS account.
               </p>
             </div>
@@ -278,7 +277,7 @@ export default function LoginPage() {
 
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <label className="font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase tracking-wider block">
+                  <label className="font-label-bold text-[11px] font-bold text-[#849495] uppercase tracking-wider block">
                     Password <span className="text-[#00f2ff]">*</span>
                   </label>
                   <button
@@ -287,7 +286,7 @@ export default function LoginPage() {
                       setForgotEmail(formData.email)
                       setShowForgotModal(true)
                     }}
-                    className="font-label-caps text-[10px] font-bold text-[#00f2ff] hover:underline uppercase tracking-wider"
+                    className="font-label-bold text-[10px] font-bold text-[#00f2ff] hover:underline uppercase tracking-wider cursor-pointer"
                   >
                     Forgot Password?
                   </button>

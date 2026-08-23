@@ -82,8 +82,10 @@ export default function AppRoutes() {
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
             <Route path="admin" element={<AdminDashboardPage />} />
-            <Route path="admin/leaderboards" element={<AdminDashboardPage defaultTab="leaderboards" />} />
-            <Route path="admin/leaderboard" element={<AdminDashboardPage defaultTab="leaderboards" />} />
+            <Route path="admin/results" element={<AdminDashboardPage defaultTab="results" />} />
+            <Route path="admin/match-control" element={<AdminDashboardPage defaultTab="matches" />} />
+            <Route path="admin/leaderboards" element={<AdminDashboardPage defaultTab="results" />} />
+            <Route path="admin/leaderboard" element={<AdminDashboardPage defaultTab="results" />} />
             <Route path="admin/finance" element={<AdminFinancePage />} />
             <Route path="admin/:tab" element={<AdminDashboardPage />} />
           </Route>

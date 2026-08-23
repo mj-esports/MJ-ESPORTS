@@ -2,19 +2,69 @@
 
 @theme {
   --breakpoint-xs: 380px;
+
+  /* Stitch UI-1 Color Palette */
+  --color-background: #131314;
+  --color-surface: #131314;
+  --color-surface-dim: #131314;
+  --color-surface-bright: #3a393a;
+  --color-surface-elevated: #141416;
+  --color-surface-stroke: #27272a;
+  --color-surface-container-lowest: #0e0e0f;
+  --color-surface-container-low: #1c1b1c;
+  --color-surface-container: #201f20;
+  --color-surface-container-high: #2a2a2b;
+  --color-surface-container-highest: #353436;
+
+  --color-primary: #e1fdff;
+  --color-on-primary: #00363a;
+  --color-primary-container: #00f2ff;
+  --color-on-primary-container: #006a71;
+  --color-primary-fixed: #74f5ff;
+  --color-primary-fixed-dim: #00dbe7;
+
+  --color-secondary: #ffb59a;
+  --color-on-secondary: #5a1b00;
+  --color-secondary-container: #ff5e07;
+  --color-on-secondary-container: #531900;
+  --color-secondary-fixed: #ffdbce;
+  --color-secondary-fixed-dim: #ffb59a;
+
+  --color-tertiary: #fff6e4;
+  --color-on-tertiary: #3b2f00;
+  --color-tertiary-container: #fed83a;
+  --color-on-tertiary-container: #725e00;
+
+  --color-on-surface: #e5e2e3;
+  --color-on-surface-variant: #b9cacb;
+  --color-outline: #849495;
+  --color-outline-variant: #3a494b;
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-error-container: #93000a;
+
+  /* Typography Fonts */
+  --font-headline: "Hanken Grotesk", "Geist", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-label: "Inter", "Geist", system-ui, -apple-system, sans-serif;
 }
+
 @import "./styles/designSystem.css";
 
 @layer base {
   :root {
-    --bg-surface: #111417;
-    --bg-dark: #0b0e11;
-    --surface-container: #1d2023;
-    --surface-container-high: #272a2e;
-    --surface-container-low: #191c1f;
-    --primary-cyan: #00dbe7;
+    --bg-surface: #131314;
+    --bg-dark: #131314;
+    --surface-elevated: #141416;
+    --surface-stroke: #27272a;
+    --surface-container: #201f20;
+    --surface-container-high: #2a2a2b;
+    --surface-container-low: #1c1b1c;
+    --primary-cyan: #00f2ff;
     --primary-container: #00f2ff;
-    --secondary-orange: #fe6b00;
+    --secondary-orange: #ff5e07;
   }
 
   html {
@@ -25,9 +75,9 @@
   }
 
   body {
-    background-color: #0b0e11;
-    color: #e1e2e7;
-    font-family: 'Inter', 'Geist', system-ui, -apple-system, sans-serif;
+    background-color: #131314;
+    color: #e5e2e3;
+    font-family: var(--font-body);
     overflow-x: hidden;
     margin: 0;
     padding: 0;

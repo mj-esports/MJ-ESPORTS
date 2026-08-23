@@ -1,3 +1,5 @@
+import { parseTournamentDeadline } from './validationUtils.js'
+
 /**
  * Centralized Tournament Slot & Format Utilities
  * Resolves player capacity, filled player slots, and team capacity without semantic confusion.
@@ -259,3 +261,141 @@ export function calculateSlotFillPercentage(tournament) {
   if (total <= 0) return 0
   return Math.min(100, Math.round((filled / total) * 100))
 }
+
+/**
+ * Resolves dynamic registration and lifecycle state for a tournament.
+ * Determines OPEN, FULL, CLOSED, UPCOMING, LIVE, COMPLETED, and ALMOST_FULL states.
+ * 
+ * @param {Object} tournament 
+ * @returns {{ state: string, label: string, isFull: boolean, isOpen: boolean, isClosed: boolean, isCompleted: boolean, isLive: boolean, isUpcoming: boolean }}
+ */
+export function getTournamentStatusState(tournament) {
+  if (!tournament) {
+    return {
+      state: 'UPCOMING',
+      label: 'UPCOMING',
+      isFull: false,
+      isOpen: false,
+      isClosed: false,
+      isCompleted: false,
+      isLive: false,
+      isUpcoming: true,
+    }
+  }
+
+  const s = String(tournament.status || '').toLowerCase().trim()
+  const filledTeams = Number(tournament.registeredTeams ?? tournament.registered_teams ?? 0)
+  const maxTeams = Number(tournament.maxTeams ?? tournament.max_teams ?? 12)
+  const filledPlayers = calculateFilledPlayerSlots(tournament)
+  const totalPlayers = calculateTotalPlayerSlots(tournament)
+
+  const isCapacityFull = (maxTeams > 0 && filledTeams >= maxTeams) || (totalPlayers > 0 && filledPlayers >= totalPlayers)
+
+  // Check registration deadline
+  let isDeadlinePassed = false
+  const startDate = tournament.startDate || tournament.start_date
+  const startTime = tournament.startTime || tournament.start_time
+  if (startDate) {
+    const deadline = parseTournamentDeadline(startDate, startTime)
+    if (deadline && deadline < new Date()) {
+      isDeadlinePassed = true
+    }
+  }
+
+  // 1. Live Matches
+  if (s.includes('live')) {
+    return {
+      state: 'LIVE',
+      label: 'LIVE NOW',
+      isFull: isCapacityFull,
+      isOpen: false,
+      isClosed: true,
+      isCompleted: false,
+      isLive: true,
+      isUpcoming: false,
+    }
+  }
+
+  // 2. Completed / Finished / Archived
+  if (s.includes('completed') || s.includes('finished') || s.includes('ended') || s.includes('prize') || s.includes('archive') || s.includes('result')) {
+    return {
+      state: 'COMPLETED',
+      label: 'COMPLETED',
+      isFull: isCapacityFull,
+      isOpen: false,
+      isClosed: true,
+      isCompleted: true,
+      isLive: false,
+      isUpcoming: false,
+    }
+  }
+
+  // 3. Explicitly closed, check-in, room released, or deadline passed
+  if (s.includes('closed') || s.includes('check-in') || s.includes('room') || s.includes('bracket') || isDeadlinePassed) {
+    return {
+      state: 'CLOSED',
+      label: 'CLOSED',
+      isFull: isCapacityFull,
+      isOpen: false,
+      isClosed: true,
+      isCompleted: false,
+      isLive: false,
+      isUpcoming: false,
+    }
+  }
+
+  // 4. Capacity Full
+  if (isCapacityFull) {
+    return {
+      state: 'FULL',
+      label: 'FULL',
+      isFull: true,
+      isOpen: false,
+      isClosed: true,
+      isCompleted: false,
+      isLive: false,
+      isUpcoming: false,
+    }
+  }
+
+  // 5. Upcoming / Draft / Not Open / Starts Soon (before registration opens)
+  if (s === 'draft' || s === 'published' || s === 'upcoming' || s === 'not open' || s === 'starts soon') {
+    return {
+      state: 'UPCOMING',
+      label: 'UPCOMING',
+      isFull: false,
+      isOpen: false,
+      isClosed: false,
+      isCompleted: false,
+      isLive: false,
+      isUpcoming: true,
+    }
+  }
+
+  // 6. Registration Open
+  const fillPct = calculateSlotFillPercentage(tournament)
+  if (fillPct >= 85 || s.includes('almost full')) {
+    return {
+      state: 'ALMOST_FULL',
+      label: 'ALMOST FULL',
+      isFull: false,
+      isOpen: true,
+      isClosed: false,
+      isCompleted: false,
+      isLive: false,
+      isUpcoming: false,
+    }
+  }
+
+  return {
+    state: 'OPEN',
+    label: 'OPEN',
+    isFull: false,
+    isOpen: true,
+    isClosed: false,
+    isCompleted: false,
+    isLive: false,
+    isUpcoming: false,
+  }
+}
+

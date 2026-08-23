@@ -8,7 +8,7 @@ export default function MainLayout() {
   const isProfilePage = location.pathname === '/profile'
 
   return (
-    <div className="min-h-screen min-h-dvh bg-[#0b0e11] text-[#e1e2e7] flex flex-col font-body selection:bg-[#00f2ff] selection:text-[#00363a] pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0 relative overflow-x-hidden w-full">
+    <div className="min-h-screen min-h-dvh bg-[#131314] text-[#e5e2e3] flex flex-col font-body selection:bg-[#00f2ff] selection:text-[#00363a] pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0 relative overflow-x-hidden w-full">
       {/* Public Navbar ONLY */}
       <Navbar />
 

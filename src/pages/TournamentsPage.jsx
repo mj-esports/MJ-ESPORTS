@@ -13,6 +13,7 @@ import {
   calculateTotalPlayerSlots,
   calculateSlotFillPercentage,
   getTournamentMode,
+  getTournamentStatusState,
 } from '../utils/tournamentUtils'
 
 export default function TournamentsPage() {
@@ -36,6 +37,10 @@ export default function TournamentsPage() {
     )
   }, [tournaments])
 
+  const featuredStatusState = useMemo(() => {
+    return featuredTournament ? getTournamentStatusState(featuredTournament) : null
+  }, [featuredTournament])
+
   // Filter tournaments by search, game tab, & status chip
   const filteredTournaments = useMemo(() => {
     const filtered = tournaments.filter((t) => {
@@ -56,7 +61,8 @@ export default function TournamentsPage() {
       const matchesGame =
         selectedGame === 'All' ||
         (t.game || '').toLowerCase() === selectedGame.toLowerCase() ||
-        (selectedGame.toLowerCase().includes('free fire') && (t.game || '').toLowerCase().includes('free fire'))
+        (selectedGame.toLowerCase().includes('free fire') && (t.game || '').toLowerCase().includes('free fire')) ||
+        (selectedGame.toLowerCase().includes('bgmi') && (t.game || '').toLowerCase().includes('bgmi'))
 
       // 4. Case-insensitive & Synonymous Status Filter Match
       let matchesStatus = true
@@ -99,17 +105,67 @@ export default function TournamentsPage() {
     return filteredTournaments.slice(0, visibleCount)
   }, [filteredTournaments, visibleCount])
 
+  // Helper to render dynamic status badge with UI-1 tokens
+  const renderStatusBadge = (stateObj) => {
+    switch (stateObj.state) {
+      case 'LIVE':
+        return (
+          <span className="bg-[#ff5e07]/20 backdrop-blur-md text-[#ff5e07] border border-[#ff5e07]/40 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider shadow-sm flex items-center gap-1.5 animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ff5e07]" />
+            LIVE
+          </span>
+        )
+      case 'ALMOST_FULL':
+        return (
+          <span className="bg-[#fed83a]/15 backdrop-blur-md text-[#fed83a] border border-[#fed83a]/40 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider shadow-sm">
+            ALMOST FULL
+          </span>
+        )
+      case 'FULL':
+        return (
+          <span className="bg-[#ef4444]/15 backdrop-blur-md text-[#ef4444] border border-[#ef4444]/40 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider shadow-sm">
+            FULL
+          </span>
+        )
+      case 'CLOSED':
+        return (
+          <span className="bg-[#201f20]/90 backdrop-blur-md text-[#849495] border border-[#27272a] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider">
+            CLOSED
+          </span>
+        )
+      case 'UPCOMING':
+        return (
+          <span className="bg-[#fed83a]/15 backdrop-blur-md text-[#fed83a] border border-[#fed83a]/40 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider shadow-sm">
+            UPCOMING
+          </span>
+        )
+      case 'COMPLETED':
+        return (
+          <span className="bg-[#141416]/90 backdrop-blur-md text-[#849495] border border-[#27272a] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider">
+            COMPLETED
+          </span>
+        )
+      case 'OPEN':
+      default:
+        return (
+          <span className="bg-[#10b981]/15 backdrop-blur-md text-[#10b981] border border-[#10b981]/40 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider shadow-sm flex items-center gap-1">
+            OPEN
+          </span>
+        )
+    }
+  }
+
   return (
-    <div className="w-full min-h-screen bg-[#121212] text-[#A0A0A0] pb-24 font-body antialiased overflow-x-hidden">
+    <div className="w-full min-h-screen bg-[#131314] text-[#b9cacb] pb-28 sm:pb-32 font-body antialiased overflow-x-hidden">
       <main className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8 flex flex-col gap-8">
 
         {/* 1. STITCH FEATURED TOURNAMENT HERO BANNER */}
         {featuredTournament && !searchQuery && (
-          <section className="relative rounded-2xl overflow-hidden border border-[#333333] group shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/80 via-60% to-black/40 z-10"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#121212]/80 via-transparent to-transparent z-10"></div>
+          <section className="relative rounded overflow-hidden border border-[#27272a] group shadow-2xl bg-[#141416]">
+            <div className="absolute inset-0 bg-gradient-to-t from-[#131314] via-[#131314]/80 via-60% to-black/40 z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#131314]/80 via-transparent to-transparent z-10"></div>
             <div
-              className="h-64 sm:h-80 md:h-[420px] w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+              className="h-64 sm:h-80 md:h-[420px] w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
               style={{
                 backgroundImage: `url(${getTournamentImage(featuredTournament)})`
               }}
@@ -117,20 +173,20 @@ export default function TournamentsPage() {
 
             <div className="absolute bottom-0 left-0 w-full p-6 sm:p-8 md:p-10 z-20 flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8">
               <div className="space-y-3 sm:space-y-4 max-w-2xl">
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/40 uppercase tracking-widest font-label shadow-[0_0_15px_rgba(0,255,255,0.2)]">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase tracking-wider font-label-bold shadow-[0_0_15px_rgba(0,242,255,0.2)]">
                   <Sparkles className="w-3.5 h-3.5" />
-                  Featured Event
+                  Featured Arena Event
                 </span>
-                <h2 className="text-2xl sm:text-4xl md:text-5xl font-black font-headline text-white tracking-tight drop-shadow-md leading-tight">
+                <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold font-headline text-white tracking-tight drop-shadow-md leading-tight">
                   {featuredTournament.title || 'Global Clash Championship'}
                 </h2>
-                <div className="flex flex-wrap items-center gap-4 text-[#A0A0A0] text-sm font-label pt-1">
+                <div className="flex flex-wrap items-center gap-4 text-[#b9cacb] text-sm font-label pt-1">
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-[#00FFFF]" />
-                    {featuredTournament.startDate || 'Starts in 2 Days'}
+                    <Calendar className="w-4 h-4 text-[#00f2ff]" />
+                    {featuredTournament.startDate || 'Upcoming Schedule'}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4 text-[#00FFFF]" />
+                    <Users className="w-4 h-4 text-[#00f2ff]" />
                     {featuredTournament.registeredTeams || 0}/{featuredTournament.maxTeams || 100} {getTournamentMode(featuredTournament).teamUnit}
                   </span>
                 </div>
@@ -138,16 +194,16 @@ export default function TournamentsPage() {
 
               <div className="flex flex-col items-start md:items-end gap-3.5 shrink-0">
                 <div className="text-left md:text-right">
-                  <div className="text-[#A0A0A0] text-xs uppercase font-semibold font-label tracking-wider mb-0.5">Prize Pool</div>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-black font-headline text-[#00FFFF] drop-shadow-sm">
+                  <div className="text-[#849495] text-xs uppercase font-bold font-label-bold tracking-wider mb-0.5">Prize Pool</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-headline text-[#ff5e07] drop-shadow-sm">
                     {formatTournamentPrize(featuredTournament)}
                   </div>
                 </div>
                 <Link
                   to={featuredTournament?.id ? `/tournaments/${featuredTournament.id}` : '/tournaments'}
-                  className="bg-[#00FFFF] text-black font-bold px-8 py-3.5 rounded-lg hover:bg-[#00FFFF]/90 transition-all active:scale-95 font-label w-full md:w-auto text-center shadow-[0_0_20px_rgba(0,255,255,0.3)] uppercase tracking-wider text-sm min-h-[44px] flex items-center justify-center"
+                  className="bg-[#00f2ff] text-[#00363a] font-bold px-8 py-3.5 rounded hover:bg-[#74f5ff] transition-all font-headline w-full md:w-auto text-center shadow-[0_0_20px_rgba(0,242,255,0.35)] uppercase tracking-wider text-sm min-h-[44px] flex items-center justify-center cursor-pointer"
                 >
-                  Register Now
+                  {featuredStatusState?.isFull || featuredStatusState?.isClosed || featuredStatusState?.isCompleted ? 'View Details' : 'Register Now'}
                 </Link>
               </div>
             </div>
@@ -155,35 +211,37 @@ export default function TournamentsPage() {
         )}
 
         {/* 2. STITCH FILTERS AND TABS (STICKY BAR) */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sticky top-0 z-40 bg-[#121212]/95 backdrop-blur-xl py-3.5 sm:py-4 border-b border-[#262626] shadow-xl -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 transition-all duration-300">
-          {/* Game Category Chips */}
-          <div className="flex gap-2 overflow-x-auto pb-1 lg:pb-0 w-full lg:w-auto no-scrollbar snap-x items-center">
-            {gamesList.map((game) => {
-              const isActive = selectedGame === game
-              return (
-                <button
-                  key={`game-tab-${game}`}
-                  onClick={() => {
-                    setSelectedGame(game)
-                    setVisibleCount(6)
-                  }}
-                  className={`snap-start flex-shrink-0 px-4 sm:px-5 py-2 rounded-full font-label text-xs sm:text-sm transition-all duration-200 cursor-pointer active:scale-95 flex items-center gap-1.5 ${
-                    isActive
-                      ? 'bg-[#00FFFF] text-black font-extrabold shadow-[0_0_15px_rgba(0,255,255,0.35)] scale-105'
-                      : 'bg-[#1A1A1A] border border-[#333333] text-[#A0A0A0] font-bold hover:text-white hover:border-[#00FFFF]/50 hover:bg-[#252525]'
-                  }`}
-                >
-                  {game === 'All' ? 'All Games' : game}
-                </button>
-              )
-            })}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sticky top-0 z-40 bg-[#131314]/95 backdrop-blur-xl py-3.5 sm:py-4 border-b border-[#27272a] shadow-xl -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 transition-all duration-200">
+          {/* Game Category Tabs (Horizontally scrollable with no clipping) */}
+          <div className="w-full lg:w-auto overflow-x-auto hide-scrollbar pb-1 lg:pb-0">
+            <div className="flex items-center gap-2 min-w-max">
+              {gamesList.map((game) => {
+                const isActive = selectedGame === game
+                return (
+                  <button
+                    key={`game-tab-${game}`}
+                    onClick={() => {
+                      setSelectedGame(game)
+                      setVisibleCount(6)
+                    }}
+                    className={`flex-shrink-0 px-4 sm:px-5 py-2.5 rounded font-headline text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center gap-1.5 min-h-[44px] select-none ${
+                      isActive
+                        ? 'bg-[#00f2ff] text-[#00363a] font-bold shadow-[0_0_15px_rgba(0,242,255,0.35)]'
+                        : 'bg-[#141416] border border-[#27272a] text-[#b9cacb] font-bold hover:text-white hover:border-[#00f2ff] hover:bg-[#201f20]'
+                    }`}
+                  >
+                    {game === 'All' ? 'ALL GAMES' : game.toUpperCase()}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Search & Status Tabs */}
           <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full lg:w-auto">
             {/* Search Input */}
             <div className="relative w-full sm:w-64 md:w-72">
-              <Search className="w-4 h-4 text-[#A0A0A0] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-[#849495] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
@@ -192,39 +250,41 @@ export default function TournamentsPage() {
                   setVisibleCount(6)
                 }}
                 placeholder="Search tournaments..."
-                className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg pl-10 pr-4 py-2 text-xs sm:text-sm text-white placeholder-[#777777] focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF] focus:outline-none transition-all duration-200 h-[40px] shadow-inner font-label"
+                className="w-full bg-[#141416] border border-[#27272a] rounded pl-10 pr-4 py-2 text-xs sm:text-sm text-[#e5e2e3] placeholder-[#849495] focus:border-[#00f2ff] focus:ring-1 focus:ring-[#00f2ff]/30 focus:outline-none transition-all duration-200 h-[44px] font-body"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A0A0A0] hover:text-white bg-[#262626] px-1.5 py-0.5 rounded font-label"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#849495] hover:text-white bg-[#201f20] px-2 py-1 rounded font-headline uppercase"
                 >
                   Clear
                 </button>
               )}
             </div>
 
-            {/* Status Segmented Tabs */}
-            <div className="flex bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-1 w-full sm:w-auto overflow-x-auto gap-1">
-              {statusChips.map((st) => {
-                const isActive = selectedStatus === st
-                return (
-                  <button
-                    key={`status-chip-${st}`}
-                    onClick={() => {
-                      setSelectedStatus(st)
-                      setVisibleCount(6)
-                    }}
-                    className={`flex-1 sm:flex-none px-3.5 sm:px-4 py-1.5 rounded-md font-label text-xs transition-all duration-200 cursor-pointer active:scale-95 ${
-                      isActive
-                        ? 'bg-[#00FFFF] text-black font-extrabold shadow-[0_0_12px_rgba(0,255,255,0.3)] scale-[1.02]'
-                        : 'text-[#A0A0A0] font-bold hover:text-white hover:bg-[#262626]'
-                    }`}
-                  >
-                    {st === 'ALL' ? 'All' : st === 'UPCOMING' ? 'Upcoming' : st === 'LIVE NOW' ? 'Live' : 'Completed'}
-                  </button>
-                )
-              })}
+            {/* Status Segmented Tabs (Horizontally scrollable with no clipped 'COMPLETED') */}
+            <div className="w-full sm:w-auto overflow-x-auto hide-scrollbar">
+              <div className="flex items-center bg-[#141416] border border-[#27272a] rounded p-1 min-w-max gap-1">
+                {statusChips.map((st) => {
+                  const isActive = selectedStatus === st
+                  return (
+                    <button
+                      key={`status-chip-${st}`}
+                      onClick={() => {
+                        setSelectedStatus(st)
+                        setVisibleCount(6)
+                      }}
+                      className={`px-3.5 sm:px-4 py-2 rounded font-headline text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[40px] flex items-center justify-center shrink-0 select-none ${
+                        isActive
+                          ? 'bg-[#00f2ff] text-[#00363a] font-bold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
+                          : 'text-[#b9cacb] font-bold hover:text-white hover:bg-[#201f20]'
+                      }`}
+                    >
+                      {st === 'ALL' ? 'ALL' : st === 'UPCOMING' ? 'UPCOMING' : st === 'LIVE NOW' ? 'LIVE' : 'COMPLETED'}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -321,79 +381,54 @@ export default function TournamentsPage() {
 
                 const filledTeams = Number(t.registeredTeams || t.registered_teams || 0)
                 const totalTeams = Number(t.maxTeams || t.max_teams || 12)
-                const isCompleted = t.status === 'Completed' || t.status === 'Closed' || t.status === 'Finished'
-                const isFull = filledTeams >= totalTeams || isCompleted
+                const statusState = getTournamentStatusState(t)
+                const isFull = statusState.isFull
+                const isCompleted = statusState.isCompleted
                 const entryFee = t.entryFee || t.entry_fee || 'Free'
                 const startTime = t.startDate || t.start_date || 'Today, 18:00 IST'
                 const formatLabel = t.mode || t.format || t.matchFormat || t.match_format || 'Squad'
                 const cardImage = getTournamentImage(t)
 
-                // Determine badge style based on tournament status
-                const getStatusBadge = (statusStr) => {
-                  const s = (statusStr || '').toLowerCase()
-                  if (s.includes('live')) {
-                    return (
-                      <span className="bg-[#FF0055]/20 text-[#FF0055] border border-[#FF0055]/50 animate-pulse px-2.5 py-1 rounded-md text-xs font-extrabold font-label uppercase tracking-wider shadow-sm">
-                        ● Live
-                      </span>
-                    )
-                  }
-                  if (s.includes('almost full')) {
-                    return (
-                      <span className="bg-amber-500/20 text-amber-400 border border-amber-500/40 px-2.5 py-1 rounded-md text-xs font-extrabold font-label uppercase tracking-wider shadow-sm">
-                        Almost Full
-                      </span>
-                    )
-                  }
-                  if (s.includes('starts soon')) {
-                    return (
-                      <span className="bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-1 rounded-md text-xs font-extrabold font-label uppercase tracking-wider shadow-sm">
-                        Starts Soon
-                      </span>
-                    )
-                  }
-                  if (s.includes('completed') || s.includes('finished')) {
-                    return (
-                      <span className="bg-gray-800 text-gray-400 border border-gray-700 px-2.5 py-1 rounded-md text-xs font-extrabold font-label uppercase tracking-wider">
-                        Completed
-                      </span>
-                    )
-                  }
-                  return (
-                    <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded-md text-xs font-extrabold font-label uppercase tracking-wider shadow-sm">
-                      Registration Open
-                    </span>
-                  )
-                }
+                // Registration progress text
+                const progressText = isCompleted
+                  ? 'Finished'
+                  : modeInfo.mode === 'Solo'
+                  ? `${filledPlayerSlots}/${totalPlayerSlots} Players`
+                  : `${filledPlayerSlots}/${totalPlayerSlots} Players (${filledTeams}/${totalTeams} ${modeInfo.teamUnit})`
 
                 return (
                   <article
                     key={`tourn-card-${t.id}`}
-                    className={`bg-[#1E1E1E] rounded-xl border border-[#333333] overflow-hidden hover:border-[#00FFFF]/50 hover:shadow-[0_0_20px_rgba(0,255,255,0.15)] transition-all duration-300 group flex flex-col justify-between h-full ${
-                      isCompleted ? 'opacity-80' : ''
+                    className={`bg-[#141416] rounded border border-[#27272a] overflow-hidden hover:border-[#00f2ff] hover:shadow-[0_0_20px_rgba(0,242,255,0.15)] transition-all duration-200 group flex flex-col justify-between h-full ${
+                      isCompleted ? 'opacity-85' : ''
                     }`}
                   >
-                    {/* Cover Image & Game / Format / Status Badges */}
-                    <div className="rounded-t-xl overflow-hidden relative">
+                    {/* Cover Image & Game / Format / Dynamic Status Badges */}
+                    <div className="rounded-t overflow-hidden relative">
                       <div
-                        className={`h-40 w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105 ${
+                        className={`h-44 sm:h-48 w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-105 ${
                           isCompleted ? 'grayscale group-hover:grayscale-0' : ''
                         }`}
                         style={{ backgroundImage: `url(${cardImage})` }}
                       >
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1E1E1E] via-transparent to-black/50"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#141416] via-transparent to-black/60"></div>
                         
-                        <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
-                          <span className="bg-[#121212]/90 backdrop-blur-md px-2.5 py-1 rounded-md text-xs font-extrabold font-label text-white border border-[#333333] shadow-sm">
-                            {t.game}
-                          </span>
-                          <span className="bg-[#00FFFF]/10 backdrop-blur-md px-2 py-1 rounded-md text-[11px] font-extrabold font-label text-[#00FFFF] border border-[#00FFFF]/30 uppercase tracking-wider shadow-sm">
-                            {formatLabel}
-                          </span>
-                        </div>
+                        {/* Top Badges Bar: Left (Game & Mode) and Right (Status) with safe bounds */}
+                        <div className="absolute top-2.5 inset-x-2.5 sm:top-3 sm:inset-x-3 flex items-start justify-between gap-2 z-10 pointer-events-none">
+                          {/* Left Badges: Game + Mode */}
+                          <div className="flex flex-wrap items-center gap-1.5 max-w-[65%] min-w-0">
+                            <span className="bg-[#131314]/90 backdrop-blur-md px-2.5 py-0.5 rounded text-[11px] sm:text-xs font-bold font-headline text-white border border-[#27272a] shadow-sm">
+                              {t.game}
+                            </span>
+                            <span className="bg-[#00f2ff]/10 backdrop-blur-md px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold font-headline text-[#00f2ff] border border-[#00f2ff]/30 uppercase tracking-wider shadow-sm shrink-0">
+                              {formatLabel}
+                            </span>
+                          </div>
 
-                        <div className="absolute top-3 right-3 z-10">
-                          {getStatusBadge(t.status)}
+                          {/* Right Badge: Dynamic Registration Status (Never collides) */}
+                          <div className="flex items-center justify-end shrink-0">
+                            {renderStatusBadge(statusState)}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -401,11 +436,11 @@ export default function TournamentsPage() {
                     {/* Card Content Body */}
                     <div className="p-5 sm:p-6 flex flex-col flex-grow justify-between">
                       <div>
-                        <h3 className="font-headline font-black text-lg sm:text-xl text-white mb-2 group-hover:text-[#00FFFF] transition-colors leading-snug line-clamp-1">
+                        <h3 className="font-headline font-bold text-lg sm:text-xl text-white mb-2 group-hover:text-[#00f2ff] transition-colors leading-snug line-clamp-1">
                           {t.title}
                         </h3>
-                        <p className="text-xs sm:text-sm text-[#A0A0A0] font-label mb-5 flex items-center gap-1.5">
-                          <Clock className="w-4 h-4 text-[#00FFFF] shrink-0" />
+                        <p className="text-xs text-[#b9cacb] font-body mb-5 flex items-center gap-1.5">
+                          <Clock className="w-4 h-4 text-[#00f2ff] shrink-0" />
                           <span>{startTime}</span>
                         </p>
                       </div>
@@ -413,32 +448,34 @@ export default function TournamentsPage() {
                       <div className="mt-auto space-y-4">
                         {/* Stat Box Grid (2 cols) */}
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-[#252525] p-3.5 rounded-lg border border-[#333333] flex flex-col justify-center">
-                            <div className="text-[11px] text-[#A0A0A0] font-label uppercase tracking-wider mb-0.5">Prize Pool</div>
-                            <div className="font-headline font-black text-[#00FFFF] text-lg sm:text-xl leading-tight">{formatTournamentPrize(t)}</div>
+                          <div className="bg-[#1c1b1c] p-3.5 rounded border border-[#27272a] flex flex-col justify-center">
+                            <div className="text-[10px] text-[#849495] font-label-bold uppercase tracking-wider mb-0.5">Prize Pool</div>
+                            <div className="font-headline font-bold text-[#ff5e07] text-lg sm:text-xl leading-tight">{formatTournamentPrize(t)}</div>
                           </div>
-                          <div className="bg-[#252525] p-3.5 rounded-lg border border-[#333333] flex flex-col justify-center">
-                            <div className="text-[11px] text-[#A0A0A0] font-label uppercase tracking-wider mb-0.5">Entry Fee</div>
-                            <div className="font-headline font-extrabold text-white text-base sm:text-lg leading-tight">{entryFee}</div>
+                          <div className="bg-[#1c1b1c] p-3.5 rounded border border-[#27272a] flex flex-col justify-center">
+                            <div className="text-[10px] text-[#849495] font-label-bold uppercase tracking-wider mb-0.5">Entry Fee</div>
+                            <div className="font-headline font-bold text-white text-base sm:text-lg leading-tight">{entryFee}</div>
                           </div>
                         </div>
 
                         {/* Slot Capacity Progress Bar */}
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs font-label">
-                            <span className="text-[#A0A0A0] font-medium">Registration Progress</span>
-                            <span className={isFull ? 'text-[#FF0055] font-extrabold' : 'text-white font-extrabold'}>
-                              {isCompleted ? 'Finished' : isFull ? 'Closed (Full)' : `${filledPlayerSlots}/${totalPlayerSlots} Players (${filledTeams}/${totalTeams} ${modeInfo.teamUnit})`}
+                            <span className="text-[#849495] text-[11px] font-medium font-label-bold">Registration Progress</span>
+                            <span className={isFull ? 'text-red-400 font-bold text-[11px]' : 'text-[#00f2ff] font-bold text-[11px]'}>
+                              {progressText}
                             </span>
                           </div>
-                          <div className="w-full bg-[#262626] border border-[#333333]/80 rounded-full h-2.5 sm:h-3 overflow-hidden p-0.5">
+                          <div className="w-full bg-[#0e0e0f] border border-[#27272a] rounded-full h-2 sm:h-2.5 overflow-hidden">
                             <div
-                              className={`h-full rounded-full transition-all duration-500 ${
+                              className={`h-full rounded-full transition-all duration-300 ${
                                 isFull
-                                  ? 'bg-[#FF0055]'
-                                  : 'bg-gradient-to-r from-[#00FFFF] via-[#00FFFF] to-[#00FFFF]/60 shadow-[0_0_8px_rgba(0,255,255,0.4)]'
+                                  ? 'bg-red-500'
+                                  : isCompleted
+                                  ? 'bg-[#3a393a]'
+                                  : 'bg-gradient-to-r from-[#ff5e07] to-[#00f2ff]'
                               }`}
-                              style={{ width: `${fillPercentage}%` }}
+                              style={{ width: `${isFull ? 100 : fillPercentage}%` }}
                             ></div>
                           </div>
                         </div>
@@ -447,14 +484,21 @@ export default function TournamentsPage() {
                         {isCompleted ? (
                           <Link
                             to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
-                            className="w-full py-3 rounded-lg bg-[#252525] text-[#A0A0A0] hover:text-white font-label font-extrabold text-xs transition-colors text-center block uppercase tracking-wider border border-[#333333]"
+                            className="w-full py-3 rounded bg-[#1c1b1c] text-[#b9cacb] hover:text-white font-headline font-bold text-xs transition-colors text-center block uppercase tracking-wider border border-[#27272a] hover:border-[#849495] min-h-[44px] flex items-center justify-center cursor-pointer"
                           >
                             View Results & Summary
+                          </Link>
+                        ) : isFull ? (
+                          <Link
+                            to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
+                            className="w-full py-3 rounded bg-[#1c1b1c] text-[#e5e2e3] hover:text-[#00f2ff] font-headline font-bold text-xs transition-all duration-200 text-center block uppercase tracking-wider border border-[#27272a] hover:border-[#00f2ff] min-h-[44px] flex items-center justify-center cursor-pointer"
+                          >
+                            View Details
                           </Link>
                         ) : (
                           <Link
                             to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
-                            className="w-full py-3 rounded-lg border border-[#00FFFF] text-[#00FFFF] hover:bg-[#00FFFF] hover:text-black font-label font-extrabold text-sm transition-all duration-200 text-center block uppercase tracking-wider shadow-[0_0_12px_rgba(0,255,255,0.15)] active:scale-98"
+                            className="w-full py-3 rounded bg-[#1c1b1c] hover:bg-[#00f2ff] text-white hover:text-[#00363a] font-headline font-bold text-xs transition-all duration-200 text-center block uppercase tracking-wider border border-[#27272a] hover:border-[#00f2ff] hover:shadow-[0_0_15px_rgba(0,242,255,0.25)] min-h-[44px] flex items-center justify-center cursor-pointer"
                           >
                             View Details
                           </Link>
@@ -471,7 +515,7 @@ export default function TournamentsPage() {
               <div className="pt-6 text-center">
                 <button
                   onClick={() => setVisibleCount((prev) => prev + 6)}
-                  className="px-8 py-3 rounded-lg bg-[#1E1E1E] hover:bg-[#252525] border border-[#333333] hover:border-[#00FFFF] text-xs font-label font-bold text-[#00FFFF] uppercase tracking-wider transition-all min-h-[44px] shadow-lg"
+                  className="px-8 py-3 rounded bg-[#141416] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff] text-xs font-headline font-bold text-[#00f2ff] uppercase tracking-wider transition-all min-h-[44px] shadow-lg cursor-pointer"
                 >
                   Load More Tournaments ({filteredTournaments.length - visibleCount} Remaining)
                 </button>
@@ -484,5 +528,6 @@ export default function TournamentsPage() {
     </div>
   )
 }
+
 
 
