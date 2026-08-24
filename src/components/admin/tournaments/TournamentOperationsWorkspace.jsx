@@ -39,6 +39,13 @@ import {
   calculateSlotFillPercentage
 } from '../../../utils/tournamentUtils'
 import { formatTournamentPrize } from '../../../utils/tournamentPrizeUtils'
+import {
+  isValidRoomId,
+  isValidRoomPassword,
+  generateRandomNumericRoomId,
+  generateRandomNumericRoomPassword,
+  sanitizeDigitsOnly,
+} from '../../../utils/validationUtils'
 
 export default function TournamentOperationsWorkspace({
   tournament,
@@ -122,22 +129,30 @@ export default function TournamentOperationsWorkspace({
   }
 
   const handleSaveRoomDetails = async () => {
-    if (!roomId.trim() || !roomPassword.trim()) {
-      showError('Please provide both Room ID and Password before saving.', 'Room Credentials')
+    const cleanRoomId = sanitizeDigitsOnly(roomId, 15)
+    const cleanPassword = sanitizeDigitsOnly(roomPassword, 10)
+
+    if (!cleanRoomId || !isValidRoomId(cleanRoomId)) {
+      showError('Room ID is required and must contain numbers only (0-9).', 'Room Credentials')
       return
     }
+    if (!cleanPassword || !isValidRoomPassword(cleanPassword)) {
+      showError('Room Password is required and must contain numbers only (0-9).', 'Room Credentials')
+      return
+    }
+
     setIsSavingRoom(true)
     try {
       const res = await updateRoomDetails(tournament.id, {
-        roomId: roomId.trim(),
-        roomPassword: roomPassword.trim(),
+        roomId: cleanRoomId,
+        roomPassword: cleanPassword,
         roomStatus: 'Published',
       })
       if (res && res.success === false) {
         showError(res.error || 'Failed to save room details.', 'Room Error')
       } else {
         setRoomStatus('Published')
-        showSuccess('Room ID & Password successfully updated and published to players.', 'Room Published')
+        showSuccess(`Custom Room ID ${cleanRoomId} successfully updated and published to players.`, 'Room Published')
       }
     } catch {
       showError('Failed to save room credentials.', 'Room Exception')
@@ -330,27 +345,51 @@ export default function TournamentOperationsWorkspace({
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-[10px] text-[#849495] font-headline font-bold uppercase mb-1">
-                  Custom Room ID
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[10px] text-[#849495] font-headline font-bold uppercase">
+                    Custom Room ID <span className="text-[#00f2ff]">(NUMBERS ONLY)</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setRoomId(generateRandomNumericRoomId(10))}
+                    className="text-[10px] text-[#00f2ff] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <Sparkles className="w-3 h-3 text-[#00f2ff]" />
+                    <span>Auto-Gen ID</span>
+                  </button>
+                </div>
                 <input
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={roomId}
-                  onChange={(e) => setRoomId(e.target.value)}
-                  placeholder="e.g. 9845120"
+                  onChange={(e) => setRoomId(sanitizeDigitsOnly(e.target.value, 15))}
+                  placeholder="e.g. 5839174261"
                   className="w-full bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-2 text-white font-mono focus:border-[#00f2ff] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] text-[#849495] font-headline font-bold uppercase mb-1">
-                  Room Password
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[10px] text-[#849495] font-headline font-bold uppercase">
+                    Room Password <span className="text-[#ff5e07]">(NUMBERS ONLY)</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setRoomPassword(generateRandomNumericRoomPassword(8))}
+                    className="text-[10px] text-[#ff5e07] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <Sparkles className="w-3 h-3 text-[#ff5e07]" />
+                    <span>Auto-Gen PIN</span>
+                  </button>
+                </div>
                 <input
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={roomPassword}
-                  onChange={(e) => setRoomPassword(e.target.value)}
-                  placeholder="e.g. 556677"
+                  onChange={(e) => setRoomPassword(sanitizeDigitsOnly(e.target.value, 10))}
+                  placeholder="e.g. 84920173"
                   className="w-full bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-2 text-white font-mono focus:border-[#00f2ff] focus:outline-none"
                 />
               </div>

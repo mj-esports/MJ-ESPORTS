@@ -26,6 +26,11 @@ import {
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { supabase } from '../lib/supabase'
+import {
+  isValidGameUid,
+  isValidPhoneNumber,
+  sanitizeDigitsOnly,
+} from '../utils/validationUtils'
 
 export default function SettingsPage() {
   const { user, updateProfile } = useAuth()
@@ -38,14 +43,16 @@ export default function SettingsPage() {
     user?.user_metadata?.username || user?.email?.split('@')[0] || 'Neo_Striker'
   )
   const [emailAddress, setEmailAddress] = useState(user?.email || 'player@mjesports.pro')
-  const [phoneNumber, setPhoneNumber] = useState(user?.user_metadata?.phone || '+91 98765 43210')
+  const [phoneNumber, setPhoneNumber] = useState(
+    sanitizeDigitsOnly(user?.user_metadata?.phone || user?.user_metadata?.whatsappNumber || '9876543210', 10)
+  )
   const [freeFireUid, setFreeFireUid] = useState(
-    user?.user_metadata?.free_fire_uid || user?.user_metadata?.freeFireUid || user?.user_metadata?.game_uid || '1092837482'
+    sanitizeDigitsOnly(user?.user_metadata?.free_fire_uid || user?.user_metadata?.freeFireUid || user?.user_metadata?.game_uid || '1092837482', 10)
   )
   const [bgmiUid, setBgmiUid] = useState(
-    user?.user_metadata?.bgmi_uid || user?.user_metadata?.bgmiUid || ''
+    sanitizeDigitsOnly(user?.user_metadata?.bgmi_uid || user?.user_metadata?.bgmiUid || '', 10)
   )
-  const [generalErrors, setGeneralErrors] = useState({ freeFireUid: '', bgmiUid: '' })
+  const [generalErrors, setGeneralErrors] = useState({ freeFireUid: '', bgmiUid: '', phoneNumber: '' })
 
   // Security States
   const [currentPassword, setCurrentPassword] = useState('')
@@ -107,23 +114,29 @@ export default function SettingsPage() {
   // Handle General Profile Save
   const handleSaveGeneral = async (e) => {
     e.preventDefault()
-    setGeneralErrors({ freeFireUid: '', bgmiUid: '' })
+    setGeneralErrors({ freeFireUid: '', bgmiUid: '', phoneNumber: '' })
 
     let hasError = false
-    const newErrors = { freeFireUid: '', bgmiUid: '' }
+    const newErrors = { freeFireUid: '', bgmiUid: '', phoneNumber: '' }
 
-    // Validate Free Fire UID (Required & Numeric only)
-    if (!freeFireUid.trim()) {
-      newErrors.freeFireUid = 'Free Fire UID is required.'
-      hasError = true
-    } else if (!/^\d+$/.test(freeFireUid.trim())) {
-      newErrors.freeFireUid = 'Free Fire UID must contain only numeric digits.'
+    // Validate Phone Number (10 digits)
+    if (phoneNumber && !isValidPhoneNumber(phoneNumber)) {
+      newErrors.phoneNumber = 'Phone number must be exactly 10 numeric digits (0-9).'
       hasError = true
     }
 
-    // Validate BGMI UID (Optional & Numeric only if provided)
-    if (bgmiUid.trim() && !/^\d+$/.test(bgmiUid.trim())) {
-      newErrors.bgmiUid = 'BGMI UID must contain only numeric digits.'
+    // Validate Free Fire UID (Required & exactly 10 digits)
+    if (!freeFireUid.trim()) {
+      newErrors.freeFireUid = 'Free Fire UID is required.'
+      hasError = true
+    } else if (!isValidGameUid(freeFireUid)) {
+      newErrors.freeFireUid = 'Free Fire UID must be exactly 10 numeric digits (0-9).'
+      hasError = true
+    }
+
+    // Validate BGMI UID (Optional & exactly 10 digits if provided)
+    if (bgmiUid.trim() && !isValidGameUid(bgmiUid)) {
+      newErrors.bgmiUid = 'BGMI UID must be exactly 10 numeric digits (0-9).'
       hasError = true
     }
 
@@ -137,7 +150,7 @@ export default function SettingsPage() {
       if (updateProfile) {
         await updateProfile({
           username: displayName,
-          phone: phoneNumber,
+          phone: phoneNumber.trim(),
           free_fire_uid: freeFireUid.trim(),
           freeFireUid: freeFireUid.trim(),
           bgmi_uid: bgmiUid.trim(),
@@ -299,28 +312,60 @@ export default function SettingsPage() {
 
                   {/* 3. Phone Number */}
                   <div className="space-y-1.5">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">Phone Number</label>
-                    <input
-                      type="text"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="w-full bg-[#09090b] border border-[#27272a] rounded-xl p-3 text-sm text-white focus:border-[#00f2ff] focus:outline-none"
-                    />
+                    <div className="flex items-center justify-between">
+                      <label className="text-[#a1a1aa] uppercase font-bold block text-xs">Phone Number</label>
+                      <span className={`text-[10px] font-mono font-bold ${phoneNumber.length === 10 ? 'text-[#00f2ff]' : 'text-[#71717a]'}`}>
+                        {phoneNumber.length}/10
+                      </span>
+                    </div>
+                    <div className="flex items-stretch rounded-xl overflow-hidden border border-[#27272a] focus-within:border-[#00f2ff]">
+                      <span className="flex items-center px-3.5 bg-[#18181b] border-r border-[#27272a] text-xs font-mono font-bold text-[#00f2ff] select-none">
+                        +91
+                      </span>
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={10}
+                        value={phoneNumber}
+                        onChange={(e) => {
+                          const val = sanitizeDigitsOnly(e.target.value, 10)
+                          setPhoneNumber(val)
+                          if (generalErrors.phoneNumber) setGeneralErrors((prev) => ({ ...prev, phoneNumber: '' }))
+                        }}
+                        placeholder="9876543210"
+                        className="w-full bg-[#09090b] p-3 text-sm text-white focus:outline-none"
+                      />
+                    </div>
+                    {generalErrors.phoneNumber && (
+                      <p className="text-[11px] text-[#ff3366] font-mono font-bold mt-1">
+                        {generalErrors.phoneNumber}
+                      </p>
+                    )}
                   </div>
 
                   {/* 4. FREE FIRE UID * */}
                   <div className="space-y-1.5">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">
-                      FREE FIRE UID <span className="text-[#ff3366]">*</span>
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-[#a1a1aa] uppercase font-bold block text-xs">
+                        FREE FIRE UID <span className="text-[#ff3366]">*</span>
+                      </label>
+                      <span className={`text-[10px] font-mono font-bold ${freeFireUid.length === 10 ? 'text-[#00f2ff]' : 'text-[#71717a]'}`}>
+                        {freeFireUid.length}/10
+                      </span>
+                    </div>
                     <input
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={10}
                       value={freeFireUid}
                       onChange={(e) => {
-                        setFreeFireUid(e.target.value)
+                        const val = sanitizeDigitsOnly(e.target.value, 10)
+                        setFreeFireUid(val)
                         if (generalErrors.freeFireUid) setGeneralErrors((prev) => ({ ...prev, freeFireUid: '' }))
                       }}
-                      placeholder="Enter your Free Fire UID"
+                      placeholder="0123456789"
                       required
                       className={`w-full bg-[#09090b] border rounded-xl p-3 text-sm text-white focus:outline-none transition-colors ${
                         generalErrors.freeFireUid
@@ -337,17 +382,26 @@ export default function SettingsPage() {
 
                   {/* 5. BGMI UID (Optional) */}
                   <div className="space-y-1.5">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">
-                      BGMI UID (Optional)
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-[#a1a1aa] uppercase font-bold block text-xs">
+                        BGMI UID (Optional)
+                      </label>
+                      <span className={`text-[10px] font-mono font-bold ${bgmiUid.length === 10 ? 'text-[#00f2ff]' : 'text-[#71717a]'}`}>
+                        {bgmiUid.length}/10
+                      </span>
+                    </div>
                     <input
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={10}
                       value={bgmiUid}
                       onChange={(e) => {
-                        setBgmiUid(e.target.value)
+                        const val = sanitizeDigitsOnly(e.target.value, 10)
+                        setBgmiUid(val)
                         if (generalErrors.bgmiUid) setGeneralErrors((prev) => ({ ...prev, bgmiUid: '' }))
                       }}
-                      placeholder="Enter your BGMI UID (Optional)"
+                      placeholder="0123456789"
                       className={`w-full bg-[#09090b] border rounded-xl p-3 text-sm text-white focus:outline-none transition-colors ${
                         generalErrors.bgmiUid
                           ? 'border-[#ff3366] focus:border-[#ff3366]'

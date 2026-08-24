@@ -60,7 +60,7 @@ export default function TournamentEligibilityAuditor({ users = [], tournaments =
             <span>TOURNAMENT ELIGIBILITY AUDITOR</span>
           </h3>
           <p className="text-xs text-[#8e9dae] mt-0.5">
-            Automated compliance check for Verified Game Identity, Tournament Registrations & OCR targets.
+            Automated compliance check for Verified Game Identity and Tournament Registrations.
           </p>
         </div>
         <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">

@@ -12,8 +12,7 @@ import {
   Swords,
   BarChart3,
   Flame,
-  Award,
-  ScanLine
+  Award
 } from 'lucide-react'
 
 export const NAV_ITEMS = [
@@ -21,7 +20,6 @@ export const NAV_ITEMS = [
   { id: 'tournaments', label: 'Tournaments', icon: Trophy },
   { id: 'matches', label: 'Match Control', icon: Swords },
   { id: 'results', label: 'Results', icon: Award },
-  { id: 'ocr', label: 'OCR / Scoreboard', icon: ScanLine },
   { id: 'players', label: 'Players', icon: Users },
   { id: 'finance', label: 'Finance', icon: CreditCard },
   { id: 'reports', label: 'Reports', icon: BarChart3 },
@@ -47,7 +45,6 @@ export default function AdminSidebar({ activeTab, setActiveTab, mobileOpen, setM
     if (itemId === 'finance' && activeTab === 'payments') return true
     if (itemId === 'reports' && activeTab === 'analytics') return true
     if (itemId === 'matches' && activeTab === 'match-control') return true
-    if (itemId === 'ocr' && (activeTab === 'scoreboard' || activeTab === 'ocr-scoreboard')) return true
     return false
   }
 

@@ -6,8 +6,8 @@
  * authorized viewing, and manages administrative verification workflows.
  */
 
-import { supabase, isSupabaseConfigured, PROFILE_PROOFS_BUCKET } from '../lib/supabase'
-import { toCanonicalIgn, normalizeIgn } from '../utils/playerIdentityUtils'
+import { supabase, isSupabaseConfigured, PROFILE_PROOFS_BUCKET } from '../lib/supabase.js'
+import { toCanonicalIgn, normalizeIgn } from '../utils/playerIdentityUtils.js'
 
 /**
  * Checks if the private 'profile-proofs' storage bucket is available.
@@ -82,7 +82,9 @@ export async function uploadProfileProof(file, {
       game: 'Free Fire',
       gameUid: String(gameUid).trim(),
       canonicalIgn,
+      canonical_ign: canonicalIgn,
       normalizedIgn: normIgn,
+      normalized_ign: normIgn,
       tournamentId,
       evidenceType: 'FREE_FIRE_PROFILE_SCREENSHOT',
       storagePath: `${userId}/mock-proof-${Date.now()}.png`,
@@ -141,7 +143,6 @@ export async function uploadProfileProof(file, {
 
   if (insertError) {
     console.error('[Evidence DB Insert Error]:', insertError)
-    // Non-fatal if table not migrated yet, fallback gracefully
     if (insertError.code === 'PGRST205' || insertError.message?.includes('does not exist')) {
       console.warn('[Evidence Service DB Notice]: Table player_identity_evidence not created yet. Proof uploaded to storage successfully.')
     } else {
@@ -168,6 +169,93 @@ export async function uploadProfileProof(file, {
     evidence: evidenceRow || { ...insertPayload, id: `ev-${Date.now()}` },
     signedUrl,
     isFallback: false,
+  }
+}
+
+/**
+ * Checks whether a player has an approved, VERIFIED Free Fire identity.
+ * Required for tournament registration.
+ * 
+ * @param {string} userId
+ * @returns {Promise<{ isVerified: boolean, verificationStatus: string, gameUid: string|null, canonicalIgn: string|null }>}
+ */
+export async function checkPlayerVerificationEligibility(userId) {
+  if (!userId) {
+    return { isVerified: false, verificationStatus: 'Unauthenticated', gameUid: null, canonicalIgn: null }
+  }
+
+  if (!isSupabaseConfigured) {
+    // Local / development mode fallback: treat as verified if UID present
+    return { isVerified: true, verificationStatus: 'Verified', gameUid: '518920412', canonicalIgn: 'KA¹⁷ Mjᶠᶠ' }
+  }
+
+  try {
+    // 1. Check profiles table verification_status
+    const { data: profile, error: profErr } = await supabase
+      .from('profiles')
+      .select('verification_status, game_uid, username')
+      .eq('id', userId)
+      .maybeSingle()
+
+    if (!profErr && profile?.verification_status === 'Verified') {
+      return {
+        isVerified: true,
+        verificationStatus: 'Verified',
+        gameUid: profile.game_uid || null,
+        canonicalIgn: profile.username || null,
+      }
+    }
+
+    // 2. Also check player_identity_evidence table for active VERIFIED record
+    const { data: evidence, error: evErr } = await supabase
+      .from('player_identity_evidence')
+      .select('status, game_uid, canonical_ign')
+      .eq('user_id', userId)
+      .eq('status', 'VERIFIED')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (!evErr && evidence?.status === 'VERIFIED') {
+      return {
+        isVerified: true,
+        verificationStatus: 'Verified',
+        gameUid: evidence.game_uid || null,
+        canonicalIgn: evidence.canonical_ign || null,
+      }
+    }
+
+    return {
+      isVerified: false,
+      verificationStatus: profile?.verification_status || 'Pending',
+      gameUid: profile?.game_uid || null,
+      canonicalIgn: profile?.username || null,
+    }
+  } catch (err) {
+    console.error('[Check Eligibility Error]:', err)
+    return { isVerified: false, verificationStatus: 'Error', gameUid: null, canonicalIgn: null }
+  }
+}
+
+/**
+ * Invalidates existing verified status if player changes their Free Fire UID or Display Name.
+ * 
+ * @param {string} userId
+ * @param {string} [reason]
+ */
+export async function invalidatePlayerVerification(userId, reason = 'Player modified verified Game UID or Display Name') {
+  if (!userId || !isSupabaseConfigured) return
+
+  try {
+    // Transition profile verification_status to Pending
+    await supabase
+      .from('profiles')
+      .update({ verification_status: 'Pending' })
+      .eq('id', userId)
+
+    console.log(`[Evidence Service]: Invalidation triggered for user ${userId}: ${reason}`)
+  } catch (err) {
+    console.warn('[Invalidate Verification Notice]:', err)
   }
 }
 

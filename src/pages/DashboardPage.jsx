@@ -30,7 +30,7 @@ import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'
 import AvatarUploadModal from '../components/common/AvatarUploadModal'
 import LoadingButton from '../components/common/LoadingButton'
-import { isValidGameUid, isValidPhoneNumber, sanitizeString } from '../utils/validationUtils'
+import { isValidGameUid, isValidPhoneNumber, sanitizeString, sanitizeDigitsOnly } from '../utils/validationUtils'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { uploadAvatarFile } from '../services/avatarService'
 
@@ -62,7 +62,11 @@ export default function DashboardPage() {
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target
-    setProfileData((prev) => ({ ...prev, [name]: value }))
+    const finalValue = (name === 'freeFireUid' || name === 'whatsappNumber')
+      ? sanitizeDigitsOnly(value, 10)
+      : value
+
+    setProfileData((prev) => ({ ...prev, [name]: finalValue }))
     if (profileErrors[name]) {
       setProfileErrors((prev) => ({ ...prev, [name]: null }))
     }
@@ -81,7 +85,7 @@ export default function DashboardPage() {
     }
 
     if (cleanUid && !isValidGameUid(cleanUid)) {
-      newErrors.freeFireUid = 'Game UID must be 8 to 12 alphanumeric characters'
+      newErrors.freeFireUid = 'Game UID must be exactly 10 numeric digits (0-9)'
     }
 
     if (cleanPhone && !isValidPhoneNumber(cleanPhone)) {
@@ -430,9 +434,14 @@ export default function DashboardPage() {
             <FormInput
               label="Free Fire UID"
               name="freeFireUid"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={10}
+              showCount
               value={profileData.freeFireUid}
               onChange={handleProfileChange}
-              placeholder="e.g. 518920412"
+              placeholder="0123456789"
               error={profileErrors.freeFireUid}
               icon={ShieldCheck}
             />
@@ -440,9 +449,15 @@ export default function DashboardPage() {
             <FormInput
               label="WhatsApp Number"
               name="whatsappNumber"
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={10}
+              showCount
+              prefix="+91"
               value={profileData.whatsappNumber}
               onChange={handleProfileChange}
-              placeholder="e.g. 9876543210"
+              placeholder="9876543210"
               error={profileErrors.whatsappNumber}
               icon={Phone}
             />

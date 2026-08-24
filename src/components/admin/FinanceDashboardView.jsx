@@ -402,7 +402,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
         approvedBy: item.approved_by,
         approvedAt: item.approved_at,
         failureReason: item.failure_reason,
-        verificationState: 'VERIFIED SCORECARD & OCR',
+        verificationState: 'VERIFIED MATCH RESULTS',
         createdAt: item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Recent',
       }
     })
@@ -427,7 +427,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
           payoutAmount: Math.round(t.prizePoolNum * 0.5),
           status: 'PENDING_REVIEW',
           idempotencyKey: idempKey,
-          verificationState: 'SCORECARD & OCR VERIFIED',
+          verificationState: 'VERIFIED MATCH RESULTS',
           createdAt: new Date().toLocaleDateString(),
         }
       })
@@ -892,7 +892,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                         <div className="w-full h-3 bg-[#07090c] rounded-full overflow-hidden border border-[#3a494b]/40">
                           <div className="h-full bg-[#00ff9d]" style={{ width: `${successPct}%` }} />
                         </div>
-                        <p className="text-[11px] text-[#8e9dae]">OCR & manual admin audit pipeline active</p>
+                        <p className="text-[11px] text-[#8e9dae]">Manual admin audit pipeline active</p>
                       </div>
                     )
                   })()}

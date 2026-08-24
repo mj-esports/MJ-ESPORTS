@@ -97,16 +97,17 @@ assert(!isValidIgn('a'.repeat(31)), 'isValidIgn rejects string longer than 30 ch
 assert(!isValidIgn(null), 'isValidIgn rejects null')
 
 // -------------------------------------------------------------
+// -------------------------------------------------------------
 // 4. ROSTER ARRAY BUILDER TESTS
 // -------------------------------------------------------------
 console.log('\n--- 4. Roster Array Builder ---')
 
 const squadRoster = buildRosterArray({
-  captainUid: '100000001',
+  captainUid: '1000000001',
   captainIgn: 'KA¹⁷ Mjᶠᶠ',
-  teammateUids: ['100000002', '100000003', '100000004'],
+  teammateUids: ['1000000002', '1000000003', '1000000004'],
   teammateIgns: ['亗 Ꭲ ɪ ᴛ ᴀ ɴ 亗', '꧁༺NINJA༻꧂', 'V² | ᴀ ᴋ ᴀ ʏ'],
-  substituteUids: ['100000005'],
+  substituteUids: ['1000000005'],
   substituteIgns: ['Reserve_One'],
 })
 
@@ -153,7 +154,7 @@ function validateRosterSubmission({ mode, captainUid, captainIgn, teammateUids =
 // Solo Test
 const soloValid = validateRosterSubmission({
   mode: 'Solo',
-  captainUid: '518920412',
+  captainUid: '5189204120',
   captainIgn: 'Solo_Sniper',
 })
 assert(soloValid.isValid, 'Solo registration with Captain UID + IGN is valid')
@@ -161,18 +162,18 @@ assert(soloValid.isValid, 'Solo registration with Captain UID + IGN is valid')
 // Duo Test
 const duoValid = validateRosterSubmission({
   mode: 'Duo',
-  captainUid: '518920412',
+  captainUid: '5189204120',
   captainIgn: 'Duo_Lead',
-  teammateUids: ['518920413'],
+  teammateUids: ['5189204130'],
   teammateIgns: ['Duo_Mate'],
 })
 assert(duoValid.isValid, 'Duo registration with Captain + Teammate 1 UID & IGN is valid')
 
 const duoMissingIgn = validateRosterSubmission({
   mode: 'Duo',
-  captainUid: '518920412',
+  captainUid: '5189204120',
   captainIgn: 'Duo_Lead',
-  teammateUids: ['518920413'],
+  teammateUids: ['5189204130'],
   teammateIgns: [''],
 })
 assert(!duoMissingIgn.isValid && duoMissingIgn.errors.includes('INVALID_TEAMMATE_1_IGN'), 'Duo registration fails if Teammate 1 IGN is missing')
@@ -180,18 +181,18 @@ assert(!duoMissingIgn.isValid && duoMissingIgn.errors.includes('INVALID_TEAMMATE
 // Squad Test
 const squadValid = validateRosterSubmission({
   mode: 'Squad',
-  captainUid: '518920412',
+  captainUid: '5189204120',
   captainIgn: 'Squad_Leader',
-  teammateUids: ['518920413', '518920414', '518920415'],
+  teammateUids: ['5189204130', '5189204140', '5189204150'],
   teammateIgns: ['Teammate_A', 'Teammate_B', 'Teammate_C'],
 })
 assert(squadValid.isValid, 'Squad registration with 4 complete UID + IGN pairs is valid')
 
 const squadIncomplete = validateRosterSubmission({
   mode: 'Squad',
-  captainUid: '518920412',
+  captainUid: '5189204120',
   captainIgn: 'Squad_Leader',
-  teammateUids: ['518920413', '518920414'],
+  teammateUids: ['5189204130', '5189204140'],
   teammateIgns: ['Teammate_A', 'Teammate_B'],
 })
 assert(!squadIncomplete.isValid && squadIncomplete.errors.includes('INVALID_ROSTER_SIZE'), 'Squad registration fails if only 2 teammates provided instead of 3')
@@ -203,18 +204,18 @@ console.log('\n--- 6. Duplicate UID Rejection & Duplicate IGN Allowance ---')
 
 const duplicateUidRoster = validateRosterSubmission({
   mode: 'Duo',
-  captainUid: '518920412',
+  captainUid: '5189204120',
   captainIgn: 'Player_Alpha',
-  teammateUids: ['518920412'], // Identical to captain UID
+  teammateUids: ['5189204120'], // Identical to captain UID
   teammateIgns: ['Player_Beta'],
 })
 assert(!duplicateUidRoster.isValid && duplicateUidRoster.errors.includes('DUPLICATE_UID'), 'Duplicate UID in same roster is rejected')
 
 const duplicateIgnRoster = validateRosterSubmission({
   mode: 'Duo',
-  captainUid: '518920412',
+  captainUid: '5189204120',
   captainIgn: 'Shadow',
-  teammateUids: ['518920413'], // Different UID
+  teammateUids: ['5189204130'], // Different UID
   teammateIgns: ['Shadow'],     // Identical IGN
 })
 assert(duplicateIgnRoster.isValid, 'Identical IGN with different UIDs is permitted (IGN is not primary key)')

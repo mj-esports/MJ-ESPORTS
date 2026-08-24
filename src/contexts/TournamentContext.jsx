@@ -8,7 +8,14 @@ import {
   getNextLifecycleStage,
   isValidLifecycleTransition
 } from '../constants/tournamentLifecycle'
-import { parseTournamentDeadline } from '../utils/validationUtils'
+import {
+  parseTournamentDeadline,
+  isValidGameUid,
+  isValidPhoneNumber,
+  isValidRoomId,
+  isValidRoomPassword,
+  sanitizeDigitsOnly,
+} from '../utils/validationUtils'
 
 const TournamentContext = createContext(null)
 
@@ -469,6 +476,33 @@ export function TournamentProvider({ children }) {
         throw new Error('Tournament slots are full!')
       }
 
+      // Pre-flight client validation for 10-digit UIDs and 10-digit Phone
+      const cleanCaptainUid = sanitizeDigitsOnly(teamInfo.freeFireUid, 10)
+      const cleanPhone = sanitizeDigitsOnly(teamInfo.whatsappNumber, 10)
+
+      if (!isValidGameUid(cleanCaptainUid)) {
+        throw new Error('Captain Game Character UID must be exactly 10 numeric digits (0-9).')
+      }
+      if (!isValidPhoneNumber(cleanPhone)) {
+        throw new Error('Captain WhatsApp number must be exactly 10 numeric digits (0-9).')
+      }
+
+      const cleanTeammateUids = (teamInfo.teammates || []).map((uid) => sanitizeDigitsOnly(uid, 10))
+      for (let i = 0; i < cleanTeammateUids.length; i++) {
+        const tUid = cleanTeammateUids[i]
+        if (tUid && !isValidGameUid(tUid)) {
+          throw new Error(`Teammate ${i + 1} UID must be exactly 10 numeric digits (0-9).`)
+        }
+      }
+
+      const cleanSubstituteUids = (teamInfo.substitutes || []).map((uid) => sanitizeDigitsOnly(uid, 10))
+      for (let s = 0; s < cleanSubstituteUids.length; s++) {
+        const subUid = cleanSubstituteUids[s]
+        if (subUid && !isValidGameUid(subUid)) {
+          throw new Error(`Substitute ${s + 1} UID must be exactly 10 numeric digits (0-9).`)
+        }
+      }
+
       const regStatus = teamInfo.status || 'Approved'
       const refId = teamInfo.refId || `REG-MJ-${Date.now().toString(36).toUpperCase()}`
 
@@ -480,13 +514,13 @@ export function TournamentProvider({ children }) {
 
         const rpcPayload = {
           p_tournament_id: String(tournamentId),
-          p_team_name: teamInfo.name,
-          p_captain_name: teamInfo.captain,
-          p_email: teamInfo.email,
-          p_whatsapp_number: teamInfo.whatsappNumber,
-          p_captain_uid: teamInfo.freeFireUid,
-          p_teammate_uids: teamInfo.teammates || [],
-          p_substitute_uids: teamInfo.substitutes || [],
+          p_team_name: String(teamInfo.name || '').trim(),
+          p_captain_name: String(teamInfo.captain || '').trim(),
+          p_email: String(teamInfo.email || '').trim(),
+          p_whatsapp_number: cleanPhone,
+          p_captain_uid: cleanCaptainUid,
+          p_teammate_uids: cleanTeammateUids,
+          p_substitute_uids: cleanSubstituteUids,
           p_captain_dob: teamInfo.captainDob || null,
           p_player_age: teamInfo.playerAge ? Number(teamInfo.playerAge) : null,
           p_preferred_seed: teamInfo.preferredSeed ? Number(teamInfo.preferredSeed) : 1,
@@ -550,6 +584,8 @@ export function TournamentProvider({ children }) {
               throw new Error('Registration for this tournament is currently closed.')
             case 'UNAUTHENTICATED':
               throw new Error('You must be logged in to register for a tournament.')
+            case 'IDENTITY_NOT_VERIFIED':
+              throw new Error(data.message || 'Free Fire Player Identity Verification is required to register. Please verify your profile first.')
             case 'INVALID_ROSTER':
               throw new Error(data.message || 'Please check your player roster and try again.')
             default:
@@ -624,9 +660,20 @@ export function TournamentProvider({ children }) {
 
   const updateRoomDetails = async (tournamentId, roomData) => {
     if (!roomData) return
+
+    const cleanRoomId = roomData.roomId ? sanitizeDigitsOnly(roomData.roomId, 15) : ''
+    const cleanPassword = roomData.roomPassword ? sanitizeDigitsOnly(roomData.roomPassword, 10) : ''
+
+    if (roomData.roomId && !isValidRoomId(cleanRoomId)) {
+      throw new Error('Room ID must contain numbers only (0-9).')
+    }
+    if (roomData.roomPassword && !isValidRoomPassword(cleanPassword)) {
+      throw new Error('Room Password must contain numbers only (0-9).')
+    }
+
     return updateTournament(tournamentId, {
-      roomId: roomData.roomId,
-      roomPassword: roomData.roomPassword,
+      roomId: cleanRoomId,
+      roomPassword: cleanPassword,
       roomStatus: roomData.roomStatus,
       roomLastUpdated: new Date().toISOString(),
       roomPublishedBy: roomData.roomPublishedBy,

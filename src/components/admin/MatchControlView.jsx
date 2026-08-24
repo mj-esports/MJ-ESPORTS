@@ -28,12 +28,20 @@ import {
   Filter,
   Layers,
   Activity,
-  Check
+  Check,
+  Sparkles
 } from 'lucide-react'
 import { useToast } from '../../contexts/ToastContext'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { getDefaultGameCapacity } from '../../utils/tournamentUtils'
+import {
+  isValidRoomId,
+  isValidRoomPassword,
+  generateRandomNumericRoomId,
+  generateRandomNumericRoomPassword,
+  sanitizeDigitsOnly,
+} from '../../utils/validationUtils'
 import LoadingButton from '../common/LoadingButton'
 
 export default function MatchControlView({ tournaments = [], setActiveTab }) {
@@ -172,12 +180,25 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
       showError('Match is locked! Unlock match before modifying room details.', 'Match Locked')
       return
     }
+
+    const cleanRoomId = sanitizeDigitsOnly(roomIdInput, 15)
+    const cleanPassword = sanitizeDigitsOnly(roomPasswordInput, 10)
+
+    if (roomIdInput.trim() && !isValidRoomId(cleanRoomId)) {
+      showError('Room ID must contain numeric digits only (0-9).', 'Validation Error')
+      return
+    }
+    if (roomPasswordInput.trim() && !isValidRoomPassword(cleanPassword)) {
+      showError('Room Password must contain numeric digits only (0-9).', 'Validation Error')
+      return
+    }
+
     setIsSaving(true)
     try {
       if (updateRoomDetails) {
         await updateRoomDetails(selectedTourney.id, {
-          roomId: roomIdInput.trim(),
-          roomPassword: roomPasswordInput.trim(),
+          roomId: cleanRoomId,
+          roomPassword: cleanPassword,
           roomStatus: 'Draft',
           roomPublishedBy: adminName,
         })
@@ -199,8 +220,15 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
       return
     }
 
-    if (!roomIdInput.trim() || !roomPasswordInput.trim()) {
-      showError('Room ID and Password are both required before publishing live.', 'Validation Error')
+    const cleanRoomId = sanitizeDigitsOnly(roomIdInput, 15)
+    const cleanPassword = sanitizeDigitsOnly(roomPasswordInput, 10)
+
+    if (!cleanRoomId || !isValidRoomId(cleanRoomId)) {
+      showError('Room ID is required and must contain numbers only (0-9).', 'Validation Error')
+      return
+    }
+    if (!cleanPassword || !isValidRoomPassword(cleanPassword)) {
+      showError('Room Password is required and must contain numbers only (0-9).', 'Validation Error')
       return
     }
 
@@ -208,15 +236,15 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
     try {
       if (updateRoomDetails) {
         await updateRoomDetails(selectedTourney.id, {
-          roomId: roomIdInput.trim(),
-          roomPassword: roomPasswordInput.trim(),
+          roomId: cleanRoomId,
+          roomPassword: cleanPassword,
           roomStatus: 'Published',
           roomPublishedBy: adminName,
         })
       }
       setRoomStatus('Published')
-      showSuccess(`Custom Room ID ${roomIdInput.trim()} published live to players!`, 'Room Published')
-      addIncidentEvent(`Custom Room ID ${roomIdInput.trim()} published live to players`)
+      showSuccess(`Custom Room ID ${cleanRoomId} published live to players!`, 'Room Published')
+      addIncidentEvent(`Custom Room ID ${cleanRoomId} published live to players`)
     } catch (err) {
       showError(err?.message || 'Failed to publish room details', 'Publish Error')
     } finally {
@@ -831,17 +859,31 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
           </div>
 
           <div className="p-4 bg-[#1c1b1c] rounded-lg border border-[#27272a] space-y-3.5">
-            {/* Room ID */}
+            {/* Room ID (Numbers Only) */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
-                ROOM ID
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
+                  ROOM ID <span className="text-[#00f2ff] text-[10px]">(NUMBERS ONLY)</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setRoomIdInput(generateRandomNumericRoomId(10))}
+                  disabled={isLocked}
+                  className="text-[10px] text-[#00f2ff] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+                  title="Generate independent random 10-digit numeric ID"
+                >
+                  <Sparkles className="w-3 h-3 text-[#00f2ff]" />
+                  <span>Auto-Gen ID</span>
+                </button>
+              </div>
               <div className="flex gap-2">
                 <input
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={roomIdInput}
-                  onChange={(e) => setRoomIdInput(e.target.value)}
-                  placeholder="Enter Free Fire / BGMI Custom Room ID..."
+                  onChange={(e) => setRoomIdInput(sanitizeDigitsOnly(e.target.value, 15))}
+                  placeholder="e.g. 5839174261"
                   disabled={isLocked}
                   className="flex-1 px-3.5 py-2.5 bg-[#141416] border border-[#27272a] rounded-lg text-xs font-mono font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff] disabled:opacity-50"
                 />
@@ -857,17 +899,31 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
               </div>
             </div>
 
-            {/* Room Password */}
+            {/* Room Password (Numbers Only) */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
-                ROOM PASSWORD
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
+                  ROOM PASSWORD <span className="text-[#ff5e07] text-[10px]">(NUMBERS ONLY)</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setRoomPasswordInput(generateRandomNumericRoomPassword(8))}
+                  disabled={isLocked}
+                  className="text-[10px] text-[#ff5e07] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+                  title="Generate independent random 8-digit numeric PIN"
+                >
+                  <Sparkles className="w-3 h-3 text-[#ff5e07]" />
+                  <span>Auto-Gen PIN</span>
+                </button>
+              </div>
               <div className="flex gap-2">
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={roomPasswordInput}
-                  onChange={(e) => setRoomPasswordInput(e.target.value)}
-                  placeholder="Enter Custom Room Password..."
+                  onChange={(e) => setRoomPasswordInput(sanitizeDigitsOnly(e.target.value, 10))}
+                  placeholder="e.g. 84920173"
                   disabled={isLocked}
                   className="flex-1 px-3.5 py-2.5 bg-[#141416] border border-[#27272a] rounded-lg text-xs font-mono font-bold text-[#ff5e07] focus:outline-none focus:border-[#00f2ff] disabled:opacity-50"
                 />
@@ -891,7 +947,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
             </div>
 
             <p className="text-[11px] text-[#849495] font-body">
-              Credentials are encrypted and released only to verified squad captains when published.
+              Credentials are independent numeric codes encrypted and released only to verified squad captains when published.
             </p>
           </div>
 

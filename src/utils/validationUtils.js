@@ -124,21 +124,77 @@ export function evaluatePasswordStrength(password) {
 }
 
 /**
- * Validates Free Fire or BGMI Game UID format (8 to 12 digits/alphanumeric).
+ * Sanitizes input to retain only numeric digits (0-9) and caps at specified maximum length.
+ * Preserves leading zeroes as a string.
  */
-export function isValidGameUid(uid) {
-  if (!uid || typeof uid !== 'string') return false
-  const uidRegex = /^[a-zA-Z0-9]{8,12}$/
-  return uidRegex.test(uid.trim())
+export function sanitizeDigitsOnly(input, maxLength = 10) {
+  if (!input || typeof input !== 'string') return ''
+  const digitsOnly = input.replace(/[^\d]/g, '')
+  return maxLength ? digitsOnly.slice(0, maxLength) : digitsOnly
 }
 
 /**
- * Validates 10-digit phone number format.
+ * Validates Game Character UID format (EXACTLY 10 numeric digits, 0-9).
+ * String-based check preserving leading zeroes (e.g. "0123456789").
+ */
+export function isValidGameUid(uid) {
+  if (!uid || typeof uid !== 'string') return false
+  const trimmed = uid.trim()
+  return /^[0-9]{10}$/.test(trimmed)
+}
+
+/**
+ * Validates Indian mobile / WhatsApp phone number format (EXACTLY 10 numeric digits, 0-9).
+ * Does not allow letters, spaces, special symbols, or embedded +91 inside the field.
  */
 export function isValidPhoneNumber(phone) {
   if (!phone || typeof phone !== 'string') return false
-  const cleanPhone = phone.trim().replace(/[\s\-()+]/g, '')
-  return /^[0-9]{10}$/.test(cleanPhone)
+  const trimmed = phone.trim()
+  return /^[0-9]{10}$/.test(trimmed)
+}
+
+/**
+ * Validates Custom Room ID (NUMBERS ONLY, at least 1 digit, no letters, no spaces, no email addresses).
+ */
+export function isValidRoomId(roomId) {
+  if (!roomId || typeof roomId !== 'string') return false
+  const trimmed = roomId.trim()
+  if (!trimmed || trimmed.includes('@')) return false
+  return /^[0-9]+$/.test(trimmed)
+}
+
+/**
+ * Validates Custom Room Password (NUMBERS ONLY, at least 1 digit, no letters, no spaces, no symbols).
+ */
+export function isValidRoomPassword(password) {
+  if (!password || typeof password !== 'string') return false
+  const trimmed = password.trim()
+  return /^[0-9]+$/.test(trimmed)
+}
+
+/**
+ * Generates an independent, cryptographically random numeric Room ID of specified length.
+ * Ensures the admin account email or password is NEVER used.
+ */
+export function generateRandomNumericRoomId(length = 10) {
+  let result = ''
+  // Ensure the first digit is non-zero (1-9) for standard room IDs, followed by random 0-9 digits
+  result += Math.floor(1 + Math.random() * 9).toString()
+  for (let i = 1; i < length; i++) {
+    result += Math.floor(Math.random() * 10).toString()
+  }
+  return result
+}
+
+/**
+ * Generates an independent random numeric Room Password of specified length (0-9 only).
+ */
+export function generateRandomNumericRoomPassword(length = 8) {
+  let result = ''
+  for (let i = 0; i < length; i++) {
+    result += Math.floor(Math.random() * 10).toString()
+  }
+  return result
 }
 
 /**

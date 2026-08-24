@@ -16,9 +16,7 @@ import AnalyticsView from '../components/admin/AnalyticsView'
 import SettingsView from '../components/admin/SettingsView'
 import AdminNotificationsView from '../components/admin/AdminNotificationsView'
 import AdminAuditLogsView from '../components/admin/AdminAuditLogsView'
-import ResultVerificationView from '../components/admin/ResultVerificationView'
 import MatchResultsWorkspaceView from '../components/admin/results/MatchResultsWorkspaceView'
-import OcrScoreboardConsoleView from '../components/admin/ocr/OcrScoreboardConsoleView'
 
 export default function AdminDashboardPage({ defaultTab }) {
   const {
@@ -41,7 +39,6 @@ export default function AdminDashboardPage({ defaultTab }) {
       if (normalizedParam === 'overview' || normalizedParam === 'command-center') return 'dashboard'
       if (normalizedParam === 'match-control') return 'matches'
       if (normalizedParam === 'leaderboards' || normalizedParam === 'leaderboard') return 'results'
-      if (normalizedParam === 'ocr' || normalizedParam === 'scoreboard' || normalizedParam === 'ocr-scoreboard') return 'ocr'
       if (normalizedParam === 'payments') return 'finance'
       if (normalizedParam === 'analytics') return 'reports'
       const found = NAV_ITEMS.find((item) => item.id === normalizedParam)
@@ -54,7 +51,6 @@ export default function AdminDashboardPage({ defaultTab }) {
       if (normalizedQuery === 'overview' || normalizedQuery === 'command-center') return 'dashboard'
       if (normalizedQuery === 'match-control') return 'matches'
       if (normalizedQuery === 'leaderboards' || normalizedQuery === 'leaderboard') return 'results'
-      if (normalizedQuery === 'ocr' || normalizedQuery === 'scoreboard' || normalizedQuery === 'ocr-scoreboard') return 'ocr'
       if (normalizedQuery === 'payments') return 'finance'
       if (normalizedQuery === 'analytics') return 'reports'
       const found = NAV_ITEMS.find((item) => item.id === normalizedQuery)
@@ -105,7 +101,7 @@ export default function AdminDashboardPage({ defaultTab }) {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
           
           {/* Sub-Tab Header for Generic Pages */}
-          {activeTab !== 'dashboard' && activeTab !== 'tournaments' && activeTab !== 'matches' && activeTab !== 'results' && activeTab !== 'ocr' && (
+          {activeTab !== 'dashboard' && activeTab !== 'tournaments' && activeTab !== 'matches' && activeTab !== 'results' && (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#141416] border border-[#27272a] rounded p-4 shadow-xl">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
@@ -230,14 +226,6 @@ export default function AdminDashboardPage({ defaultTab }) {
                 updateTournamentScores={updateTournamentScores}
                 updateTournamentStatus={updateTournamentStatus}
                 editTournament={editTournament}
-                setActiveTab={setActiveTab}
-              />
-            )}
-
-            {/* OCR / Scoreboard Console (Dedicated Staging & Identity Verification Layer) */}
-            {activeTab === 'ocr' && (
-              <OcrScoreboardConsoleView
-                tournaments={tournaments}
                 setActiveTab={setActiveTab}
               />
             )}

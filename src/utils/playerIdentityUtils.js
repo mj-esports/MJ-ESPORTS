@@ -26,7 +26,7 @@ export function toCanonicalIgn(rawIgn) {
 }
 
 /**
- * Produces a deterministic normalized comparison key for identity search and OCR matching.
+ * Produces a deterministic normalized comparison key for player identity and search matching.
  * Performs Unicode Compatibility Decomposition (NFKC), lowercasing, and whitespace collapse.
  * 
  * Example: "KA¹⁷ Mjᶠᶠ" -> "ka17 mjff" (NFKC decomposes superscripts to standard digits)

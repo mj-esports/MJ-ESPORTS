@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import {
   X,
   Users,
@@ -20,6 +21,7 @@ import { useTournaments } from '../../contexts/TournamentContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
+import { checkPlayerVerificationEligibility } from '../../services/playerEvidenceService'
 import FormInput from '../common/FormInput'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
@@ -35,6 +37,7 @@ import {
   isValidPhoneNumber,
   isValidTeamName,
   sanitizeString,
+  sanitizeDigitsOnly,
 } from '../../utils/validationUtils'
 import {
   getTournamentMode,
@@ -49,16 +52,38 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const { user } = useAuth()
   const { showSuccess, showError } = useToast()
 
+  // Player Verification Eligibility State
+  const [isIdentityVerified, setIsIdentityVerified] = useState(true)
+  const [eligibilityChecking, setEligibilityChecking] = useState(true)
+
   // Calculate max date of birth for 13 years old check (2026 - 13 = 2013)
   const maxDobDate = '2013-12-31'
 
-  // Lock body scrolling when modal is open
+  // Lock body scrolling when modal is open and check verification
   useEffect(() => {
     document.body.style.overflow = 'hidden'
+
+    async function verifyEligibility() {
+      if (user?.id) {
+        try {
+          const res = await checkPlayerVerificationEligibility(user.id)
+          setIsIdentityVerified(res.isVerified)
+        } catch {
+          setIsIdentityVerified(true)
+        } finally {
+          setEligibilityChecking(false)
+        }
+      } else {
+        setEligibilityChecking(false)
+      }
+    }
+
+    verifyEligibility()
+
     return () => {
       document.body.style.overflow = ''
     }
-  }, [])
+  }, [user?.id])
 
   const modeConfig = getTournamentMode(tournament)
   const mode = modeConfig.mode
@@ -92,7 +117,12 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
-    const newValue = type === 'checkbox' ? checked : value
+    let newValue = type === 'checkbox' ? checked : value
+
+    if (name === 'freeFireUid' || name === 'whatsappNumber') {
+      newValue = sanitizeDigitsOnly(value, 10)
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: newValue,
@@ -104,8 +134,9 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
   const handleTeammateChange = (index, field, value) => {
     if (field === 'uid') {
+      const sanitized = sanitizeDigitsOnly(value, 10)
       const updatedUids = [...formData.teammates]
-      updatedUids[index] = value
+      updatedUids[index] = sanitized
       setFormData((prev) => ({ ...prev, teammates: updatedUids }))
       const fieldKey = `teammate_${index}`
       if (fieldErrors[fieldKey]) {
@@ -127,8 +158,9 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
   const handleSubstituteChange = (index, field, value) => {
     if (field === 'uid') {
+      const sanitized = sanitizeDigitsOnly(value, 10)
       const updated = [...formData.substituteUids]
-      updated[index] = value
+      updated[index] = sanitized
       setFormData((prev) => ({ ...prev, substituteUids: updated }))
       const fieldKey = `sub_uid_${index}`
       if (fieldErrors[fieldKey]) {
@@ -181,18 +213,18 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       newFieldErrors.email = 'Please enter a valid email address'
     }
 
-    // Game UID Validation
+    // Game UID Validation (Strictly 10 digits)
     if (!cleanCaptainUid) {
       newFieldErrors.freeFireUid = 'Game Character UID is required'
     } else if (!isValidGameUid(cleanCaptainUid)) {
-      newFieldErrors.freeFireUid = 'Game UID must be 8-12 alphanumeric characters'
+      newFieldErrors.freeFireUid = 'Game UID must be exactly 10 numeric digits (0-9)'
     }
 
-    // Contact Number Validation
+    // Contact Number Validation (Strictly 10 digits)
     if (!cleanPhone) {
       newFieldErrors.whatsappNumber = 'WhatsApp Contact Number is required'
     } else if (!isValidPhoneNumber(cleanPhone)) {
-      newFieldErrors.whatsappNumber = 'Please enter a valid 10-digit WhatsApp number'
+      newFieldErrors.whatsappNumber = 'WhatsApp number must be exactly 10 numeric digits (0-9)'
     }
 
     // Native Date Picker DOB Validation (Age 13+)
@@ -227,11 +259,11 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       const uidFieldKey = `teammate_${i}`
       const ignFieldKey = `teammate_ign_${i}`
 
-      // Validate Teammate UID
+      // Validate Teammate UID (Strictly 10 digits)
       if (!uid) {
         newFieldErrors[uidFieldKey] = `Game UID for Teammate ${i + 1} is required for ${mode} mode`
       } else if (!isValidGameUid(uid)) {
-        newFieldErrors[uidFieldKey] = `Teammate ${i + 1} Game UID must be 8-12 alphanumeric characters`
+        newFieldErrors[uidFieldKey] = `Teammate ${i + 1} Game UID must be exactly 10 digits (0-9)`
       } else if (uid === cleanCaptainUid) {
         newFieldErrors[uidFieldKey] = `Teammate ${i + 1} Game UID cannot be identical to Captain's UID`
       }
@@ -268,7 +300,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         const subKey = `sub_uid_${s}`
         const subIgnKey = `sub_ign_${s}`
         if (subUid && !isValidGameUid(subUid)) {
-          newFieldErrors[subKey] = `Substitute ${s + 1} UID must be 8-12 characters`
+          newFieldErrors[subKey] = `Substitute ${s + 1} UID must be exactly 10 digits (0-9)`
         }
         if (subUid && !subIgn) {
           newFieldErrors[subIgnKey] = `Substitute ${s + 1} IGN is required when UID is provided`
@@ -276,6 +308,11 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
           newFieldErrors[subIgnKey] = `Substitute ${s + 1} IGN must be 1-30 characters`
         }
       }
+    }
+
+    // Check Free Fire Identity Verification Eligibility
+    if (!isIdentityVerified) {
+      return 'Free Fire Player Identity Verification is required to register for tournaments. Please verify your profile identity first.'
     }
 
     // Toggle Switch Rules & Fair Play Validation
@@ -551,6 +588,32 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               </div>
             </div>
 
+            {/* Free Fire Identity Verification Alert Banner */}
+            {!isIdentityVerified && !eligibilityChecking && (
+              <div className="p-4 bg-[#fe6b00]/10 border border-[#fe6b00]/40 rounded-xl space-y-2 shadow-lg">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2.5">
+                    <ShieldAlert className="w-5 h-5 text-[#fe6b00] shrink-0 mt-0.5" />
+                    <div>
+                      <h5 className="font-headline text-xs font-bold text-white uppercase tracking-wide">
+                        Free Fire Identity Verification Required
+                      </h5>
+                      <p className="text-[11px] text-[#8e9dae] mt-0.5 leading-relaxed font-sans">
+                        To maintain fair play and competitive integrity, your Free Fire Character UID and IGN must be verified before booking tournament slots.
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/profile/edit"
+                    className="px-3.5 py-2 bg-[#fe6b00] hover:bg-orange-400 text-black font-bold uppercase rounded-lg text-[10px] shrink-0 transition-all flex items-center gap-1 shadow-[0_0_10px_rgba(254,107,0,0.3)] cursor-pointer"
+                  >
+                    <span>Verify Now</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              </div>
+            )}
+
             {/* RESPONSIVE LAYOUT GRID: SECTION 1 - PRIMARY CREDENTIALS */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormInput
@@ -591,6 +654,11 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                 label="WhatsApp Contact Number"
                 name="whatsappNumber"
                 type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={10}
+                showCount
+                prefix="+91"
                 value={formData.whatsappNumber}
                 onChange={handleChange}
                 placeholder="9876543210"
@@ -602,9 +670,14 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               <FormInput
                 label={mode === 'Solo' ? 'Game Character UID' : 'Captain Game Character UID'}
                 name="freeFireUid"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={10}
+                showCount
                 value={formData.freeFireUid}
                 onChange={handleChange}
-                placeholder="e.g. 518920412"
+                placeholder="0123456789"
                 required
                 error={fieldErrors.freeFireUid}
                 icon={ShieldCheck}
@@ -727,9 +800,14 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   <FormInput
                     label="Teammate 1 Game UID"
                     name="teammate_0"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={10}
+                    showCount
                     value={formData.teammates[0]}
                     onChange={(e) => handleTeammateChange(0, 'uid', e.target.value)}
-                    placeholder="e.g. 518920413"
+                    placeholder="0123456789"
                     required
                     error={fieldErrors.teammate_0}
                     icon={ShieldCheck}
@@ -769,9 +847,14 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                         <FormInput
                           label={`Teammate ${idx + 1} Game UID`}
                           name={`teammate_${idx}`}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={10}
+                          showCount
                           value={formData.teammates[idx]}
                           onChange={(e) => handleTeammateChange(idx, 'uid', e.target.value)}
-                          placeholder={`e.g. ${518920413 + idx}`}
+                          placeholder="0123456789"
                           required
                           error={fieldErrors[`teammate_${idx}`]}
                           icon={ShieldCheck}
@@ -852,9 +935,14 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                             <FormInput
                               label={`Substitute ${idx + 1} Game UID`}
                               name={`sub_uid_${idx}`}
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              maxLength={10}
+                              showCount
                               value={formData.substituteUids[idx] || ''}
                               onChange={(e) => handleSubstituteChange(idx, 'uid', e.target.value)}
-                              placeholder="e.g. 518920499"
+                              placeholder="0123456789"
                               error={fieldErrors[`sub_uid_${idx}`]}
                               icon={ShieldCheck}
                             />

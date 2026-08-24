@@ -263,30 +263,37 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
                   </div>
                 </div>
 
-                {/* Side-by-Side Identity Comparison */}
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
+                {/* 3-Way Identity Verification Comparison */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
                   
-                  {/* Left: Registered Database Identity (5 Cols) */}
-                  <div className="sm:col-span-5 bg-[#07090c] p-3 rounded-lg border border-[#3a494b] space-y-2">
+                  {/* 1. Registered Database Identity (4 Cols) */}
+                  {/* 1. Registered Player Data (6 Cols) */}
+                  <div className="md:col-span-6 bg-[#07090c] p-3.5 rounded-lg border border-[#3a494b] space-y-2.5">
                     <span className="text-[9px] text-[#00f2ff] font-bold uppercase block tracking-wider">
-                      REGISTERED DATA
+                      PLAYER IDENTITY DETAILS
                     </span>
-                    <div className="space-y-1">
-                      <span className="text-[9px] text-[#8e9dae] uppercase block">Game UID</span>
-                      <span className="font-bold text-[#00ff9d] font-mono text-sm block">{item.game_uid}</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <span className="text-[9px] text-[#8e9dae] uppercase block">Game UID</span>
+                        <span className="font-bold text-[#00ff9d] font-mono text-sm block">{item.game_uid}</span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[9px] text-[#8e9dae] uppercase block">Platform Username</span>
+                        <span className="font-bold text-white text-sm block truncate">{item.username || 'Player'}</span>
+                      </div>
                     </div>
                     <div className="space-y-1">
                       <span className="text-[9px] text-[#8e9dae] uppercase block">Exact Canonical IGN</span>
                       <span className="font-bold text-white font-mono block break-all">{item.canonical_ign || item.username}</span>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[9px] text-[#8e9dae] uppercase block">Normalized Match Key</span>
+                      <span className="text-[9px] text-[#8e9dae] uppercase block">Normalized Key</span>
                       <span className="text-[10px] text-[#8e9dae] font-mono block">{item.normalized_ign || (item.canonical_ign || '').toLowerCase()}</span>
                     </div>
                   </div>
 
-                  {/* Right: Uploaded Profile Proof Screenshot (7 Cols) */}
-                  <div className="sm:col-span-7 bg-[#07090c] p-2 rounded-lg border border-[#3a494b] flex flex-col justify-between relative group">
+                  {/* 2. Original Uploaded Screenshot Proof (6 Cols) */}
+                  <div className="md:col-span-6 bg-[#07090c] p-2.5 rounded-lg border border-[#3a494b] flex flex-col justify-between relative group">
                     <div className="aspect-video w-full rounded overflow-hidden bg-black flex items-center justify-center relative">
                       {item.signedUrl ? (
                         <img
@@ -314,7 +321,7 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
 
                     <div className="flex items-center justify-between pt-1.5 px-1 text-[9px] text-[#8e9dae]">
                       <span>Uploaded {new Date(item.created_at).toLocaleDateString()}</span>
-                      <span className="text-[#00f2ff] font-bold">Private Storage Proof</span>
+                      <span className="text-[#00f2ff] font-bold">Screenshot Evidence</span>
                     </div>
                   </div>
 
