@@ -4,7 +4,7 @@
 -- Description: 
 -- 1. Extends public.tournament_players with canonical_ign, normalized_ign,
 --    and identity_status columns.
--- 2. Adds index on (tournament_id, normalized_ign) for OCR candidate matching.
+-- 2. Adds index on (tournament_id, normalized_ign) for normalized IGN player candidate lookup.
 -- 3. Updates register_tournament_team RPC to accept and enforce Free Fire
 --    In-Game Names (IGNs) for Captain + all active teammates (Duo & Squad).
 -- 4. Preserves 100% backward compatibility for existing tournaments and registrations.
@@ -16,7 +16,7 @@ ALTER TABLE public.tournament_players
   ADD COLUMN IF NOT EXISTS normalized_ign TEXT,
   ADD COLUMN IF NOT EXISTS identity_status TEXT NOT NULL DEFAULT 'REGISTERED' CHECK (identity_status IN ('REGISTERED', 'VERIFIED', 'FLAGGED'));
 
--- 2. LOOKUP INDEX FOR OCR CANDIDATE MATCHING
+-- 2. LOOKUP INDEX FOR NORMALIZED IGN CANDIDATE MATCHING
 CREATE INDEX IF NOT EXISTS idx_tournament_players_norm_ign
   ON public.tournament_players (tournament_id, normalized_ign);
 
