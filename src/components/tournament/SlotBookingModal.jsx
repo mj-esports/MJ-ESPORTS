@@ -11,8 +11,6 @@ import {
   Copy,
   Shield,
   Trophy,
-  Calendar,
-  Hash,
   Sparkles,
   Smartphone,
   Upload,
@@ -57,9 +55,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const [proofFile, setProofFile] = useState(null)
   const [proofPreview, setProofPreview] = useState('')
 
-  // Calculate max date of birth for 13 years old check (2026 - 13 = 2013)
-  const maxDobDate = '2013-12-31'
-
   // Lock body scrolling when modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -77,9 +72,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     email: user?.email || 'player@esports.gg',
     freeFireUid: user?.user_metadata?.freeFireUid || '',
     whatsappNumber: '',
-    captainDob: '2004-06-15',
-    playerAge: 20,
-    preferredSeed: 1,
     availabilityDate: tournament?.startDate || '2026-08-06',
     hasSubstitutes: false,
     substituteCount: 1,
@@ -113,9 +105,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     if (!cleanEmail || !isValidEmail(cleanEmail)) return false
     if (!cleanCaptainUid || !isValidGameUid(cleanCaptainUid)) return false
     if (!cleanPhone || !isValidPhoneNumber(cleanPhone)) return false
-    if (!formData.captainDob) return false
-    const dobYear = new Date(formData.captainDob).getFullYear()
-    if (new Date().getFullYear() - dobYear < 13) return false
 
     const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
     for (let i = 0; i < requiredTeammatesCount; i++) {
@@ -280,30 +269,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       newFieldErrors.whatsappNumber = 'WhatsApp number must be exactly 10 numeric digits (0-9)'
     }
 
-    // Native Date Picker DOB Validation (Age 13+)
-    if (!formData.captainDob) {
-      newFieldErrors.captainDob = 'Date of Birth is required'
-    } else {
-      const dobYear = new Date(formData.captainDob).getFullYear()
-      const currentYear = new Date().getFullYear()
-      if (currentYear - dobYear < 13) {
-        newFieldErrors.captainDob = 'Players must be at least 13 years old to participate'
-      }
-    }
-
-    // Number Input: Player Age Validation
-    const ageNum = Number(formData.playerAge)
-    if (isNaN(ageNum) || ageNum < 13 || ageNum > 99) {
-      newFieldErrors.playerAge = 'Age must be a valid number between 13 and 99'
-    }
-
-    // Number Input: Preferred Seed Validation
-    const seedNum = Number(formData.preferredSeed)
-    const allowedMaxTeams = Number(tournament.maxTeams || tournament.max_teams || 12)
-    if (isNaN(seedNum) || seedNum < 1 || seedNum > allowedMaxTeams) {
-      newFieldErrors.preferredSeed = `Seed must be between 1 and ${allowedMaxTeams}`
-    }
-
     // Dynamic Teammate UIDs & IGNs Validation
     const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
     for (let i = 0; i < requiredTeammatesCount; i++) {
@@ -445,9 +410,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
           email: sanitizeString(formData.email),
           freeFireUid: sanitizeString(formData.freeFireUid),
           whatsappNumber: sanitizeString(formData.whatsappNumber),
-          captainDob: formData.captainDob,
-          playerAge: formData.playerAge,
-          preferredSeed: formData.preferredSeed,
           hasSubstitutes: formData.hasSubstitutes,
           substitutes: activeSubstitutes,
           substituteIgns: activeSubstituteIgns,
@@ -475,9 +437,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         freeFireUid: sanitizeString(formData.freeFireUid),
         teammates: activeTeammates,
         teammateIgns: activeTeammateIgns,
-        captainDob: formData.captainDob,
-        playerAge: formData.playerAge,
-        preferredSeed: formData.preferredSeed,
         status: 'Approved',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         registeredRecord,
@@ -516,30 +475,30 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#151a21] border border-[#3a494b] rounded-2xl max-w-2xl w-full p-4 sm:p-7 space-y-5 shadow-[0_0_50px_rgba(0,242,255,0.15)] relative max-h-[92vh] overflow-y-auto"
+        className="bg-[#151a21] border border-[#3a494b] rounded-2xl max-w-2xl w-full p-4 sm:p-5 space-y-3.5 shadow-[0_0_50px_rgba(0,242,255,0.15)] relative max-h-[90vh] overflow-y-auto"
       >
 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-xl bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] hover:border-[#00f2ff]/50 transition-all cursor-pointer"
+          className="absolute top-4 right-4 p-1.5 rounded-xl bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] hover:border-[#00f2ff]/50 transition-all cursor-pointer"
           aria-label="Close Registration Modal"
         >
           <X className="w-4 h-4" />
         </button>
 
         {/* Modal Header & Branding */}
-        <div className="space-y-1.5 border-b border-[#3a494b]/50 pb-4">
+        <div className="space-y-1 border-b border-[#3a494b]/50 pb-3">
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-[#00f2ff]" />
             <span className="font-label-caps text-[11px] font-extrabold text-[#00f2ff] uppercase tracking-widest block">
               MJ ESPORTS OFFICIAL REGISTRATION
             </span>
           </div>
-          <h2 id="slot-booking-modal-title" className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight italic">
+          <h2 id="slot-booking-modal-title" className="font-display-lg text-lg sm:text-xl font-extrabold text-white uppercase tracking-tight italic">
             {tournament.title}
           </h2>
-          <div className="flex items-center gap-3 text-xs text-[#8e9dae] pt-0.5">
+          <div className="flex items-center gap-3 text-[11px] text-[#8e9dae] pt-0.5">
             <span>Game: <strong className="text-white">{tournament.game || 'Esports'}</strong></span>
             <span className="text-[#3a494b]">•</span>
             <span>
@@ -549,7 +508,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               </span>{' '}
               / {totalPlayerSlots} Players
               {modeConfig.mode !== 'Solo' && (
-                <span className="text-xs text-[#8e9dae] ml-1 font-mono">
+                <span className="text-[11px] text-[#8e9dae] ml-1 font-mono">
                   ({remainingTeams} {modeConfig.teamUnit} left)
                 </span>
               )}
@@ -561,18 +520,18 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
         {/* SUCCESS CONFIRMATION DIALOG */}
         {registrationSummary ? (
-          <div className="space-y-6 pt-2">
-            <div className="p-5 bg-[#07090c] border border-[#00ff9d]/40 rounded-2xl space-y-4 text-center">
-              <div className="w-12 h-12 rounded-full bg-[#00ff9d]/20 border border-[#00ff9d] flex items-center justify-center mx-auto text-[#00ff9d] shadow-[0_0_15px_rgba(0,255,157,0.3)]">
-                <CheckCircle2 className="w-6 h-6" />
+          <div className="space-y-4 pt-1">
+            <div className="p-4 bg-[#07090c] border border-[#00ff9d]/40 rounded-2xl space-y-3 text-center">
+              <div className="w-10 h-10 rounded-full bg-[#00ff9d]/20 border border-[#00ff9d] flex items-center justify-center mx-auto text-[#00ff9d] shadow-[0_0_15px_rgba(0,255,157,0.3)]">
+                <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-display-lg text-lg font-bold text-white uppercase tracking-wide">Slot Registration Confirmed!</h3>
+                <h3 className="font-display-lg text-base font-bold text-white uppercase tracking-wide">Slot Registration Confirmed!</h3>
                 <p className="text-xs text-[#8e9dae] mt-0.5">Your registration has been securely recorded.</p>
               </div>
 
               {/* Reference Ticket Card */}
-              <div className="p-4 bg-[#151a21] rounded-xl border border-[#3a494b]/60 text-left space-y-2.5 text-xs font-mono">
+              <div className="p-3.5 bg-[#151a21] rounded-xl border border-[#3a494b]/60 text-left space-y-2 text-xs font-mono">
                 <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2">
                   <span className="text-[#8e9dae] font-semibold">Reference ID</span>
                   <div className="flex items-center gap-1.5 text-[#00f2ff] font-bold">
@@ -603,13 +562,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   <span className="font-bold text-[#00f2ff]">{registrationSummary.freeFireUid}</span>
                 </div>
 
-                {registrationSummary.captainDob && (
-                  <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
-                    <span className="text-[#8e9dae]">DOB & Age</span>
-                    <span className="text-white">{registrationSummary.captainDob} (Age {registrationSummary.playerAge})</span>
-                  </div>
-                )}
-
                 <div className="flex justify-between pt-1">
                   <span className="text-[#8e9dae]">Status</span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase">
@@ -621,55 +573,36 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
             <button
               onClick={onClose}
-              className="btn-cyber-primary w-full justify-center py-3.5 min-h-[44px] cursor-pointer"
+              className="btn-cyber-primary w-full justify-center py-3 min-h-[44px] cursor-pointer"
             >
               Done & Return
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
 
             {/* Read-Only Competition Format Card */}
-            <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-2 shadow-inner">
-              <div className="flex items-center justify-between">
-                <span className="font-label-caps text-[10px] font-extrabold text-[#8e9dae] uppercase tracking-widest flex items-center gap-1.5">
-                  <Trophy className="w-3.5 h-3.5 text-[#00f2ff]" />
-                  <span>COMPETITION FORMAT</span>
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/40 uppercase tracking-widest">
-                  {modeConfig.mode} MODE
-                </span>
-              </div>
-              <div className="flex items-center gap-3 pt-0.5">
-                <div className="w-9 h-9 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
-                  <Users className="w-5 h-5 text-[#00f2ff]" />
+            <div className="p-3 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
+                  <Users className="w-4 h-4 text-[#00f2ff]" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-extrabold text-white uppercase tracking-tight">
-                    {modeConfig.formatTitle}
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wide">
+                    {modeConfig.mode} ({modeConfig.formatTitle})
                   </h4>
-                  <p className="text-xs text-[#00ff9d] font-bold">
+                  <p className="text-[11px] text-[#00ff9d] font-semibold">
                     {modeConfig.requiredPlayers} {modeConfig.requiredPlayers === 1 ? 'Player Required' : 'Players Required per Squad'}
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* Free Fire Identity Review Informational Notice */}
-            <div className="p-3.5 bg-[#00f2ff]/5 border border-[#00f2ff]/20 rounded-xl flex items-start gap-3 text-xs text-[#8e9dae] font-body">
-              <ShieldCheck className="w-5 h-5 text-[#00f2ff] shrink-0 mt-0.5" />
-              <div className="space-y-0.5">
-                <h5 className="font-headline text-xs font-bold text-white uppercase tracking-wide">
-                  FREE FIRE IDENTITY REVIEW
-                </h5>
-                <p className="text-[11px] text-[#8e9dae] leading-relaxed font-sans">
-                  Submit your in-game profile screenshot showing your Free Fire UID and IGN. Our admin team will manually verify your identity during registration and payment review.
-                </p>
-              </div>
+              <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/40 uppercase tracking-wider font-label-caps">
+                COMPETITION FORMAT
+              </span>
             </div>
 
             {/* RESPONSIVE LAYOUT GRID: SECTION 1 - PRIMARY CREDENTIALS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput
                 label={mode === 'Solo' ? 'Player IGN / Display Name' : 'Team Name'}
                 name="teamName"
@@ -721,51 +654,27 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                 icon={Phone}
               />
 
-              <FormInput
-                label={mode === 'Solo' ? 'Game Character UID' : 'Captain Game Character UID'}
-                name="freeFireUid"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={10}
-                showCount
-                value={formData.freeFireUid}
-                onChange={handleChange}
-                placeholder="0123456789"
-                required
-                error={fieldErrors.freeFireUid}
-                icon={ShieldCheck}
-              />
-
-              {/* NATIVE DATE PICKER: CAPTAIN DATE OF BIRTH */}
-              <div className="space-y-1">
-                <label className="flex items-center justify-between font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[#00f2ff]" />
-                    Date of Birth (DOB)
-                  </span>
-                  <span className="text-[#ff4655]">*</span>
-                </label>
-                <input
-                  type="date"
-                  name="captainDob"
-                  max={maxDobDate}
-                  value={formData.captainDob}
+              <div className="sm:col-span-2">
+                <FormInput
+                  label={mode === 'Solo' ? 'Game Character UID' : 'Captain Game Character UID'}
+                  name="freeFireUid"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={10}
+                  showCount
+                  value={formData.freeFireUid}
                   onChange={handleChange}
-                  className={`w-full p-3 bg-[#07090c] border rounded-lg text-white text-xs focus:outline-none focus:border-[#00f2ff] ${
-                    fieldErrors.captainDob ? 'border-[#ff4655]' : 'border-[#3a494b]'
-                  }`}
+                  placeholder="0123456789"
+                  required
+                  error={fieldErrors.freeFireUid}
+                  icon={ShieldCheck}
                 />
-                {fieldErrors.captainDob && (
-                  <p className="text-[11px] text-[#ff4655] font-medium" role="alert">
-                    {fieldErrors.captainDob}
-                  </p>
-                )}
               </div>
 
-              {/* FREE FIRE PROFILE SCREENSHOT — REQUIRED */}
-              <div className={`sm:col-span-2 p-3.5 bg-[#07090c] border rounded-xl space-y-2.5 ${
-                fieldErrors.proofFile ? 'border-[#ff4655]' : proofFile || proofPreview ? 'border-[#10b981]/50 bg-[#10b981]/5' : 'border-[#3a494b]/60'
+              {/* FREE FIRE PROFILE SCREENSHOT — REQUIRED COMPACT CARD */}
+              <div className={`sm:col-span-2 p-3 bg-[#07090c] border rounded-xl space-y-2 ${
+                fieldErrors.proofFile ? 'border-[#ff4655]' : proofFile || proofPreview ? 'border-[#10b981]/40 bg-[#10b981]/5' : 'border-[#3a494b]/60'
               }`}>
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-1.5 font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
@@ -774,12 +683,12 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     <span className="text-[#ff4655]">*</span>
                   </label>
                   <span className="text-[#00f2ff] text-[10px] font-bold uppercase font-label-caps">
-                    Required identity proof
+                    Required
                   </span>
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  <label className={`px-3.5 py-2 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-2 border ${
+                  <label className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-2 border ${
                     proofFile || proofPreview
                       ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40 hover:bg-[#10b981]/25'
                       : 'bg-[#151a21] hover:bg-[#1d232c] text-[#00f2ff] border-[#3a494b] hover:border-[#00f2ff]/50'
@@ -823,92 +732,15 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   </p>
                 )}
 
-                <p className="text-[10px] text-[#8e9dae] font-sans leading-relaxed">
-                  Upload a clear screenshot of your Free Fire in-game profile showing your UID and IGN. This will be manually reviewed by the MJ ESPORTS admin team.
+                <p className="text-[10px] text-[#8e9dae] font-sans">
+                  Upload your in-game profile showing UID + IGN.
                 </p>
-              </div>
-            </div>
-
-            {/* RESPONSIVE LAYOUT GRID: SECTION 2 - NUMBER INPUTS */}
-            <div className="p-4 bg-[#07090c] border border-[#3a494b]/60 rounded-xl space-y-3">
-              <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block border-b border-[#3a494b]/40 pb-2">
-                Squad Metrics & Number Inputs
-              </span>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                {/* NUMBER INPUT 1: PLAYER AGE */}
-                <div className="space-y-1">
-                  <label className="flex items-center justify-between font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
-                    <span className="flex items-center gap-1.5">
-                      <Hash className="w-3.5 h-3.5 text-[#00ff9d]" />
-                      Player Age (Years)
-                    </span>
-                    <span className="text-[#00ff9d] text-[10px]">Min 13+</span>
-                  </label>
-                  <div className="flex items-center">
-                    <button
-                      type="button"
-                      onClick={() => setFormData((prev) => ({ ...prev, playerAge: Math.max(13, Number(prev.playerAge) - 1) }))}
-                      className="px-3.5 py-2.5 bg-[#151a21] border border-[#3a494b] rounded-l-lg text-white font-bold hover:bg-[#00f2ff]/20 hover:text-[#00f2ff] transition-all cursor-pointer"
-                    >
-                      -
-                    </button>
-                    <input
-                      type="number"
-                      name="playerAge"
-                      min={13}
-                      max={99}
-                      value={formData.playerAge}
-                      onChange={handleChange}
-                      className="w-full text-center p-2.5 bg-[#07090c] border-y border-[#3a494b] text-white text-xs font-bold font-mono focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setFormData((prev) => ({ ...prev, playerAge: Math.min(99, Number(prev.playerAge) + 1) }))}
-                      className="px-3.5 py-2.5 bg-[#151a21] border border-[#3a494b] rounded-r-lg text-white font-bold hover:bg-[#00f2ff]/20 hover:text-[#00f2ff] transition-all cursor-pointer"
-                    >
-                      +
-                    </button>
-                  </div>
-                  {fieldErrors.playerAge && (
-                    <p className="text-[11px] text-[#ff4655] font-medium" role="alert">
-                      {fieldErrors.playerAge}
-                    </p>
-                  )}
-                </div>
-
-                {/* NUMBER INPUT 2: PREFERRED SEED SLOT */}
-                <div className="space-y-1">
-                  <label className="flex items-center justify-between font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
-                    <span className="flex items-center gap-1.5">
-                      <Hash className="w-3.5 h-3.5 text-[#a855f7]" />
-                      Preferred Slot Position
-                    </span>
-                    <span className="text-[#a855f7] text-[10px]">1 - {tournament.maxTeams || tournament.max_teams || 12}</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="preferredSeed"
-                    min={1}
-                    max={tournament.maxTeams || tournament.max_teams || 12}
-                    value={formData.preferredSeed}
-                    onChange={handleChange}
-                    className="w-full p-2.5 bg-[#07090c] border border-[#3a494b] rounded-lg text-white text-xs font-bold font-mono focus:outline-none focus:border-[#a855f7]"
-                  />
-                  {fieldErrors.preferredSeed && (
-                    <p className="text-[11px] text-[#ff4655] font-medium" role="alert">
-                      {fieldErrors.preferredSeed}
-                    </p>
-                  )}
-                </div>
-
               </div>
             </div>
 
             {/* DYNAMIC TEAMMATE UID & IGN FIELDS BASED ON TOURNAMENT FORMAT MODE */}
             {mode === 'Duo' && (
-              <div className="p-4 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-3">
+              <div className="p-3 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
                     Duo Teammate Details (1 Required Teammate)
@@ -946,16 +778,16 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
             )}
 
             {mode === 'Squad' && (
-              <div className="p-4 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-3">
-                <div className="flex items-center justify-between border-b border-[#3a494b]/40 pb-2">
+              <div className="p-3 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-2.5">
+                <div className="flex items-center justify-between border-b border-[#3a494b]/40 pb-1.5">
                   <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
                     Squad Teammates Details (3 Required Teammates)
                   </span>
                   <span className="text-[10px] text-[#8e9dae] font-mono">All Roster Members</span>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {[0, 1, 2].map((idx) => (
-                    <div key={`squad-member-input-${idx}`} className="p-3 bg-[#151a21]/60 rounded-lg border border-[#3a494b]/40 space-y-2">
+                    <div key={`squad-member-input-${idx}`} className="p-2.5 bg-[#151a21]/60 rounded-lg border border-[#3a494b]/40 space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold text-[#00f2ff]/80 uppercase tracking-wide">
                           Teammate #{idx + 1}
@@ -996,12 +828,12 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
             )}
 
             {/* SECTION 3: TOGGLE SWITCHES */}
-            <div className="p-4 bg-[#07090c] border border-[#3a494b]/60 rounded-xl space-y-3">
-              <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block border-b border-[#3a494b]/40 pb-2">
-                Registration Options & Cyberpunk Toggle Switches
+            <div className="p-3 bg-[#07090c] border border-[#3a494b]/60 rounded-xl space-y-2.5">
+              <span className="font-label-caps text-[11px] font-bold text-[#00f2ff] uppercase tracking-wider block border-b border-[#3a494b]/40 pb-1.5">
+                Registration Options & Agreements
               </span>
 
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 
                 {/* TOGGLE SWITCH 1: SUBSTITUTE PLAYERS */}
                 <ToggleSwitch
@@ -1016,7 +848,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
                 {/* CONDITIONAL SUBSTITUTE NUMBER INPUT & UIDS */}
                 {formData.hasSubstitutes && (
-                  <div className="p-3 bg-[#151a21] border border-[#00f2ff]/30 rounded-xl space-y-3 animate-fadeIn">
+                  <div className="p-3 bg-[#151a21] border border-[#00f2ff]/30 rounded-xl space-y-2.5 animate-fadeIn">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-white uppercase">Substitute Roster Count</span>
                       <div className="flex items-center gap-2">
@@ -1046,9 +878,9 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       {Array.from({ length: formData.substituteCount }).map((_, idx) => (
-                        <div key={`sub-member-card-${idx}`} className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b] space-y-2">
+                        <div key={`sub-member-card-${idx}`} className="p-2.5 bg-[#07090c] rounded-lg border border-[#3a494b] space-y-2">
                           <span className="text-[11px] font-bold text-[#b9cacb] uppercase">Reserve Player #{idx + 1}</span>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <FormInput
@@ -1122,7 +954,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
             </div>
 
             {/* ACTION BUTTONS */}
-            <div className="pt-2 space-y-2">
+            <div className="pt-1 space-y-1.5">
               {!isFormValid && (
                 <p className="text-[11px] text-[#8e9dae] text-center font-sans">
                   Please complete all required fields and agreements to continue.
@@ -1133,7 +965,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   type="button"
                   onClick={onClose}
                   disabled={isSubmitting}
-                  className="flex-1 py-3.5 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded-xl hover:bg-[#1d232c] transition-colors min-h-[44px] disabled:opacity-50 uppercase cursor-pointer"
+                  className="flex-1 py-3 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded-xl hover:bg-[#1d232c] transition-colors min-h-[44px] disabled:opacity-50 uppercase cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1142,7 +974,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   loading={isSubmitting}
                   loadingText="Registering..."
                   disabled={!isFormValid || isSubmitting}
-                  className="flex-1 py-3.5"
+                  className="flex-1 py-3"
                 >
                   {isFormValid ? 'Confirm Registration' : 'Complete Required Items'}
                 </LoadingButton>
