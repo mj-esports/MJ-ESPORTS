@@ -10,7 +10,6 @@ import {
   Users,
   RefreshCw,
   Zap,
-  ArrowUpRight,
   PlusCircle,
   Swords,
   ChevronRight,
@@ -236,7 +235,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
             <Shield className="w-4 h-4" />
             <span>Admin Command Center</span>
           </div>
-          <h1 className="font-headline text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-tight">
+          <h1 className="font-headline text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Operations Dashboard
           </h1>
           <p className="text-xs sm:text-sm text-[#849495] font-body mt-1 max-w-2xl">
@@ -364,7 +363,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
             <div className="w-8 h-8 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] mb-3 group-hover:scale-105 transition-transform">
               <PlusCircle className="w-4 h-4" />
             </div>
-            <p className="font-headline font-bold text-xs sm:text-sm text-white uppercase group-hover:text-[#00f2ff] transition-colors">
+            <p className="font-headline font-bold text-xs sm:text-sm text-white group-hover:text-[#00f2ff] transition-colors">
               Create Tournament
             </p>
             <p className="text-[10px] text-[#849495] font-body mt-0.5">
@@ -423,7 +422,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Attention Required Queue */}
-        <div className="lg:col-span-1 bg-[#141416] border border-[#27272a] rounded p-5 space-y-4 flex flex-col justify-between">
+        <div className="lg:col-span-1 bg-[#141416] border border-[#27272a] rounded p-5 space-y-4 flex flex-col justify-between h-full">
           <div>
             <div className="flex items-center justify-between border-b border-[#27272a] pb-3 mb-3">
               <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
@@ -459,10 +458,10 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                           {item.count} Pending
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#849495] font-body">{item.description}</p>
+                      <p className="text-xs text-[#849495] font-body">{item.description}</p>
                       <button
                         onClick={() => setActiveTab(item.tabTarget)}
-                        className="w-full mt-1 py-1.5 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-[11px] font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full mt-1 py-1.5 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <span>{item.actionLabel}</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -473,33 +472,24 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
               </div>
             )}
           </div>
-
-          <div className="pt-3 border-t border-[#27272a]">
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="text-[#849495]">Telemetry Stream:</span>
-              <span className="font-headline font-bold text-[#10b981] uppercase flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse"></span>
-                ONLINE
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* Live Operations & Match Control Preview */}
-        <div className="lg:col-span-2 bg-[#141416] border border-[#27272a] rounded p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
-            <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-              <Activity className="w-4 h-4 text-[#00f2ff]" />
-              <span>Live Operations</span>
-            </h3>
-            <button
-              onClick={() => setActiveTab('tournaments')}
-              className="text-[11px] font-headline font-bold text-[#00f2ff] hover:underline flex items-center gap-1 uppercase"
-            >
-              <span>Manage Tournaments</span>
-              <ArrowUpRight className="w-3 h-3" />
-            </button>
-          </div>
+        <div className="lg:col-span-2 bg-[#141416] border border-[#27272a] rounded p-5 space-y-4 flex flex-col justify-between h-full">
+          <div>
+            <div className="flex items-center justify-between border-b border-[#27272a] pb-3 mb-3">
+              <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                <Activity className="w-4 h-4 text-[#00f2ff]" />
+                <span>Live Operations</span>
+              </h3>
+              <button
+                onClick={() => setActiveTab('tournaments')}
+                className="text-xs font-headline font-bold text-[#00f2ff] hover:underline flex items-center gap-1 uppercase"
+              >
+                <span>Manage Tournaments</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
 
           {tournaments.length === 0 ? (
             <div className="py-8 text-center text-[#849495] font-body">
@@ -522,14 +512,14 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                         </span>
                         <AdminStatusBadge status={t.status || 'OPEN'} size="xs" />
                       </div>
-                      <span className="text-[10px] text-[#849495] font-body block mt-0.5">
+                      <span className="text-xs text-[#849495] font-body block mt-0.5">
                         {t.game || 'FREE FIRE MAX'} &bull; {t.format || 'SQUAD'} &bull; {filled}/{capacity} Teams
                       </span>
                     </div>
 
                     <button
                       onClick={() => setActiveTab('matches')}
-                      className="px-3 py-1.5 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-[10px] font-headline font-bold uppercase transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0"
+                      className="px-3 py-1.5 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0"
                     >
                       <span>Control</span>
                       <ChevronRight className="w-3 h-3" />
@@ -539,6 +529,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
               })}
             </div>
           )}
+          </div>
         </div>
 
       </div>
@@ -555,7 +546,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
             className="text-xs font-headline font-bold text-[#00f2ff] hover:underline flex items-center gap-1 uppercase"
           >
             <span>View All</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
 

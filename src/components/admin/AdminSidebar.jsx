@@ -104,6 +104,17 @@ export default function AdminSidebar({ activeTab, setActiveTab, mobileOpen, setM
 
         {/* 7 Core Nav Items */}
         {renderNavList()}
+
+        {/* Global Telemetry Status */}
+        <div className="pt-3 border-t border-[#27272a] mt-auto">
+          <div className="px-3 py-2 bg-[#1c1b1c] rounded border border-[#27272a] flex items-center justify-between text-xs font-body select-none">
+            <span className="text-[#849495] text-xs">Telemetry Stream:</span>
+            <span className="font-headline font-bold text-[#10b981] text-[10px] uppercase flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse"></span>
+              ONLINE
+            </span>
+          </div>
+        </div>
       </aside>
 
       {/* Mobile Drawer Overlay (< 1024px) */}
@@ -133,6 +144,17 @@ export default function AdminSidebar({ activeTab, setActiveTab, mobileOpen, setM
             </div>
 
             {renderNavList()}
+
+            {/* Global Telemetry Status for Mobile Drawer */}
+            <div className="pt-3 border-t border-[#27272a] mt-auto">
+              <div className="px-3 py-2 bg-[#1c1b1c] rounded border border-[#27272a] flex items-center justify-between text-xs font-body select-none">
+                <span className="text-[#849495] text-xs">Telemetry Stream:</span>
+                <span className="font-headline font-bold text-[#10b981] text-[10px] uppercase flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse"></span>
+                  ONLINE
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       )}

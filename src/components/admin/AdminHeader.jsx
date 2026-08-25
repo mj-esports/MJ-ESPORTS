@@ -76,14 +76,11 @@ export default function AdminHeader({
           </div>
         </Link>
 
-        <div className="h-5 w-[1px] bg-[#27272a] hidden md:block"></div>
+        <div className="h-5 w-[1px] bg-[#27272a] hidden sm:block"></div>
 
-        {/* Admin Header Title */}
-        <div className="flex items-center gap-2 min-w-0">
-          <Shield className="w-4 h-4 text-[#00f2ff] hidden xs:block shrink-0" />
-          <h1 className="font-headline text-xs sm:text-sm font-extrabold text-white uppercase tracking-wider truncate max-w-[120px] xs:max-w-[180px] sm:max-w-[280px]">
-            {pageTitle}
-          </h1>
+        {/* Security Indicator */}
+        <div className="hidden xs:flex items-center gap-1.5 text-[#00f2ff] select-none" title="Admin Control Console Active">
+          <Shield className="w-4 h-4 text-[#00f2ff] shrink-0" />
         </div>
       </div>
 
@@ -131,12 +128,12 @@ export default function AdminHeader({
             <div className="absolute right-0 mt-2 w-56 bg-[#141416] border border-[#27272a] rounded shadow-2xl py-2 z-50 animate-fadeIn text-xs space-y-1">
               <div className="px-4 py-2 border-b border-[#27272a]">
                 <p className="font-bold text-white truncate font-headline">{adminName}</p>
-                <p className="text-[10px] text-[#849495] truncate font-body">{adminEmail}</p>
+                <p className="text-xs text-[#849495] truncate font-body">{adminEmail}</p>
               </div>
               <Link
                 to="/"
                 onClick={() => setShowProfileMenu(false)}
-                className="flex items-center gap-2 px-4 py-2 text-[#b9cacb] hover:bg-[#1c1b1c] hover:text-white uppercase font-headline font-bold text-[11px] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-[#b9cacb] hover:bg-[#1c1b1c] hover:text-white font-headline font-bold text-xs transition-colors"
               >
                 <span>View Player Arena</span>
               </Link>

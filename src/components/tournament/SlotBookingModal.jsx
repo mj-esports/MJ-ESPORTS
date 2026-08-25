@@ -15,7 +15,8 @@ import {
   Hash,
   Sparkles,
   Smartphone,
-  ShieldAlert
+  ShieldAlert,
+  ArrowRight
 } from 'lucide-react'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useAuth } from '../../contexts/AuthContext'

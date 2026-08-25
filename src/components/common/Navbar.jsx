@@ -116,7 +116,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-[#131314]/95 backdrop-blur-md border-b border-[#27272a] shadow-[0_8px_24px_rgba(0,0,0,0.6)]">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#00f2ff] focus:text-[#00363a] focus:font-headline focus:font-bold focus:rounded shadow-lg uppercase text-xs"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#00f2ff] focus:text-[#00363a] focus:font-headline focus:font-bold focus:rounded shadow-lg text-xs"
       >
         Skip to main content
       </a>
@@ -135,7 +135,7 @@ export default function Navbar() {
               <span className="font-headline text-base sm:text-xl font-extrabold tracking-wider text-white truncate block uppercase">
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </span>
-              <span className="flex items-center gap-1 text-[8px] sm:text-[9px] uppercase font-bold tracking-widest text-[#ff5e07] -mt-0.5 font-headline truncate">
+              <span className="flex items-center gap-1 text-xs uppercase font-bold tracking-wider text-[#ff5e07] font-headline truncate">
                 <span>Free Fire & BGMI Arena</span>
               </span>
             </div>

@@ -248,7 +248,7 @@ export default function TournamentOperationsWorkspace({
               <span className="font-headline font-bold text-white text-base sm:text-lg block">
                 {regTeams} / {maxTeams} {modeInfo.teamUnit}
               </span>
-              <div className="w-full h-1 bg-[#141416] rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-[#27272a] rounded-full overflow-hidden border border-[#3f3f46]/50 mt-1">
                 <div className="h-full bg-[#00f2ff]" style={{ width: `${Math.min(fillPct, 100)}%` }} />
               </div>
             </div>

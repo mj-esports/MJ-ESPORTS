@@ -1,50 +1,63 @@
-import { Link, useLocation } from 'react-router-dom'
-import { Swords, Mail, ShieldCheck } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Swords, ShieldCheck, Headphones, ChevronRight } from 'lucide-react'
 
+/**
+ * MJ ESPORTS — Official Esports Platform Footer
+ * 
+ * Aggressive, tactical, clean 4-column gaming footer with electric cyan primary accents,
+ * secondary orange game accents, esports-grade social controls, and support links.
+ */
 export default function Footer() {
-  const location = useLocation()
-  const isHomePage = location.pathname === '/'
-
-  // Footer exists ONLY on the Home page ('/')
-  if (!isHomePage) {
-    return null
-  }
-
   return (
-    <footer className="bg-[#0e0e0f] border-t border-[#27272a] pt-7 sm:pt-9 pb-24 md:pb-8 text-[#b9cacb]">
+    <footer className="bg-[#080c14] border-t border-[#1e2630] pt-10 pb-28 md:pb-10 text-[#8e9dae] relative select-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Main Grid: Compact & Balanced 24px–32px Visual Hierarchy */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 pb-7 border-b border-[#27272a]">
+        {/* 4-COLUMN MAIN DESKTOP GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-8">
           
-          {/* Brand Info */}
-          <div className="space-y-3 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded bg-[#00f2ff] p-[1px] shadow-[0_0_12px_rgba(0,242,255,0.4)]">
-                <div className="w-full h-full bg-[#131314] rounded-[3px] flex items-center justify-center">
+          {/* COLUMN 1 — MJ ESPORTS (BRAND INFO: 4 COLS) */}
+          <div className="space-y-4 sm:col-span-2 lg:col-span-4 pr-0 lg:pr-4">
+            
+            {/* Brand Logo & Name */}
+            <Link to="/" className="inline-flex items-center gap-3 group">
+              <div className="w-8 h-8 rounded bg-[#00f2ff] p-[1px] shadow-[0_0_14px_rgba(0,242,255,0.4)] transition-transform duration-300 group-hover:scale-105">
+                <div className="w-full h-full bg-[#0a0f18] rounded-[3px] flex items-center justify-center">
                   <Swords className="w-4 h-4 text-[#00f2ff]" />
                 </div>
               </div>
-              <span className="font-headline text-base sm:text-lg font-bold tracking-wider text-white">
+              <span className="font-display-lg text-lg font-extrabold tracking-wider text-white uppercase">
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </span>
             </Link>
 
-            <p className="text-xs text-[#b9cacb]/80 leading-relaxed">
-              The ultimate AAA competitive arena for gamers, teams, and tournament organizers. Compete, rank up, and claim real prize pools.
+            {/* Subtitle Badge */}
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono font-bold tracking-wider bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
+                FREE FIRE & BGMI ARENA
+              </span>
+            </div>
+
+            {/* Short Platform Description */}
+            <p className="text-xs text-[#8e9dae] leading-relaxed max-w-sm font-sans">
+              India's premier competitive arena for Free Fire MAX and BGMI squads. Compete in daily custom tournaments, track live leaderboards, and claim instant cash rewards.
             </p>
 
-            {/* AAA Esports Official Brand Social Buttons */}
-            <div className="flex items-center gap-4 pt-2">
-              {/* Official Instagram AAA Dark Glass Button */}
+            {/* Esports Tactical Social Buttons */}
+            <div className="flex items-center gap-3 pt-1">
+              {/* Instagram Tactical Control */}
               <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="MJ ESPORTS Instagram"
-                className="w-12 h-12 sm:w-[50px] sm:h-[50px] rounded-[14px] bg-[#161B22]/95 backdrop-blur-md border border-[#272d35] shadow-md hover:border-[#dd2a7b]/60 hover:shadow-[0_0_20px_rgba(221,42,123,0.45)] focus-visible:border-[#dd2a7b]/60 focus-visible:shadow-[0_0_20px_rgba(221,42,123,0.45)] transition-all duration-300 transform active:scale-95 hover:-translate-y-0.5 flex items-center justify-center shrink-0 group touch-manipulation outline-none"
+                className="w-[42px] h-[42px] rounded-[8px] bg-[#0e131b] border border-[#292d31] shadow-sm hover:border-[#00f2ff]/80 hover:shadow-[0_0_15px_rgba(0,242,255,0.35)] transition-all duration-200 transform active:scale-95 hover:-translate-y-[3px] flex items-center justify-center group outline-none"
               >
-                <svg className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  className="w-[21px] h-[21px] transition-transform duration-200 group-hover:scale-105"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <defs>
                     <linearGradient id="ig-brand-gradient" x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse">
                       <stop offset="0%" stopColor="#fdf497" />
@@ -60,75 +73,147 @@ export default function Footer() {
                 </svg>
               </a>
 
-              {/* Official WhatsApp Community AAA Dark Glass Button */}
+              {/* WhatsApp Tactical Control */}
               <a
                 href="https://whatsapp.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="MJ ESPORTS WhatsApp Community"
-                className="w-12 h-12 sm:w-[50px] sm:h-[50px] rounded-[14px] bg-[#161B22]/95 backdrop-blur-md border border-[#272d35] shadow-md hover:border-[#25D366]/60 hover:shadow-[0_0_20px_rgba(37,211,102,0.45)] focus-visible:border-[#25D366]/60 focus-visible:shadow-[0_0_20px_rgba(37,211,102,0.45)] transition-all duration-300 transform active:scale-95 hover:-translate-y-0.5 flex items-center justify-center shrink-0 group touch-manipulation outline-none"
+                className="w-[42px] h-[42px] rounded-[8px] bg-[#0e131b] border border-[#292d31] shadow-sm hover:border-[#25D366] hover:shadow-[0_0_15px_rgba(37,211,102,0.35)] transition-all duration-200 transform active:scale-95 hover:-translate-y-[3px] flex items-center justify-center group outline-none"
               >
-                <svg className="w-6 h-6 fill-[#25D366] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.461c-1.852 0-3.67-.498-5.266-1.442l-.377-.225-3.916 1.027 1.045-3.817-.247-.392a9.78 9.78 0 01-1.503-5.228c0-5.405 4.398-9.802 9.805-9.802 2.617 0 5.078 1.022 6.929 2.873 1.85 1.852 2.87 4.311 2.868 6.929 0 5.407-4.398 9.805-9.805 9.805m0-18.005a11.94 11.94 0 00-8.455 3.504 11.94 11.94 0 00-3.502 8.455c0 2.102.547 4.155 1.587 5.968l-1.687 6.163 6.305-1.654a11.905 11.905 0 005.752 1.481h.005c6.586 0 11.946-5.36 11.948-11.946 0-3.19-1.243-6.189-3.502-8.449A11.905 11.905 0 0012.051 3.837" />
+                <svg
+                  className="w-[21px] h-[21px] transition-all duration-200 group-hover:scale-105"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M18.403 5.638A8.919 8.919 0 0 0 12.053 3c-4.948 0-8.976 4.027-8.978 8.977 0 1.582.413 3.126 1.198 4.488L3 21.162l4.827-1.266a8.956 8.956 0 0 0 4.222 1.06h.004c4.947 0 8.975-4.027 8.977-8.977a8.927 8.927 0 0 0-2.627-6.341zM12.057 19.444h-.003a7.447 7.447 0 0 1-3.795-1.041l-.272-.162-2.824.74.754-2.752-.177-.282a7.443 7.443 0 0 1-1.144-3.971c.002-4.114 3.35-7.462 7.467-7.462a7.433 7.433 0 0 1 5.28 2.188 7.437 7.437 0 0 1 2.186 5.284c-.002 4.114-3.35 7.463-7.467 7.463zm4.095-5.594c-.225-.113-1.327-.655-1.533-.73-.205-.075-.354-.112-.504.113-.149.224-.579.73-.71.879-.13.15-.261.168-.486.056-.225-.113-.948-.349-1.806-1.113-.667-.595-1.118-1.33-1.248-1.554-.13-.225-.014-.346.099-.458.101-.1.224-.262.336-.393.112-.131.15-.224.224-.374.075-.15.038-.28-.019-.393-.056-.112-.505-1.217-.692-1.666-.182-.438-.367-.379-.504-.386l-.43-.008c-.149 0-.392.056-.598.28-.205.225-.784.767-.784 1.872s.803 2.171.915 2.32c.112.15 1.58 2.412 3.828 3.382.535.231.952.369 1.277.473.537.171 1.025.147 1.411.089.431-.065 1.327-.543 1.514-1.067.187-.524.187-.973.131-1.067-.056-.094-.206-.15-.431-.262z"
+                    fill="#25D366"
+                  />
                 </svg>
               </a>
             </div>
+
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-3">
-            <h4 className="font-label-md text-xs text-[#e1e2e7] uppercase font-bold tracking-wider mb-2">Platform</h4>
-            <ul className="space-y-2 text-xs font-body">
-              <li><Link to="/tournaments" className="hover:text-[#00f2ff] transition-colors">Browse Tournaments</Link></li>
-              <li><Link to="/leaderboard" className="hover:text-[#00f2ff] transition-colors">Global Leaderboard</Link></li>
-              <li><Link to="/about" className="hover:text-[#00f2ff] transition-colors">About Platform</Link></li>
+          {/* COLUMN 2 — PLATFORM (3 COLS) */}
+          <div className="space-y-3 sm:col-span-1 lg:col-span-3">
+            <h4 className="font-display-lg text-xs text-white uppercase font-extrabold tracking-widest flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-sm bg-[#00f2ff] shrink-0" />
+              <span>PLATFORM</span>
+            </h4>
+            <ul className="space-y-2.5 text-xs font-medium">
+              <li>
+                <Link
+                  to="/tournaments"
+                  className="text-[#8e9dae] hover:text-[#00f2ff] transition-all flex items-center gap-2.5 group"
+                >
+                  <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                    <ChevronRight className="w-3.5 h-3.5 text-[#3a494b] group-hover:text-[#00f2ff] transition-colors" />
+                  </span>
+                  <span>Browse Tournaments</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/leaderboard"
+                  className="text-[#8e9dae] hover:text-[#00f2ff] transition-all flex items-center gap-2.5 group"
+                >
+                  <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                    <ChevronRight className="w-3.5 h-3.5 text-[#3a494b] group-hover:text-[#00f2ff] transition-colors" />
+                  </span>
+                  <span>Global Leaderboard</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about"
+                  className="text-[#8e9dae] hover:text-[#00f2ff] transition-all flex items-center gap-2.5 group"
+                >
+                  <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                    <ChevronRight className="w-3.5 h-3.5 text-[#3a494b] group-hover:text-[#00f2ff] transition-colors" />
+                  </span>
+                  <span>About Platform</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Official Supported Games */}
-          <div className="space-y-3">
-            <h4 className="font-label-md text-xs text-[#e1e2e7] uppercase font-bold tracking-wider mb-2">Supported Games</h4>
-            <ul className="space-y-2 text-xs font-body">
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#fe6b00]"></span>
-                <span className="font-bold">Free Fire MAX</span>
+          {/* COLUMN 3 — SUPPORTED GAMES (3 COLS) */}
+          <div className="space-y-3 sm:col-span-1 lg:col-span-3">
+            <h4 className="font-display-lg text-xs text-white uppercase font-extrabold tracking-widest flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-sm bg-[#ff6b00] shrink-0" />
+              <span>SUPPORTED GAMES</span>
+            </h4>
+            <ul className="space-y-2.5 text-xs">
+              <li className="flex items-center gap-2.5">
+                <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                  <span className="w-2 h-2 rounded-full bg-[#ff6b00] shadow-[0_0_8px_rgba(255,107,0,0.7)]" />
+                </span>
+                <span className="font-bold text-[#e1e2e7]">Free Fire MAX</span>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#00f2ff]"></span>
-                <span className="font-bold">BGMI</span>
+              <li className="flex items-center gap-2.5">
+                <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                  <span className="w-2 h-2 rounded-full bg-[#00f2ff] shadow-[0_0_8px_rgba(0,242,255,0.7)]" />
+                </span>
+                <span className="font-bold text-[#e1e2e7]">BGMI</span>
               </li>
             </ul>
           </div>
 
-          {/* Support & Contact */}
-          <div className="space-y-3">
-            <h4 className="font-label-md text-xs text-[#e1e2e7] uppercase font-bold tracking-wider mb-2">Support</h4>
-            <div className="space-y-2 text-xs font-body">
-              <p className="flex items-center gap-2 min-w-0">
-                <Mail className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
-                <a href="mailto:support.mjesports@gmail.com" className="hover:text-[#00f2ff] transition-colors truncate text-[11px] xs:text-xs">
-                  support.mjesports@gmail.com
-                </a>
-              </p>
-              <p className="flex items-center gap-2">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
-                <span className="text-[#10b981] font-bold">Fair Play Guaranteed</span>
-              </p>
+          {/* COLUMN 4 — SUPPORT (2 COLS) */}
+          <div className="space-y-3 sm:col-span-1 lg:col-span-2">
+            <h4 className="font-display-lg text-xs text-white uppercase font-extrabold tracking-widest flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-sm bg-[#00f2ff] shrink-0" />
+              <span>SUPPORT</span>
+            </h4>
+            <div className="space-y-2.5 text-xs">
+              <Link
+                to="/about"
+                className="flex items-center gap-2.5 text-[#e1e2e7] hover:text-[#00f2ff] font-medium transition-colors group"
+              >
+                <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                  <Headphones className="w-4 h-4 text-[#00f2ff] transition-transform group-hover:scale-110" />
+                </span>
+                <span>Contact Support</span>
+              </Link>
+              <div className="flex items-center gap-2.5 text-[#8e9dae]">
+                <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-4 h-4 text-[#10b981]" />
+                </span>
+                <span>Fair Play Guaranteed</span>
+              </div>
             </div>
           </div>
+
         </div>
 
-        {/* Copyright Bar */}
-        <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#849495]">
-          <p>&copy; {new Date().getFullYear()} MJ ESPORTS. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <span className="hover:text-[#00f2ff] cursor-pointer transition-colors">Privacy Policy</span>
-            <span className="hover:text-[#00f2ff] cursor-pointer transition-colors">Terms of Service</span>
+        {/* BOTTOM DIVIDER & COPYRIGHT BAR */}
+        <div className="pt-6 border-t border-[#1e2630] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#717f90]">
+          <p className="font-mono text-xs text-center sm:text-left">
+            &copy; {new Date().getFullYear()} MJ ESPORTS. All rights reserved.
+          </p>
+          <div className="flex items-center gap-6 text-[11px] font-medium">
+            <Link
+              to="/about"
+              className="text-[#717f90] hover:text-[#00f2ff] transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <span className="text-[#2e3846]">&#8226;</span>
+            <Link
+              to="/about"
+              className="text-[#717f90] hover:text-[#00f2ff] transition-colors"
+            >
+              Terms of Service
+            </Link>
           </div>
         </div>
+
       </div>
     </footer>
   )
 }
-
-

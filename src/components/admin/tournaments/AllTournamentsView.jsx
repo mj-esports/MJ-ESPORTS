@@ -180,13 +180,13 @@ export default function AllTournamentsView({
             </p>
             <p className="text-xs text-[#849495] max-w-md mx-auto">
               {tournaments.length === 0
-                ? 'No arena tournaments exist in database. Click + CREATE TOURNAMENT to launch the first arena.'
+                ? 'No arena tournaments exist in database. Click + Create Tournament to launch the first arena.'
                 : 'No tournament arenas match the search and filter criteria. Try clearing the filters.'}
             </p>
             {tournaments.length === 0 && (
               <button
                 onClick={onOpenCreateWizard}
-                className="mt-2 px-4 py-2 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded text-xs uppercase tracking-wider transition-all inline-flex items-center gap-2"
+                className="mt-2 px-4 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_12px_rgba(0,242,255,0.25)] inline-flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create First Tournament</span>
@@ -246,7 +246,7 @@ export default function AllTournamentsView({
                           <span className="font-headline font-bold text-white block">
                             {t.game || 'Free Fire MAX'}
                           </span>
-                          <span className="text-[10px] text-[#849495] font-body block uppercase">
+                          <span className="text-xs text-[#849495] font-body block uppercase">
                             {t.format || t.match_format || `${modeInfo.label} (${modeInfo.size}P)`}
                           </span>
                         </td>
@@ -267,7 +267,7 @@ export default function AllTournamentsView({
                                 {fillPct}% ({filledPlayers}/{totalPlayers}P)
                               </span>
                             </div>
-                            <div className="w-full h-1.5 bg-[#1c1b1c] rounded-full overflow-hidden border border-[#27272a]">
+                            <div className="w-full h-2 bg-[#27272a] rounded-full overflow-hidden border border-[#3f3f46]/60">
                               <div
                                 className={`h-full transition-all duration-300 ${
                                   fillPct >= 100
@@ -307,9 +307,9 @@ export default function AllTournamentsView({
                           <div className="flex items-center justify-end gap-1.5 relative">
                             <button
                               onClick={() => onSelectTournament(t.id)}
-                              className="px-3 py-1.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded text-[11px] uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shadow-sm"
+                              className="px-3 py-1.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-sm cursor-pointer flex items-center gap-1"
                             >
-                              <span>MANAGE</span>
+                              <span>Manage</span>
                               <ChevronRight className="w-3 h-3" />
                             </button>
 
@@ -420,7 +420,7 @@ export default function AllTournamentsView({
                         >
                           {t.title}
                         </span>
-                        <span className="text-[10px] text-[#849495] font-body">
+                        <span className="text-xs text-[#849495] font-body">
                           {t.game || 'Free Fire MAX'} &bull; {t.format || modeInfo.label}
                         </span>
                       </div>
@@ -433,9 +433,15 @@ export default function AllTournamentsView({
                         <span className="text-white font-bold">{regTeams} / {maxTeams} {modeInfo.teamUnit}</span>
                         <span>{fillPct}%</span>
                       </div>
-                      <div className="w-full h-1.5 bg-[#1c1b1c] rounded-full overflow-hidden border border-[#27272a]">
+                      <div className="w-full h-2 bg-[#27272a] rounded-full overflow-hidden border border-[#3f3f46]/60">
                         <div
-                          className="h-full bg-[#00f2ff]"
+                          className={`h-full transition-all duration-300 ${
+                            fillPct >= 100
+                              ? 'bg-[#ff5e07]'
+                              : fillPct >= 75
+                              ? 'bg-[#fed83a]'
+                              : 'bg-[#00f2ff]'
+                          }`}
                           style={{ width: `${Math.min(fillPct, 100)}%` }}
                         />
                       </div>
@@ -461,9 +467,9 @@ export default function AllTournamentsView({
                     <div className="flex items-center gap-2 pt-2 border-t border-[#27272a]">
                       <button
                         onClick={() => onSelectTournament(t.id)}
-                        className="flex-1 py-2 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        className="flex-1 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-sm flex items-center justify-center gap-1 cursor-pointer"
                       >
-                        <span>MANAGE</span>
+                        <span>Manage</span>
                         <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                       <button

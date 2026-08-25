@@ -668,10 +668,10 @@ export default function TournamentCenterView({
 
         <button
           onClick={handleOpenCreateModal}
-          className="px-4 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,242,255,0.25)] shrink-0 cursor-pointer"
+          className="px-4 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_12px_rgba(0,242,255,0.25)] flex items-center justify-center gap-2 shrink-0 cursor-pointer"
         >
           <Plus className="w-4 h-4 text-[#00363a] stroke-[3]" />
-          <span>+ CREATE TOURNAMENT</span>
+          <span>Create Tournament</span>
         </button>
       </div>
 
