@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
   X,
@@ -98,6 +98,51 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [copied, setCopied] = useState(false)
 
+  const isFormValid = useMemo(() => {
+    if (!formData.acceptRules || !formData.antiCheatAgreement) return false
+    if (!proofFile && !proofPreview) return false
+
+    const cleanTeamName = sanitizeString(formData.teamName)
+    const cleanCaptainName = sanitizeString(formData.captainName)
+    const cleanEmail = sanitizeString(formData.email)
+    const cleanCaptainUid = sanitizeString(formData.freeFireUid)
+    const cleanPhone = sanitizeString(formData.whatsappNumber)
+
+    if (!cleanTeamName || !isValidTeamName(cleanTeamName)) return false
+    if (!cleanCaptainName) return false
+    if (!cleanEmail || !isValidEmail(cleanEmail)) return false
+    if (!cleanCaptainUid || !isValidGameUid(cleanCaptainUid)) return false
+    if (!cleanPhone || !isValidPhoneNumber(cleanPhone)) return false
+    if (!formData.captainDob) return false
+    const dobYear = new Date(formData.captainDob).getFullYear()
+    if (new Date().getFullYear() - dobYear < 13) return false
+
+    const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
+    for (let i = 0; i < requiredTeammatesCount; i++) {
+      const uid = sanitizeString(formData.teammates[i])
+      const ign = sanitizeString(formData.teammateIgns[i])
+      if (!uid || !isValidGameUid(uid) || uid === cleanCaptainUid) return false
+      if (!ign || !isValidIgn(ign)) return false
+    }
+
+    if (requiredTeammatesCount > 1) {
+      const activeTeammateUids = formData.teammates.slice(0, requiredTeammatesCount).map((t) => sanitizeString(t)).filter(Boolean)
+      if (new Set(activeTeammateUids).size !== activeTeammateUids.length) return false
+    }
+
+    if (formData.hasSubstitutes) {
+      const subCount = Number(formData.substituteCount) || 1
+      for (let s = 0; s < subCount; s++) {
+        const subUid = sanitizeString(formData.substituteUids[s])
+        const subIgn = sanitizeString(formData.substituteIgns[s])
+        if (subUid && !isValidGameUid(subUid)) return false
+        if (subUid && (!subIgn || !isValidIgn(subIgn))) return false
+      }
+    }
+
+    return true
+  }, [formData, proofFile, proofPreview, mode])
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     let newValue = type === 'checkbox' ? checked : value
@@ -154,6 +199,9 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     }
 
     setProofFile(file)
+    if (fieldErrors.proofFile) {
+      setFieldErrors((prev) => ({ ...prev, proofFile: null }))
+    }
     const reader = new FileReader()
     reader.onload = (event) => {
       setProofPreview(event.target?.result || '')
@@ -313,6 +361,11 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
           newFieldErrors[subIgnKey] = `Substitute ${s + 1} IGN must be 1-30 characters`
         }
       }
+    }
+
+    // Mandatory Profile Screenshot Validation
+    if (!proofFile && !proofPreview) {
+      newFieldErrors.proofFile = 'Free Fire profile screenshot is required for identity verification'
     }
 
     // Toggle Switch Rules & Fair Play Validation
@@ -602,12 +655,17 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               </div>
             </div>
 
-            {/* Free Fire Identity Verification Informational Note */}
-            <div className="p-3.5 bg-[#00f2ff]/5 border border-[#00f2ff]/20 rounded-xl flex items-start gap-2.5 text-xs text-[#8e9dae] font-body">
-              <ShieldCheck className="w-4 h-4 text-[#00f2ff] shrink-0 mt-0.5" />
-              <span>
-                <strong className="text-white font-headline">Fair Play Identity Check:</strong> Identity verification is completed by our admin team during registration and payment review.
-              </span>
+            {/* Free Fire Identity Review Informational Notice */}
+            <div className="p-3.5 bg-[#00f2ff]/5 border border-[#00f2ff]/20 rounded-xl flex items-start gap-3 text-xs text-[#8e9dae] font-body">
+              <ShieldCheck className="w-5 h-5 text-[#00f2ff] shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <h5 className="font-headline text-xs font-bold text-white uppercase tracking-wide">
+                  FREE FIRE IDENTITY REVIEW
+                </h5>
+                <p className="text-[11px] text-[#8e9dae] leading-relaxed font-sans">
+                  Submit your in-game profile screenshot showing your Free Fire UID and IGN. Our admin team will manually verify your identity during registration and payment review.
+                </p>
+              </div>
             </div>
 
             {/* RESPONSIVE LAYOUT GRID: SECTION 1 - PRIMARY CREDENTIALS */}
@@ -705,19 +763,38 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                 )}
               </div>
 
-              {/* PROFILE PROOF SCREENSHOT ATTACHMENT */}
-              <div className="sm:col-span-2 p-3.5 bg-[#07090c] border border-[#3a494b]/60 rounded-xl space-y-2">
+              {/* FREE FIRE PROFILE SCREENSHOT — REQUIRED */}
+              <div className={`sm:col-span-2 p-3.5 bg-[#07090c] border rounded-xl space-y-2.5 ${
+                fieldErrors.proofFile ? 'border-[#ff4655]' : proofFile || proofPreview ? 'border-[#10b981]/50 bg-[#10b981]/5' : 'border-[#3a494b]/60'
+              }`}>
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-1.5 font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
                     <FileImage className="w-3.5 h-3.5 text-[#00f2ff]" />
-                    <span>Free Fire In-Game Profile Screenshot</span>
+                    <span>FREE FIRE PROFILE SCREENSHOT</span>
+                    <span className="text-[#ff4655]">*</span>
                   </label>
-                  <span className="text-[#8e9dae] text-[10px]">Optional / Review Proof</span>
+                  <span className="text-[#00f2ff] text-[10px] font-bold uppercase font-label-caps">
+                    Required identity proof
+                  </span>
                 </div>
+
                 <div className="flex items-center gap-3 flex-wrap">
-                  <label className="px-3.5 py-2 bg-[#151a21] hover:bg-[#1d232c] border border-[#3a494b] hover:border-[#00f2ff]/50 rounded-lg text-xs text-[#00f2ff] font-bold cursor-pointer transition-all flex items-center gap-2">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>{proofFile ? proofFile.name : 'Attach Profile Screenshot'}</span>
+                  <label className={`px-3.5 py-2 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-2 border ${
+                    proofFile || proofPreview
+                      ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40 hover:bg-[#10b981]/25'
+                      : 'bg-[#151a21] hover:bg-[#1d232c] text-[#00f2ff] border-[#3a494b] hover:border-[#00f2ff]/50'
+                  }`}>
+                    {proofFile || proofPreview ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#10b981]" />
+                        <span>✓ PROFILE SCREENSHOT ATTACHED</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>ATTACH PROFILE SCREENSHOT</span>
+                      </>
+                    )}
                     <input
                       type="file"
                       accept="image/png,image/jpeg,image/jpg,image/webp"
@@ -725,18 +802,29 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       className="hidden"
                     />
                   </label>
+
                   {proofFile && (
-                    <button
-                      type="button"
-                      onClick={() => { setProofFile(null); setProofPreview(''); }}
-                      className="text-xs text-red-400 hover:text-red-300 font-bold cursor-pointer"
-                    >
-                      Remove
-                    </button>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-white font-mono text-[11px] max-w-[180px] truncate">{proofFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => { setProofFile(null); setProofPreview(''); }}
+                        className="text-[11px] text-red-400 hover:text-red-300 font-bold uppercase cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   )}
                 </div>
-                <p className="text-[10px] text-[#8e9dae] font-sans">
-                  Attach your in-game profile screenshot showing UID & IGN to expedite admin verification.
+
+                {fieldErrors.proofFile && (
+                  <p className="text-[11px] text-[#ff4655] font-medium" role="alert">
+                    {fieldErrors.proofFile}
+                  </p>
+                )}
+
+                <p className="text-[10px] text-[#8e9dae] font-sans leading-relaxed">
+                  Upload a clear screenshot of your Free Fire in-game profile showing your UID and IGN. This will be manually reviewed by the MJ ESPORTS admin team.
                 </p>
               </div>
             </div>
@@ -1034,23 +1122,31 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
             </div>
 
             {/* ACTION BUTTONS */}
-            <div className="pt-2 flex gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isSubmitting}
-                className="flex-1 py-3.5 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded-xl hover:bg-[#1d232c] transition-colors min-h-[44px] disabled:opacity-50 uppercase cursor-pointer"
-              >
-                Cancel
-              </button>
-              <LoadingButton
-                type="submit"
-                loading={isSubmitting}
-                loadingText="Registering..."
-                className="flex-1 py-3.5"
-              >
-                Confirm Registration
-              </LoadingButton>
+            <div className="pt-2 space-y-2">
+              {!isFormValid && (
+                <p className="text-[11px] text-[#8e9dae] text-center font-sans">
+                  Please complete all required fields and agreements to continue.
+                </p>
+              )}
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={isSubmitting}
+                  className="flex-1 py-3.5 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded-xl hover:bg-[#1d232c] transition-colors min-h-[44px] disabled:opacity-50 uppercase cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <LoadingButton
+                  type="submit"
+                  loading={isSubmitting}
+                  loadingText="Registering..."
+                  disabled={!isFormValid || isSubmitting}
+                  className="flex-1 py-3.5"
+                >
+                  {isFormValid ? 'Confirm Registration' : 'Complete Required Items'}
+                </LoadingButton>
+              </div>
             </div>
           </form>
         )}
