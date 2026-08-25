@@ -830,10 +830,10 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
             {/* SECTION 3: TOGGLE SWITCHES */}
             <div className="p-3 bg-[#07090c] border border-[#3a494b]/60 rounded-xl space-y-2.5">
               <span className="font-label-caps text-[11px] font-bold text-[#00f2ff] uppercase tracking-wider block border-b border-[#3a494b]/40 pb-1.5">
-                Registration Options & Agreements
+                OPTIONS & AGREEMENTS
               </span>
 
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 
                 {/* TOGGLE SWITCH 1: SUBSTITUTE PLAYERS */}
                 <ToggleSwitch
@@ -842,7 +842,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   checked={formData.hasSubstitutes}
                   onChange={handleChange}
                   label="Include Reserve Substitute Players"
-                  description="Register up to 2 backup roster players for emergency match replacements."
                   color="cyan"
                 />
 
@@ -920,7 +919,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   checked={formData.enableSmsAlerts}
                   onChange={handleChange}
                   label="Receive Room Password SMS & WhatsApp Alert"
-                  description="Instant SMS notification sent 15 minutes before match kickoff."
                   color="green"
                 />
 
@@ -931,7 +929,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   checked={formData.antiCheatAgreement}
                   onChange={handleChange}
                   label="Mandatory Anti-Cheat & Screen Record Agreement"
-                  description="Squad agrees to record device screen during official match rounds."
                   required={true}
                   error={fieldErrors.antiCheatAgreement}
                   color="orange"
@@ -944,7 +941,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   checked={formData.acceptRules}
                   onChange={handleChange}
                   label="Accept Tournament Rulebook & Code of Conduct"
-                  description="Required to confirm team eligibility and agree to zero-tolerance toxicity rules."
                   required={true}
                   error={fieldErrors.acceptRules}
                   color="cyan"
