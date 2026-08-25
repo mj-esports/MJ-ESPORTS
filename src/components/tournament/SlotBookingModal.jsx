@@ -73,11 +73,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     freeFireUid: user?.user_metadata?.freeFireUid || '',
     whatsappNumber: '',
     availabilityDate: tournament?.startDate || '2026-08-06',
-    hasSubstitutes: false,
-    substituteCount: 1,
-    substituteUids: ['', ''],
-    substituteIgns: ['', ''],
-    enableSmsAlerts: true,
     antiCheatAgreement: true,
     acceptRules: false,
     teammates: ['', '', ''],
@@ -117,16 +112,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     if (requiredTeammatesCount > 1) {
       const activeTeammateUids = formData.teammates.slice(0, requiredTeammatesCount).map((t) => sanitizeString(t)).filter(Boolean)
       if (new Set(activeTeammateUids).size !== activeTeammateUids.length) return false
-    }
-
-    if (formData.hasSubstitutes) {
-      const subCount = Number(formData.substituteCount) || 1
-      for (let s = 0; s < subCount; s++) {
-        const subUid = sanitizeString(formData.substituteUids[s])
-        const subIgn = sanitizeString(formData.substituteIgns[s])
-        if (subUid && !isValidGameUid(subUid)) return false
-        if (subUid && (!subIgn || !isValidIgn(subIgn))) return false
-      }
     }
 
     return true
@@ -196,27 +181,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       setProofPreview(event.target?.result || '')
     }
     reader.readAsDataURL(file)
-  }
-
-  const handleSubstituteChange = (index, field, value) => {
-    if (field === 'uid') {
-      const sanitized = sanitizeDigitsOnly(value, 10)
-      const updated = [...formData.substituteUids]
-      updated[index] = sanitized
-      setFormData((prev) => ({ ...prev, substituteUids: updated }))
-      const fieldKey = `sub_uid_${index}`
-      if (fieldErrors[fieldKey]) {
-        setFieldErrors((prev) => ({ ...prev, [fieldKey]: null }))
-      }
-    } else if (field === 'ign') {
-      const updated = [...formData.substituteIgns]
-      updated[index] = value
-      setFormData((prev) => ({ ...prev, substituteIgns: updated }))
-      const fieldKey = `sub_ign_${index}`
-      if (fieldErrors[fieldKey]) {
-        setFieldErrors((prev) => ({ ...prev, [fieldKey]: null }))
-      }
-    }
   }
 
   const validateForm = () => {
@@ -306,28 +270,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       }
     }
 
-    // Substitute Players Validation (if toggle is active)
-    if (formData.hasSubstitutes) {
-      const subCount = Number(formData.substituteCount)
-      if (isNaN(subCount) || subCount < 1 || subCount > 2) {
-        newFieldErrors.substituteCount = 'Substitute count must be 1 or 2'
-      }
-      for (let s = 0; s < subCount; s++) {
-        const subUid = sanitizeString(formData.substituteUids[s])
-        const subIgn = sanitizeString(formData.substituteIgns[s])
-        const subKey = `sub_uid_${s}`
-        const subIgnKey = `sub_ign_${s}`
-        if (subUid && !isValidGameUid(subUid)) {
-          newFieldErrors[subKey] = `Substitute ${s + 1} UID must be exactly 10 digits (0-9)`
-        }
-        if (subUid && !subIgn) {
-          newFieldErrors[subIgnKey] = `Substitute ${s + 1} IGN is required when UID is provided`
-        } else if (subIgn && !isValidIgn(subIgn)) {
-          newFieldErrors[subIgnKey] = `Substitute ${s + 1} IGN must be 1-30 characters`
-        }
-      }
-    }
-
     // Mandatory Profile Screenshot Validation
     if (!proofFile && !proofPreview) {
       newFieldErrors.proofFile = 'Free Fire profile screenshot is required for identity verification'
@@ -370,20 +312,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       .slice(0, requiredTeammatesCount)
       .map((t) => toCanonicalIgn(t))
 
-    const activeSubstitutes = formData.hasSubstitutes
-      ? formData.substituteUids
-          .slice(0, Number(formData.substituteCount) || 1)
-          .map((s) => sanitizeString(s))
-          .filter(Boolean)
-      : []
-
-    const activeSubstituteIgns = formData.hasSubstitutes
-      ? formData.substituteIgns
-          .slice(0, Number(formData.substituteCount) || 1)
-          .map((s) => toCanonicalIgn(s))
-          .filter(Boolean)
-      : []
-
     const refId = `REG-MJ-${Date.now().toString(36).toUpperCase()}`
 
     try {
@@ -410,10 +338,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
           email: sanitizeString(formData.email),
           freeFireUid: sanitizeString(formData.freeFireUid),
           whatsappNumber: sanitizeString(formData.whatsappNumber),
-          hasSubstitutes: formData.hasSubstitutes,
-          substitutes: activeSubstitutes,
-          substituteIgns: activeSubstituteIgns,
-          enableSmsAlerts: formData.enableSmsAlerts,
           mode,
           teammates: activeTeammates,
           teammateIgns: activeTeammateIgns,
@@ -834,95 +758,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               </span>
 
               <div className="space-y-2">
-                
-                {/* TOGGLE SWITCH 1: SUBSTITUTE PLAYERS */}
-                <ToggleSwitch
-                  id="hasSubstitutes"
-                  name="hasSubstitutes"
-                  checked={formData.hasSubstitutes}
-                  onChange={handleChange}
-                  label="Include Reserve Substitute Players"
-                  color="cyan"
-                />
-
-                {/* CONDITIONAL SUBSTITUTE NUMBER INPUT & UIDS */}
-                {formData.hasSubstitutes && (
-                  <div className="p-3 bg-[#151a21] border border-[#00f2ff]/30 rounded-xl space-y-2.5 animate-fadeIn">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-white uppercase">Substitute Roster Count</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-[#8e9dae]">Select:</span>
-                        <button
-                          type="button"
-                          onClick={() => setFormData((prev) => ({ ...prev, substituteCount: 1 }))}
-                          className={`px-3 py-1 rounded text-xs font-bold border transition-all cursor-pointer ${
-                            formData.substituteCount === 1
-                              ? 'bg-[#00f2ff] text-black border-[#00f2ff]'
-                              : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b]'
-                          }`}
-                        >
-                          1 Sub
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setFormData((prev) => ({ ...prev, substituteCount: 2 }))}
-                          className={`px-3 py-1 rounded text-xs font-bold border transition-all cursor-pointer ${
-                            formData.substituteCount === 2
-                              ? 'bg-[#00f2ff] text-black border-[#00f2ff]'
-                              : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b]'
-                          }`}
-                        >
-                          2 Subs
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2.5">
-                      {Array.from({ length: formData.substituteCount }).map((_, idx) => (
-                        <div key={`sub-member-card-${idx}`} className="p-2.5 bg-[#07090c] rounded-lg border border-[#3a494b] space-y-2">
-                          <span className="text-[11px] font-bold text-[#b9cacb] uppercase">Reserve Player #{idx + 1}</span>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <FormInput
-                              label={`Substitute ${idx + 1} Game UID`}
-                              name={`sub_uid_${idx}`}
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              maxLength={10}
-                              showCount
-                              value={formData.substituteUids[idx] || ''}
-                              onChange={(e) => handleSubstituteChange(idx, 'uid', e.target.value)}
-                              placeholder="0123456789"
-                              error={fieldErrors[`sub_uid_${idx}`]}
-                              icon={ShieldCheck}
-                            />
-                            <FormInput
-                              label={`Substitute ${idx + 1} In-Game Name (IGN)`}
-                              name={`sub_ign_${idx}`}
-                              value={formData.substituteIgns[idx] || ''}
-                              onChange={(e) => handleSubstituteChange(idx, 'ign', e.target.value)}
-                              placeholder="e.g. Reserve_Striker"
-                              error={fieldErrors[`sub_ign_${idx}`]}
-                              icon={User}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* TOGGLE SWITCH 2: ROOM CREDENTIALS SMS ALERT */}
-                <ToggleSwitch
-                  id="enableSmsAlerts"
-                  name="enableSmsAlerts"
-                  checked={formData.enableSmsAlerts}
-                  onChange={handleChange}
-                  label="Receive Room Password SMS & WhatsApp Alert"
-                  color="green"
-                />
-
-                {/* TOGGLE SWITCH 3: ANTI-CHEAT SCREEN RECORDING */}
+                {/* TOGGLE SWITCH 1: ANTI-CHEAT SCREEN RECORDING */}
                 <ToggleSwitch
                   id="antiCheatAgreement"
                   name="antiCheatAgreement"
@@ -934,7 +770,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   color="orange"
                 />
 
-                {/* TOGGLE SWITCH 4: ACCEPT RULEBOOK & GUIDELINES */}
+                {/* TOGGLE SWITCH 2: ACCEPT RULEBOOK & GUIDELINES */}
                 <ToggleSwitch
                   id="acceptRules"
                   name="acceptRules"
@@ -945,7 +781,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   error={fieldErrors.acceptRules}
                   color="cyan"
                 />
-
               </div>
             </div>
 
