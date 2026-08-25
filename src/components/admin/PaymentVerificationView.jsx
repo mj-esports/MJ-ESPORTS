@@ -224,7 +224,8 @@ export default function PaymentVerificationView({ tournaments = [] }) {
                   <td className="p-3.5 font-bold text-white max-w-[180px] truncate">{p.tournamentTitle}</td>
                   <td className="p-3.5">
                     <span className="font-extrabold text-[#e1e2e7] block">{p.teamName}</span>
-                    <span className="text-[11px] text-[#8e9dae]">Capt: {p.captainName}</span>
+                    <span className="text-[11px] text-[#8e9dae] block">Capt: {p.captainName}</span>
+                    <span className="text-[10px] text-[#00f2ff] font-mono block">UID: {p.freeFireUid}</span>
                   </td>
                   <td className="p-3.5 font-mono text-[#ffb693] font-extrabold">{p.entryFee}</td>
                   <td className="p-3.5 text-center">
@@ -312,6 +313,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
 
             <div className="bg-[#07090c] p-2.5 rounded border border-[#3a494b]/60 space-y-1 font-mono text-[11px]">
               <p>Captain: <span className="text-white font-bold">{p.captainName}</span></p>
+              <p>Free Fire UID: <span className="text-[#00f2ff] font-bold">{p.freeFireUid}</span></p>
               <p>Fee: <span className="text-[#ffb693] font-bold">{p.entryFee}</span></p>
             </div>
 

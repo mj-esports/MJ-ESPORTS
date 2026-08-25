@@ -15,14 +15,14 @@ import {
   Hash,
   Sparkles,
   Smartphone,
-  ShieldAlert,
-  ArrowRight
+  Upload,
+  FileImage
 } from 'lucide-react'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
-import { checkPlayerVerificationEligibility } from '../../services/playerEvidenceService'
+import { uploadProfileProof } from '../../services/playerEvidenceService'
 import FormInput from '../common/FormInput'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
@@ -53,38 +53,20 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const { user } = useAuth()
   const { showSuccess, showError } = useToast()
 
-  // Player Verification Eligibility State
-  const [isIdentityVerified, setIsIdentityVerified] = useState(true)
-  const [eligibilityChecking, setEligibilityChecking] = useState(true)
+  // Profile Proof Attachment State
+  const [proofFile, setProofFile] = useState(null)
+  const [proofPreview, setProofPreview] = useState('')
 
   // Calculate max date of birth for 13 years old check (2026 - 13 = 2013)
   const maxDobDate = '2013-12-31'
 
-  // Lock body scrolling when modal is open and check verification
+  // Lock body scrolling when modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-
-    async function verifyEligibility() {
-      if (user?.id) {
-        try {
-          const res = await checkPlayerVerificationEligibility(user.id)
-          setIsIdentityVerified(res.isVerified)
-        } catch {
-          setIsIdentityVerified(true)
-        } finally {
-          setEligibilityChecking(false)
-        }
-      } else {
-        setEligibilityChecking(false)
-      }
-    }
-
-    verifyEligibility()
-
     return () => {
       document.body.style.overflow = ''
     }
-  }, [user?.id])
+  }, [])
 
   const modeConfig = getTournamentMode(tournament)
   const mode = modeConfig.mode
@@ -155,6 +137,28 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     if (fieldErrors.teammates) {
       setFieldErrors((prev) => ({ ...prev, teammates: null }))
     }
+  }
+
+  const handleProofFileSelect = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+    if (!allowed.includes(file.type)) {
+      showError('Please upload a PNG, JPG, or WEBP screenshot.', 'Invalid File Type')
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      showError('Screenshot file size exceeds 10 MB limit.', 'File Too Large')
+      return
+    }
+
+    setProofFile(file)
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      setProofPreview(event.target?.result || '')
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleSubstituteChange = (index, field, value) => {
@@ -311,11 +315,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       }
     }
 
-    // Check Free Fire Identity Verification Eligibility
-    if (!isIdentityVerified) {
-      return 'Free Fire Player Identity Verification is required to register for tournaments. Please verify your profile identity first.'
-    }
-
     // Toggle Switch Rules & Fair Play Validation
     if (!formData.acceptRules) {
       newFieldErrors.acceptRules = 'You must enable rulebook acceptance switch to confirm registration'
@@ -370,6 +369,19 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     const refId = `REG-MJ-${Date.now().toString(36).toUpperCase()}`
 
     try {
+      // If proof screenshot is attached, record profile evidence in background
+      if (proofFile && user?.id) {
+        uploadProfileProof(proofFile, {
+          userId: user.id,
+          gameUid: sanitizeString(formData.freeFireUid),
+          gameIgn: toCanonicalIgn(formData.captainName),
+          tournamentId: tournament.id,
+          fallbackDataUrl: proofPreview,
+        }).catch((proofErr) => {
+          console.warn('[Profile Proof Upload Notice]:', proofErr)
+        })
+      }
+
       // Local or Context registration (No Supabase mandatory)
       let registeredRecord = null
       if (registerTeam) {
@@ -391,7 +403,8 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
           teammates: activeTeammates,
           teammateIgns: activeTeammateIgns,
           userId: user?.id || `guest-${Date.now()}`,
-          status: 'Approved',
+          status: 'Pending',
+          paymentStatus: 'Pending',
         })
       }
 
@@ -589,31 +602,13 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               </div>
             </div>
 
-            {/* Free Fire Identity Verification Alert Banner */}
-            {!isIdentityVerified && !eligibilityChecking && (
-              <div className="p-4 bg-[#fe6b00]/10 border border-[#fe6b00]/40 rounded-xl space-y-2 shadow-lg">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-2.5">
-                    <ShieldAlert className="w-5 h-5 text-[#fe6b00] shrink-0 mt-0.5" />
-                    <div>
-                      <h5 className="font-headline text-xs font-bold text-white uppercase tracking-wide">
-                        Free Fire Identity Verification Required
-                      </h5>
-                      <p className="text-[11px] text-[#8e9dae] mt-0.5 leading-relaxed font-sans">
-                        To maintain fair play and competitive integrity, your Free Fire Character UID and IGN must be verified before booking tournament slots.
-                      </p>
-                    </div>
-                  </div>
-                  <Link
-                    to="/profile/edit"
-                    className="px-3.5 py-2 bg-[#fe6b00] hover:bg-orange-400 text-black font-bold uppercase rounded-lg text-[10px] shrink-0 transition-all flex items-center gap-1 shadow-[0_0_10px_rgba(254,107,0,0.3)] cursor-pointer"
-                  >
-                    <span>Verify Now</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
-              </div>
-            )}
+            {/* Free Fire Identity Verification Informational Note */}
+            <div className="p-3.5 bg-[#00f2ff]/5 border border-[#00f2ff]/20 rounded-xl flex items-start gap-2.5 text-xs text-[#8e9dae] font-body">
+              <ShieldCheck className="w-4 h-4 text-[#00f2ff] shrink-0 mt-0.5" />
+              <span>
+                <strong className="text-white font-headline">Fair Play Identity Check:</strong> Identity verification is completed by our admin team during registration and payment review.
+              </span>
+            </div>
 
             {/* RESPONSIVE LAYOUT GRID: SECTION 1 - PRIMARY CREDENTIALS */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -708,6 +703,41 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     {fieldErrors.captainDob}
                   </p>
                 )}
+              </div>
+
+              {/* PROFILE PROOF SCREENSHOT ATTACHMENT */}
+              <div className="sm:col-span-2 p-3.5 bg-[#07090c] border border-[#3a494b]/60 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-1.5 font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
+                    <FileImage className="w-3.5 h-3.5 text-[#00f2ff]" />
+                    <span>Free Fire In-Game Profile Screenshot</span>
+                  </label>
+                  <span className="text-[#8e9dae] text-[10px]">Optional / Review Proof</span>
+                </div>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <label className="px-3.5 py-2 bg-[#151a21] hover:bg-[#1d232c] border border-[#3a494b] hover:border-[#00f2ff]/50 rounded-lg text-xs text-[#00f2ff] font-bold cursor-pointer transition-all flex items-center gap-2">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{proofFile ? proofFile.name : 'Attach Profile Screenshot'}</span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      onChange={handleProofFileSelect}
+                      className="hidden"
+                    />
+                  </label>
+                  {proofFile && (
+                    <button
+                      type="button"
+                      onClick={() => { setProofFile(null); setProofPreview(''); }}
+                      className="text-xs text-red-400 hover:text-red-300 font-bold cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10px] text-[#8e9dae] font-sans">
+                  Attach your in-game profile screenshot showing UID & IGN to expedite admin verification.
+                </p>
               </div>
             </div>
 
