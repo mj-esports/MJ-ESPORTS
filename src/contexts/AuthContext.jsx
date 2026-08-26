@@ -26,6 +26,8 @@ export function AuthProvider({ children }) {
   const roleRef = useRef(null)
   roleRef.current = role
 
+  const initialAuthDoneRef = useRef(false)
+
   // Synchronizes user and role state smoothly with stable reference
   const syncUserAndRole = useCallback(async (currentUser, currentSession, options = {}) => {
     const { isExplicit = false } = options
@@ -33,7 +35,6 @@ export function AuthProvider({ children }) {
     const previousUserId = userRef.current?.id
     const currentUserId = currentUser?.id
     const isUserIdentityChange = currentUserId !== previousUserId
-    const needsRoleFetch = !roleRef.current || isUserIdentityChange || isExplicit
 
     // 1. Update session & user state
     setSession(currentSession ?? null)
@@ -41,8 +42,16 @@ export function AuthProvider({ children }) {
     userRef.current = currentUser ?? null
 
     if (currentUser) {
-      // Only lock roleLoading during explicit identity changes or initial load
-      if (needsRoleFetch) {
+      // If it is the same user, role is already known, and this is not a forced explicit change,
+      // update user/session in the background without triggering role loading state.
+      if (!isUserIdentityChange && roleRef.current && !isExplicit) {
+        setRoleLoading(false)
+        setLoading(false)
+        return
+      }
+
+      // Only lock roleLoading during explicit identity changes or initial uninitialized load
+      if (!roleRef.current || isUserIdentityChange) {
         setRoleLoading(true)
       }
 
@@ -101,6 +110,7 @@ export function AuthProvider({ children }) {
             const parsed = JSON.parse(storedSession)
             if (isSubscribed) {
               syncUserAndRole(parsed?.user ?? null, parsed, { isExplicit: true })
+              initialAuthDoneRef.current = true
               return
             }
           } catch (e) {
@@ -112,6 +122,7 @@ export function AuthProvider({ children }) {
         setRole(null)
         setRoleLoading(false)
         setLoading(false)
+        initialAuthDoneRef.current = true
       }
       return
     }
@@ -122,6 +133,7 @@ export function AuthProvider({ children }) {
       .then(({ data: { session: initialSession } }) => {
         if (isSubscribed) {
           syncUserAndRole(initialSession?.user ?? null, initialSession, { isExplicit: true })
+          initialAuthDoneRef.current = true
         }
       })
       .catch((err) => {
@@ -130,6 +142,7 @@ export function AuthProvider({ children }) {
           setRole(null)
           setRoleLoading(false)
           setLoading(false)
+          initialAuthDoneRef.current = true
         }
       })
 
@@ -143,9 +156,24 @@ export function AuthProvider({ children }) {
       const currentUserId = currentSession?.user?.id
       const isUserChange = currentUserId !== previousUserId
 
-      // Token refresh or window focus events for the same user update session silently without locking roleLoading
-      const isExplicitUserChange = isUserChange || event === 'SIGNED_IN' || event === 'SIGNED_OUT'
-      syncUserAndRole(currentSession?.user ?? null, currentSession, { isExplicit: isExplicitUserChange })
+      // Silent token refresh or tab focus for the same authenticated user
+      // Update session in the background without flipping roleLoading or causing remounts
+      if (event === 'TOKEN_REFRESHED' || (!isUserChange && event === 'SIGNED_IN' && initialAuthDoneRef.current)) {
+        setSession(currentSession ?? null)
+        if (currentSession?.user) {
+          setUser(currentSession.user)
+          userRef.current = currentSession.user
+        }
+        return
+      }
+
+      if (event === 'SIGNED_OUT') {
+        syncUserAndRole(null, null, { isExplicit: true })
+        return
+      }
+
+      // Explicit user login or switch to different account
+      syncUserAndRole(currentSession?.user ?? null, currentSession, { isExplicit: isUserChange })
     })
 
     return () => {
