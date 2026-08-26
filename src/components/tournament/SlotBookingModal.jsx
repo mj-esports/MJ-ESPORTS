@@ -24,7 +24,7 @@ import { uploadProfileProof } from '../../services/playerEvidenceService'
 import FormInput from '../common/FormInput'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
-import ToggleSwitch from '../common/ToggleSwitch'
+import { OFFICIAL_MJ_RULES } from '../common/OfficialRulebook'
 import {
   toCanonicalIgn,
   normalizeIgn,
@@ -40,8 +40,6 @@ import {
 } from '../../utils/validationUtils'
 import {
   getTournamentMode,
-  calculateRemainingPlayerSlots,
-  calculateTotalPlayerSlots,
 } from '../../utils/tournamentUtils'
 
 export { getTournamentMode }
@@ -54,6 +52,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   // Profile Proof Attachment State
   const [proofFile, setProofFile] = useState(null)
   const [proofPreview, setProofPreview] = useState('')
+  const [showRulebook, setShowRulebook] = useState(false)
 
   // Lock body scrolling when modal is open
   useEffect(() => {
@@ -73,7 +72,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     freeFireUid: user?.user_metadata?.freeFireUid || '',
     whatsappNumber: '',
     availabilityDate: tournament?.startDate || '2026-08-06',
-    antiCheatAgreement: true,
     acceptRules: false,
     teammates: ['', '', ''],
     teammateIgns: ['', '', ''],
@@ -86,7 +84,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const [copied, setCopied] = useState(false)
 
   const isFormValid = useMemo(() => {
-    if (!formData.acceptRules || !formData.antiCheatAgreement) return false
+    if (!formData.acceptRules) return false
     if (!proofFile && !proofPreview) return false
 
     const cleanTeamName = sanitizeString(formData.teamName)
@@ -275,13 +273,9 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       newFieldErrors.proofFile = 'Free Fire profile screenshot is required for identity verification'
     }
 
-    // Toggle Switch Rules & Fair Play Validation
+    // Rules & Fair Play Validation
     if (!formData.acceptRules) {
-      newFieldErrors.acceptRules = 'You must enable rulebook acceptance switch to confirm registration'
-    }
-
-    if (!formData.antiCheatAgreement) {
-      newFieldErrors.antiCheatAgreement = 'You must enable anti-cheat agreement switch'
+      newFieldErrors.acceptRules = 'You must accept the tournament rules and code of conduct to confirm registration'
     }
 
     setFieldErrors(newFieldErrors)
@@ -383,12 +377,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     }
   }
 
-  const remainingPlayerSlots = calculateRemainingPlayerSlots(tournament)
-  const totalPlayerSlots = calculateTotalPlayerSlots(tournament)
-  const regTeams = Number(tournament.registeredTeams || tournament.registered_teams || 0)
-  const maxTeams = Number(tournament.maxTeams || tournament.max_teams || 12)
-  const remainingTeams = Math.max(0, maxTeams - regTeams)
-
   return (
     <div
       onClick={onClose}
@@ -412,32 +400,19 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         </button>
 
         {/* Modal Header & Branding */}
-        <div className="space-y-1 border-b border-[#3a494b]/50 pb-3">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-[#00f2ff]" />
-            <span className="font-label-caps text-[11px] font-extrabold text-[#00f2ff] uppercase tracking-widest block">
+        <div className="space-y-0.5 border-b border-[#3a494b]/50 pb-2.5">
+          <div className="flex items-center gap-1.5">
+            <Shield className="w-3.5 h-3.5 text-[#00f2ff]" />
+            <span className="font-label-caps text-[10px] font-extrabold text-[#00f2ff] uppercase tracking-widest block">
               MJ ESPORTS OFFICIAL REGISTRATION
             </span>
           </div>
-          <h2 id="slot-booking-modal-title" className="font-display-lg text-lg sm:text-xl font-extrabold text-white uppercase tracking-tight italic">
+          <h2 id="slot-booking-modal-title" className="font-display-lg text-base sm:text-lg font-extrabold text-white uppercase tracking-tight italic">
             {tournament.title}
           </h2>
-          <div className="flex items-center gap-3 text-[11px] text-[#8e9dae] pt-0.5">
-            <span>Game: <strong className="text-white">{tournament.game || 'Esports'}</strong></span>
-            <span className="text-[#3a494b]">•</span>
-            <span>
-              Slots Remaining:{' '}
-              <span className="font-mono text-[#00ff9d] font-bold">
-                {remainingPlayerSlots}
-              </span>{' '}
-              / {totalPlayerSlots} Players
-              {modeConfig.mode !== 'Solo' && (
-                <span className="text-[11px] text-[#8e9dae] ml-1 font-mono">
-                  ({remainingTeams} {modeConfig.teamUnit} left)
-                </span>
-              )}
-            </span>
-          </div>
+          <p className="text-xs text-[#8e9dae] font-medium">
+            {tournament.game || 'Free Fire MAX'} • {modeConfig.mode}
+          </p>
         </div>
 
         {error && <AuthAlert type="error" message={error} />}
@@ -503,27 +478,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
-
-            {/* Read-Only Competition Format Card */}
-            <div className="p-3 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
-                  <Users className="w-4 h-4 text-[#00f2ff]" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wide">
-                    {modeConfig.mode} ({modeConfig.formatTitle})
-                  </h4>
-                  <p className="text-[11px] text-[#00ff9d] font-semibold">
-                    {modeConfig.requiredPlayers} {modeConfig.requiredPlayers === 1 ? 'Player Required' : 'Players Required per Squad'}
-                  </p>
-                </div>
-              </div>
-              <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/40 uppercase tracking-wider font-label-caps">
-                COMPETITION FORMAT
-              </span>
-            </div>
+          <form onSubmit={handleSubmit} noValidate className="space-y-3">
 
             {/* RESPONSIVE LAYOUT GRID: SECTION 1 - PRIMARY CREDENTIALS */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -751,37 +706,38 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               </div>
             )}
 
-            {/* SECTION 3: TOGGLE SWITCHES */}
-            <div className="p-3 bg-[#07090c] border border-[#3a494b]/60 rounded-xl space-y-2.5">
-              <span className="font-label-caps text-[11px] font-bold text-[#00f2ff] uppercase tracking-wider block border-b border-[#3a494b]/40 pb-1.5">
-                OPTIONS & AGREEMENTS
-              </span>
-
-              <div className="space-y-2">
-                {/* TOGGLE SWITCH 1: ANTI-CHEAT SCREEN RECORDING */}
-                <ToggleSwitch
-                  id="antiCheatAgreement"
-                  name="antiCheatAgreement"
-                  checked={formData.antiCheatAgreement}
-                  onChange={handleChange}
-                  label="Mandatory Anti-Cheat & Screen Record Agreement"
-                  required={true}
-                  error={fieldErrors.antiCheatAgreement}
-                  color="orange"
-                />
-
-                {/* TOGGLE SWITCH 2: ACCEPT RULEBOOK & GUIDELINES */}
-                <ToggleSwitch
-                  id="acceptRules"
+            {/* TOURNAMENT RULES & CODE OF CONDUCT AGREEMENT */}
+            <div className="p-3 bg-[#07090c] border border-[#3a494b]/60 rounded-xl">
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
                   name="acceptRules"
+                  id="acceptRules"
                   checked={formData.acceptRules}
                   onChange={handleChange}
-                  label="Accept Tournament Rulebook & Code of Conduct"
-                  required={true}
-                  error={fieldErrors.acceptRules}
-                  color="cyan"
+                  className="mt-0.5 w-4 h-4 rounded bg-[#151a21] border border-[#3a494b] text-[#00f2ff] focus:ring-1 focus:ring-[#00f2ff] focus:outline-none cursor-pointer accent-[#00f2ff]"
                 />
-              </div>
+                <span className="text-xs font-bold text-white uppercase tracking-wider leading-snug">
+                  I agree to the{' '}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setShowRulebook(true)
+                    }}
+                    className="text-[#00f2ff] hover:text-[#00ff9d] underline underline-offset-2 decoration-[#00f2ff]/60 hover:decoration-[#00ff9d] transition-colors cursor-pointer font-bold inline"
+                  >
+                    Tournament Rules & Code of Conduct
+                  </button>{' '}
+                  <span className="text-[#ff4655]">*</span>
+                </span>
+              </label>
+              {fieldErrors.acceptRules && (
+                <p className="text-[11px] text-[#ff4655] font-medium pl-6 pt-1" role="alert">
+                  {fieldErrors.acceptRules}
+                </p>
+              )}
             </div>
 
             {/* ACTION BUTTONS */}
@@ -815,6 +771,72 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         )}
 
       </div>
+
+      {/* READ-ONLY FULL RULEBOOK IN-MODAL OVERLAY */}
+      {showRulebook && (
+        <div
+          onClick={() => setShowRulebook(false)}
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-[#151a21] border border-[#00f2ff]/40 rounded-2xl max-w-xl w-full p-5 sm:p-6 space-y-4 shadow-[0_0_50px_rgba(0,242,255,0.2)] relative max-h-[85vh] overflow-y-auto"
+          >
+            <button
+              type="button"
+              onClick={() => setShowRulebook(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-xl bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] cursor-pointer transition-colors"
+              aria-label="Close Rulebook"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="space-y-1 border-b border-[#3a494b]/50 pb-3">
+              <div className="flex items-center gap-2 text-[#00f2ff]">
+                <Shield className="w-4.5 h-4.5 text-[#00f2ff]" />
+                <h3 className="font-headline text-sm sm:text-base font-black text-white uppercase tracking-wider">
+                  Tournament Rules & Code of Conduct
+                </h3>
+              </div>
+              <p className="text-[11px] text-[#8e9dae]">
+                Official match rules and fair play guidelines enforced for all participants.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              {OFFICIAL_MJ_RULES.map((ruleText, idx) => (
+                <div
+                  key={`rule-${idx}`}
+                  className="flex items-start gap-2.5 p-2.5 bg-[#07090c] border border-[#3a494b]/60 rounded-xl"
+                >
+                  <span className="w-5 h-5 rounded-lg bg-[#151a21] border border-[#00f2ff]/40 flex items-center justify-center font-mono font-bold text-[10px] text-[#00f2ff] shrink-0 mt-0.5">
+                    {idx + 1}
+                  </span>
+                  <span className="text-xs text-white font-medium leading-relaxed">
+                    {ruleText}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2 border-t border-[#3a494b]/50 flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-[#00ff9d] text-[11px] font-bold uppercase">
+                <CheckCircle2 className="w-4 h-4 text-[#00ff9d]" />
+                <span>Fair Play Policy Enforced</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowRulebook(false)}
+                className="px-4 py-2 bg-[#00f2ff] hover:bg-[#00d0dd] text-black font-extrabold text-xs uppercase rounded-xl transition-all cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
