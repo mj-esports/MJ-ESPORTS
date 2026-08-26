@@ -611,7 +611,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
       </div>
 
       {/* ======================================================================= */}
-      {/* 4. ADMIN REGISTRATION DETAILS DRAWER (REFINED V1 COMPACT LAYOUT)        */}
+      {/* 4. ADMIN REGISTRATION DETAILS DRAWER (COMPACT V1 LAYOUT)                */}
       {/* ======================================================================= */}
       {selectedDetail && (
         <div
@@ -619,209 +619,205 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
           onClick={() => setSelectedDetail(null)}
         >
           <div
-            className="w-full max-w-md bg-[#141416] border-l border-[#27272a] h-full p-4 sm:p-5 space-y-4 overflow-y-auto shadow-2xl flex flex-col justify-between"
+            className="w-full max-w-md bg-[#141416] border-l border-[#27272a] h-full p-4 sm:p-5 overflow-y-auto shadow-2xl space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="space-y-3.5">
-              
-              {/* DRAWER HEADER */}
-              <div className="flex items-start justify-between border-b border-[#27272a] pb-2.5">
-                <div>
-                  <span className="font-mono text-xs font-bold text-[#00f2ff] block">
-                    {selectedDetail.referenceId}
-                  </span>
-                  <h3 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase mt-0.5">
-                    {selectedDetail.captainName}
-                  </h3>
-                </div>
-                <button
-                  onClick={() => setSelectedDetail(null)}
-                  className="p-1.5 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
-                  title="Close Drawer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+            {/* DRAWER HEADER */}
+            <div className="flex items-start justify-between border-b border-[#27272a] pb-2">
+              <div>
+                <span className="font-mono text-xs font-bold text-[#00f2ff] block">
+                  {selectedDetail.referenceId}
+                </span>
+                <h3 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase mt-0.5">
+                  {selectedDetail.captainName}
+                </h3>
               </div>
+              <button
+                onClick={() => setSelectedDetail(null)}
+                className="p-1.5 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
+                title="Close Drawer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-              {/* SECTION: PLAYER DETAILS (COMPACT LABEL/VALUE LAYOUT) */}
-              <div className="p-3 bg-[#1c1b1c] rounded border border-[#27272a] space-y-2 text-xs font-body">
-                <div className="flex justify-between items-center py-0.5">
-                  <span className="text-[#849495]">Tournament</span>
-                  <span className="font-bold text-white font-headline text-right truncate max-w-[200px]" title={selectedDetail.tournamentTitle}>
-                    {selectedDetail.tournamentTitle}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1.5">
-                  <span className="text-[#849495]">IGN / Display Name</span>
-                  <span className="font-bold text-white">{selectedDetail.captainName}</span>
-                </div>
-                <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1.5">
-                  <span className="text-[#849495]">Free Fire UID</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-mono font-bold text-[#00f2ff]">{selectedDetail.freeFireUid}</span>
-                    <button
-                      onClick={() => handleCopyUid(selectedDetail.freeFireUid)}
-                      className="p-0.5 text-[#849495] hover:text-[#00f2ff] cursor-pointer"
-                      title="Copy UID"
-                    >
-                      {copiedUid ? <Check className="w-3 h-3 text-[#10b981]" /> : <Copy className="w-3 h-3" />}
-                    </button>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1.5">
-                  <span className="text-[#849495]">Full Name</span>
-                  <span className="text-white font-medium">{selectedDetail.fullName || selectedDetail.teamName}</span>
-                </div>
-                <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1.5">
-                  <span className="text-[#849495]">Email</span>
-                  <span className="text-[#b9cacb] font-mono">{selectedDetail.email || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1.5">
-                  <span className="text-[#849495]">WhatsApp</span>
-                  <span className="font-mono text-[#10b981] font-bold">{selectedDetail.whatsappNumber}</span>
-                </div>
-
-                {/* Optional Teammates inside compact card */}
-                {selectedDetail.teammateUids && selectedDetail.teammateUids.length > 0 && (
-                  <div className="border-t border-[#27272a] pt-2 mt-1 space-y-1">
-                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
-                      Squad Roster UIDs
-                    </span>
-                    <div className="grid grid-cols-2 gap-1 font-mono text-[11px]">
-                      {selectedDetail.teammateUids.map((uid, idx) => (
-                        <div key={`tm-uid-${idx}`} className="p-1 bg-[#141416] rounded border border-[#27272a] text-[#00f2ff] truncate">
-                          <span className="text-[#849495] text-[9px] mr-1">P{idx + 2}:</span>
-                          {uid}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {/* SECTION: PLAYER DETAILS (COMPACT LABEL/VALUE LAYOUT) */}
+            <div className="p-3 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1.5 text-xs font-body">
+              <div className="flex justify-between items-center py-0.5">
+                <span className="text-[#849495]">Tournament</span>
+                <span className="font-bold text-white font-headline text-right truncate max-w-[200px]" title={selectedDetail.tournamentTitle}>
+                  {selectedDetail.tournamentTitle}
+                </span>
               </div>
-
-              {/* SECTION: IDENTITY VERIFICATION (STREAMLINED MANUAL WORKFLOW) */}
-              <div className="p-3 bg-[#1c1b1c] rounded border border-[#27272a] space-y-2.5">
-                
-                {/* Header & Status */}
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-headline font-bold text-white uppercase flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#00f2ff]" />
-                    <span>Identity Verification</span>
-                  </span>
-                  <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase border ${
-                    (proofEvidence?.status || selectedDetail.identityStatus) === 'VERIFIED'
-                      ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
-                      : (proofEvidence?.status || selectedDetail.identityStatus) === 'REJECTED'
-                      ? 'bg-red-950/50 text-red-400 border-red-800'
-                      : 'bg-[#ff5e07]/15 text-[#ff5e07] border-[#ff5e07]/40'
-                  }`}>
-                    Status: {proofEvidence?.status || selectedDetail.identityStatus || 'PENDING'}
-                  </span>
-                </div>
-
-                {/* Identity Proof Credentials */}
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
-                    Identity Proof
-                  </span>
-                  <div className="grid grid-cols-2 gap-1.5 text-xs font-mono">
-                    <div className="p-2 bg-[#141416] rounded border border-[#27272a]">
-                      <span className="text-[9px] text-[#849495] uppercase block">Registered UID</span>
-                      <span className="text-[#00f2ff] font-bold truncate block">{selectedDetail.freeFireUid}</span>
-                    </div>
-                    <div className="p-2 bg-[#141416] rounded border border-[#27272a]">
-                      <span className="text-[9px] text-[#849495] uppercase block">Registered IGN</span>
-                      <span className="text-white font-bold truncate block">{selectedDetail.captainName}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Profile Screenshot Preview Image */}
-                {proofEvidence?.signedUrl && (
-                  <div
-                    onClick={() => setIsScreenshotModalOpen(true)}
-                    className="relative h-28 rounded overflow-hidden border border-[#27272a] hover:border-[#00f2ff]/60 transition-colors cursor-pointer group bg-[#0a0f18]"
+              <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1">
+                <span className="text-[#849495]">IGN / Display Name</span>
+                <span className="font-bold text-white">{selectedDetail.captainName}</span>
+              </div>
+              <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1">
+                <span className="text-[#849495]">Free Fire UID</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono font-bold text-[#00f2ff]">{selectedDetail.freeFireUid}</span>
+                  <button
+                    onClick={() => handleCopyUid(selectedDetail.freeFireUid)}
+                    className="p-0.5 text-[#849495] hover:text-[#00f2ff] cursor-pointer"
+                    title="Copy UID"
                   >
-                    <img
-                      src={proofEvidence.signedUrl}
-                      alt="Profile Screenshot Preview"
-                      className="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
-                      <span className="text-[10px] text-white font-mono font-bold flex items-center gap-1">
-                        <ZoomIn className="w-3 h-3 text-[#00f2ff]" />
-                        Click to Inspect Screenshot
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Action: View Profile Screenshot */}
-                <button
-                  onClick={() => setIsScreenshotModalOpen(true)}
-                  className="w-full py-1.5 bg-[#141416] hover:bg-[#27272a] text-[#00f2ff] border border-[#00f2ff]/40 rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>View Profile Screenshot</span>
-                </button>
-
-                {/* Verification Actions (Single authoritative location) */}
-                <div className="flex items-center gap-2 pt-1 border-t border-[#27272a]/60">
-                  {(proofEvidence?.status || selectedDetail.identityStatus) !== 'VERIFIED' ? (
-                    <button
-                      onClick={handleVerifyIdentity}
-                      disabled={isSubmittingReview}
-                      className="flex-1 py-2 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_12px_rgba(16,185,129,0.25)] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                    >
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{isSubmittingReview ? 'Verifying...' : '✓ Verify Identity'}</span>
-                    </button>
-                  ) : (
-                    <div className="flex-1 py-2 bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 rounded text-xs font-headline font-bold uppercase text-center flex items-center justify-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>✓ Verified</span>
-                    </div>
-                  )}
-
-                  {(proofEvidence?.status || selectedDetail.identityStatus) !== 'REJECTED' && (
-                    <button
-                      onClick={() => setRejectTarget(selectedDetail)}
-                      disabled={isSubmittingReview}
-                      className="px-3.5 py-2 bg-red-950/50 hover:bg-red-900/60 text-red-400 border border-red-800/60 rounded text-xs font-headline font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
-                    >
-                      Reject
-                    </button>
-                  )}
+                    {copiedUid ? <Check className="w-3 h-3 text-[#10b981]" /> : <Copy className="w-3 h-3" />}
+                  </button>
                 </div>
-
+              </div>
+              <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1">
+                <span className="text-[#849495]">Full Name</span>
+                <span className="text-white font-medium">{selectedDetail.fullName || selectedDetail.teamName}</span>
+              </div>
+              <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1">
+                <span className="text-[#849495]">Email</span>
+                <span className="text-[#b9cacb] font-mono">{selectedDetail.email || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1">
+                <span className="text-[#849495]">WhatsApp</span>
+                <span className="font-mono text-[#10b981] font-bold">{selectedDetail.whatsappNumber}</span>
               </div>
 
-              {/* PAID TOURNAMENTS ONLY: PAYMENT STATUS (Completely omitted for free tournaments) */}
-              {!isFreeTournament && (
-                <div className="p-3 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1.5 text-xs font-body">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#849495]">Entry Fee</span>
-                    <span className="text-white font-mono font-bold">{selectedDetail.entryFee}</span>
+              {/* Optional Teammates inside compact card */}
+              {selectedDetail.teammateUids && selectedDetail.teammateUids.length > 0 && (
+                <div className="border-t border-[#27272a] pt-1.5 mt-1 space-y-1">
+                  <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                    Squad Roster UIDs
+                  </span>
+                  <div className="grid grid-cols-2 gap-1 font-mono text-[11px]">
+                    {selectedDetail.teammateUids.map((uid, idx) => (
+                      <div key={`tm-uid-${idx}`} className="p-1 bg-[#141416] rounded border border-[#27272a] text-[#00f2ff] truncate">
+                        <span className="text-[#849495] text-[9px] mr-1">P{idx + 2}:</span>
+                        {uid}
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#849495]">Payment Status</span>
-                    <span className={`font-mono font-bold uppercase ${
-                      selectedDetail.paymentStatus === 'Paid' || selectedDetail.paymentStatus === 'VERIFIED'
-                        ? 'text-[#10b981]'
-                        : selectedDetail.paymentStatus === 'Rejected'
-                        ? 'text-red-400'
-                        : 'text-[#ff5e07]'
-                    }`}>
-                      {selectedDetail.paymentStatus || 'PENDING'}
+                </div>
+              )}
+            </div>
+
+            {/* SECTION: IDENTITY VERIFICATION (STREAMLINED MANUAL WORKFLOW) */}
+            <div className="p-3 bg-[#1c1b1c] rounded border border-[#27272a] space-y-2">
+              
+              {/* Header & Status */}
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-headline font-bold text-white uppercase flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#00f2ff]" />
+                  <span>Identity Verification</span>
+                </span>
+                <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase border ${
+                  (proofEvidence?.status || selectedDetail.identityStatus) === 'VERIFIED'
+                    ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
+                    : (proofEvidence?.status || selectedDetail.identityStatus) === 'REJECTED'
+                    ? 'bg-red-950/50 text-red-400 border-red-800'
+                    : 'bg-[#ff5e07]/15 text-[#ff5e07] border-[#ff5e07]/40'
+                }`}>
+                  Status: {proofEvidence?.status || selectedDetail.identityStatus || 'PENDING'}
+                </span>
+              </div>
+
+              {/* Identity Proof Credentials */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                  Identity Proof
+                </span>
+                <div className="grid grid-cols-2 gap-1.5 text-xs font-mono">
+                  <div className="p-1.5 bg-[#141416] rounded border border-[#27272a]">
+                    <span className="text-[9px] text-[#849495] uppercase block">Registered UID</span>
+                    <span className="text-[#00f2ff] font-bold truncate block">{selectedDetail.freeFireUid}</span>
+                  </div>
+                  <div className="p-1.5 bg-[#141416] rounded border border-[#27272a]">
+                    <span className="text-[9px] text-[#849495] uppercase block">Registered IGN</span>
+                    <span className="text-white font-bold truncate block">{selectedDetail.captainName}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Profile Screenshot Preview Image */}
+              {proofEvidence?.signedUrl && (
+                <div
+                  onClick={() => setIsScreenshotModalOpen(true)}
+                  className="relative h-24 sm:h-28 rounded overflow-hidden border border-[#27272a] hover:border-[#00f2ff]/60 transition-colors cursor-pointer group bg-[#0a0f18]"
+                >
+                  <img
+                    src={proofEvidence.signedUrl}
+                    alt="Profile Screenshot Preview"
+                    className="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
+                    <span className="text-[10px] text-white font-mono font-bold flex items-center gap-1">
+                      <ZoomIn className="w-3 h-3 text-[#00f2ff]" />
+                      Click to Inspect Screenshot
                     </span>
                   </div>
                 </div>
               )}
 
+              {/* Action: View Profile Screenshot */}
+              <button
+                onClick={() => setIsScreenshotModalOpen(true)}
+                className="w-full py-1.5 bg-[#141416] hover:bg-[#27272a] text-[#00f2ff] border border-[#00f2ff]/40 rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>View Profile Screenshot</span>
+              </button>
+
+              {/* Verification Actions (Single authoritative location) */}
+              <div className="flex items-center gap-2 pt-1 border-t border-[#27272a]/60">
+                {(proofEvidence?.status || selectedDetail.identityStatus) !== 'VERIFIED' ? (
+                  <button
+                    onClick={handleVerifyIdentity}
+                    disabled={isSubmittingReview}
+                    className="flex-1 py-2 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_12px_rgba(16,185,129,0.25)] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{isSubmittingReview ? 'Verifying...' : '✓ Verify Identity'}</span>
+                  </button>
+                ) : (
+                  <div className="flex-1 py-2 bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 rounded text-xs font-headline font-bold uppercase text-center flex items-center justify-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>✓ Verified</span>
+                  </div>
+                )}
+
+                {(proofEvidence?.status || selectedDetail.identityStatus) !== 'REJECTED' && (
+                  <button
+                    onClick={() => setRejectTarget(selectedDetail)}
+                    disabled={isSubmittingReview}
+                    className="px-3.5 py-2 bg-red-950/50 hover:bg-red-900/60 text-red-400 border border-red-800/60 rounded text-xs font-headline font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    Reject
+                  </button>
+                )}
+              </div>
+
             </div>
 
-            {/* DRAWER BOTTOM ACTION (Single Clean Close Action) */}
-            <div className="pt-3 border-t border-[#27272a]">
+            {/* PAID TOURNAMENTS ONLY: PAYMENT STATUS (Completely omitted for free tournaments) */}
+            {!isFreeTournament && (
+              <div className="p-2.5 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1 text-xs font-body">
+                <div className="flex justify-between items-center">
+                  <span className="text-[#849495]">Entry Fee</span>
+                  <span className="text-white font-mono font-bold">{selectedDetail.entryFee}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[#849495]">Payment Status</span>
+                  <span className={`font-mono font-bold uppercase ${
+                    selectedDetail.paymentStatus === 'Paid' || selectedDetail.paymentStatus === 'VERIFIED'
+                      ? 'text-[#10b981]'
+                      : selectedDetail.paymentStatus === 'Rejected'
+                      ? 'text-red-400'
+                      : 'text-[#ff5e07]'
+                  }`}>
+                    {selectedDetail.paymentStatus || 'PENDING'}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* DRAWER BOTTOM ACTION (Immediately follows content naturally without large empty gap) */}
+            <div className="pt-1">
               <button
                 onClick={() => setSelectedDetail(null)}
                 className="w-full py-2 text-xs font-headline font-bold bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded uppercase cursor-pointer transition-colors"
