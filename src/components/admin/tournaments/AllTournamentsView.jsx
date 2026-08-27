@@ -267,7 +267,6 @@ export default function AllTournamentsView({
                     const prizeDisplay = formatTournamentPrize(t)
                     const feeDisplay = t.entryFee || t.entry_fee || 'Free'
                     const nextStage = getNextLifecycleStage(t.status)
-                    const isMenuOpen = openMenuId === t.id
 
                     return (
                       <tr
