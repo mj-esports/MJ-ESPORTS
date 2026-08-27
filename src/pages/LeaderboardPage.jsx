@@ -3,6 +3,15 @@ import { Trophy, Download, Sparkles, User, Flame, Shield } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import { TableSkeleton } from '../components/common/SkeletonLoader.jsx'
 import EmptyState from '../components/common/EmptyState.jsx'
+import {
+  isPerKillTournament,
+  isPlacementPlusKillTournament,
+  isWinnerTakesAllTournament,
+  extractPerKillAmount,
+  extractWinnerPrizeAmount,
+  extractPlacementPrizes,
+  calculateTournamentTeamPayout,
+} from '../utils/tournamentPrizeUtils.js'
 
 const PublicTeamProfileModal = lazy(() => import('../components/team/PublicTeamProfileModal.jsx'))
 
@@ -56,16 +65,81 @@ export default function LeaderboardPage() {
   // Dynamic Prize Pool calculation derived from actual tournaments data
   const prizePoolSummary = useMemo(() => {
     let totalPoolNum = 0
+    const hasPerKill = tournamentsList.some((t) => isPerKillTournament(t))
+    const isAllPerKill = tournamentsList.length > 0 && tournamentsList.every((t) => isPerKillTournament(t))
+    const isAllWinnerTakesAll = tournamentsList.length > 0 && tournamentsList.every((t) => isWinnerTakesAllTournament(t))
+    const isAllPlacementKill = tournamentsList.length > 0 && tournamentsList.every((t) => isPlacementPlusKillTournament(t))
+
+    if (isAllPerKill) {
+      const perKillAmount = extractPerKillAmount(tournamentsList[0]) || 20
+      return {
+        isPerKill: true,
+        isWinnerTakesAll: false,
+        isPlacementKill: false,
+        perKillAmount,
+        totalFormatted: `Per Kill ₹${perKillAmount.toLocaleString('en-IN')}`,
+        firstFormatted: `₹${perKillAmount} / Kill`,
+        secondFormatted: `Direct Kill Reward`,
+        thirdFormatted: `No Rank Cuts`,
+        firstAmount: `Per Kill ₹${perKillAmount}`,
+        secondAmount: `Per Kill ₹${perKillAmount}`,
+        thirdAmount: `Per Kill ₹${perKillAmount}`,
+      }
+    }
+
+    if (isAllWinnerTakesAll) {
+      const winnerAmount = extractWinnerPrizeAmount(tournamentsList[0]) || 1500
+      return {
+        isPerKill: false,
+        isWinnerTakesAll: true,
+        isPlacementKill: false,
+        totalFormatted: `₹${winnerAmount.toLocaleString('en-IN')}`,
+        firstFormatted: `100% (₹${winnerAmount.toLocaleString('en-IN')})`,
+        secondFormatted: `₹0 (Winner Takes All)`,
+        thirdFormatted: `₹0 (Winner Takes All)`,
+        firstAmount: `₹${winnerAmount.toLocaleString('en-IN')}`,
+        secondAmount: '₹0',
+        thirdAmount: '₹0',
+        firstPlacePrize: winnerAmount,
+        secondPlacePrize: 0,
+        thirdPlacePrize: 0,
+      }
+    }
+
+    if (isAllPlacementKill) {
+      const perKillAmount = extractPerKillAmount(tournamentsList[0]) || 20
+      const placementPrizes = extractPlacementPrizes(tournamentsList[0])
+      const totalPlacement = (placementPrizes.first || 0) + (placementPrizes.second || 0) + (placementPrizes.third || 0)
+      return {
+        isPerKill: false,
+        isWinnerTakesAll: false,
+        isPlacementKill: true,
+        perKillAmount,
+        totalFormatted: `₹${totalPlacement.toLocaleString('en-IN')} + Per Kill ₹${perKillAmount}`,
+        firstFormatted: `1st: ₹${placementPrizes.first || 0} + ₹${perKillAmount}/k`,
+        secondFormatted: `2nd: ₹${placementPrizes.second || 0} + ₹${perKillAmount}/k`,
+        thirdFormatted: `3rd: ₹${placementPrizes.third || 0} + ₹${perKillAmount}/k`,
+        firstAmount: `₹${placementPrizes.first || 0}`,
+        secondAmount: `₹${placementPrizes.second || 0}`,
+        thirdAmount: `₹${placementPrizes.third || 0}`,
+        firstPlacePrize: placementPrizes.first,
+        secondPlacePrize: placementPrizes.second,
+        thirdPlacePrize: placementPrizes.third,
+      }
+    }
+
     tournamentsList.forEach((t) => {
-      const raw = String(t.prize_pool || t.prizePool || '0').replace(/[^0-9]/g, '')
-      const num = parseInt(raw, 10)
-      if (!isNaN(num) && num > 0) {
-        totalPoolNum += num
+      if (!isPerKillTournament(t) && !isWinnerTakesAllTournament(t)) {
+        const raw = String(t.prize_pool || t.prizePool || '0').replace(/[^0-9]/g, '')
+        const num = parseInt(raw, 10)
+        if (!isNaN(num) && num > 0) {
+          totalPoolNum += num
+        }
       }
     })
 
     // Fallback baseline if no prize pool amount set in tournaments list
-    if (totalPoolNum === 0) {
+    if (totalPoolNum === 0 && !hasPerKill) {
       totalPoolNum = 25000
     }
 
@@ -74,6 +148,9 @@ export default function LeaderboardPage() {
     const thirdPlacePrize = Math.max(0, totalPoolNum - firstPlacePrize - secondPlacePrize)
 
     return {
+      isPerKill: false,
+      isWinnerTakesAll: false,
+      isPlacementKill: false,
       totalFormatted: `₹${totalPoolNum.toLocaleString('en-IN')}`,
       firstFormatted: `60% (₹${firstPlacePrize.toLocaleString('en-IN')})`,
       secondFormatted: `25% (₹${secondPlacePrize.toLocaleString('en-IN')})`,
@@ -81,6 +158,9 @@ export default function LeaderboardPage() {
       firstAmount: `₹${firstPlacePrize.toLocaleString('en-IN')}`,
       secondAmount: `₹${secondPlacePrize.toLocaleString('en-IN')}`,
       thirdAmount: `₹${thirdPlacePrize.toLocaleString('en-IN')}`,
+      firstPlacePrize,
+      secondPlacePrize,
+      thirdPlacePrize,
     }
   }, [tournamentsList])
 
@@ -95,7 +175,7 @@ export default function LeaderboardPage() {
         if (!team) return
         const name = team.team || team.teamName || team.team_name || team.name || team.captain || 'Team Apex'
         const player = team.captain || team.captain_name || team.player || team.name || 'Player'
-        const kills = Number(team.kills || team.finishes || 0)
+        const kills = Math.max(0, Number(team.kills || team.finishes || 0))
         const points = Number(team.points || team.score || 0)
         const isWinner = team.rank === 1 || team.position === 1
 
@@ -123,19 +203,16 @@ export default function LeaderboardPage() {
     const sortedList = Object.values(statsMap)
       .sort((a, b) => b.points - a.points || b.wins - a.wins || b.kills - a.kills || a.team.localeCompare(b.team))
 
+    const activeTournament = tournamentsList[0] || null
+
     return sortedList.slice(0, 50).map((item, index) => {
-      const payout =
-        index === 0
-          ? prizePoolSummary.firstAmount
-          : index === 1
-          ? prizePoolSummary.secondAmount
-          : index === 2
-          ? prizePoolSummary.thirdAmount
-          : '-'
+      const rank = index + 1
+      const payoutResult = calculateTournamentTeamPayout(item, rank, activeTournament, prizePoolSummary)
+
       return {
         ...item,
-        rank: index + 1,
-        payout,
+        rank,
+        payout: payoutResult.formatted,
       }
     })
   }, [tournamentsList, prizePoolSummary])
@@ -264,31 +341,39 @@ export default function LeaderboardPage() {
             <div className="col-span-1 md:col-span-2 lg:col-span-1 bg-[#141416] rounded p-5 sm:p-6 flex flex-col border border-[#27272a]">
               <h2 className="font-label-bold text-[#849495] font-bold uppercase tracking-wider text-xs mb-3 flex items-center gap-1.5">
                 <Trophy className="w-3.5 h-3.5 text-[#fed83a]" />
-                <span>Prize Pool</span>
+                <span>{prizePoolSummary.isPerKill ? 'Prize Structure' : 'Prize Pool'}</span>
               </h2>
               <div className="mb-4 sm:mb-5">
-                <p className="text-[11px] sm:text-xs text-[#849495] font-label-bold mb-0.5">Total Pool</p>
+                <p className="text-[11px] sm:text-xs text-[#849495] font-label-bold mb-0.5">
+                  {prizePoolSummary.isPerKill ? 'Prize Model' : 'Total Pool'}
+                </p>
                 <p className="font-headline text-2xl sm:text-3xl font-bold text-white">{prizePoolSummary.totalFormatted}</p>
               </div>
               <div className="space-y-2.5 sm:space-y-3 mt-auto">
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#fed83a] shrink-0"></div>
-                    <span className="text-[#e5e2e3] font-headline font-bold">1st Place</span>
+                    <span className="text-[#e5e2e3] font-headline font-bold">
+                      {prizePoolSummary.isPerKill ? 'Reward / Kill' : '1st Place'}
+                    </span>
                   </div>
                   <span className="font-headline font-bold text-[#fed83a]">{prizePoolSummary.firstFormatted}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#b9cacb] shrink-0"></div>
-                    <span className="text-[#e5e2e3] font-headline font-bold">2nd Place</span>
+                    <span className="text-[#e5e2e3] font-headline font-bold">
+                      {prizePoolSummary.isPerKill ? 'Calculation' : '2nd Place'}
+                    </span>
                   </div>
                   <span className="font-headline font-bold text-[#b9cacb]">{prizePoolSummary.secondFormatted}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#ff5e07] shrink-0"></div>
-                    <span className="text-[#e5e2e3] font-headline font-bold">3rd Place</span>
+                    <span className="text-[#e5e2e3] font-headline font-bold">
+                      {prizePoolSummary.isPerKill ? 'Distribution' : '3rd Place'}
+                    </span>
                   </div>
                   <span className="font-headline font-bold text-[#ff5e07]">{prizePoolSummary.thirdFormatted}</span>
                 </div>
