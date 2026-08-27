@@ -53,22 +53,7 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
       if (liveProofs && liveProofs.length > 0) {
         setEvidenceList(liveProofs)
       } else {
-        // Build synthesized evidence items from pending directory users if no direct proofs yet
-        const synthesized = users.map((u) => ({
-          id: `ev-${u.userId || u.id}`,
-          user_id: u.userId || u.id,
-          username: u.username || 'Player',
-          email: u.email || 'player@mjesports.gg',
-          game: u.game || 'Free Fire',
-          game_uid: u.gameUid !== 'N/A' ? u.gameUid : '518920412',
-          canonical_ign: u.username || 'KA¹⁷ Mjᶠᶠ',
-          normalized_ign: (u.username || 'ka17 mjff').toLowerCase(),
-          storage_path: `${u.userId || u.id}/proof-default.png`,
-          signedUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
-          status: (u.verificationStatus === 'Verified' ? 'VERIFIED' : u.verificationStatus === 'Rejected' ? 'REJECTED' : 'PENDING'),
-          created_at: u.createdAt || new Date().toISOString(),
-        }))
-        setEvidenceList(synthesized)
+        setEvidenceList([])
       }
     } catch (err) {
       console.error('[Fetch Evidence Error]:', err)

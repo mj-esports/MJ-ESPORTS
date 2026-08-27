@@ -218,8 +218,8 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
   const counts = useMemo(() => {
     return {
       ALL: liveRegistrations.length,
-      PENDING: liveRegistrations.filter((r) => r.status === 'Pending' || r.status === 'Under Review' || r.identityStatus === 'PENDING').length,
-      APPROVED: liveRegistrations.filter((r) => r.status === 'Approved' || r.status === 'Confirmed' || r.identityStatus === 'VERIFIED').length,
+      PENDING: liveRegistrations.filter((r) => r.status === 'Pending' || (!r.isFreeTournament && r.paymentStatus === 'Pending')).length,
+      APPROVED: liveRegistrations.filter((r) => r.status === 'Approved' || r.status === 'Confirmed').length,
       REJECTED: liveRegistrations.filter((r) => r.status === 'Rejected' || r.identityStatus === 'REJECTED').length,
     }
   }, [liveRegistrations])
@@ -245,10 +245,6 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
         prev ? { ...prev, identityStatus: 'VERIFIED', status: 'Approved' } : null
       )
 
-      if (updateRegistrationStatus) {
-        await updateRegistrationStatus(selectedDetail.tournamentId, selectedDetail.id, 'Approved')
-      }
-
       showSuccess(`Player "${selectedDetail.captainName}" identity verified.`, 'Identity Verified')
     } catch (err) {
       console.error('[Verify Identity Error]:', err)
@@ -265,10 +261,23 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
 
     setIsSubmittingReview(true)
     try {
-      if (proofEvidence?.id) {
-        await reviewPlayerProof(proofEvidence.id, 'REJECTED', finalReason)
+      // 1. Authoritative Single Unified Rejection RPC on Database
+      if (isSupabaseConfigured && selectedDetail.id) {
+        const { data, error: rpcErr } = await supabase.rpc('reject_tournament_registration', {
+          p_registration_id: selectedDetail.id,
+          p_reason: finalReason,
+        })
+
+        if (rpcErr) {
+          throw new Error(rpcErr.message || 'Failed to execute registration rejection.')
+        }
+
+        if (data && data.success === false) {
+          throw new Error(data.message || 'Registration rejection rejected by server.')
+        }
       }
 
+      // 2. Synchronize Local State
       setProofEvidence((prev) => (prev ? { ...prev, status: 'REJECTED', rejection_reason: finalReason } : null))
       setLiveRegistrations((prev) =>
         prev.map((r) =>
@@ -281,16 +290,12 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
         prev ? { ...prev, identityStatus: 'REJECTED', status: 'Rejected' } : null
       )
 
-      if (updateRegistrationStatus) {
-        await updateRegistrationStatus(selectedDetail.tournamentId, selectedDetail.id, 'Rejected')
-      }
-
-      showSuccess(`Registration rejected: ${finalReason}`, 'Slot Rejected')
+      showSuccess(`Registration rejected and slot released: ${finalReason}`, 'Slot Released')
       setRejectTarget(null)
       setRejectionReason('')
     } catch (err) {
       console.error('[Reject Identity Error]:', err)
-      showError(err, 'Rejection Error')
+      showError(err?.message || err, 'Rejection Error')
     } finally {
       setIsSubmittingReview(false)
     }
@@ -342,11 +347,15 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
       const matchesTourn =
         selectedTournamentFilter === 'ALL' || String(r.tournamentId) === String(selectedTournamentFilter)
 
+      const isApproved = r.status === 'Approved' || r.status === 'Confirmed'
+      const isPending = r.status === 'Pending' || (!r.isFreeTournament && r.paymentStatus === 'Pending')
+      const isRejected = r.status === 'Rejected' || r.identityStatus === 'REJECTED'
+
       const matchesTab =
         activeQueueTab === 'ALL' ||
-        (activeQueueTab === 'PENDING' && (r.status === 'Pending' || r.status === 'Under Review' || r.identityStatus === 'PENDING')) ||
-        (activeQueueTab === 'APPROVED' && (r.status === 'Approved' || r.status === 'Confirmed' || r.identityStatus === 'VERIFIED')) ||
-        (activeQueueTab === 'REJECTED' && (r.status === 'Rejected' || r.identityStatus === 'REJECTED'))
+        (activeQueueTab === 'PENDING' && isPending) ||
+        (activeQueueTab === 'APPROVED' && isApproved) ||
+        (activeQueueTab === 'REJECTED' && isRejected)
 
       return matchesSearch && matchesTourn && matchesTab
     })
@@ -483,8 +492,8 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                 </thead>
                 <tbody className="divide-y divide-[#27272a]">
                   {filteredRegistrations.map((r) => {
-                    const isPending = r.status === 'Pending' || r.status === 'Under Review' || r.identityStatus === 'PENDING'
-                    const isApproved = r.status === 'Approved' || r.status === 'Confirmed' || r.identityStatus === 'VERIFIED'
+                    const isPending = r.status === 'Pending' || (!r.isFreeTournament && r.paymentStatus === 'Pending')
+                    const isApproved = r.status === 'Approved' || r.status === 'Confirmed'
 
                     return (
                       <tr key={`q-row-${r.id}`} className="hover:bg-[#1c1b1c]/80 transition-colors">
@@ -505,10 +514,10 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                               ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
                               : r.identityStatus === 'REJECTED'
                               ? 'bg-red-950/40 text-red-400 border-red-800'
-                              : 'bg-[#ff5e07]/10 text-[#ff5e07] border-[#ff5e07]/40'
+                              : 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40'
                           }`}>
                             <Shield className="w-2.5 h-2.5" />
-                            {r.identityStatus || 'PENDING'}
+                            {r.identityStatus === 'VERIFIED' ? 'VERIFIED' : r.identityStatus === 'REJECTED' ? 'REJECTED' : 'RECORDED'}
                           </span>
                         </td>
                         <td className="py-3 px-4">
@@ -527,21 +536,11 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                             <button
                               onClick={() => setSelectedDetail(r)}
                               className="px-3 py-1 bg-[#1c1b1c] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] hover:border-[#00f2ff]/40 rounded text-[10px] font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1"
-                              title="Review Registration & Identity Proof"
+                              title="Inspect Registration Details & Identity Proof"
                             >
                               <Eye className="w-3 h-3" />
                               <span>Inspect</span>
                             </button>
-
-                            {isPending && (
-                              <button
-                                onClick={() => setSelectedDetail(r)}
-                                className="px-2.5 py-1 bg-[#10b981]/15 hover:bg-[#10b981]/30 text-[#10b981] border border-[#10b981]/40 rounded text-[10px] font-headline font-bold uppercase transition-colors cursor-pointer"
-                                title="Verify Identity"
-                              >
-                                Review
-                              </button>
-                            )}
                           </div>
                         </td>
                       </tr>
@@ -554,8 +553,8 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             {/* Mobile Stacked Cards (< 1024px) */}
             <div className="lg:hidden divide-y divide-[#27272a]">
               {filteredRegistrations.map((r) => {
-                const isPending = r.status === 'Pending' || r.status === 'Under Review' || r.identityStatus === 'PENDING'
-                const isApproved = r.status === 'Approved' || r.status === 'Confirmed' || r.identityStatus === 'VERIFIED'
+                const isPending = r.status === 'Pending' || (!r.isFreeTournament && r.paymentStatus === 'Pending')
+                const isApproved = r.status === 'Approved' || r.status === 'Confirmed'
 
                 return (
                   <div key={`m-q-${r.id}`} className="p-4 space-y-2 text-xs">
@@ -567,9 +566,9 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                             ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
                             : r.identityStatus === 'REJECTED'
                             ? 'bg-red-950 text-red-400 border-red-800'
-                            : 'bg-[#ff5e07]/10 text-[#ff5e07] border-[#ff5e07]/40'
+                            : 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40'
                         }`}>
-                          ID: {r.identityStatus || 'PENDING'}
+                          ID: {r.identityStatus === 'VERIFIED' ? 'VERIFIED' : r.identityStatus === 'REJECTED' ? 'REJECTED' : 'RECORDED'}
                         </span>
                         <span className={`px-2 py-0.5 rounded text-[9px] font-headline font-bold uppercase border ${
                           isApproved

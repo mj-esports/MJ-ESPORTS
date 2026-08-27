@@ -82,6 +82,24 @@ export function mapTournamentFromDb(row) {
   }
 }
 
+export const VALID_TOURNAMENT_STATUSES = [
+  'Draft',
+  'Published',
+  'Registration Open',
+  'Registration Closed',
+  'Check-in Open',
+  'Check-in Closed',
+  'Room Released',
+  'Live',
+  'Live Now',
+  'Results Pending',
+  'Completed',
+  'Prize Distributed',
+  'Bracket Locked',
+  'Cancelled',
+  'Archived',
+]
+
 /**
  * Normalizes frontend tournament data into the allowed public.tournaments database columns.
  */
@@ -100,6 +118,10 @@ export function mapTournamentToDb(t) {
   const idVal = t.id && !String(t.id).startsWith('t-') ? String(t.id) : generateUUID()
   const teamsListVal = Array.isArray(t.teams_list) ? t.teams_list : Array.isArray(t.teamsList) ? t.teamsList : []
 
+  let rawStatus = String(t.status || '').trim()
+  if (rawStatus === 'Live') rawStatus = 'Live Now'
+  const finalStatus = VALID_TOURNAMENT_STATUSES.includes(rawStatus) ? rawStatus : 'Registration Open'
+
   const payload = {
     id: idVal,
     title: String(t.title || '').trim(),
@@ -111,7 +133,7 @@ export function mapTournamentToDb(t) {
     registered_teams: Number(t.registered_teams ?? t.registeredTeams ?? 0),
     start_date: String(t.start_date || t.startDate || '').trim(),
     start_time: String(t.start_time || t.startTime || '').trim(),
-    status: String(t.status || 'Registration Open').trim(),
+    status: finalStatus,
     organizer: String(t.organizer || 'MJ ESPORTS Official').trim(),
     description: String(t.description || '').trim(),
     rules: rulesArray,
@@ -192,7 +214,9 @@ export function mapPartialTournamentToDb(fields) {
   if (fields.status !== undefined) {
     let s = String(fields.status || '').trim()
     if (s === 'Live') s = 'Live Now'
-    payload.status = s
+    if (VALID_TOURNAMENT_STATUSES.includes(s)) {
+      payload.status = s
+    }
   }
 
   if (fields.organizer !== undefined) payload.organizer = String(fields.organizer || 'MJ ESPORTS Official').trim()
@@ -503,7 +527,16 @@ export function TournamentProvider({ children }) {
         }
       }
 
-      const regStatus = teamInfo.status || 'Approved'
+      const targetTournament = tournaments.find((t) => String(t.id) === String(tournamentId))
+      const entryFeeStr = String(targetTournament?.entryFee || targetTournament?.entry_fee || 'Free').trim()
+      const isFree =
+        entryFeeStr.toLowerCase() === 'free' ||
+        entryFeeStr === '₹0' ||
+        entryFeeStr === '0' ||
+        !parseFloat(entryFeeStr.replace(/[^0-9.]/g, ''))
+
+      const regStatus = isFree ? 'Approved' : (teamInfo.status || 'Pending')
+      const paymentStatus = isFree ? 'Free' : (teamInfo.paymentStatus || 'Pending')
       const refId = teamInfo.refId || `REG-MJ-${Date.now().toString(36).toUpperCase()}`
 
       if (isSupabaseConfigured) {

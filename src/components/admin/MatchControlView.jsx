@@ -167,8 +167,11 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
   // Add event helper
   const addIncidentEvent = (eventText, type = 'info') => {
     const logTime = new Date().toLocaleTimeString()
+    const uniqueSuffix = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID().slice(0, 8)
+      : Math.random().toString(36).slice(2, 8)
     setIncidentLogs((prev) => [
-      { id: `inc-${Date.now()}`, time: logTime, event: eventText, type },
+      { id: `inc-${Date.now()}-${uniqueSuffix}`, time: logTime, event: eventText, type },
       ...prev,
     ])
   }

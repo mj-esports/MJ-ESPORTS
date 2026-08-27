@@ -322,6 +322,16 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         })
       }
 
+      const entryFeeStr = String(tournament?.entryFee || tournament?.entry_fee || 'Free').trim()
+      const isFree =
+        entryFeeStr.toLowerCase() === 'free' ||
+        entryFeeStr === '₹0' ||
+        entryFeeStr === '0' ||
+        !parseFloat(entryFeeStr.replace(/[^0-9.]/g, ''))
+
+      const initialStatus = isFree ? 'Approved' : 'Pending'
+      const initialPaymentStatus = isFree ? 'Free' : 'Pending'
+
       // Local or Context registration (No Supabase mandatory)
       let registeredRecord = null
       if (registerTeam) {
@@ -336,12 +346,12 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
           teammates: activeTeammates,
           teammateIgns: activeTeammateIgns,
           userId: user?.id || `guest-${Date.now()}`,
-          status: 'Pending',
-          paymentStatus: 'Pending',
+          status: initialStatus,
+          paymentStatus: initialPaymentStatus,
         })
       }
 
-      showSuccess('Tournament Registered', 'Registration Confirmed')
+      showSuccess('Tournament Registered', isFree ? 'Slot Registration Confirmed' : 'Registration Submitted')
 
       if (onRegistered) {
         onRegistered(registeredRecord)
@@ -355,7 +365,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         freeFireUid: sanitizeString(formData.freeFireUid),
         teammates: activeTeammates,
         teammateIgns: activeTeammateIgns,
-        status: 'Approved',
+        status: isFree ? 'Approved' : 'Payment Pending',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         registeredRecord,
       })
