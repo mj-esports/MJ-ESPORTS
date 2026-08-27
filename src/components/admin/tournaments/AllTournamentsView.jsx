@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Trophy,
   Search,
@@ -48,8 +49,54 @@ export default function AllTournamentsView({
   const [gameFilter, setGameFilter] = useState('ALL')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [dateFilter, setDateFilter] = useState('')
-  const [openMenuId, setOpenMenuId] = useState(null)
+  const [activeMenu, setActiveMenu] = useState(null)
   const [deleteConfirmTarget, setDeleteConfirmTarget] = useState(null)
+
+  // Close portaled menu on outside scroll or window resize
+  useEffect(() => {
+    if (!activeMenu) return
+
+    const handleScrollOrResize = () => {
+      setActiveMenu(null)
+    }
+
+    window.addEventListener('scroll', handleScrollOrResize, true)
+    window.addEventListener('resize', handleScrollOrResize)
+    return () => {
+      window.removeEventListener('scroll', handleScrollOrResize, true)
+      window.removeEventListener('resize', handleScrollOrResize)
+    }
+  }, [activeMenu])
+
+  const handleToggleMenu = (e, tournament) => {
+    e.stopPropagation()
+    if (activeMenu?.id === tournament.id) {
+      setActiveMenu(null)
+      return
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect()
+    const menuWidth = 176 // w-44 = 176px
+    const menuHeight = 210 // max height of 5 items
+
+    let left = rect.right - menuWidth
+    if (left < 10) left = 10
+    if (left + menuWidth > window.innerWidth - 10) {
+      left = window.innerWidth - menuWidth - 10
+    }
+
+    const spaceBelow = window.innerHeight - rect.bottom
+    const openUpwards = spaceBelow < menuHeight && rect.top > menuHeight
+    const top = openUpwards ? rect.top - 4 : rect.bottom + 4
+
+    setActiveMenu({
+      id: tournament.id,
+      tournament,
+      left,
+      top,
+      openUpwards,
+    })
+  }
 
   const filteredTournaments = useMemo(() => {
     return tournaments.filter((t) => {
@@ -77,7 +124,7 @@ export default function AllTournamentsView({
   }, [tournaments, searchQuery, gameFilter, statusFilter, dateFilter])
 
   const handleDeleteClick = (t) => {
-    setOpenMenuId(null)
+    setActiveMenu(null)
     setDeleteConfirmTarget(t)
   }
 
@@ -304,7 +351,7 @@ export default function AllTournamentsView({
 
                         {/* Actions (Manage + Overflow Menu) */}
                         <td className="py-3.5 px-4 text-right pr-4">
-                          <div className="flex items-center justify-end gap-1.5 relative">
+                          <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => onSelectTournament(t.id)}
                               className="px-3 py-1.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-sm cursor-pointer flex items-center gap-1"
@@ -314,82 +361,17 @@ export default function AllTournamentsView({
                             </button>
 
                             {/* Dropdown Menu Trigger */}
-                            <div className="relative">
-                              <button
-                                onClick={() => setOpenMenuId(isMenuOpen ? null : t.id)}
-                                className="p-1.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded transition-colors cursor-pointer"
-                                title="More Actions"
-                              >
-                                <MoreVertical className="w-3.5 h-3.5" />
-                              </button>
-
-                              {/* Dropdown Options */}
-                              {isMenuOpen && (
-                                <>
-                                  <div
-                                    className="fixed inset-0 z-20"
-                                    onClick={() => setOpenMenuId(null)}
-                                  />
-                                  <div className="absolute right-0 top-full mt-1 z-30 w-44 bg-[#141416] border border-[#27272a] rounded shadow-2xl py-1 text-left">
-                                    <button
-                                      onClick={() => {
-                                        setOpenMenuId(null)
-                                        onSelectTournament(t.id)
-                                      }}
-                                      className="w-full px-3 py-1.5 text-xs text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer"
-                                    >
-                                      <Eye className="w-3.5 h-3.5 text-[#00f2ff]" />
-                                      <span>View Operations</span>
-                                    </button>
-
-                                    <button
-                                      onClick={() => {
-                                        setOpenMenuId(null)
-                                        onEditTournament(t)
-                                      }}
-                                      className="w-full px-3 py-1.5 text-xs text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer"
-                                    >
-                                      <Edit3 className="w-3.5 h-3.5 text-[#00f2ff]" />
-                                      <span>Edit Tournament</span>
-                                    </button>
-
-                                    <button
-                                      onClick={() => {
-                                        setOpenMenuId(null)
-                                        onDuplicateTournament(t)
-                                      }}
-                                      className="w-full px-3 py-1.5 text-xs text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer"
-                                    >
-                                      <Copy className="w-3.5 h-3.5 text-[#fed83a]" />
-                                      <span>Duplicate Arena</span>
-                                    </button>
-
-                                    {nextStage && (
-                                      <button
-                                        onClick={() => {
-                                          setOpenMenuId(null)
-                                          onAdvanceStage(t)
-                                        }}
-                                        className="w-full px-3 py-1.5 text-xs text-[#10b981] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer font-bold"
-                                      >
-                                        <CheckCircle2 className="w-3.5 h-3.5" />
-                                        <span>Advance → {nextStage}</span>
-                                      </button>
-                                    )}
-
-                                    <div className="border-t border-[#27272a] my-1" />
-
-                                    <button
-                                      onClick={() => handleDeleteClick(t)}
-                                      className="w-full px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-950/40 flex items-center gap-2 text-left cursor-pointer"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                      <span>Delete Tournament</span>
-                                    </button>
-                                  </div>
-                                </>
-                              )}
-                            </div>
+                            <button
+                              onClick={(e) => handleToggleMenu(e, t)}
+                              className={`p-1.5 ${
+                                activeMenu?.id === t.id
+                                  ? 'bg-[#27272a] text-white border-[#00f2ff]'
+                                  : 'bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border-[#27272a]'
+                              } border rounded transition-colors cursor-pointer`}
+                              title="More Actions"
+                            >
+                              <MoreVertical className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -525,6 +507,94 @@ export default function AllTournamentsView({
             </div>
           </div>
         </div>
+      )}
+
+      {/* 4. PORTALED ACTION DROPDOWN MENU (Escapes table overflow/scroll clipping completely) */}
+      {activeMenu && typeof document !== 'undefined' && createPortal(
+        <>
+          {/* Invisible Backdrop to capture clicks outside */}
+          <div
+            className="fixed inset-0 z-[9998]"
+            onClick={() => setActiveMenu(null)}
+          />
+
+          {/* Floating Dropdown Menu positioned fixed relative to trigger button */}
+          <div
+            style={{
+              position: 'fixed',
+              top: activeMenu.openUpwards ? undefined : `${activeMenu.top}px`,
+              bottom: activeMenu.openUpwards ? `${window.innerHeight - activeMenu.top}px` : undefined,
+              left: `${activeMenu.left}px`,
+            }}
+            className="z-[9999] w-44 bg-[#141416] border border-[#27272a] rounded shadow-2xl py-1 text-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => {
+                const tournId = activeMenu.tournament.id
+                setActiveMenu(null)
+                onSelectTournament(tournId)
+              }}
+              className="w-full px-3 py-1.5 text-xs text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer transition-colors"
+            >
+              <Eye className="w-3.5 h-3.5 text-[#00f2ff]" />
+              <span>View Operations</span>
+            </button>
+
+            <button
+              onClick={() => {
+                const t = activeMenu.tournament
+                setActiveMenu(null)
+                onEditTournament(t)
+              }}
+              className="w-full px-3 py-1.5 text-xs text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer transition-colors"
+            >
+              <Edit3 className="w-3.5 h-3.5 text-[#00f2ff]" />
+              <span>Edit Tournament</span>
+            </button>
+
+            <button
+              onClick={() => {
+                const t = activeMenu.tournament
+                setActiveMenu(null)
+                onDuplicateTournament(t)
+              }}
+              className="w-full px-3 py-1.5 text-xs text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer transition-colors"
+            >
+              <Copy className="w-3.5 h-3.5 text-[#fed83a]" />
+              <span>Duplicate Arena</span>
+            </button>
+
+            {getNextLifecycleStage(activeMenu.tournament.status) && (
+              <button
+                onClick={() => {
+                  const t = activeMenu.tournament
+                  setActiveMenu(null)
+                  onAdvanceStage(t)
+                }}
+                className="w-full px-3 py-1.5 text-xs text-[#10b981] hover:text-white hover:bg-[#1c1b1c] flex items-center gap-2 text-left cursor-pointer font-bold transition-colors"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Advance → {getNextLifecycleStage(activeMenu.tournament.status)}</span>
+              </button>
+            )}
+
+            <div className="border-t border-[#27272a] my-1" />
+
+            <button
+              onClick={() => {
+                const t = activeMenu.tournament
+                setActiveMenu(null)
+                handleDeleteClick(t)
+              }}
+              className="w-full px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-950/40 flex items-center gap-2 text-left cursor-pointer transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Tournament</span>
+            </button>
+          </div>
+        </>,
+        document.body
       )}
 
     </div>
