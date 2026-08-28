@@ -135,7 +135,7 @@ export default function Navbar() {
               <span className="font-headline text-base sm:text-xl font-extrabold tracking-wider text-white truncate block uppercase">
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </span>
-              <span className="flex items-center gap-1 text-xs uppercase font-bold tracking-wider text-[#ff5e07] font-headline truncate">
+              <span className="flex items-center gap-1 text-xs font-bold tracking-wider text-[#ff5e07] font-headline truncate">
                 <span>Free Fire & BGMI Arena</span>
               </span>
             </div>

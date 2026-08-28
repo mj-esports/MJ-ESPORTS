@@ -32,8 +32,8 @@ export default function Footer() {
 
             {/* Subtitle Badge */}
             <div>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono font-bold tracking-wider bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
-                FREE FIRE & BGMI ARENA
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono font-bold tracking-wider bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
+                Free Fire & BGMI Arena
               </span>
             </div>
 
@@ -101,10 +101,10 @@ export default function Footer() {
 
           {/* COLUMN 2 — PLATFORM (3 COLS) */}
           <div className="space-y-3 sm:col-span-1 lg:col-span-3">
-            <h4 className="font-display-lg text-xs text-white uppercase font-extrabold tracking-widest flex items-center gap-2">
+            <h3 className="font-display-lg text-xs text-white uppercase font-extrabold tracking-widest flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-sm bg-[#00f2ff] shrink-0" />
               <span>PLATFORM</span>
-            </h4>
+            </h3>
             <ul className="space-y-2.5 text-xs font-medium">
               <li>
                 <Link
@@ -144,10 +144,10 @@ export default function Footer() {
 
           {/* COLUMN 3 — SUPPORTED GAMES (3 COLS) */}
           <div className="space-y-3 sm:col-span-1 lg:col-span-3">
-            <h4 className="font-display-lg text-xs text-white uppercase font-extrabold tracking-widest flex items-center gap-2">
+            <h3 className="font-display-lg text-xs text-white uppercase font-extrabold tracking-widest flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-sm bg-[#ff6b00] shrink-0" />
               <span>SUPPORTED GAMES</span>
-            </h4>
+            </h3>
             <ul className="space-y-2.5 text-xs">
               <li className="flex items-center gap-2.5">
                 <span className="w-4 h-4 flex items-center justify-center shrink-0">
@@ -166,10 +166,10 @@ export default function Footer() {
 
           {/* COLUMN 4 — SUPPORT (2 COLS) */}
           <div className="space-y-3 sm:col-span-1 lg:col-span-2">
-            <h4 className="font-display-lg text-xs text-white uppercase font-extrabold tracking-widest flex items-center gap-2">
+            <h3 className="font-display-lg text-xs text-white uppercase font-extrabold tracking-widest flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-sm bg-[#00f2ff] shrink-0" />
               <span>SUPPORT</span>
-            </h4>
+            </h3>
             <div className="space-y-2.5 text-xs">
               <Link
                 to="/about"

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
-import { Trophy, Download, Sparkles, User, Flame, Shield } from 'lucide-react'
+import { Trophy, Download, Sparkles, User, Flame, Target, Swords, Award } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import { TableSkeleton } from '../components/common/SkeletonLoader.jsx'
 import EmptyState from '../components/common/EmptyState.jsx'
@@ -11,30 +11,52 @@ import {
   extractWinnerPrizeAmount,
   extractPlacementPrizes,
   calculateTournamentTeamPayout,
+  formatPayoutAmount,
 } from '../utils/tournamentPrizeUtils.js'
 
 const PublicTeamProfileModal = lazy(() => import('../components/team/PublicTeamProfileModal.jsx'))
 
 export default function LeaderboardPage() {
   const [tournamentsList, setTournamentsList] = useState([])
+  const [profilesList, setProfilesList] = useState([])
+  const [registrationsList, setRegistrationsList] = useState([])
   const [selectedTeamModal, setSelectedTeamModal] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [championImgError, setChampionImgError] = useState(false)
+  const [mvpImgError, setMvpImgError] = useState(false)
+  const [tableImgErrors, setTableImgErrors] = useState({})
 
-  // Fetch live tournaments data from Supabase
+  // Fetch live tournaments, profiles, and registrations data from Supabase
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
       if (isSupabaseConfigured) {
-        const { data, error: err } = await supabase
-          .from('tournaments')
-          .select('id, title, game, format, prize_pool, status, teams_list, created_at')
-          .order('created_at', { ascending: false })
+        const [tournRes, profRes, regRes] = await Promise.allSettled([
+          supabase
+            .from('tournaments')
+            .select('id, title, game, format, prize_pool, status, teams_list, created_at')
+            .order('created_at', { ascending: false }),
+          supabase
+            .from('profiles')
+            .select('id, username, in_game_name, avatar_url, email, game_uid'),
+          supabase
+            .from('tournament_registrations')
+            .select('team_name, captain_name, captain_uid, player_ign, user_email, avatar_url')
+        ])
 
-        if (err) {
-          console.warn('[Leaderboard Supabase Fetch Notice]:', err.message)
+        if (tournRes.status === 'fulfilled' && tournRes.value.data) {
+          setTournamentsList(tournRes.value.data)
+        } else if (tournRes.status === 'fulfilled' && tournRes.value.error) {
+          console.warn('[Leaderboard Supabase Fetch Notice]:', tournRes.value.error.message)
           setTournamentsList([])
-        } else {
-          setTournamentsList(data || [])
+        }
+
+        if (profRes.status === 'fulfilled' && Array.isArray(profRes.value.data)) {
+          setProfilesList(profRes.value.data)
+        }
+
+        if (regRes.status === 'fulfilled' && Array.isArray(regRes.value.data)) {
+          setRegistrationsList(regRes.value.data)
         }
       } else {
         setTournamentsList([])
@@ -54,6 +76,7 @@ export default function LeaderboardPage() {
       const channel = supabase
         .channel('stitch_leaderboard_realtime')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'tournaments' }, () => fetchData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchData())
         .subscribe()
 
       return () => {
@@ -61,6 +84,48 @@ export default function LeaderboardPage() {
       }
     }
   }, [fetchData])
+
+  // Fast lookup map for user and player avatars
+  const profileMap = useMemo(() => {
+    const map = {}
+
+    // 1. Populate from tournament registrations
+    registrationsList.forEach((r) => {
+      const avatar = r.avatar_url || r.avatarUrl || null
+      if (avatar && typeof avatar === 'string' && avatar.trim()) {
+        const cleanAvatar = avatar.trim()
+        if (r.captain_name) map[r.captain_name.toLowerCase().trim()] = cleanAvatar
+        if (r.player_ign) map[r.player_ign.toLowerCase().trim()] = cleanAvatar
+        if (r.team_name) map[r.team_name.toLowerCase().trim()] = cleanAvatar
+        if (r.captain_uid) map[String(r.captain_uid).trim()] = cleanAvatar
+        if (r.user_email) map[r.user_email.toLowerCase().trim()] = cleanAvatar
+      }
+    })
+
+    // 2. Populate from user profiles (primary source)
+    profilesList.forEach((p) => {
+      const avatar = p.avatar_url || p.avatarUrl || null
+      if (avatar && typeof avatar === 'string' && avatar.trim()) {
+        const cleanAvatar = avatar.trim()
+        if (p.username) map[p.username.toLowerCase().trim()] = cleanAvatar
+        if (p.in_game_name) map[p.in_game_name.toLowerCase().trim()] = cleanAvatar
+        if (p.email) map[p.email.toLowerCase().trim()] = cleanAvatar
+        if (p.game_uid) map[String(p.game_uid).trim()] = cleanAvatar
+      }
+    })
+
+    return map
+  }, [profilesList, registrationsList])
+
+  const activeTournament = tournamentsList[0] || null
+
+  const activePrizeType = useMemo(() => {
+    if (!activeTournament) return 'placement'
+    if (isPerKillTournament(activeTournament)) return 'per_kill'
+    if (isPlacementPlusKillTournament(activeTournament)) return 'placement_kill'
+    if (isWinnerTakesAllTournament(activeTournament)) return 'winner_takes_all'
+    return 'placement'
+  }, [activeTournament])
 
   // Dynamic Prize Pool calculation derived from actual tournaments data
   const prizePoolSummary = useMemo(() => {
@@ -70,8 +135,8 @@ export default function LeaderboardPage() {
     const isAllWinnerTakesAll = tournamentsList.length > 0 && tournamentsList.every((t) => isWinnerTakesAllTournament(t))
     const isAllPlacementKill = tournamentsList.length > 0 && tournamentsList.every((t) => isPlacementPlusKillTournament(t))
 
-    if (isAllPerKill) {
-      const perKillAmount = extractPerKillAmount(tournamentsList[0]) || 20
+    if (isAllPerKill || activePrizeType === 'per_kill') {
+      const perKillAmount = extractPerKillAmount(activeTournament || tournamentsList[0]) || 20
       return {
         isPerKill: true,
         isWinnerTakesAll: false,
@@ -79,7 +144,7 @@ export default function LeaderboardPage() {
         perKillAmount,
         totalFormatted: `Per Kill ₹${perKillAmount.toLocaleString('en-IN')}`,
         firstFormatted: `₹${perKillAmount} / Kill`,
-        secondFormatted: `Direct Kill Reward`,
+        secondFormatted: `Kills × ₹${perKillAmount}`,
         thirdFormatted: `No Rank Cuts`,
         firstAmount: `Per Kill ₹${perKillAmount}`,
         secondAmount: `Per Kill ₹${perKillAmount}`,
@@ -87,16 +152,16 @@ export default function LeaderboardPage() {
       }
     }
 
-    if (isAllWinnerTakesAll) {
-      const winnerAmount = extractWinnerPrizeAmount(tournamentsList[0]) || 1500
+    if (isAllWinnerTakesAll || activePrizeType === 'winner_takes_all') {
+      const winnerAmount = extractWinnerPrizeAmount(activeTournament || tournamentsList[0]) || 1500
       return {
         isPerKill: false,
         isWinnerTakesAll: true,
         isPlacementKill: false,
         totalFormatted: `₹${winnerAmount.toLocaleString('en-IN')}`,
-        firstFormatted: `100% (₹${winnerAmount.toLocaleString('en-IN')})`,
-        secondFormatted: `₹0 (Winner Takes All)`,
-        thirdFormatted: `₹0 (Winner Takes All)`,
+        firstFormatted: `₹${winnerAmount.toLocaleString('en-IN')}`,
+        secondFormatted: `₹0`,
+        thirdFormatted: `₹0`,
         firstAmount: `₹${winnerAmount.toLocaleString('en-IN')}`,
         secondAmount: '₹0',
         thirdAmount: '₹0',
@@ -106,19 +171,19 @@ export default function LeaderboardPage() {
       }
     }
 
-    if (isAllPlacementKill) {
-      const perKillAmount = extractPerKillAmount(tournamentsList[0]) || 20
-      const placementPrizes = extractPlacementPrizes(tournamentsList[0])
+    if (isAllPlacementKill || activePrizeType === 'placement_kill') {
+      const perKillAmount = extractPerKillAmount(activeTournament || tournamentsList[0]) || 20
+      const placementPrizes = extractPlacementPrizes(activeTournament || tournamentsList[0])
       const totalPlacement = (placementPrizes.first || 0) + (placementPrizes.second || 0) + (placementPrizes.third || 0)
       return {
         isPerKill: false,
         isWinnerTakesAll: false,
         isPlacementKill: true,
         perKillAmount,
-        totalFormatted: `₹${totalPlacement.toLocaleString('en-IN')} + Per Kill ₹${perKillAmount}`,
-        firstFormatted: `1st: ₹${placementPrizes.first || 0} + ₹${perKillAmount}/k`,
-        secondFormatted: `2nd: ₹${placementPrizes.second || 0} + ₹${perKillAmount}/k`,
-        thirdFormatted: `3rd: ₹${placementPrizes.third || 0} + ₹${perKillAmount}/k`,
+        totalFormatted: `Placement + ₹${perKillAmount} / Kill`,
+        firstFormatted: `₹${placementPrizes.first || 0} + ₹${perKillAmount}/k`,
+        secondFormatted: `₹${placementPrizes.second || 0} + ₹${perKillAmount}/k`,
+        thirdFormatted: `₹${placementPrizes.third || 0} + ₹${perKillAmount}/k`,
         firstAmount: `₹${placementPrizes.first || 0}`,
         secondAmount: `₹${placementPrizes.second || 0}`,
         thirdAmount: `₹${placementPrizes.third || 0}`,
@@ -162,9 +227,9 @@ export default function LeaderboardPage() {
       secondPlacePrize,
       thirdPlacePrize,
     }
-  }, [tournamentsList])
+  }, [tournamentsList, activeTournament, activePrizeType])
 
-  // Aggregate Final Standings & Top Teams/Players
+  // Aggregate Final Standings & Top Teams/Players with resolved real avatar images
   const standings = useMemo(() => {
     const statsMap = {}
 
@@ -175,9 +240,25 @@ export default function LeaderboardPage() {
         if (!team) return
         const name = team.team || team.teamName || team.team_name || team.name || team.captain || 'Team Apex'
         const player = team.captain || team.captain_name || team.player || team.name || 'Player'
+        const captainUid = team.captain_uid || team.captainUid || team.freeFireUid || team.game_uid || team.gameUid || null
         const kills = Math.max(0, Number(team.kills || team.finishes || 0))
         const points = Number(team.points || team.score || 0)
         const isWinner = team.rank === 1 || team.position === 1
+
+        const playerKey = player.toLowerCase().trim()
+        const teamKey = name.toLowerCase().trim()
+        const uidKey = captainUid ? String(captainUid).trim() : ''
+
+        const resolvedAvatar =
+          team.avatar_url ||
+          team.avatar ||
+          team.avatarUrl ||
+          profileMap[playerKey] ||
+          profileMap[teamKey] ||
+          (uidKey ? profileMap[uidKey] : null) ||
+          team.logoUrl ||
+          team.logo_url ||
+          null
 
         if (!statsMap[name]) {
           statsMap[name] = {
@@ -187,23 +268,21 @@ export default function LeaderboardPage() {
             wins: 0,
             points: 0,
             kills: 0,
-            avatar: team.avatar || team.logoUrl || null,
+            avatar: resolvedAvatar,
           }
         }
         statsMap[name].matches += 1
         if (isWinner) statsMap[name].wins += 1
         statsMap[name].points += points
         statsMap[name].kills += kills
-        if (team.avatar || team.logoUrl) {
-          statsMap[name].avatar = team.avatar || team.logoUrl
+        if (resolvedAvatar) {
+          statsMap[name].avatar = resolvedAvatar
         }
       })
     })
 
     const sortedList = Object.values(statsMap)
       .sort((a, b) => b.points - a.points || b.wins - a.wins || b.kills - a.kills || a.team.localeCompare(b.team))
-
-    const activeTournament = tournamentsList[0] || null
 
     return sortedList.slice(0, 50).map((item, index) => {
       const rank = index + 1
@@ -213,9 +292,12 @@ export default function LeaderboardPage() {
         ...item,
         rank,
         payout: payoutResult.formatted,
+        payoutAmount: payoutResult.amount,
+        placementAmount: payoutResult.placementAmount || 0,
+        killPayout: payoutResult.killPayout || 0,
       }
     })
-  }, [tournamentsList, prizePoolSummary])
+  }, [tournamentsList, activeTournament, prizePoolSummary, profileMap])
 
   const championTeam = standings[0] || null
 
@@ -226,9 +308,89 @@ export default function LeaderboardPage() {
     return sortedByKills[0] || standings[0] || null
   }, [standings])
 
+  // Context-aware Top Podium Card Configuration
+  const leaderCardConfig = useMemo(() => {
+    if (!championTeam) return null
+    const perKillAmount = prizePoolSummary.perKillAmount || 30
+
+    if (activePrizeType === 'per_kill') {
+      return {
+        cardBorder: 'border-[#00f2ff]/40 shadow-[0_0_40px_-10px_rgba(0,242,255,0.25)]',
+        badgeText: 'Top Fragger',
+        badgeIcon: Target,
+        badgeColor: 'text-[#00f2ff]',
+        avatarBorder: 'border-[#00f2ff]',
+        avatarIconColor: 'text-[#00f2ff]',
+        titleColor: 'text-white',
+        metricLabel: 'Total Earned',
+        metricValueColor: 'text-[#00f2ff]',
+        calculationText: `${championTeam.kills} KILLS × ₹${perKillAmount} = ${championTeam.payout}`,
+        highlightBadge: `${championTeam.kills} Kills Confirmed`,
+      }
+    }
+
+    if (activePrizeType === 'winner_takes_all') {
+      return {
+        cardBorder: 'border-[#fed83a]/50 shadow-[0_0_40px_-10px_rgba(254,216,58,0.3)]',
+        badgeText: 'Sole Champion',
+        badgeIcon: Award,
+        badgeColor: 'text-[#fed83a]',
+        avatarBorder: 'border-[#fed83a]',
+        avatarIconColor: 'text-[#fed83a]',
+        titleColor: 'text-[#fed83a]',
+        metricLabel: 'Winner Prize',
+        metricValueColor: 'text-[#fed83a]',
+        calculationText: '100% Winner-Takes-All Purse',
+        highlightBadge: '1st Place Winner',
+      }
+    }
+
+    if (activePrizeType === 'placement_kill') {
+      const placementStr = formatPayoutAmount(championTeam.placementAmount)
+      const killStr = formatPayoutAmount(championTeam.killPayout)
+      return {
+        cardBorder: 'border-[#fed83a]/40 shadow-[0_0_40px_-10px_rgba(254,216,58,0.25)]',
+        badgeText: 'Tournament Champions',
+        badgeIcon: Swords,
+        badgeColor: 'text-[#fed83a]',
+        avatarBorder: 'border-[#fed83a]',
+        avatarIconColor: 'text-[#fed83a]',
+        titleColor: 'text-white',
+        metricLabel: 'Total Earned',
+        metricValueColor: 'text-[#fed83a]',
+        calculationText: `Placement ${placementStr} + ${championTeam.kills} Kills (${killStr})`,
+        highlightBadge: `Rank #1 • ${championTeam.kills} Kills`,
+      }
+    }
+
+    // Default: Placement Only
+    return {
+      cardBorder: 'border-[#fed83a]/40 shadow-[0_0_40px_-10px_rgba(254,216,58,0.25)]',
+      badgeText: 'Grand Champions',
+      badgeIcon: Trophy,
+      badgeColor: 'text-[#fed83a]',
+      avatarBorder: 'border-[#fed83a]',
+      avatarIconColor: 'text-[#fed83a]',
+      titleColor: 'text-white',
+      metricLabel: 'Prize Money Won',
+      metricValueColor: 'text-[#fed83a]',
+      calculationText: '1st Place Placement Prize',
+      highlightBadge: 'Rank #1 Champion',
+    }
+  }, [championTeam, activePrizeType, prizePoolSummary])
+
   const handleDownloadCsv = () => {
     if (standings.length === 0) return
-    const headers = ['Rank,Team,Kills,TotalPoints,Payout\n']
+    const payoutCol =
+      activePrizeType === 'per_kill'
+        ? 'Earned'
+        : activePrizeType === 'placement_kill'
+        ? 'TotalPayout'
+        : activePrizeType === 'winner_takes_all'
+        ? 'Prize'
+        : 'Payout'
+
+    const headers = [`Rank,Team,Kills,TotalPoints,${payoutCol}\n`]
     const rows = standings.map(
       (s) => `${s.rank},"${s.team}",${s.kills},${s.points},"${s.payout}"\n`
     )
@@ -251,7 +413,7 @@ export default function LeaderboardPage() {
             <span>&bull;</span>
             <span>Tournament Leaderboard</span>
           </div>
-          <h1 className="font-headline text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2 sm:mb-3 uppercase">
+          <h1 className="font-headline text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2 sm:mb-3">
             Leaderboard Standings
           </h1>
           <p className="text-[#b9cacb] text-sm sm:text-base md:text-lg max-w-2xl font-body">
@@ -260,26 +422,37 @@ export default function LeaderboardPage() {
         </header>
 
         {/* 2. BENTO GRID TOP SECTION */}
-        {standings.length > 0 && championTeam && (
+        {standings.length > 0 && championTeam && leaderCardConfig && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
             
-            {/* Grand Champions Podium Card */}
-            <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-[#141416] rounded border border-[#fed83a]/40 p-5 sm:p-6 md:p-8 flex flex-col justify-between relative overflow-hidden shadow-[0_0_40px_-10px_rgba(254,216,58,0.25)] group">
+            {/* 1. Champion / Top Fragger Podium Card */}
+            <div className={`col-span-1 md:col-span-2 lg:col-span-2 bg-[#141416] rounded border ${leaderCardConfig.cardBorder} p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden group`}>
               <div className="relative z-10">
-                <h2 className="font-label-bold text-[#fed83a] font-bold uppercase tracking-wider text-xs mb-3 flex items-center gap-1.5">
-                  <Trophy className="w-3.5 h-3.5" />
-                  <span>Grand Champions</span>
-                </h2>
-                <div className="flex items-center gap-3.5 sm:gap-4 mb-4 sm:mb-6">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded bg-[#131314] flex items-center justify-center border-2 border-[#fed83a] p-1 shadow-lg shrink-0 overflow-hidden">
-                    {championTeam.avatar ? (
-                      <img src={championTeam.avatar} alt={championTeam.team} className="w-full h-full rounded object-cover" />
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <h2 className={`font-label-bold ${leaderCardConfig.badgeColor} font-bold uppercase tracking-wider text-xs flex items-center gap-1.5`}>
+                    <leaderCardConfig.badgeIcon className="w-3.5 h-3.5" />
+                    <span>{leaderCardConfig.badgeText}</span>
+                  </h2>
+                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495]">
+                    {leaderCardConfig.highlightBadge}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3.5 sm:gap-4 mb-3 sm:mb-4">
+                  <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded bg-[#131314] flex items-center justify-center border-2 ${leaderCardConfig.avatarBorder} p-1 shadow-lg shrink-0 overflow-hidden`}>
+                    {championTeam.avatar && !championImgError ? (
+                      <img
+                        src={championTeam.avatar}
+                        alt={`${championTeam.player || championTeam.team} profile photo`}
+                        className="w-full h-full rounded object-cover"
+                        onError={() => setChampionImgError(true)}
+                      />
                     ) : (
-                      <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-[#fed83a]" />
+                      <leaderCardConfig.badgeIcon className={`w-7 h-7 ${leaderCardConfig.avatarIconColor}`} />
                     )}
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-headline text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white uppercase truncate" title={championTeam.team}>
+                  <div className="min-w-0 flex-1">
+                    <h3 className={`font-headline text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight ${leaderCardConfig.titleColor} uppercase truncate`} title={championTeam.team}>
                       {championTeam.team}
                     </h3>
                     <p className="text-xs text-[#849495] font-body truncate">Captain: {championTeam.player}</p>
@@ -287,74 +460,103 @@ export default function LeaderboardPage() {
                 </div>
               </div>
 
-              <div className="relative z-10 flex flex-wrap gap-4 sm:gap-6 items-end justify-between mt-4 sm:mt-6 pt-4 border-t border-[#27272a]">
+              <div className="relative z-10 flex flex-wrap gap-3 sm:gap-4 items-end justify-between mt-2 pt-3 border-t border-[#27272a]">
                 <div>
-                  <p className="text-[#849495] font-label-bold text-[11px] sm:text-xs uppercase mb-0.5 sm:mb-1">Prize Money Won</p>
-                  <p className="font-headline text-2xl sm:text-3xl md:text-4xl font-bold text-[#fed83a]">{championTeam.payout}</p>
+                  <p className="text-[#849495] font-label-bold text-xs uppercase mb-0.5">{leaderCardConfig.metricLabel}</p>
+                  <p className={`font-headline text-2xl sm:text-3xl font-bold ${leaderCardConfig.metricValueColor}`}>{championTeam.payout}</p>
+                  <p className="text-xs font-mono text-[#849495] mt-0.5 font-bold">
+                    {leaderCardConfig.calculationText}
+                  </p>
                 </div>
-                <div className="bg-[#1c1b1c] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded border border-[#27272a] flex items-center gap-2.5 sm:gap-3">
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#00f2ff] shrink-0" />
+                <div className="bg-[#1c1b1c] px-3 py-1.5 rounded border border-[#27272a] flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#00f2ff] shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[10px] sm:text-xs text-[#849495] font-label-bold uppercase">Team MVP</p>
-                    <p className="font-bold text-xs sm:text-sm text-white font-headline truncate max-w-[140px] sm:max-w-none">{championTeam.player}</p>
+                    <p className="text-xs text-[#849495] font-label-bold uppercase">Team MVP</p>
+                    <p className="font-bold text-xs sm:text-sm text-white font-headline truncate max-w-[130px] sm:max-w-none">{championTeam.player}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Tournament MVP Card */}
+            {/* 2. Tournament MVP Card */}
             {mvpPlayer && (
               <div className="col-span-1 bg-[#141416] rounded p-5 sm:p-6 flex flex-col items-center text-center relative overflow-hidden shadow-[0_0_30px_-10px_rgba(0,242,255,0.15)] border border-[#27272a]">
                 <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00f2ff] to-transparent"></div>
-                <h2 className="font-label-bold text-[#00f2ff] font-bold uppercase tracking-wider text-xs mb-4 w-full text-left flex items-center gap-1.5">
+                <h2 className="font-label-bold text-[#00f2ff] font-bold uppercase tracking-wider text-xs mb-3 w-full text-left flex items-center gap-1.5">
                   <Flame className="w-3.5 h-3.5" />
                   <span>Tournament MVP</span>
                 </h2>
-                <div className="relative mb-3">
-                  <div className="w-16 h-16 sm:w-18 sm:h-18 rounded border-2 border-[#00f2ff] p-1 relative z-10 bg-[#131314] flex items-center justify-center overflow-hidden">
-                    {mvpPlayer.avatar ? (
-                      <img src={mvpPlayer.avatar} alt={mvpPlayer.player} className="w-full h-full rounded object-cover" />
+                <div className="relative mb-2.5">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded border-2 border-[#00f2ff] p-1 relative z-10 bg-[#131314] flex items-center justify-center overflow-hidden">
+                    {mvpPlayer.avatar && !mvpImgError ? (
+                      <img
+                        src={mvpPlayer.avatar}
+                        alt={`${mvpPlayer.player} profile photo`}
+                        className="w-full h-full rounded object-cover"
+                        onError={() => setMvpImgError(true)}
+                      />
                     ) : (
-                      <User className="w-8 h-8 sm:w-9 sm:h-9 text-[#00f2ff]" />
+                      <User className="w-7 h-7 sm:w-8 sm:h-8 text-[#00f2ff]" />
                     )}
                   </div>
                   <div className="absolute inset-0 bg-[#00f2ff] blur-xl opacity-20 rounded-full"></div>
                 </div>
-                <h3 className="font-headline text-xl sm:text-2xl font-bold mb-0.5 text-white truncate max-w-full" title={mvpPlayer.player}>
+                <h3 className="font-headline text-lg sm:text-xl font-bold mb-0.5 text-white truncate max-w-full" title={mvpPlayer.player}>
                   {mvpPlayer.player}
                 </h3>
-                <p className="text-[#849495] text-xs font-body mb-4 truncate max-w-full">{mvpPlayer.team}</p>
+                <p className="text-[#849495] text-xs font-body mb-3 truncate max-w-full">{mvpPlayer.team}</p>
                 <div className="w-full grid grid-cols-2 gap-2 mt-auto">
-                  <div className="bg-[#1c1b1c] rounded p-2.5 sm:p-3 border border-[#27272a]">
-                    <p className="text-[10px] text-[#849495] font-label-bold uppercase mb-0.5">Total Kills</p>
-                    <p className="font-headline text-lg sm:text-xl font-bold text-white">{mvpPlayer.kills}</p>
+                  <div className="bg-[#1c1b1c] rounded p-2 sm:p-2.5 border border-[#27272a]">
+                    <p className="text-xs text-[#849495] font-label-bold uppercase mb-0.5">Total Kills</p>
+                    <p className="font-headline text-base sm:text-lg font-bold text-white">{mvpPlayer.kills}</p>
                   </div>
-                  <div className="bg-[#1c1b1c] rounded p-2.5 sm:p-3 border border-[#27272a]">
-                    <p className="text-[10px] text-[#849495] font-label-bold uppercase mb-0.5">Matches</p>
-                    <p className="font-headline text-lg sm:text-xl font-bold text-[#00f2ff]">{mvpPlayer.matches}</p>
+                  <div className="bg-[#1c1b1c] rounded p-2 sm:p-2.5 border border-[#27272a]">
+                    <p className="text-xs text-[#849495] font-label-bold uppercase mb-0.5">Matches</p>
+                    <p className="font-headline text-base sm:text-lg font-bold text-[#00f2ff]">{mvpPlayer.matches}</p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Dynamic Prize Pool Distribution Summary */}
+            {/* 3. Dynamic Prize Pool / Structure Summary */}
             <div className="col-span-1 md:col-span-2 lg:col-span-1 bg-[#141416] rounded p-5 sm:p-6 flex flex-col border border-[#27272a]">
               <h2 className="font-label-bold text-[#849495] font-bold uppercase tracking-wider text-xs mb-3 flex items-center gap-1.5">
-                <Trophy className="w-3.5 h-3.5 text-[#fed83a]" />
-                <span>{prizePoolSummary.isPerKill ? 'Prize Structure' : 'Prize Pool'}</span>
+                {activePrizeType === 'per_kill' ? (
+                  <>
+                    <Target className="w-3.5 h-3.5 text-[#00f2ff]" />
+                    <span className="text-[#00f2ff]">Prize Model</span>
+                  </>
+                ) : activePrizeType === 'placement_kill' ? (
+                  <>
+                    <Swords className="w-3.5 h-3.5 text-[#fed83a]" />
+                    <span className="text-[#fed83a]">Prize Structure</span>
+                  </>
+                ) : activePrizeType === 'winner_takes_all' ? (
+                  <>
+                    <Award className="w-3.5 h-3.5 text-[#fed83a]" />
+                    <span className="text-[#fed83a]">Prize Model</span>
+                  </>
+                ) : (
+                  <>
+                    <Trophy className="w-3.5 h-3.5 text-[#fed83a]" />
+                    <span>Prize Pool</span>
+                  </>
+                )}
               </h2>
-              <div className="mb-4 sm:mb-5">
-                <p className="text-[11px] sm:text-xs text-[#849495] font-label-bold mb-0.5">
-                  {prizePoolSummary.isPerKill ? 'Prize Model' : 'Total Pool'}
+
+              <div className="mb-3 sm:mb-4">
+                <p className="text-xs text-[#849495] font-label-bold mb-0.5">
+                  {activePrizeType === 'per_kill' ? 'Reward System' : activePrizeType === 'winner_takes_all' ? 'Purse' : 'Total Pool'}
                 </p>
                 <p className="font-headline text-2xl sm:text-3xl font-bold text-white">{prizePoolSummary.totalFormatted}</p>
               </div>
-              <div className="space-y-2.5 sm:space-y-3 mt-auto">
+
+              <div className="space-y-2 sm:space-y-2.5 mt-auto">
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#fed83a] shrink-0"></div>
-                    <span className="text-[#e5e2e3] font-headline font-bold">
-                      {prizePoolSummary.isPerKill ? 'Reward / Kill' : '1st Place'}
+                    <span className="text-[#b9cacb] font-headline font-bold">
+                      {activePrizeType === 'per_kill' ? 'Reward / Kill' : activePrizeType === 'winner_takes_all' ? '1st Place / Winner' : '1st Place'}
                     </span>
                   </div>
                   <span className="font-headline font-bold text-[#fed83a]">{prizePoolSummary.firstFormatted}</span>
@@ -362,8 +564,8 @@ export default function LeaderboardPage() {
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#b9cacb] shrink-0"></div>
-                    <span className="text-[#e5e2e3] font-headline font-bold">
-                      {prizePoolSummary.isPerKill ? 'Calculation' : '2nd Place'}
+                    <span className="text-[#b9cacb] font-headline font-bold">
+                      {activePrizeType === 'per_kill' ? 'Calculation' : '2nd Place'}
                     </span>
                   </div>
                   <span className="font-headline font-bold text-[#b9cacb]">{prizePoolSummary.secondFormatted}</span>
@@ -371,8 +573,8 @@ export default function LeaderboardPage() {
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#ff5e07] shrink-0"></div>
-                    <span className="text-[#e5e2e3] font-headline font-bold">
-                      {prizePoolSummary.isPerKill ? 'Distribution' : '3rd Place'}
+                    <span className="text-[#b9cacb] font-headline font-bold">
+                      {activePrizeType === 'per_kill' ? 'Distribution' : '3rd Place'}
                     </span>
                   </div>
                   <span className="font-headline font-bold text-[#ff5e07]">{prizePoolSummary.thirdFormatted}</span>
@@ -392,7 +594,7 @@ export default function LeaderboardPage() {
             {standings.length > 0 && (
               <button
                 onClick={handleDownloadCsv}
-                className="text-xs font-headline font-bold text-[#00f2ff] hover:text-[#00363a] hover:bg-[#00f2ff] transition-all flex items-center gap-2 bg-[#141416] px-4 py-2.5 rounded border border-[#27272a] hover:border-[#00f2ff] cursor-pointer uppercase tracking-wider min-h-[40px] shadow-sm select-none"
+                className="text-xs font-headline font-bold text-[#00f2ff] hover:text-[#131314] hover:bg-[#00f2ff] transition-all flex items-center gap-2 bg-[#141416] px-4 py-2.5 rounded border border-[#27272a] hover:border-[#00f2ff] cursor-pointer uppercase tracking-wider min-h-[40px] shadow-sm select-none"
               >
                 <span>Download Full CSV</span>
                 <Download className="w-4 h-4 shrink-0" />
@@ -416,7 +618,9 @@ export default function LeaderboardPage() {
                       <th className="py-3.5 sm:py-4 px-3 sm:px-6">Team / Squad</th>
                       <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-right w-16 sm:w-24">Kills</th>
                       <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-right w-16 sm:w-24 hidden xs:table-cell">Total Pts</th>
-                      <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-right pr-3 sm:pr-6 w-20 sm:w-28 hidden sm:table-cell">Payout</th>
+                      <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-right pr-3 sm:pr-6 w-24 sm:w-32 hidden sm:table-cell">
+                        {activePrizeType === 'per_kill' ? 'Earned' : activePrizeType === 'placement_kill' ? 'Total Payout' : activePrizeType === 'winner_takes_all' ? 'Prize' : 'Payout'}
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#27272a] text-xs">
@@ -438,11 +642,11 @@ export default function LeaderboardPage() {
                             <div
                               className={`inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded font-headline font-bold text-xs sm:text-sm ${
                                 isRank1
-                                  ? 'bg-[#fed83a] text-[#170700] shadow-md'
+                                  ? 'bg-[#fed83a] text-[#131314] shadow-md'
                                   : isRank2
                                   ? 'bg-[#b9cacb] text-[#131314]'
                                   : isRank3
-                                  ? 'bg-[#ff5e07] text-[#170700]'
+                                  ? 'bg-[#ff5e07] text-[#131314]'
                                   : 'text-[#849495] bg-[#1c1b1c] border border-[#27272a]'
                               }`}
                             >
@@ -454,8 +658,13 @@ export default function LeaderboardPage() {
                           <td className="py-3 sm:py-4 px-3 sm:px-6 min-w-0 max-w-[180px] sm:max-w-none">
                             <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#131314] border border-[#27272a] overflow-hidden flex items-center justify-center shrink-0">
-                                {s.avatar ? (
-                                  <img src={s.avatar} alt={s.team} className="w-full h-full object-cover" />
+                                {s.avatar && !tableImgErrors[s.rank] ? (
+                                  <img
+                                    src={s.avatar}
+                                    alt={`${s.player || s.team} profile photo`}
+                                    className="w-full h-full object-cover"
+                                    onError={() => setTableImgErrors((prev) => ({ ...prev, [s.rank]: true }))}
+                                  />
                                 ) : (
                                   <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00f2ff]" />
                                 )}
@@ -466,7 +675,7 @@ export default function LeaderboardPage() {
                                 }`} title={s.team}>
                                   {s.team}
                                 </span>
-                                <span className="text-[10px] text-[#849495] font-body block truncate" title={s.player}>
+                                <span className="text-xs text-[#849495] font-body block truncate" title={s.player}>
                                   {s.player}
                                 </span>
                               </div>
