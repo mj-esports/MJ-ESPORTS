@@ -325,7 +325,10 @@ export default function Navbar() {
                       {(isAdmin || isAuthenticated) && (
                         <Link
                           to="/admin"
-                          onClick={() => setUserDropdownOpen(false)}
+                          onClick={() => {
+                            console.log('[ADMIN CLICK] Desktop dropdown Admin Console clicked. Current URL:', typeof window !== 'undefined' ? window.location.href : '')
+                            setUserDropdownOpen(false)
+                          }}
                           className="flex items-center gap-2.5 px-3 py-2 rounded text-[#ff5e07] hover:text-[#ff8533] hover:bg-[#ff5e07]/10 border border-[#ff5e07]/20 my-1 transition-colors uppercase tracking-wider"
                         >
                           <Shield className="w-4 h-4 text-[#ff5e07]" />
@@ -513,7 +516,10 @@ export default function Navbar() {
                   {(isAdmin || isAuthenticated) && (
                     <Link
                       to="/admin"
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={() => {
+                        console.log('[ADMIN CLICK] Mobile drawer Admin Console clicked. Current URL:', typeof window !== 'undefined' ? window.location.href : '')
+                        setMobileMenuOpen(false)
+                      }}
                       className="px-4 py-3 rounded flex items-center gap-2.5 text-[#ff5e07] bg-[#ff5e07]/10 border border-[#ff5e07]/25 min-h-[44px] uppercase tracking-wider font-bold"
                     >
                       <Shield className="w-4.5 h-4.5 text-[#ff5e07]" />

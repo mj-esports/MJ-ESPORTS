@@ -70,6 +70,11 @@ export default function AdminDashboardPage({ defaultTab }) {
   const [reportsSubTab, setReportsSubTab] = useState('reports') // 'reports' | 'telemetry'
 
   useEffect(() => {
+    console.log('[ADMIN DASHBOARD MOUNTED]', {
+      url: typeof window !== 'undefined' ? window.location.href : '',
+      activeTab,
+      resolvedTab: resolveTab(),
+    })
     const target = resolveTab()
     if (target !== activeTab) {
       setActiveTab(target)

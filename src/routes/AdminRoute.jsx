@@ -10,6 +10,15 @@ export default function AdminRoute() {
   // before any user identity or session has been determined.
   const isInitialAuthCheck = (loading || roleLoading) && !user
 
+  console.log('[ADMIN ROUTE EVALUATION]', {
+    url: typeof window !== 'undefined' ? window.location.href : '',
+    pathname: location.pathname,
+    isAuthenticated,
+    isAdmin,
+    userEmail: user?.email,
+    isInitialAuthCheck,
+  })
+
   if (isInitialAuthCheck) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-6 text-slate-400">
@@ -26,6 +35,7 @@ export default function AdminRoute() {
 
   // 1. Anonymous Visitors -> Redirect to Login (only after initial loading has settled)
   if (!isAuthenticated || !user) {
+    console.log('[ADMIN ROUTE REDIRECT] User unauthenticated, redirecting to /login from:', location.pathname)
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
