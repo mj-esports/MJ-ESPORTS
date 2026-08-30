@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import {
   Trophy,
   ArrowLeft,
@@ -57,6 +57,34 @@ export default function TournamentOperationsWorkspace({
   const { updateRoomDetails, updateTournamentStatus, getRoomCredentials } = useTournaments()
 
   const [activeOpsSection, setActiveOpsSection] = useState('REGISTRATION') // 'REGISTRATION' | 'MATCH_CONTROL' | 'RESULTS' | 'PRIZE_PAYOUT' | 'ACTIVITY'
+
+  const sectionTabContainerRef = useRef(null)
+  const sectionTabRefs = useRef({})
+
+  // Enforce initial scrollLeft = 0 on mount
+  useEffect(() => {
+    if (sectionTabContainerRef.current) {
+      sectionTabContainerRef.current.scrollLeft = 0
+    }
+  }, [])
+
+  const handleSectionClick = (sectionId) => {
+    setActiveOpsSection(sectionId)
+    const targetEl = sectionTabRefs.current[sectionId]
+    if (targetEl && sectionTabContainerRef.current) {
+      const container = sectionTabContainerRef.current
+      const containerLeft = container.scrollLeft
+      const containerRight = containerLeft + container.clientWidth
+      const elemLeft = targetEl.offsetLeft
+      const elemRight = elemLeft + targetEl.offsetWidth
+
+      if (elemLeft < containerLeft) {
+        container.scrollTo({ left: Math.max(0, elemLeft - 8), behavior: 'smooth' })
+      } else if (elemRight > containerRight) {
+        container.scrollTo({ left: elemRight - container.clientWidth + 8, behavior: 'smooth' })
+      }
+    }
+  }
 
   // Room state
   const [roomId, setRoomId] = useState('')
@@ -287,32 +315,39 @@ export default function TournamentOperationsWorkspace({
           </div>
         </div>
 
-        {/* 3. MODULAR OPERATIONS SECTION TABS */}
-        <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-headline font-bold pt-1">
-          {[
-            { id: 'REGISTRATION', label: 'REGISTRATION QUEUE', icon: Users },
-            { id: 'MATCH_CONTROL', label: 'MATCH CONTROL', icon: Swords },
-            { id: 'RESULTS', label: 'RESULTS', icon: Award },
-            { id: 'PRIZE_PAYOUT', label: 'PRIZE / PAYOUT', icon: CircleDollarSign },
-            { id: 'ACTIVITY', label: 'ACTIVITY LOGS', icon: Activity },
-          ].map((tab) => {
-            const Icon = tab.icon
-            const active = activeOpsSection === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveOpsSection(tab.id)}
-                className={`px-3.5 py-2 rounded transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
-                  active
-                    ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-sm'
-                    : 'bg-[#1c1b1c] text-[#849495] hover:text-white border border-[#27272a]'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
-              </button>
-            )
-          })}
+        {/* 3. MODULAR OPERATIONS SECTION TABS (RESPONSIVE HORIZONTAL STRIP) */}
+        <div className="w-full max-w-full min-w-0 box-border overflow-hidden bg-[#141416] border border-[#27272a] rounded p-1 sm:p-1.5 shadow-md">
+          <div
+            ref={sectionTabContainerRef}
+            className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full max-w-full min-w-0 box-border flex-nowrap px-0.5 py-0.5 scroll-smooth overscroll-x-contain"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            {[
+              { id: 'REGISTRATION', label: 'Registration Queue', icon: Users },
+              { id: 'MATCH_CONTROL', label: 'Match Control', icon: Swords },
+              { id: 'RESULTS', label: 'Results', icon: Award },
+              { id: 'PRIZE_PAYOUT', label: 'Prize / Payout', icon: CircleDollarSign },
+              { id: 'ACTIVITY', label: 'Activity Logs', icon: Activity },
+            ].map((tab) => {
+              const Icon = tab.icon
+              const active = activeOpsSection === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  ref={(el) => (sectionTabRefs.current[tab.id] = el)}
+                  onClick={() => handleSectionClick(tab.id)}
+                  className={`px-2.5 sm:px-3.5 py-1.5 rounded text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] sm:min-h-[34px] select-none ${
+                    active
+                      ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_8px_rgba(0,242,255,0.25)]'
+                      : 'bg-[#1c1b1c] sm:bg-transparent text-[#849495] hover:text-white hover:bg-[#1c1b1c] border border-[#27272a] sm:border-transparent'
+                  }`}
+                >
+                  <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                  <span>{tab.label}</span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 
