@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   Trophy,
   Plus,
@@ -75,6 +75,35 @@ export default function TournamentCenterView({
   const [actionId, setActionId] = useState(null)
   const [formErrors, setFormErrors] = useState({})
   const [alert, setAlert] = useState(null)
+
+  const tabContainerRef = useRef(null)
+  const tabRefs = useRef({})
+
+  // Enforce initial scrollLeft = 0 on mount and when activeOpsTab returns to ALL_TOURNAMENTS
+  useEffect(() => {
+    if (tabContainerRef.current) {
+      tabContainerRef.current.scrollLeft = 0
+    }
+  }, [])
+
+  const handleTabClick = (tabId) => {
+    setSelectedTournamentId(null)
+    setActiveOpsTab(tabId)
+    const targetEl = tabRefs.current[tabId]
+    if (targetEl && tabContainerRef.current) {
+      const container = tabContainerRef.current
+      const containerLeft = container.scrollLeft
+      const containerRight = containerLeft + container.clientWidth
+      const elemLeft = targetEl.offsetLeft
+      const elemRight = elemLeft + targetEl.offsetWidth
+
+      if (elemLeft < containerLeft) {
+        container.scrollTo({ left: Math.max(0, elemLeft - 8), behavior: 'smooth' })
+      } else if (elemRight > containerRight) {
+        container.scrollTo({ left: elemRight - container.clientWidth + 8, behavior: 'smooth' })
+      }
+    }
+  }
 
   const handleAdvanceStage = async (t) => {
     const nextStage = getNextLifecycleStage(t.status)
@@ -675,9 +704,13 @@ export default function TournamentCenterView({
         </button>
       </div>
 
-      {/* 2. UNIFIED PRIMARY HORIZONTAL NAVIGATION BAR (COMPACT SEGMENTED CONTROL BAR 48-56PX) */}
-      <div className="relative w-full max-w-full box-border bg-[#141416]/95 border border-[#27272a] rounded-lg p-1 sm:p-1.5 shadow-md">
-        <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full flex-nowrap px-0.5 py-0.5">
+      {/* 2. UNIFIED PRIMARY HORIZONTAL NAVIGATION BAR (COMPACT CONTROL BAR 48-56PX) */}
+      <div className="w-full max-w-full min-w-0 box-border overflow-hidden bg-[#141416] border border-[#27272a] rounded p-1 sm:p-1.5 shadow-md">
+        <div
+          ref={tabContainerRef}
+          className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full max-w-full min-w-0 box-border flex-nowrap px-0.5 py-0.5 scroll-smooth overscroll-x-contain"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           {[
             { id: 'ALL_TOURNAMENTS', label: 'All Tournaments', icon: Trophy },
             { id: 'REGISTRATION_QUEUE', label: 'Registration Queue', icon: ClipboardList },
@@ -691,14 +724,12 @@ export default function TournamentCenterView({
             return (
               <button
                 key={tab.id}
-                onClick={() => {
-                  setSelectedTournamentId(null)
-                  setActiveOpsTab(tab.id)
-                }}
-                className={`px-2.5 sm:px-3.5 py-1.5 rounded text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 min-h-[30px] sm:min-h-[34px] select-none ${
+                ref={(el) => (tabRefs.current[tab.id] = el)}
+                onClick={() => handleTabClick(tab.id)}
+                className={`px-2.5 sm:px-3.5 py-1.5 rounded text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] sm:min-h-[34px] select-none ${
                   active
                     ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_8px_rgba(0,242,255,0.25)]'
-                    : 'text-[#849495] hover:text-white hover:bg-[#1c1b1c]'
+                    : 'bg-[#1c1b1c] sm:bg-transparent text-[#849495] hover:text-white hover:bg-[#1c1b1c] border border-[#27272a] sm:border-transparent'
                 }`}
               >
                 <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />

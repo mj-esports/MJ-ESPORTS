@@ -19,6 +19,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 import { fetchUserNotifications, markNotificationAsRead } from '../../services/notificationService'
+import { supabase, isSupabaseConfigured } from '../../lib/supabase'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
