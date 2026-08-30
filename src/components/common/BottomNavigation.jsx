@@ -7,7 +7,7 @@ export default function BottomNavigation() {
 
   const tabs = [
     { name: 'Home', path: '/', icon: Home },
-    { name: 'Tourneys', path: '/tournaments', icon: Trophy },
+    { name: 'Tournaments', path: '/tournaments', icon: Trophy },
     { name: 'Ranks', path: '/leaderboard', icon: BarChart3 },
     ...(isAuthenticated
       ? [{ name: 'Wallet', path: '/wallet', icon: Wallet }]

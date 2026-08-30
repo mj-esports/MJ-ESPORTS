@@ -165,43 +165,43 @@ export default function TournamentsPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-[#131314] via-[#131314]/80 via-60% to-black/40 z-10"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-[#131314]/80 via-transparent to-transparent z-10"></div>
             <div
-              className="h-64 sm:h-80 md:h-[420px] w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+              className="h-[240px] xs:h-[260px] sm:h-80 md:h-[420px] w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
               style={{
                 backgroundImage: `url(${getTournamentImage(featuredTournament)})`
               }}
             ></div>
 
-            <div className="absolute bottom-0 left-0 w-full p-6 sm:p-8 md:p-10 z-20 flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8">
-              <div className="space-y-3 sm:space-y-4 max-w-2xl">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase tracking-wider font-label-bold shadow-[0_0_15px_rgba(0,242,255,0.2)]">
+            <div className="absolute bottom-0 left-0 w-full p-4 sm:p-8 md:p-10 z-20 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 md:gap-8">
+              <div className="space-y-2 sm:space-y-4 max-w-2xl">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded text-[11px] sm:text-xs font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase tracking-wider font-label-bold shadow-[0_0_15px_rgba(0,242,255,0.2)]">
                   <Sparkles className="w-3.5 h-3.5" />
                   Featured Arena Event
                 </span>
-                <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold font-headline text-white tracking-tight drop-shadow-md leading-tight">
+                <h2 className="text-xl xs:text-2xl sm:text-4xl md:text-5xl font-extrabold font-headline text-white tracking-tight drop-shadow-md leading-tight line-clamp-1 sm:line-clamp-none">
                   {featuredTournament.title || 'Global Clash Championship'}
                 </h2>
-                <div className="flex flex-wrap items-center gap-4 text-[#b9cacb] text-sm font-label pt-1">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[#b9cacb] text-xs sm:text-sm font-label pt-0.5">
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-[#00f2ff]" />
+                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00f2ff]" />
                     {featuredTournament.startDate || 'Upcoming Schedule'}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4 text-[#00f2ff]" />
+                    <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00f2ff]" />
                     {featuredTournament.registeredTeams || 0}/{featuredTournament.maxTeams || 100} {getTournamentMode(featuredTournament).teamUnit}
                   </span>
                 </div>
               </div>
 
-              <div className="flex flex-col items-start md:items-end gap-3.5 shrink-0">
+              <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-3 shrink-0 w-full md:w-auto">
                 <div className="text-left md:text-right">
-                  <div className="text-[#849495] text-xs uppercase font-bold font-label-bold tracking-wider mb-0.5">Prize Pool</div>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-headline text-[#ff5e07] drop-shadow-sm">
+                  <div className="text-[#849495] text-[10px] sm:text-xs uppercase font-bold font-label-bold tracking-wider mb-0.5">Prize Pool</div>
+                  <div className="text-xl sm:text-3xl md:text-4xl font-extrabold font-headline text-[#ff5e07] drop-shadow-sm leading-tight">
                     {formatTournamentPrize(featuredTournament)}
                   </div>
                 </div>
                 <Link
                   to={featuredTournament?.id ? `/tournaments/${featuredTournament.id}` : '/tournaments'}
-                  className="bg-[#00f2ff] text-[#00363a] font-bold px-8 py-3.5 rounded hover:bg-[#74f5ff] transition-all font-headline w-full md:w-auto text-center shadow-[0_0_20px_rgba(0,242,255,0.35)] uppercase tracking-wider text-sm min-h-[44px] flex items-center justify-center cursor-pointer"
+                  className="bg-[#00f2ff] text-[#00363a] font-bold px-6 sm:px-8 py-2.5 sm:py-3.5 rounded hover:bg-[#74f5ff] transition-all font-headline text-center shadow-[0_0_20px_rgba(0,242,255,0.35)] uppercase tracking-wider text-xs sm:text-sm min-h-[42px] sm:min-h-[44px] flex items-center justify-center cursor-pointer active:scale-95 shrink-0"
                 >
                   {featuredStatusState?.isFull || featuredStatusState?.isClosed || featuredStatusState?.isCompleted ? 'View Details' : 'Register Now'}
                 </Link>
@@ -406,7 +406,7 @@ export default function TournamentsPage() {
                     {/* Cover Image & Game / Format / Dynamic Status Badges */}
                     <div className="rounded-t overflow-hidden relative">
                       <div
-                        className={`h-44 sm:h-48 w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-105 ${
+                        className={`h-40 sm:h-48 w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-105 ${
                           isCompleted ? 'grayscale group-hover:grayscale-0' : ''
                         }`}
                         style={{ backgroundImage: `url(${cardImage})` }}
@@ -433,40 +433,43 @@ export default function TournamentsPage() {
                       </div>
                     </div>
 
-                    {/* Card Content Body */}
-                    <div className="p-5 sm:p-6 flex flex-col flex-grow justify-between">
+                    {/* Card Content Body (25-30% more compact on mobile, desktop unchanged) */}
+                    <div className="p-4 sm:p-6 flex flex-col flex-grow justify-between">
                       <div>
-                        <h3 className="font-headline font-bold text-lg sm:text-xl text-white mb-2 group-hover:text-[#00f2ff] transition-colors leading-snug line-clamp-1">
+                        {/* Image -> Title (18-24px total) */}
+                        <h3 className="font-headline font-bold text-base xs:text-lg sm:text-xl text-white mb-1.5 sm:mb-2 group-hover:text-[#00f2ff] transition-colors leading-snug line-clamp-1">
                           {t.title}
                         </h3>
-                        <p className="text-xs text-[#b9cacb] font-body mb-5 flex items-center gap-1.5">
-                          <Clock className="w-4 h-4 text-[#00f2ff] shrink-0" />
+                        {/* Title -> Date (12-16px) */}
+                        <p className="text-xs text-[#b9cacb] font-body mb-3.5 sm:mb-5 flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00f2ff] shrink-0" />
                           <span>{startTime}</span>
                         </p>
                       </div>
 
-                      <div className="mt-auto space-y-4">
-                        {/* Stat Box Grid (2 cols) */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-[#1c1b1c] p-3.5 rounded border border-[#27272a] flex flex-col justify-center">
+                      {/* Date -> Prize/Entry boxes (18-22px) */}
+                      <div className="mt-auto space-y-3 sm:space-y-4">
+                        {/* Stat Box Grid (2 cols, 105-120px height on mobile) */}
+                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                          <div className="bg-[#1c1b1c] p-2.5 sm:p-3.5 rounded border border-[#27272a] flex flex-col justify-center min-h-[72px] sm:min-h-[84px]">
                             <div className="text-[10px] text-[#849495] font-label-bold uppercase tracking-wider mb-0.5">Prize Pool</div>
-                            <div className="font-headline font-bold text-[#ff5e07] text-lg sm:text-xl leading-tight">{formatTournamentPrize(t)}</div>
+                            <div className="font-headline font-bold text-[#ff5e07] text-base xs:text-lg sm:text-xl leading-tight">{formatTournamentPrize(t)}</div>
                           </div>
-                          <div className="bg-[#1c1b1c] p-3.5 rounded border border-[#27272a] flex flex-col justify-center">
+                          <div className="bg-[#1c1b1c] p-2.5 sm:p-3.5 rounded border border-[#27272a] flex flex-col justify-center min-h-[72px] sm:min-h-[84px]">
                             <div className="text-[10px] text-[#849495] font-label-bold uppercase tracking-wider mb-0.5">Entry Fee</div>
-                            <div className="font-headline font-bold text-white text-base sm:text-lg leading-tight">{entryFee}</div>
+                            <div className="font-headline font-bold text-white text-sm xs:text-base sm:text-lg leading-tight">{entryFee}</div>
                           </div>
                         </div>
 
-                        {/* Slot Capacity Progress Bar */}
-                        <div className="space-y-2">
+                        {/* Prize/Entry boxes -> Registration Progress (18-22px) */}
+                        <div className="space-y-1.5 sm:space-y-2">
                           <div className="flex justify-between text-xs font-label">
-                            <span className="text-[#849495] text-[11px] font-medium font-label-bold">Registration Progress</span>
-                            <span className={isFull ? 'text-red-400 font-bold text-[11px]' : 'text-[#00f2ff] font-bold text-[11px]'}>
+                            <span className="text-[#849495] text-[10.5px] sm:text-[11px] font-medium font-label-bold">Registration Progress</span>
+                            <span className={isFull ? 'text-red-400 font-bold text-[10.5px] sm:text-[11px]' : 'text-[#00f2ff] font-bold text-[10.5px] sm:text-[11px]'}>
                               {progressText}
                             </span>
                           </div>
-                          <div className="w-full bg-[#0e0e0f] border border-[#27272a] rounded-full h-2 sm:h-2.5 overflow-hidden">
+                          <div className="w-full bg-[#0e0e0f] border border-[#27272a] rounded-full h-1.5 sm:h-2.5 overflow-hidden">
                             <div
                               className={`h-full rounded-full transition-all duration-300 ${
                                 isFull
@@ -480,25 +483,25 @@ export default function TournamentsPage() {
                           </div>
                         </div>
 
-                        {/* CTA Button */}
+                        {/* Progress -> View Details CTA Button (18-22px, centered text) */}
                         {isCompleted ? (
                           <Link
                             to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
-                            className="w-full py-3 rounded bg-[#1c1b1c] text-[#b9cacb] hover:text-white font-headline font-bold text-xs transition-colors text-center block uppercase tracking-wider border border-[#27272a] hover:border-[#849495] min-h-[44px] flex items-center justify-center cursor-pointer"
+                            className="w-full py-2.5 sm:py-3 rounded bg-[#1c1b1c] text-[#b9cacb] hover:text-white font-headline font-bold text-xs transition-colors text-center block uppercase tracking-wider border border-[#27272a] hover:border-[#849495] min-h-[44px] flex items-center justify-center cursor-pointer"
                           >
                             View Results & Summary
                           </Link>
                         ) : isFull ? (
                           <Link
                             to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
-                            className="w-full py-3 rounded bg-[#1c1b1c] text-[#e5e2e3] hover:text-[#00f2ff] font-headline font-bold text-xs transition-all duration-200 text-center block uppercase tracking-wider border border-[#27272a] hover:border-[#00f2ff] min-h-[44px] flex items-center justify-center cursor-pointer"
+                            className="w-full py-2.5 sm:py-3 rounded bg-[#1c1b1c] text-[#e5e2e3] hover:text-[#00f2ff] font-headline font-bold text-xs transition-all duration-200 text-center block uppercase tracking-wider border border-[#27272a] hover:border-[#00f2ff] min-h-[44px] flex items-center justify-center cursor-pointer"
                           >
                             View Details
                           </Link>
                         ) : (
                           <Link
                             to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
-                            className="w-full py-3 rounded bg-[#1c1b1c] hover:bg-[#00f2ff] text-white hover:text-[#00363a] font-headline font-bold text-xs transition-all duration-200 text-center block uppercase tracking-wider border border-[#27272a] hover:border-[#00f2ff] hover:shadow-[0_0_15px_rgba(0,242,255,0.25)] min-h-[44px] flex items-center justify-center cursor-pointer"
+                            className="w-full py-2.5 sm:py-3 rounded bg-[#1c1b1c] hover:bg-[#00f2ff] text-white hover:text-[#00363a] font-headline font-bold text-xs transition-all duration-200 text-center block uppercase tracking-wider border border-[#27272a] hover:border-[#00f2ff] hover:shadow-[0_0_15px_rgba(0,242,255,0.25)] min-h-[44px] flex items-center justify-center cursor-pointer active:scale-95"
                           >
                             View Details
                           </Link>

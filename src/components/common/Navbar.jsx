@@ -26,14 +26,35 @@ export default function Navbar() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
+  const [avatarError, setAvatarError] = useState(false)
   
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, isAuthenticated, isAdmin, signOut } = useAuth()
+  const { user, profile, isAuthenticated, isAdmin, signOut } = useAuth()
   const { showSuccess, showError } = useToast()
 
   const dropdownRef = useRef(null)
   const notifRef = useRef(null)
+  const [profileAvatar, setProfileAvatar] = useState(null)
+
+  // Fetch live profile avatar from profiles table
+  useEffect(() => {
+    if (isAuthenticated && user?.id && isSupabaseConfigured) {
+      supabase
+        .from('profiles')
+        .select('avatar_url, username')
+        .eq('id', user.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.avatar_url) {
+            setProfileAvatar(data.avatar_url)
+          }
+        })
+        .catch((err) => console.warn('[Navbar profile fetch warn]:', err))
+    } else {
+      setProfileAvatar(null)
+    }
+  }, [isAuthenticated, user?.id])
 
   // Fetch notifications
   useEffect(() => {
@@ -79,16 +100,14 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path
 
   const handleSignOut = async () => {
-    if (isSigningOut) return
     setIsSigningOut(true)
-    setUserDropdownOpen(false)
     try {
       await signOut()
-      showSuccess('Signed out successfully.', 'Session Closed')
-      navigate('/login')
+      setUserDropdownOpen(false)
+      showSuccess('Disconnected safely from mainframe.', 'Signed Out')
+      navigate('/')
     } catch (err) {
-      console.error('Sign Out Error:', err)
-      showError(err, 'Sign Out Error')
+      showError(err.message || 'Logout sequence failed.')
     } finally {
       setIsSigningOut(false)
     }
@@ -107,9 +126,10 @@ export default function Navbar() {
     }
   }
 
-  const userDisplayName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Player'
+  const userDisplayName = profile?.username || user?.user_metadata?.username || user?.email?.split('@')[0] || 'Player'
   const userWalletBalance = user?.user_metadata?.wallet_balance ?? 0.0
-  const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.avatarUrl || ''
+  const userAvatarUrl = profile?.avatar_url || profileAvatar || user?.user_metadata?.avatar_url || user?.user_metadata?.avatarUrl || ''
+  const userInitial = (userDisplayName || 'M').charAt(0).toUpperCase()
   const unreadNotificationsCount = notifications.filter((n) => !n.is_read).length
 
   return (
@@ -125,17 +145,17 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo (LEFT) */}
-          <Link to="/" className="flex items-center gap-3 group shrink-0">
+          <Link to="/" className="flex items-center gap-2 xs:gap-3 group shrink min-w-0">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded bg-[#00f2ff] p-[1px] shadow-[0_0_15px_rgba(0,242,255,0.4)] group-hover:scale-105 transition-transform duration-200 shrink-0">
               <div className="w-full h-full bg-[#131314] rounded-[3px] flex items-center justify-center">
                 <Swords className="w-4 h-4 sm:w-5 sm:h-5 text-[#00f2ff]" />
               </div>
             </div>
             <div className="min-w-0">
-              <span className="font-headline text-base sm:text-xl font-extrabold tracking-wider text-white truncate block uppercase">
+              <span className="font-headline text-sm xs:text-base sm:text-xl font-extrabold tracking-wider text-white truncate block uppercase">
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </span>
-              <span className="flex items-center gap-1 text-xs font-bold tracking-wider text-[#ff5e07] font-headline truncate">
+              <span className="flex items-center gap-1 text-[10.5px] xs:text-xs font-bold tracking-wider text-[#ff5e07] font-headline truncate">
                 <span>Free Fire & BGMI Arena</span>
               </span>
             </div>
@@ -251,11 +271,18 @@ export default function Navbar() {
                         : 'bg-[#141416] border-[#27272a] hover:border-[#00f2ff]/50'
                     }`}
                   >
-                    <div className="w-5.5 h-5.5 rounded bg-[#00f2ff]/20 border border-[#00f2ff]/35 overflow-hidden flex items-center justify-center shrink-0">
-                      {userAvatarUrl ? (
-                        <img src={userAvatarUrl} alt={userDisplayName} className="w-full h-full object-cover" />
+                    <div className="w-5.5 h-5.5 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff]/35 overflow-hidden flex items-center justify-center shrink-0">
+                      {userAvatarUrl && !avatarError ? (
+                        <img
+                          src={userAvatarUrl}
+                          alt={`${userDisplayName} profile photo`}
+                          className="w-full h-full object-cover rounded-full"
+                          onError={() => setAvatarError(true)}
+                        />
                       ) : (
-                        <User className="w-3 h-3 text-[#00f2ff]" />
+                        <span className="text-[11px] font-headline font-bold text-[#00f2ff] uppercase leading-none select-none" aria-hidden="true">
+                          {userInitial}
+                        </span>
                       )}
                     </div>
                     <span className="text-xs font-bold text-[#e5e2e3] uppercase font-label-bold">{userDisplayName}</span>
@@ -310,10 +337,10 @@ export default function Navbar() {
                       <button
                         onClick={handleSignOut}
                         disabled={isSigningOut}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded text-red-500 hover:text-red-400 hover:bg-[#201f20] transition-colors uppercase tracking-wider text-left cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded text-[#ef4444] hover:bg-[#ef4444]/10 transition-colors uppercase tracking-wider font-bold cursor-pointer"
                       >
-                        <LogOut className="w-4 h-4 text-red-500" />
-                        <span>{isSigningOut ? 'Leaving...' : 'Logout'}</span>
+                        <LogOut className="w-4 h-4" />
+                        <span>{isSigningOut ? 'Disconnecting...' : 'Sign Out'}</span>
                       </button>
 
                     </div>
@@ -325,13 +352,13 @@ export default function Navbar() {
               <div className="flex items-center gap-3">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-xs font-headline font-bold text-[#b9cacb] hover:text-[#00f2ff] uppercase tracking-wider transition-colors"
+                  className="px-4 py-2 text-xs font-headline font-bold uppercase tracking-wider text-[#b9cacb] hover:text-white hover:bg-[#141416] rounded border border-transparent hover:border-[#27272a] transition-all"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="px-5 py-2 text-xs font-headline font-bold text-[#00363a] bg-[#00f2ff] hover:bg-[#74f5ff] rounded uppercase tracking-wider transition-all duration-200 shadow-[0_0_15px_rgba(0,242,255,0.35)]"
+                  className="px-4 py-2 text-xs font-headline font-bold uppercase tracking-wider bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] rounded transition-all shadow-[0_0_12px_rgba(0,242,255,0.35)] active:scale-95"
                 >
                   Register
                 </Link>
@@ -339,23 +366,21 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Drawer Hamburger Trigger (MOBILE/TABLET) */}
-          <div className="md:hidden">
+          {/* Mobile Menu Trigger */}
+          <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-expanded={mobileMenuOpen}
-              aria-controls="mobile-navigation-drawer"
-              className="p-2.5 rounded bg-[#141416] border border-[#27272a] text-[#e5e2e3] hover:text-[#00f2ff] focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
-              aria-label="Toggle Side Drawer Menu"
+              className="p-2 rounded bg-[#141416] border border-[#27272a] text-[#b9cacb] hover:text-[#00f2ff] focus:outline-none transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Toggle Mobile Menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5 text-[#00f2ff]" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* Slide Navigation Drawer Overlay (MOBILE) */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 top-16 sm:top-20 z-40 bg-[#131314]/98 backdrop-blur-xl flex flex-col justify-between p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] space-y-6 md:hidden overflow-y-auto animate-in fade-in slide-in-from-right duration-200 border-t border-[#27272a]">
           
@@ -364,11 +389,18 @@ export default function Navbar() {
             {isAuthenticated ? (
               <div className="p-4 rounded bg-[#141416] border border-[#27272a] flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded bg-[#00f2ff]/20 border border-[#00f2ff]/40 overflow-hidden flex items-center justify-center shrink-0">
-                    {userAvatarUrl ? (
-                      <img src={userAvatarUrl} alt={userDisplayName} className="w-full h-full object-cover" />
+                  <div className="w-10 h-10 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff]/40 overflow-hidden flex items-center justify-center shrink-0">
+                    {userAvatarUrl && !avatarError ? (
+                      <img
+                        src={userAvatarUrl}
+                        alt={`${userDisplayName} profile photo`}
+                        className="w-full h-full object-cover rounded-full"
+                        onError={() => setAvatarError(true)}
+                      />
                     ) : (
-                      <User className="w-5 h-5 text-[#00f2ff]" />
+                      <span className="text-sm font-headline font-bold text-[#00f2ff] uppercase leading-none select-none" aria-hidden="true">
+                        {userInitial}
+                      </span>
                     )}
                   </div>
                   <div>

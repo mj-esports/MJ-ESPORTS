@@ -95,10 +95,11 @@ export default function AdminDashboardPage({ defaultTab }) {
           setActiveTab={setActiveTab}
           mobileOpen={mobileOpen}
           setMobileOpen={setMobileOpen}
+          tournaments={tournaments}
         />
 
         {/* Main Admin Content Area */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 max-w-7xl mx-auto w-full box-border min-w-0 overflow-x-hidden">
           
           {/* Sub-Tab Header for Generic Pages */}
           {activeTab !== 'dashboard' && activeTab !== 'tournaments' && activeTab !== 'matches' && activeTab !== 'results' && (

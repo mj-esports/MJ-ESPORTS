@@ -226,26 +226,26 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
   }, [metrics])
 
   return (
-    <div className="space-y-6 sm:space-y-8 antialiased pb-12 text-xs">
+    <div className="space-y-5 sm:space-y-6 antialiased pb-16 sm:pb-12 text-xs w-full max-w-full overflow-x-hidden box-border">
 
-      {/* 1. DASHBOARD HEADER */}
-      <div className="bg-[#141416] border border-[#27272a] rounded p-5 sm:p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-headline font-bold text-[#00f2ff] uppercase tracking-wider mb-1.5">
-            <Shield className="w-4 h-4" />
+      {/* 1. DASHBOARD HEADER / ADMIN COMMAND CENTER */}
+      <div className="bg-[#141416] border border-[#27272a] rounded p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 w-full box-border">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-xs font-headline font-bold text-[#00f2ff] uppercase tracking-wider mb-1">
+            <Shield className="w-4 h-4 shrink-0" />
             <span>Admin Command Center</span>
           </div>
-          <h1 className="font-headline text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="font-headline text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight leading-tight">
             Operations Dashboard
           </h1>
-          <p className="text-xs sm:text-sm text-[#849495] font-body mt-1 max-w-2xl">
+          <p className="text-xs sm:text-sm text-[#849495] font-body mt-1 max-w-2xl leading-relaxed">
             Monitor tournaments, players, matches, registrations, and financial activity.
           </p>
         </div>
 
         {/* Identity & Status Indicators */}
-        <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-          <div className="px-3 py-1.5 bg-[#1c1b1c] border border-[#27272a] rounded flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 self-start sm:self-auto">
+          <div className="px-3 py-1.5 bg-[#1c1b1c] border border-[#27272a] rounded flex items-center gap-2 select-none">
             <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
             <span className="text-[10px] font-headline font-bold text-[#10b981] uppercase tracking-wider">
               OPERATIONAL
@@ -255,8 +255,9 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
           <button
             onClick={fetchCommandCenterData}
             disabled={loading}
-            className="p-2 bg-[#1c1b1c] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff]/40 text-[#849495] hover:text-[#00f2ff] rounded transition-all cursor-pointer disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center"
+            className="p-2 bg-[#1c1b1c] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff]/40 text-[#849495] hover:text-[#00f2ff] rounded transition-all cursor-pointer disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center shrink-0"
             title="Refresh Operational State"
+            aria-label="Refresh Dashboard State"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -264,169 +265,177 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
       </div>
 
       {fetchError && (
-        <div className="p-4 bg-red-950/30 border border-red-900/40 rounded flex items-center gap-3 text-red-400 text-xs font-body">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-3.5 sm:p-4 bg-red-950/30 border border-red-900/40 rounded flex items-center gap-3 text-red-400 text-xs font-body">
+          <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
           <span>{fetchError}</span>
         </div>
       )}
 
-      {/* 2. KPI SECTION (6 CARDS) */}
-      <section className="space-y-3">
+      {/* 2. PLATFORM KEY METRICS (6 CARDS) */}
+      <section className="space-y-2.5 sm:space-y-3">
         <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-[#849495] flex items-center gap-2">
-          <Activity className="w-3.5 h-3.5 text-[#00f2ff]" />
+          <Activity className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
           <span>Platform Key Metrics</span>
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3.5">
           
           {/* Active Tournaments */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-4 flex flex-col justify-between">
-            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider">Active Tournaments</span>
+          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Active Tournaments</span>
             <div className="space-y-0.5 mt-2">
-              <span className="text-xl sm:text-2xl font-bold font-headline text-[#00f2ff] block">
+              <span className="text-xl sm:text-2xl font-bold font-headline text-[#00f2ff] block leading-tight">
                 {metrics.activeTournaments}
               </span>
-              <span className="text-[9px] text-[#849495] uppercase block">Running / Live</span>
+              <span className="text-[9px] text-[#849495] uppercase font-body block truncate">Running / Live</span>
             </div>
           </div>
 
           {/* Open Registrations */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-4 flex flex-col justify-between">
-            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider">Open Registrations</span>
+          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Open Registrations</span>
             <div className="space-y-0.5 mt-2">
-              <span className="text-xl sm:text-2xl font-bold font-headline text-white block">
+              <span className="text-xl sm:text-2xl font-bold font-headline text-white block leading-tight">
                 {metrics.openRegistrations}
               </span>
-              <span className="text-[9px] text-[#849495] uppercase block">Accepting Teams</span>
+              <span className="text-[9px] text-[#849495] uppercase font-body block truncate">Accepting Teams</span>
             </div>
           </div>
 
           {/* Registered Players */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-4 flex flex-col justify-between">
-            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider">Registered Players</span>
+          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Registered Players</span>
             <div className="space-y-0.5 mt-2">
-              <span className="text-xl sm:text-2xl font-bold font-headline text-white block">
+              <span className="text-xl sm:text-2xl font-bold font-headline text-white block leading-tight">
                 {metrics.totalRegistrations}
               </span>
-              <span className="text-[9px] text-[#849495] uppercase block">Teams & Rosters</span>
+              <span className="text-[9px] text-[#849495] uppercase font-body block truncate">Teams & Rosters</span>
             </div>
           </div>
 
           {/* Total Prize Pool */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-4 flex flex-col justify-between">
-            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider">Total Prize Pool</span>
+          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Total Prize Pool</span>
             <div className="space-y-0.5 mt-2">
-              <span className="text-xl sm:text-2xl font-bold font-headline text-[#fed83a] block">
+              <span className="text-xl sm:text-2xl font-bold font-headline text-[#fed83a] block leading-tight">
                 ₹{metrics.totalPrizePool.toLocaleString('en-IN')}
               </span>
-              <span className="text-[9px] text-[#849495] uppercase block">Tournament Pools</span>
+              <span className="text-[9px] text-[#849495] uppercase font-body block truncate">Tournament Pools</span>
             </div>
           </div>
 
           {/* Pending Withdrawals */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-4 flex flex-col justify-between">
-            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider">Pending Withdrawals</span>
+          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Pending Withdrawals</span>
             <div className="space-y-0.5 mt-2">
-              <span className={`text-xl sm:text-2xl font-bold font-headline block ${metrics.pendingWithdrawalsCount > 0 ? 'text-[#ff5e07]' : 'text-white'}`}>
+              <span className={`text-xl sm:text-2xl font-bold font-headline block leading-tight ${metrics.pendingWithdrawalsCount > 0 ? 'text-[#ff5e07]' : 'text-white'}`}>
                 {metrics.pendingWithdrawalsCount}
               </span>
-              <span className="text-[9px] text-[#849495] uppercase block">Payout Requests</span>
+              <span className="text-[9px] text-[#849495] uppercase font-body block truncate">Payout Requests</span>
             </div>
           </div>
 
           {/* Today's Revenue */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-4 flex flex-col justify-between">
-            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider">Today's Revenue</span>
+          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+            <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Today's Revenue</span>
             <div className="space-y-0.5 mt-2">
-              <span className="text-xl sm:text-2xl font-bold font-headline text-[#10b981] block">
+              <span className="text-xl sm:text-2xl font-bold font-headline text-[#10b981] block leading-tight">
                 ₹{metrics.totalRevenue.toLocaleString('en-IN')}
               </span>
-              <span className="text-[9px] text-[#849495] uppercase block">Verified Entries</span>
+              <span className="text-[9px] text-[#849495] uppercase font-body block truncate">Verified Entries</span>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* 3. QUICK ACTIONS GRID */}
-      <section className="space-y-3">
+      {/* 3. QUICK OPERATIONS */}
+      <section className="space-y-2.5 sm:space-y-3">
         <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-[#849495] flex items-center gap-2">
-          <Zap className="w-3.5 h-3.5 text-[#00f2ff]" />
+          <Zap className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
           <span>Quick Operations</span>
         </h2>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
           <button
             onClick={() => setActiveTab('tournaments')}
-            className="p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 rounded text-left transition-all group cursor-pointer"
+            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 rounded text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
           >
-            <div className="w-8 h-8 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] mb-3 group-hover:scale-105 transition-transform">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
               <PlusCircle className="w-4 h-4" />
             </div>
-            <p className="font-headline font-bold text-xs sm:text-sm text-white group-hover:text-[#00f2ff] transition-colors">
-              Create Tournament
-            </p>
-            <p className="text-[10px] text-[#849495] font-body mt-0.5">
-              Draft & launch new arena
-            </p>
+            <div>
+              <p className="font-headline font-bold text-xs sm:text-sm text-white group-hover:text-[#00f2ff] transition-colors leading-tight line-clamp-1">
+                Create Tournament
+              </p>
+              <p className="text-[10px] text-[#849495] font-body mt-1 leading-snug line-clamp-2">
+                Draft & launch new arena
+              </p>
+            </div>
           </button>
 
           <button
             onClick={() => setActiveTab('matches')}
-            className="p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 rounded text-left transition-all group cursor-pointer"
+            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 rounded text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
           >
-            <div className="w-8 h-8 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] mb-3 group-hover:scale-105 transition-transform">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
               <Swords className="w-4 h-4" />
             </div>
-            <p className="font-headline font-bold text-xs sm:text-sm text-white uppercase group-hover:text-[#00f2ff] transition-colors">
-              Match Control
-            </p>
-            <p className="text-[10px] text-[#849495] font-body mt-0.5">
-              Live room credentials & scores
-            </p>
+            <div>
+              <p className="font-headline font-bold text-xs sm:text-sm text-white uppercase group-hover:text-[#00f2ff] transition-colors leading-tight line-clamp-1">
+                Match Control
+              </p>
+              <p className="text-[10px] text-[#849495] font-body mt-1 leading-snug line-clamp-2">
+                Live room credentials & scores
+              </p>
+            </div>
           </button>
 
           <button
             onClick={() => setActiveTab('finance')}
-            className="p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 rounded text-left transition-all group cursor-pointer"
+            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#fed83a]/40 rounded text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
           >
-            <div className="w-8 h-8 rounded bg-[#fed83a]/10 border border-[#fed83a]/30 flex items-center justify-center text-[#fed83a] mb-3 group-hover:scale-105 transition-transform">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#fed83a]/10 border border-[#fed83a]/30 flex items-center justify-center text-[#fed83a] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
               <CreditCard className="w-4 h-4" />
             </div>
-            <p className="font-headline font-bold text-xs sm:text-sm text-white uppercase group-hover:text-[#fed83a] transition-colors">
-              Review Payments
-            </p>
-            <p className="text-[10px] text-[#849495] font-body mt-0.5">
-              Verify pending entry receipts
-            </p>
+            <div>
+              <p className="font-headline font-bold text-xs sm:text-sm text-white uppercase group-hover:text-[#fed83a] transition-colors leading-tight line-clamp-1">
+                Review Payments
+              </p>
+              <p className="text-[10px] text-[#849495] font-body mt-1 leading-snug line-clamp-2">
+                Verify pending entry receipts
+              </p>
+            </div>
           </button>
 
           <button
             onClick={() => setActiveTab('finance')}
-            className="p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 rounded text-left transition-all group cursor-pointer"
+            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#ff5e07]/40 rounded text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
           >
-            <div className="w-8 h-8 rounded bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center text-[#ff5e07] mb-3 group-hover:scale-105 transition-transform">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center text-[#ff5e07] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
               <AlertTriangle className="w-4 h-4" />
             </div>
-            <p className="font-headline font-bold text-xs sm:text-sm text-white uppercase group-hover:text-[#ff5e07] transition-colors">
-              Review Withdrawals
-            </p>
-            <p className="text-[10px] text-[#849495] font-body mt-0.5">
-              Process bank payout ledger
-            </p>
+            <div>
+              <p className="font-headline font-bold text-xs sm:text-sm text-white uppercase group-hover:text-[#ff5e07] transition-colors leading-tight line-clamp-1">
+                Review Withdrawals
+              </p>
+              <p className="text-[10px] text-[#849495] font-body mt-1 leading-snug line-clamp-2">
+                Process bank payout ledger
+              </p>
+            </div>
           </button>
         </div>
       </section>
 
       {/* 4. ATTENTION REQUIRED & LIVE OPERATIONS */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
 
         {/* Attention Required Queue */}
-        <div className="lg:col-span-1 bg-[#141416] border border-[#27272a] rounded p-5 space-y-4 flex flex-col justify-between h-full">
+        <div className="lg:col-span-1 bg-[#141416] border border-[#27272a] rounded p-4 sm:p-5 space-y-3.5 flex flex-col justify-between h-full shadow-md">
           <div>
             <div className="flex items-center justify-between border-b border-[#27272a] pb-3 mb-3">
               <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-[#ff5e07]" />
+                <AlertTriangle className="w-4 h-4 text-[#ff5e07] shrink-0" />
                 <span>Attention Required</span>
               </h3>
               <span className="text-[10px] font-label-bold text-[#849495] uppercase">
@@ -449,19 +458,19 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                       key={item.id}
                       className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded space-y-2"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Icon className={`w-4 h-4 ${item.color}`} />
-                          <span className="font-headline font-bold text-xs text-white uppercase">{item.title}</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Icon className={`w-4 h-4 ${item.color} shrink-0`} />
+                          <span className="font-headline font-bold text-xs text-white uppercase truncate">{item.title}</span>
                         </div>
-                        <span className="px-2 py-0.5 bg-[#ff5e07]/15 text-[#ff5e07] border border-[#ff5e07]/30 text-[9px] font-headline font-bold rounded uppercase">
+                        <span className="px-2 py-0.5 bg-[#ff5e07]/15 text-[#ff5e07] border border-[#ff5e07]/30 text-[9px] font-headline font-bold rounded uppercase shrink-0">
                           {item.count} Pending
                         </span>
                       </div>
-                      <p className="text-xs text-[#849495] font-body">{item.description}</p>
+                      <p className="text-xs text-[#849495] font-body leading-relaxed">{item.description}</p>
                       <button
                         onClick={() => setActiveTab(item.tabTarget)}
-                        className="w-full mt-1 py-1.5 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full mt-1 py-2 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[38px]"
                       >
                         <span>{item.actionLabel}</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -475,75 +484,75 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
         </div>
 
         {/* Live Operations & Match Control Preview */}
-        <div className="lg:col-span-2 bg-[#141416] border border-[#27272a] rounded p-5 space-y-4 flex flex-col justify-between h-full">
+        <div className="lg:col-span-2 bg-[#141416] border border-[#27272a] rounded p-4 sm:p-5 space-y-3.5 flex flex-col justify-between h-full shadow-md">
           <div>
             <div className="flex items-center justify-between border-b border-[#27272a] pb-3 mb-3">
               <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                <Activity className="w-4 h-4 text-[#00f2ff]" />
+                <Activity className="w-4 h-4 text-[#00f2ff] shrink-0" />
                 <span>Live Operations</span>
               </h3>
               <button
                 onClick={() => setActiveTab('tournaments')}
-                className="text-xs font-headline font-bold text-[#00f2ff] hover:underline flex items-center gap-1 uppercase"
+                className="text-xs font-headline font-bold text-[#00f2ff] hover:underline flex items-center gap-1 uppercase cursor-pointer"
               >
                 <span>Manage Tournaments</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
-          {tournaments.length === 0 ? (
-            <div className="py-8 text-center text-[#849495] font-body">
-              No tournaments available in live operations.
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {tournaments.slice(0, 4).map((t) => {
-                const filled = t.registered_teams || t.registeredTeams || 0
-                const capacity = t.max_teams || t.maxTeams || 48
-                return (
-                  <div
-                    key={t.id}
-                    className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-headline font-bold text-xs text-white uppercase truncate max-w-[200px] sm:max-w-[280px]" title={t.title}>
-                          {t.title}
-                        </span>
-                        <AdminStatusBadge status={t.status || 'OPEN'} size="xs" />
-                      </div>
-                      <span className="text-xs text-[#849495] font-body block mt-0.5">
-                        {t.game || 'FREE FIRE MAX'} &bull; {t.format || 'SQUAD'} &bull; {filled}/{capacity} Teams
-                      </span>
-                    </div>
-
-                    <button
-                      onClick={() => setActiveTab('matches')}
-                      className="px-3 py-1.5 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0"
+            {tournaments.length === 0 ? (
+              <div className="py-8 text-center text-[#849495] font-body">
+                No tournaments available in live operations.
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {tournaments.slice(0, 4).map((t) => {
+                  const filled = t.registered_teams || t.registeredTeams || 0
+                  const capacity = t.max_teams || t.maxTeams || 48
+                  return (
+                    <div
+                      key={t.id}
+                      className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3"
                     >
-                      <span>Control</span>
-                      <ChevronRight className="w-3 h-3" />
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
-          )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-headline font-bold text-xs text-white uppercase truncate max-w-[200px] sm:max-w-[280px]" title={t.title}>
+                            {t.title}
+                          </span>
+                          <AdminStatusBadge status={t.status || 'OPEN'} size="xs" />
+                        </div>
+                        <span className="text-xs text-[#849495] font-body block mt-0.5">
+                          {t.game || 'FREE FIRE MAX'} &bull; {t.format || 'SQUAD'} &bull; {filled}/{capacity} Teams
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => setActiveTab('matches')}
+                        className="px-3.5 py-1.5 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0 min-h-[34px]"
+                      >
+                        <span>Control</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </div>
 
       </div>
 
       {/* 5. TOURNAMENT SNAPSHOT TABLE */}
-      <section className="space-y-4">
+      <section className="space-y-3.5 sm:space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-[#fed83a]" />
+            <Trophy className="w-4 h-4 text-[#fed83a] shrink-0" />
             <span>Tournament Snapshot</span>
           </h2>
           <button
             onClick={() => setActiveTab('tournaments')}
-            className="text-xs font-headline font-bold text-[#00f2ff] hover:underline flex items-center gap-1 uppercase"
+            className="text-xs font-headline font-bold text-[#00f2ff] hover:underline flex items-center gap-1 uppercase cursor-pointer"
           >
             <span>View All</span>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -600,7 +609,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                           <td className="py-3 px-4 text-right pr-4">
                             <button
                               onClick={() => setActiveTab('tournaments')}
-                              className="px-2.5 py-1 bg-[#1c1b1c] hover:bg-[#00f2ff] text-[#b9cacb] hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-[10px] font-headline font-bold uppercase transition-all cursor-pointer"
+                              className="px-2.5 py-1 bg-[#1c1b1c] hover:bg-[#00f2ff] text-[#b9cacb] hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-[10px] font-headline font-bold uppercase transition-all cursor-pointer min-h-[30px]"
                             >
                               Manage
                             </button>
@@ -618,22 +627,22 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                   const filled = t.registered_teams || t.registeredTeams || 0
                   const capacity = t.max_teams || t.maxTeams || 48
                   return (
-                    <div key={t.id} className="p-4 space-y-2">
+                    <div key={t.id} className="p-3.5 space-y-2 bg-[#141416]">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-bold text-white font-headline text-xs truncate max-w-[200px]">
+                        <span className="font-bold text-white font-headline text-xs truncate max-w-[190px]" title={t.title}>
                           {t.title}
                         </span>
                         <AdminStatusBadge status={t.status || 'OPEN'} size="xs" />
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-[#849495] font-body">
                         <span>{t.game || 'FREE FIRE MAX'} &bull; {t.format || 'SQUAD'}</span>
-                        <span className="font-headline font-bold text-[#fed83a]">{t.prize_pool || t.prizePool || '₹25,000'}</span>
+                        <span className="font-headline font-bold text-[#fed83a] text-xs">{t.prize_pool || t.prizePool || '₹25,000'}</span>
                       </div>
                       <div className="flex items-center justify-between pt-1">
-                        <span className="text-[10px] text-[#849495]">Teams: {filled}/{capacity}</span>
+                        <span className="text-[10px] text-[#849495]">Teams: <strong className="text-white">{filled}/{capacity}</strong></span>
                         <button
                           onClick={() => setActiveTab('tournaments')}
-                          className="px-2.5 py-1 bg-[#1c1b1c] hover:bg-[#00f2ff] text-[#b9cacb] hover:text-[#00363a] border border-[#27272a] rounded text-[10px] font-headline font-bold uppercase transition-all"
+                          className="px-3 py-1 bg-[#1c1b1c] hover:bg-[#00f2ff] text-[#b9cacb] hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-[10px] font-headline font-bold uppercase transition-all cursor-pointer min-h-[30px]"
                         >
                           Manage
                         </button>
@@ -647,14 +656,14 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
         </div>
       </section>
 
-      {/* 6. RECENT ACTIVITY STREAM */}
-      <section className="space-y-3">
+      {/* 6. RECENT PLATFORM ACTIVITY STREAM */}
+      <section className="space-y-2.5 sm:space-y-3">
         <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-[#849495] flex items-center gap-2">
-          <Clock className="w-3.5 h-3.5 text-[#00f2ff]" />
+          <Clock className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
           <span>Recent Platform Activity</span>
         </h2>
 
-        <div className="bg-[#141416] border border-[#27272a] rounded p-4">
+        <div className="bg-[#141416] border border-[#27272a] rounded p-3.5 sm:p-4 shadow-sm">
           {recentRegistrations.length === 0 ? (
             <div className="py-6 text-center text-[#849495] font-body">
               No recent tournament registrations or ledger activity recorded.
@@ -662,16 +671,16 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
           ) : (
             <div className="divide-y divide-[#27272a]">
               {recentRegistrations.map((r) => (
-                <div key={r.id} className="py-2.5 flex items-center justify-between text-xs font-body first:pt-0 last:pb-0">
+                <div key={r.id} className="py-2.5 flex items-center justify-between text-xs font-body first:pt-0 last:pb-0 gap-2">
                   <div className="min-w-0">
-                    <span className="font-bold text-white truncate max-w-[200px] block font-headline">
+                    <span className="font-bold text-white truncate max-w-[190px] sm:max-w-[280px] block font-headline">
                       {r.team_name || r.captain_name || 'Tournament Registration'}
                     </span>
                     <span className="text-[10px] text-[#849495] block font-mono">
                       {r.created_at ? new Date(r.created_at).toLocaleString() : 'Recent activity'}
                     </span>
                   </div>
-                  <span className="px-2 py-0.5 bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 rounded text-[9px] font-headline font-bold uppercase">
+                  <span className="px-2 py-0.5 bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 rounded text-[9px] font-headline font-bold uppercase shrink-0">
                     {r.status || 'Received'}
                   </span>
                 </div>

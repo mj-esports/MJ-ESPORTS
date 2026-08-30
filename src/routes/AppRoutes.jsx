@@ -60,6 +60,8 @@ export default function AppRoutes() {
           <Route path="tournaments/:id" element={<TournamentDetailPage />} />
           <Route path="leaderboard" element={<LeaderboardPage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="privacy" element={<AboutPage defaultTab="privacy" />} />
+          <Route path="terms" element={<AboutPage defaultTab="terms" />} />
           <Route path="403" element={<AccessDeniedPage />} />
           <Route path="500" element={<ServerErrorPage />} />
           

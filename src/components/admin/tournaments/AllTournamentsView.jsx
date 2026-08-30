@@ -139,32 +139,33 @@ export default function AllTournamentsView({
     <div className="space-y-4 font-body antialiased">
       
       {/* 1. COMPACT FILTER TOOLBAR */}
-      <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 shadow-xl flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="bg-[#141416] border border-[#27272a] rounded p-2.5 sm:p-3.5 shadow-xl space-y-2 w-full box-border">
         {/* Search */}
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-[#849495] absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="relative w-full">
+          <Search className="w-3.5 h-3.5 text-[#849495] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search tournament title or ID..."
-            className="w-full bg-[#1c1b1c] border border-[#27272a] rounded pl-9 pr-3 py-2 text-xs text-white placeholder-[#849495] focus:border-[#00f2ff] focus:outline-none transition-colors"
+            className="w-full bg-[#1c1b1c] border border-[#27272a] rounded pl-8.5 pr-8 py-1.5 text-xs text-white placeholder-[#849495] focus:border-[#00f2ff] focus:outline-none transition-colors min-h-[34px] sm:min-h-[36px]"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#849495] hover:text-white p-0.5"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#849495] hover:text-white p-1 cursor-pointer"
+              title="Clear search"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3 h-3" />
             </button>
           )}
         </div>
 
-        {/* Dropdown Filters */}
-        <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
+        {/* Horizontal Scrollable Filter Row below search */}
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full flex-nowrap pb-0.5">
           {/* Game Filter */}
-          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-1.5 text-xs text-white">
-            <Gamepad2 className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+          <div className="flex items-center gap-1 bg-[#1c1b1c] border border-[#27272a] rounded px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
+            <Gamepad2 className="w-3 h-3 text-[#00f2ff] shrink-0" />
             <select
               value={gameFilter}
               onChange={(e) => setGameFilter(e.target.value)}
@@ -177,8 +178,8 @@ export default function AllTournamentsView({
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-1.5 text-xs text-white">
-            <Filter className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+          <div className="flex items-center gap-1 bg-[#1c1b1c] border border-[#27272a] rounded px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
+            <Filter className="w-3 h-3 text-[#00f2ff] shrink-0" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -196,8 +197,9 @@ export default function AllTournamentsView({
           </div>
 
           {/* Date Filter */}
-          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-1.5 text-xs text-white">
-            <Calendar className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
+            <Calendar className="w-3 h-3 text-[#00f2ff] shrink-0" />
+            <span className="text-[10px] text-[#849495] uppercase font-label-bold">Date:</span>
             <input
               type="date"
               value={dateFilter}
@@ -207,7 +209,7 @@ export default function AllTournamentsView({
             {dateFilter && (
               <button
                 onClick={() => setDateFilter('')}
-                className="text-[#849495] hover:text-white p-0.5"
+                className="text-[#849495] hover:text-white p-0.5 ml-1"
                 title="Clear date filter"
               >
                 <X className="w-3 h-3" />
@@ -217,10 +219,10 @@ export default function AllTournamentsView({
         </div>
       </div>
 
-      {/* 2. TOURNAMENTS OPERATIONS TABLE (DESKTOP >= 768px) */}
+      {/* 2. TOURNAMENTS OPERATIONS TABLE & MOBILE CARDS */}
       <div className="bg-[#141416] border border-[#27272a] rounded overflow-hidden shadow-xl">
         {filteredTournaments.length === 0 ? (
-          <div className="p-12 text-center space-y-3 font-body">
+          <div className="p-8 sm:p-12 text-center space-y-3 font-body">
             <Trophy className="w-10 h-10 text-[#849495] mx-auto opacity-40" />
             <p className="text-sm font-bold text-white uppercase font-headline">
               {tournaments.length === 0 ? 'No Tournaments Found' : 'No Matching Results'}
@@ -242,7 +244,7 @@ export default function AllTournamentsView({
           </div>
         ) : (
           <>
-            {/* Desktop Table View */}
+            {/* Desktop Table View (>= 768px) */}
             <div className="hidden md:block overflow-x-auto w-full">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
@@ -266,7 +268,6 @@ export default function AllTournamentsView({
                     const fillPct = calculateSlotFillPercentage(t)
                     const prizeDisplay = formatTournamentPrize(t)
                     const feeDisplay = t.entryFee || t.entry_fee || 'Free'
-                    const nextStage = getNextLifecycleStage(t.status)
 
                     return (
                       <tr
@@ -353,7 +354,7 @@ export default function AllTournamentsView({
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => onSelectTournament(t.id)}
-                              className="px-3 py-1.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-sm cursor-pointer flex items-center gap-1"
+                              className="px-3 py-1.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-sm cursor-pointer flex items-center gap-1 min-h-[32px]"
                             >
                               <span>Manage</span>
                               <ChevronRight className="w-3 h-3" />
@@ -364,9 +365,9 @@ export default function AllTournamentsView({
                               onClick={(e) => handleToggleMenu(e, t)}
                               className={`p-1.5 ${
                                 activeMenu?.id === t.id
-                                  ? 'bg-[#27272a] text-white border-[#00f2ff]'
-                                  : 'bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border-[#27272a]'
-                              } border rounded transition-colors cursor-pointer`}
+                                    ? 'bg-[#27272a] text-white border-[#00f2ff]'
+                                    : 'bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border-[#27272a]'
+                              } border rounded transition-colors cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center`}
                               title="More Actions"
                             >
                               <MoreVertical className="w-3.5 h-3.5" />
@@ -391,30 +392,33 @@ export default function AllTournamentsView({
                 const feeDisplay = t.entryFee || t.entry_fee || 'Free'
 
                 return (
-                  <div key={`m-tourn-${t.id}`} className="p-4 space-y-3">
+                  <div key={`m-tourn-${t.id}`} className="p-3 space-y-2 bg-[#141416]">
                     {/* Header */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
                         <span
                           onClick={() => onSelectTournament(t.id)}
-                          className="font-headline font-bold text-sm text-white block truncate"
+                          className="font-headline font-bold text-xs sm:text-sm text-white block truncate hover:text-[#00f2ff] cursor-pointer transition-colors"
+                          title={t.title}
                         >
                           {t.title}
                         </span>
-                        <span className="text-xs text-[#849495] font-body">
-                          {t.game || 'Free Fire MAX'} &bull; {t.format || modeInfo.label}
+                        <span className="text-[10px] text-[#849495] font-body block">
+                          {t.game || 'Free Fire MAX'} &bull; {t.format || `${modeInfo.label} (${modeInfo.size}P)`}
                         </span>
                       </div>
                       <AdminStatusBadge status={t.status || 'OPEN'} size="xs" />
                     </div>
 
                     {/* Registration Progress */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-body text-[#849495]">
-                        <span className="text-white font-bold">{regTeams} / {maxTeams} {modeInfo.teamUnit}</span>
+                    <div className="space-y-0.5">
+                      <div className="flex justify-between text-[9px] font-body text-[#849495]">
+                        <span className="text-white font-headline font-bold">
+                          {regTeams} / {maxTeams} {modeInfo.teamUnit}
+                        </span>
                         <span>{fillPct}%</span>
                       </div>
-                      <div className="w-full h-2 bg-[#27272a] rounded-full overflow-hidden border border-[#3f3f46]/60">
+                      <div className="w-full h-1.5 bg-[#27272a] rounded-full overflow-hidden border border-[#3f3f46]/40">
                         <div
                           className={`h-full transition-all duration-300 ${
                             fillPct >= 100
@@ -428,37 +432,44 @@ export default function AllTournamentsView({
                       </div>
                     </div>
 
-                    {/* Financials & Schedule */}
-                    <div className="flex items-center justify-between text-[11px] font-body pt-1">
-                      <div>
-                        <span className="text-[9px] text-[#849495] block uppercase">Prize Pool</span>
-                        <span className="font-headline font-bold text-[#fed83a]">{prizeDisplay}</span>
+                    {/* Financials & Schedule Reflow */}
+                    <div className="grid grid-cols-3 gap-1 bg-[#1c1b1c] p-1.5 rounded border border-[#27272a] text-center">
+                      <div className="min-w-0">
+                        <span className="text-[8px] text-[#849495] block uppercase font-label-bold">Prize Pool</span>
+                        <span className="font-headline font-bold text-[#fed83a] text-xs truncate block">{prizeDisplay}</span>
                       </div>
-                      <div className="text-center">
-                        <span className="text-[9px] text-[#849495] block uppercase">Entry Fee</span>
-                        <span className="font-headline font-bold text-[#10b981]">{feeDisplay}</span>
+                      <div className="min-w-0">
+                        <span className="text-[8px] text-[#849495] block uppercase font-label-bold">Entry Fee</span>
+                        <span className="font-headline font-bold text-[#10b981] text-xs truncate block">{feeDisplay}</span>
                       </div>
-                      <div className="text-right">
-                        <span className="text-[9px] text-[#849495] block uppercase">Start Date</span>
-                        <span className="font-headline font-bold text-white">{t.startDate || t.start_date || 'TBD'}</span>
+                      <div className="min-w-0">
+                        <span className="text-[8px] text-[#849495] block uppercase font-label-bold">Start Date</span>
+                        <span className="font-headline font-bold text-white text-xs truncate block">{t.startDate || t.start_date || 'TBD'}</span>
                       </div>
                     </div>
 
-                    {/* Primary Manage Action */}
-                    <div className="flex items-center gap-2 pt-2 border-t border-[#27272a]">
+                    {/* Primary Manage Action + Secondary Controls */}
+                    <div className="flex items-center gap-1.5 pt-0.5">
                       <button
                         onClick={() => onSelectTournament(t.id)}
-                        className="flex-1 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-sm flex items-center justify-center gap-1 cursor-pointer"
+                        className="flex-1 py-1.5 px-3 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_8px_rgba(0,242,255,0.2)] flex items-center justify-center gap-1 cursor-pointer min-h-[32px]"
                       >
                         <span>Manage</span>
                         <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => onEditTournament(t)}
-                        className="p-2 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded cursor-pointer"
+                        className="p-1.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
                         title="Edit Tournament"
                       >
-                        <Edit3 className="w-4 h-4" />
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={(e) => handleToggleMenu(e, t)}
+                        className="p-1.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
+                        title="More Options"
+                      >
+                        <MoreVertical className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>

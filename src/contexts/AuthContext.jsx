@@ -14,6 +14,7 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
+  const [profile, setProfile] = useState(null)
   const [session, setSession] = useState(null)
   const [role, setRole] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -62,24 +63,32 @@ export function AuthProvider({ children }) {
 
         // Automatically ensure user profile exists in public.profiles table (e.g. for Google Sign-In & new users)
         if (isSupabaseConfigured) {
-          const userEmail = currentUser.email || ''
-          const username =
-            currentUser.user_metadata?.username ||
-            currentUser.user_metadata?.full_name ||
-            currentUser.user_metadata?.name ||
-            (userEmail ? userEmail.split('@')[0] : 'Player')
-
           try {
-            await supabase.from('profiles').upsert(
-              [
-                {
-                  id: currentUser.id,
-                  username,
-                  email: userEmail,
-                },
-              ],
-              { onConflict: 'id' }
-            )
+            const { data: profData } = await supabase
+              .from('profiles')
+              .select('id, username, avatar_url, email, game_uid')
+              .eq('id', currentUser.id)
+              .maybeSingle()
+
+            if (profData) {
+              setProfile(profData)
+            } else {
+              const userEmail = currentUser.email || ''
+              const username =
+                currentUser.user_metadata?.username ||
+                currentUser.user_metadata?.full_name ||
+                currentUser.user_metadata?.name ||
+                (userEmail ? userEmail.split('@')[0] : 'Player')
+
+              const initProf = {
+                id: currentUser.id,
+                username,
+                email: userEmail,
+                avatar_url: currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.avatarUrl || null,
+              }
+              await supabase.from('profiles').upsert([initProf], { onConflict: 'id' })
+              setProfile(initProf)
+            }
           } catch (pErr) {
             console.warn('[Sync Profile Upsert Notice]:', pErr.message)
           }
@@ -92,6 +101,7 @@ export function AuthProvider({ children }) {
     } else {
       setRole(null)
       roleRef.current = null
+      setProfile(null)
     }
 
     setRoleLoading(false)
@@ -261,12 +271,14 @@ export function AuthProvider({ children }) {
     setSession(null)
     setRole(null)
     roleRef.current = null
+    setProfile(null)
     setRoleLoading(false)
     setLoading(false)
   }
 
   const value = {
     user,
+    profile,
     session,
     role,
     isAdmin: role === 'admin',

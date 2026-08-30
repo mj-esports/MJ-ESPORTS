@@ -648,63 +648,65 @@ export default function TournamentCenterView({
   const activeTournament = tournaments.find((t) => t.id === selectedTournamentId)
 
   return (
-    <div className="space-y-5 font-body antialiased">
+    <div className="space-y-3 sm:space-y-4 font-body antialiased w-full max-w-full overflow-x-hidden box-border">
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
-      {/* 1. TOURNAMENTS CONSOLE PAGE HEADER */}
-      <div className="bg-[#141416] border border-[#27272a] rounded p-5 sm:p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-headline font-bold text-[#00f2ff] uppercase tracking-wider mb-1.5">
-            <Trophy className="w-4 h-4" />
+      {/* 1. TOURNAMENTS CONSOLE PAGE HEADER (COMPACT HERO) */}
+      <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 md:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 w-full box-border">
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 text-[11px] font-headline font-bold text-[#00f2ff] uppercase tracking-wider mb-0.5">
+            <Trophy className="w-3.5 h-3.5 shrink-0" />
             <span>Tournaments Console</span>
           </div>
-          <h1 className="font-headline text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-tight">
+          <h1 className="font-headline text-lg sm:text-2xl lg:text-3xl font-extrabold text-white uppercase tracking-tight leading-tight">
             Arena Operations
           </h1>
-          <p className="text-xs sm:text-sm text-[#849495] font-body mt-1 max-w-2xl">
+          <p className="text-[11px] sm:text-xs text-[#849495] font-body mt-0.5 max-w-2xl leading-snug">
             Operational controls & real-time arena management
           </p>
         </div>
 
         <button
           onClick={handleOpenCreateModal}
-          className="px-4 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_12px_rgba(0,242,255,0.25)] flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+          className="px-3.5 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_10px_rgba(0,242,255,0.2)] flex items-center justify-center gap-1.5 shrink-0 cursor-pointer min-h-[34px] sm:min-h-[38px] self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4 text-[#00363a] stroke-[3]" />
+          <Plus className="w-3.5 h-3.5 text-[#00363a] stroke-[3]" />
           <span>Create Tournament</span>
         </button>
       </div>
 
-      {/* 2. UNIFIED PRIMARY NAVIGATION BAR */}
-      <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-headline font-bold border-b border-[#27272a] pb-2">
-        {[
-          { id: 'ALL_TOURNAMENTS', label: 'ALL TOURNAMENTS', icon: Trophy },
-          { id: 'REGISTRATION_QUEUE', label: 'REGISTRATION QUEUE', icon: ClipboardList },
-          { id: 'MATCH_OPERATIONS', label: 'MATCH OPERATIONS', icon: Swords },
-          { id: 'RESULTS', label: 'RESULTS', icon: Award },
-          { id: 'HISTORY', label: 'HISTORY', icon: History },
-        ].map((tab) => {
-          const Icon = tab.icon
-          const active = activeOpsTab === tab.id && !selectedTournamentId
+      {/* 2. UNIFIED PRIMARY HORIZONTAL NAVIGATION BAR (COMPACT SEGMENTED CONTROL BAR 48-56PX) */}
+      <div className="relative w-full max-w-full box-border bg-[#141416]/95 border border-[#27272a] rounded-lg p-1 sm:p-1.5 shadow-md">
+        <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full flex-nowrap px-0.5 py-0.5">
+          {[
+            { id: 'ALL_TOURNAMENTS', label: 'All Tournaments', icon: Trophy },
+            { id: 'REGISTRATION_QUEUE', label: 'Registration Queue', icon: ClipboardList },
+            { id: 'MATCH_OPERATIONS', label: 'Match Operations', icon: Swords },
+            { id: 'RESULTS', label: 'Results', icon: Award },
+            { id: 'HISTORY', label: 'History', icon: History },
+          ].map((tab) => {
+            const Icon = tab.icon
+            const active = activeOpsTab === tab.id && !selectedTournamentId
 
-          return (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setSelectedTournamentId(null)
-                setActiveOpsTab(tab.id)
-              }}
-              className={`px-3.5 py-2 rounded transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
-                active
-                  ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-sm'
-                  : 'bg-[#141416] text-[#849495] hover:text-white border border-[#27272a]'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{tab.label}</span>
-            </button>
-          )
-        })}
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setSelectedTournamentId(null)
+                  setActiveOpsTab(tab.id)
+                }}
+                className={`px-2.5 sm:px-3.5 py-1.5 rounded text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 min-h-[30px] sm:min-h-[34px] select-none ${
+                  active
+                    ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_8px_rgba(0,242,255,0.25)]'
+                    : 'text-[#849495] hover:text-white hover:bg-[#1c1b1c]'
+                }`}
+              >
+                <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                <span>{tab.label}</span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* 3. VIEW SWITCHING CONTAINER */}

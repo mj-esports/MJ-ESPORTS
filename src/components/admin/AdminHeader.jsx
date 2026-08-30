@@ -44,15 +44,15 @@ export default function AdminHeader({
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-[#141416]/95 backdrop-blur-xl border-b border-[#27272a] h-16 px-4 sm:px-6 flex items-center justify-between shadow-md">
+    <header className="sticky top-0 z-40 bg-[#141416]/95 backdrop-blur-xl border-b border-[#27272a] h-16 px-3 sm:px-6 flex items-center justify-between shadow-md max-w-full overflow-hidden box-border">
 
       {/* Left: Mobile Toggle, Brand Logo & Command Center Title */}
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
         {/* Mobile Hamburger Drawer Trigger */}
         {onOpenMobileSidebar && (
           <button
             onClick={onOpenMobileSidebar}
-            className="lg:hidden p-2 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-[#00f2ff] hover:border-[#00f2ff]/40 focus:outline-none transition-all cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
+            className="lg:hidden p-2 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-[#00f2ff] hover:border-[#00f2ff]/40 focus:outline-none transition-all cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center shrink-0"
             aria-label="Open Admin Navigation Drawer"
           >
             <Menu className="w-5 h-5" />
@@ -60,27 +60,27 @@ export default function AdminHeader({
         )}
 
         {/* Brand Logo */}
-        <Link to="/admin" className="flex items-center gap-2.5 group shrink-0">
-          <div className="w-8 h-8 rounded bg-[#00f2ff] p-[1px] shadow-[0_0_12px_rgba(0,242,255,0.35)] group-hover:scale-105 transition-transform flex items-center justify-center">
+        <Link to="/admin" className="flex items-center gap-2 group shrink-0">
+          <div className="w-8 h-8 rounded bg-[#00f2ff] p-[1px] shadow-[0_0_12px_rgba(0,242,255,0.35)] group-hover:scale-105 transition-transform flex items-center justify-center shrink-0">
             <div className="w-full h-full bg-[#141416] rounded flex items-center justify-center">
               <Swords className="w-4 h-4 text-[#00f2ff]" />
             </div>
           </div>
-          <div className="hidden sm:block">
-            <span className="font-headline font-extrabold text-sm tracking-wider text-white uppercase block leading-none">
+          <div className="block min-w-0">
+            <span className="font-headline font-extrabold text-xs sm:text-sm tracking-wider text-white uppercase block leading-none truncate">
               MJ <span className="text-[#00f2ff]">ESPORTS</span>
             </span>
-            <span className="text-[9px] uppercase font-label-bold text-[#849495] tracking-wider block mt-0.5">
+            <span className="text-[8px] sm:text-[9px] uppercase font-label-bold text-[#849495] tracking-wider block mt-0.5 leading-none truncate">
               ADMIN CONSOLE
             </span>
           </div>
         </Link>
 
-        <div className="h-5 w-[1px] bg-[#27272a] hidden sm:block"></div>
+        <div className="h-5 w-[1px] bg-[#27272a] hidden md:block shrink-0"></div>
 
         {/* Security Indicator */}
-        <div className="hidden xs:flex items-center gap-1.5 text-[#00f2ff] select-none" title="Admin Control Console Active">
-          <Shield className="w-4 h-4 text-[#00f2ff] shrink-0" />
+        <div className="hidden sm:flex items-center gap-1.5 text-[#00f2ff] select-none shrink-0" title="Admin Control Console Active">
+          <Shield className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
         </div>
       </div>
 
@@ -100,7 +100,7 @@ export default function AdminHeader({
         </div>
 
         {/* Online / Authorized Status Badge */}
-        <span className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#10b981]/10 border border-[#10b981]/30 text-[#10b981] text-[10px] font-headline font-bold uppercase tracking-wider select-none">
+        <span className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#10b981]/10 border border-[#10b981]/30 text-[#10b981] text-[10px] font-headline font-bold uppercase tracking-wider select-none shrink-0">
           <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse"></span>
           <span>ONLINE</span>
         </span>
@@ -109,7 +109,7 @@ export default function AdminHeader({
         <div className="relative">
           <button
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 text-xs font-bold transition-all cursor-pointer min-h-[36px]"
+            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 text-xs font-bold transition-all cursor-pointer min-h-[36px]"
           >
             <div className="w-5 h-5 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff] overflow-hidden flex items-center justify-center shrink-0">
               {adminAvatarUrl ? (
@@ -118,14 +118,14 @@ export default function AdminHeader({
                 <User className="w-3 h-3 text-[#00f2ff]" />
               )}
             </div>
-            <span className="text-white font-headline text-xs truncate max-w-[70px] sm:max-w-[110px] hidden xs:inline">{adminName}</span>
+            <span className="text-white font-headline text-xs truncate max-w-[60px] sm:max-w-[100px] hidden xs:inline">{adminName}</span>
             <span className="px-1.5 py-0.5 text-[8px] font-headline font-extrabold bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/30 rounded uppercase tracking-wider shrink-0">
               ADMIN
             </span>
           </button>
 
           {showProfileMenu && (
-            <div className="absolute right-0 mt-2 w-56 bg-[#141416] border border-[#27272a] rounded shadow-2xl py-2 z-50 animate-fadeIn text-xs space-y-1">
+            <div className="absolute right-0 mt-2 w-52 sm:w-56 bg-[#141416] border border-[#27272a] rounded shadow-2xl py-2 z-50 animate-fadeIn text-xs space-y-1">
               <div className="px-4 py-2 border-b border-[#27272a]">
                 <p className="font-bold text-white truncate font-headline">{adminName}</p>
                 <p className="text-xs text-[#849495] truncate font-body">{adminEmail}</p>
@@ -154,7 +154,7 @@ export default function AdminHeader({
         {/* Direct Logout Button */}
         <button
           onClick={handleLogout}
-          className="p-2 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-red-400 hover:border-red-900/40 transition-colors hidden sm:flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px]"
+          className="p-2 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-red-400 hover:border-red-900/40 transition-colors hidden sm:flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px] shrink-0"
           title="Logout Session"
         >
           <LogOut className="w-4 h-4" />

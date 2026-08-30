@@ -35,6 +35,10 @@ export default function AdminStatusBadge({ status, size = 'sm', className = '' }
   } else if (normalized === 'CANCELLED' || normalized === 'CANCELED') {
     variant = 'cancelled'
     label = 'CANCELLED'
+  } else if (normalized === 'RESULTS PENDING' || normalized === 'RESULTS_PENDING' || normalized === 'PENDING RESULTS') {
+    variant = 'results_pending'
+    label = 'RESULTS PENDING'
+    isPending = true
   } else if (normalized === 'PENDING') {
     variant = 'pending'
     label = 'PENDING'
@@ -49,6 +53,7 @@ export default function AdminStatusBadge({ status, size = 'sm', className = '' }
     open: 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/30 font-headline',
     upcoming: 'bg-[#1c1b1c] text-[#00f2ff] border-[#27272a] font-headline',
     full: 'bg-[#fed83a]/10 text-[#fed83a] border-[#fed83a]/40 font-headline',
+    results_pending: 'bg-[#fed83a]/15 text-[#fed83a] border-[#fed83a]/40 font-headline',
     completed: 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/30 font-headline',
     cancelled: 'bg-red-950/40 text-red-400 border-red-900/40 font-headline',
     pending: 'bg-[#ff5e07]/10 text-[#ff5e07] border-[#ff5e07]/30 font-headline',
