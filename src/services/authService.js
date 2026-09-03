@@ -100,6 +100,8 @@ export async function signUp(email, password, metadata = {}) {
   }
 
   const role = metadata.role || 'user'
+  const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : ''
+  const emailRedirectTo = origin ? `${origin}/` : undefined
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -109,6 +111,7 @@ export async function signUp(email, password, metadata = {}) {
         ...metadata,
         role,
       },
+      emailRedirectTo,
     },
   })
   if (error) {
@@ -217,10 +220,13 @@ export async function signInWithGoogle() {
     return createMockSession('google_player@mjesports.gg', { username: 'Google Player' })
   }
 
+  const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : ''
+  const redirectTo = origin ? `${origin}/` : undefined
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin,
+      redirectTo,
     },
   })
   if (error) {
@@ -238,8 +244,11 @@ export async function requestPasswordReset(email) {
   }
 
   try {
+    const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : ''
+    const redirectTo = origin ? `${origin}/reset-password` : undefined
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo,
     })
 
     if (error) {
