@@ -718,38 +718,46 @@ export default function TournamentCenterView({
       </div>
 
       {/* 2. UNIFIED PRIMARY HORIZONTAL NAVIGATION BAR (COMPACT CONTROL BAR 48-56PX) */}
-      <div className="w-full max-w-full min-w-0 box-border overflow-hidden bg-[#141416] border border-[#27272a] rounded p-1 sm:p-1.5 shadow-md">
+      <div className="w-full max-w-full min-w-0 box-border bg-[#141416] border border-[#27272a] rounded shadow-md overflow-hidden">
         <div
           ref={tabContainerRef}
-          className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full max-w-full min-w-0 box-border flex-nowrap px-1 py-1 overscroll-x-contain"
-          style={{ WebkitOverflowScrolling: 'touch' }}
+          className="w-full max-w-full min-w-0 box-border overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden overscroll-x-contain touch-pan-x p-1 sm:p-1.5"
+          style={{
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-x',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
         >
-          {[
-            { id: 'ALL_TOURNAMENTS', label: 'All Tournaments', icon: Trophy },
-            { id: 'REGISTRATION_QUEUE', label: 'Registration Queue', icon: ClipboardList },
-            { id: 'MATCH_OPERATIONS', label: 'Match Operations', icon: Swords },
-            { id: 'RESULTS', label: 'Results', icon: Award },
-            { id: 'HISTORY', label: 'History', icon: History },
-          ].map((tab) => {
-            const Icon = tab.icon
-            const active = activeOpsTab === tab.id && !selectedTournamentId
+          <div className="inline-flex items-center gap-1 sm:gap-1.5 min-w-full w-max flex-nowrap pr-3 sm:pr-0">
+            {[
+              { id: 'ALL_TOURNAMENTS', label: 'All Tournaments', icon: Trophy },
+              { id: 'REGISTRATION_QUEUE', label: 'Registration Queue', icon: ClipboardList },
+              { id: 'MATCH_OPERATIONS', label: 'Match Operations', icon: Swords },
+              { id: 'RESULTS', label: 'Results', icon: Award },
+              { id: 'HISTORY', label: 'History', icon: History },
+            ].map((tab) => {
+              const Icon = tab.icon
+              const active = activeOpsTab === tab.id && !selectedTournamentId
 
-            return (
-              <button
-                key={tab.id}
-                ref={(el) => (tabRefs.current[tab.id] = el)}
-                onClick={() => handleTabClick(tab.id)}
-                className={`px-2.5 sm:px-3.5 py-1.5 rounded text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] sm:min-h-[34px] select-none ${
-                  active
-                    ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_8px_rgba(0,242,255,0.25)]'
-                    : 'bg-[#1c1b1c] sm:bg-transparent text-[#849495] hover:text-white hover:bg-[#1c1b1c] border border-[#27272a] sm:border-transparent'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5 shrink-0" />
-                <span className="whitespace-nowrap select-none">{tab.label}</span>
-              </button>
-            )
-          })}
+              return (
+                <button
+                  key={tab.id}
+                  ref={(el) => (tabRefs.current[tab.id] = el)}
+                  onClick={() => handleTabClick(tab.id)}
+                  style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+                  className={`px-2.5 sm:px-3.5 py-1.5 rounded text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] sm:min-h-[34px] select-none ${
+                    active
+                      ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_8px_rgba(0,242,255,0.25)]'
+                      : 'bg-[#1c1b1c] sm:bg-transparent text-[#849495] hover:text-white hover:bg-[#1c1b1c] border border-[#27272a] sm:border-transparent'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="whitespace-nowrap shrink-0 select-none inline-block">{tab.label}</span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 

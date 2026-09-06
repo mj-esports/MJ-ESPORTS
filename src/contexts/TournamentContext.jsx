@@ -320,6 +320,8 @@ export function TournamentProvider({ children }) {
           p_enable_sms_alerts: Boolean(teamInfo.enableSmsAlerts !== false),
           p_mode: teamInfo.mode || 'Squad',
           p_ref_id: refId,
+          p_payment_id: teamInfo.paymentId || null,
+          p_razorpay_payment_id: teamInfo.razorpayPaymentId || null,
           p_teammate_igns: teamInfo.teammateIgns || [],
           p_substitute_igns: teamInfo.substituteIgns || [],
         }
@@ -335,10 +337,8 @@ export function TournamentProvider({ children }) {
           p_team_name: rpcPayload.p_team_name,
           p_captain_name: rpcPayload.p_captain_name,
           p_captain_uid: rpcPayload.p_captain_uid,
-          p_teammate_uids: rpcPayload.p_teammate_uids,
-          p_teammate_igns: rpcPayload.p_teammate_igns,
-          p_substitute_uids: rpcPayload.p_substitute_uids,
-          p_substitute_igns: rpcPayload.p_substitute_igns,
+          p_payment_id: rpcPayload.p_payment_id,
+          p_razorpay_payment_id: rpcPayload.p_razorpay_payment_id,
           p_mode: rpcPayload.p_mode,
           p_ref_id: rpcPayload.p_ref_id,
         })
@@ -366,6 +366,14 @@ export function TournamentProvider({ children }) {
           console.warn('[RPC Diagnostic]: RPC returned unsuccessful response ->', data.error_code, data.message)
           // Map structured RPC error codes to clear, user-friendly UI messages
           switch (data.error_code) {
+            case 'PAYMENT_REQUIRED':
+              throw new Error(data.message || 'Payment is required to register for this tournament.')
+            case 'INVALID_PAYMENT':
+              throw new Error(data.message || 'Payment verification failed. Please try again.')
+            case 'PAYMENT_ALREADY_USED':
+              throw new Error('This payment has already been used for another tournament registration.')
+            case 'PAYMENT_AMOUNT_MISMATCH':
+              throw new Error(data.message || 'Payment amount does not match the tournament entry fee.')
             case 'DUPLICATE_GAME_UID':
               throw new Error(data.message || 'One of the Game UIDs is already registered in this tournament.')
             case 'DUPLICATE_USER_ACCOUNT':

@@ -262,3 +262,39 @@ export async function rejectPayoutProposal(payoutQueueId, rejectionReason = 'Rej
     return { success: false, error_code: 'EXCEPTION', message: err.message }
   }
 }
+
+/**
+ * Finalize Tournament Results Atomically (RPC call)
+ * Enforces server-side is_admin(), state machine validation, prize ceiling, registration updates, and payout queueing in a single transaction.
+ */
+export async function finalizeTournamentResults({
+  tournamentId,
+  teamsList,
+  winnerTeam,
+  winnerCaptain,
+  payoutProposals = [],
+}) {
+  if (!isSupabaseConfigured) {
+    return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('finalize_tournament_results', {
+      p_tournament_id: String(tournamentId),
+      p_teams_list: teamsList,
+      p_winner_team: winnerTeam || 'Grand Champions',
+      p_winner_captain: winnerCaptain || 'Champion Captain',
+      p_payout_proposals: payoutProposals,
+    })
+
+    if (error) {
+      console.error('[payoutService] finalizeTournamentResults RPC error:', error)
+      return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
+    }
+
+    return data || { success: true }
+  } catch (err) {
+    console.error('[payoutService] finalizeTournamentResults exception:', err)
+    return { success: false, error_code: 'EXCEPTION', message: err.message }
+  }
+}

@@ -92,14 +92,14 @@ export function useFinanceData(tournaments: any[] = []) {
         teams.forEach((team: any, idx: number) => {
           fallbackItems.push({
             id: `pay_${t.id}_${idx + 1}`,
-            razorpayPaymentId: team.paymentId || `pay_rzp_${t.id.slice(0, 4)}_${idx + 100}`,
+            razorpayPaymentId: team.paymentId || (fee === 0 ? 'FREE_ENTRY' : 'PENDING_PAYMENT'),
             playerName: team.captain || team.name || team.player || `Player ${idx + 1}`,
             playerEmail: team.email || `player${idx + 1}@mjesports.gg`,
             tournamentId: t.id,
             tournamentTitle: t.title || 'Match Title',
             game: (t.game || 'Free Fire MAX').includes('Free Fire') ? 'Free Fire MAX' : 'BGMI Mobile',
             amount: fee,
-            paymentMethod: idx % 3 === 0 ? 'Razorpay UPI' : idx % 3 === 1 ? 'Credit Card' : 'NetBanking',
+            paymentMethod: team.paymentMethod || (fee === 0 ? 'Free Entry' : 'Razorpay'),
             paymentStatus: (team.paymentStatus || 'SUCCESS').toUpperCase() as any,
             refundStatus: team.refundStatus || 'N/A',
             createdAt: t.startDate || new Date().toISOString(),
@@ -114,14 +114,14 @@ export function useFinanceData(tournaments: any[] = []) {
       const feeNum = parseInt((tourney?.entryFee || tourney?.entry_fee || '0').replace(/[^0-9]/g, ''), 10) || 0
       return {
         id: r.id || `reg_${idx}`,
-        razorpayPaymentId: r.payment_id || r.razorpay_payment_id || `pay_rzp_${r.id?.slice(0, 6) || idx}`,
+        razorpayPaymentId: r.payment_id || r.razorpay_payment_id || (feeNum === 0 ? 'FREE_ENTRY' : 'PENDING_PAYMENT'),
         playerName: r.team_name || r.captain_name || r.user_email?.split('@')[0] || 'Player',
         playerEmail: r.user_email || r.email || 'player@example.com',
         tournamentId: r.tournament_id,
         tournamentTitle: tourney?.title || r.tournament_title || 'Tournament',
         game: (tourney?.game || r.game || 'Free Fire MAX').includes('Free Fire') ? 'Free Fire MAX' : 'BGMI Mobile',
         amount: Number(r.amount_paid || feeNum),
-        paymentMethod: r.payment_method || 'Razorpay UPI',
+        paymentMethod: r.payment_method || (feeNum === 0 ? 'Free Entry' : 'Razorpay'),
         paymentStatus: (r.status || r.payment_status || 'SUCCESS').toUpperCase() as any,
         refundStatus: r.refund_status || 'N/A',
         createdAt: r.created_at || new Date().toISOString(),

@@ -527,7 +527,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                       </div>
 
                       <button
-                        onClick={() => setActiveTab('matches')}
+                        onClick={() => setActiveTab('matches', t.id)}
                         className="px-3.5 py-1.5 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0 min-h-[34px]"
                       >
                         <span>Control</span>

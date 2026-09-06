@@ -20,6 +20,7 @@ export default function LeaderboardPage() {
   const { user } = useAuth()
   const [tournamentsList, setTournamentsList] = useState([])
   const [profilesList, setProfilesList] = useState([])
+  const [publicAvatarsList, setPublicAvatarsList] = useState([])
   const [registrationsList, setRegistrationsList] = useState([])
   const [selectedTournamentId, setSelectedTournamentId] = useState(null)
   const [selectedTeamModal, setSelectedTeamModal] = useState(null)
@@ -44,8 +45,10 @@ export default function LeaderboardPage() {
             .select('id, tournament_id, team_name, captain_name, free_fire_uid, email, user_id, status')
         ])
 
+        let fetchedTournaments = []
         if (tournRes.status === 'fulfilled' && tournRes.value.data) {
-          setTournamentsList(tournRes.value.data)
+          fetchedTournaments = tournRes.value.data
+          setTournamentsList(fetchedTournaments)
         } else if (tournRes.status === 'fulfilled' && tournRes.value.error) {
           console.warn('[Leaderboard Supabase Fetch Notice]:', tournRes.value.error.message)
           setTournamentsList([])
@@ -61,6 +64,48 @@ export default function LeaderboardPage() {
           setRegistrationsList(regRes.value.data)
         } else if (regRes.status === 'fulfilled' && regRes.value.error) {
           console.warn('[Leaderboard Registrations Fetch Notice]:', regRes.value.error.message)
+        }
+
+        // Securely fetch public profile avatars for all players across tournaments via dedicated RPC
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+        const extractedUserIds = new Set()
+
+        fetchedTournaments.forEach((t) => {
+          const teams = Array.isArray(t.teams_list) ? t.teams_list : (Array.isArray(t.teamsList) ? t.teamsList : [])
+          teams.forEach((team) => {
+            if (!team) return
+            const uid =
+              team.userId ||
+              team.user_id ||
+              team.captainId ||
+              team.captain_id ||
+              null
+            if (uid && typeof uid === 'string' && uuidRegex.test(uid.trim())) {
+              extractedUserIds.add(uid.trim())
+            }
+            if (Array.isArray(team.roster)) {
+              team.roster.forEach((m) => {
+                if (m?.userId && typeof m.userId === 'string' && uuidRegex.test(m.userId.trim())) {
+                  extractedUserIds.add(m.userId.trim())
+                }
+              })
+            }
+          })
+        })
+
+        if (extractedUserIds.size > 0) {
+          try {
+            const { data: avatarRows, error: rpcErr } = await supabase.rpc('get_public_profile_avatars', {
+              user_ids: Array.from(extractedUserIds)
+            })
+            if (!rpcErr && Array.isArray(avatarRows)) {
+              setPublicAvatarsList(avatarRows)
+            } else if (rpcErr) {
+              console.warn('[Leaderboard Public Avatars RPC Notice]:', rpcErr.message)
+            }
+          } catch (rpcEx) {
+            console.warn('[Leaderboard Public Avatars RPC Exception]:', rpcEx)
+          }
         }
       } else {
         setTournamentsList([])
@@ -93,6 +138,16 @@ export default function LeaderboardPage() {
   const profileMap = useMemo(() => {
     const map = {}
 
+    // 1. Authoritative public avatar RPC data (highest precedence for public profile photos)
+    publicAvatarsList.forEach((pa) => {
+      if (!pa) return
+      const avatar = pa.avatar_url || pa.avatarUrl || null
+      if (avatar && typeof avatar === 'string' && avatar.trim() && pa.id) {
+        map[String(pa.id).trim()] = avatar.trim()
+      }
+    })
+
+    // 2. Direct profiles data (if available for authenticated user / admin)
     profilesList.forEach((p) => {
       if (!p) return
       const avatar = p.avatar_url || p.avatarUrl || null
@@ -105,6 +160,7 @@ export default function LeaderboardPage() {
       }
     })
 
+    // 3. Tournament registrations data
     registrationsList.forEach((r) => {
       if (!r) return
       const userUuid = r.user_id ? String(r.user_id).trim() : null
@@ -133,7 +189,7 @@ export default function LeaderboardPage() {
     })
 
     return map
-  }, [profilesList, registrationsList])
+  }, [publicAvatarsList, profilesList, registrationsList])
 
   // Currently active/selected tournament (auto-prefers tournament with scored results if available)
   const activeTournament = useMemo(() => {

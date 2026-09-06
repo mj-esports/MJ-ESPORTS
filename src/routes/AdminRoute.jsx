@@ -6,9 +6,8 @@ export default function AdminRoute() {
   const { user, isAuthenticated, isAdmin, loading, roleLoading } = useAuth()
   const location = useLocation()
 
-  // Only show the blocking authorization screen on INITIAL application load
-  // before any user identity or session has been determined.
-  const isInitialAuthCheck = (loading || roleLoading) && !user
+  // Only show the blocking authorization screen while authentication or role verification is settling.
+  const isInitialAuthCheck = loading || roleLoading
 
   console.log('[ADMIN ROUTE EVALUATION]', {
     url: typeof window !== 'undefined' ? window.location.href : '',
@@ -33,17 +32,17 @@ export default function AdminRoute() {
     )
   }
 
-  // 1. Anonymous Visitors -> Redirect to Login (only after initial loading has settled)
+  // 1. Anonymous Visitors -> Redirect to Login
   if (!isAuthenticated || !user) {
     console.log('[ADMIN ROUTE REDIRECT] User unauthenticated, redirecting to /login from:', location.pathname)
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // 2. Normal Logged-in Users -> Check Admin authorization
-  // (In production, non-admin users redirect to 403 Access Denied)
-  // if (!isAdmin) {
-  //   return <Navigate to="/403" replace />
-  // }
+  // 2. Authenticated Non-Admin Users -> Redirect to 403 Access Denied
+  if (!isAdmin) {
+    console.log('[ADMIN ROUTE ACCESS DENIED] User is not an authorized administrator, redirecting to /403 from:', location.pathname)
+    return <Navigate to="/403" replace />
+  }
 
   // 3. Authenticated Session -> Keep Admin Panel mounted seamlessly across tab switches
   return <Outlet />

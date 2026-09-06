@@ -60,8 +60,16 @@ export default function AdminDashboardPage({ defaultTab }) {
   }
 
   const [activeTab, setActiveTab] = useState(resolveTab)
+  const [selectedTournamentIdForTab, setSelectedTournamentIdForTab] = useState(null)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [adminSearch, setAdminSearch] = useState('')
+
+  const handleTabChange = (tab, tournamentId = null) => {
+    setActiveTab(tab)
+    if (tournamentId) {
+      setSelectedTournamentIdForTab(tournamentId)
+    }
+  }
 
   // Sub-tab states for advanced options inside pages
   const [tournamentsSubTab, setTournamentsSubTab] = useState('center') // 'center' | 'queue'
@@ -203,7 +211,7 @@ export default function AdminDashboardPage({ defaultTab }) {
           <div className="space-y-6">
             {/* Overview / Command Center (Stitch UI-2A) */}
             {(activeTab === 'dashboard' || activeTab === 'overview' || activeTab === 'command-center') && (
-              <CommandCenterView tournaments={tournaments} setActiveTab={setActiveTab} />
+              <CommandCenterView tournaments={tournaments} setActiveTab={handleTabChange} />
             )}
 
             {/* Tournaments Management */}
@@ -221,7 +229,8 @@ export default function AdminDashboardPage({ defaultTab }) {
             {activeTab === 'matches' && (
               <MatchControlView
                 tournaments={tournaments}
-                setActiveTab={setActiveTab}
+                setActiveTab={handleTabChange}
+                initialTournamentId={selectedTournamentIdForTab}
               />
             )}
 
@@ -232,7 +241,8 @@ export default function AdminDashboardPage({ defaultTab }) {
                 updateTournamentScores={updateTournamentScores}
                 updateTournamentStatus={updateTournamentStatus}
                 editTournament={editTournament}
-                setActiveTab={setActiveTab}
+                setActiveTab={handleTabChange}
+                initialTournamentId={selectedTournamentIdForTab}
               />
             )}
 

@@ -21,6 +21,11 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { uploadProfileProof } from '../../services/playerEvidenceService'
+import {
+  createTournamentOrder,
+  verifyTournamentPayment,
+  launchRazorpayCheckout,
+} from '../../services/tournamentPaymentService'
 import FormInput from '../common/FormInput'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
@@ -81,7 +86,13 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const [error, setError] = useState(null)
   const [registrationSummary, setRegistrationSummary] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submittingStep, setSubmittingStep] = useState('')
   const [copied, setCopied] = useState(false)
+
+  const entryFeeStr = String(tournament?.entryFee || tournament?.entry_fee || 'Free').trim()
+  const rawFeeDigits = entryFeeStr.replace(/[^0-9.]/g, '')
+  const numericEntryFee = entryFeeStr.toLowerCase() === 'free' || !rawFeeDigits ? 0 : parseFloat(rawFeeDigits)
+  const isFreeTournament = numericEntryFee <= 0
 
   const isFormValid = useMemo(() => {
     if (!formData.acceptRules) return false
@@ -322,53 +333,134 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         })
       }
 
-      const entryFeeStr = String(tournament?.entryFee || tournament?.entry_fee || 'Free').trim()
-      const isFree =
-        entryFeeStr.toLowerCase() === 'free' ||
-        entryFeeStr === '₹0' ||
-        entryFeeStr === '0' ||
-        !parseFloat(entryFeeStr.replace(/[^0-9.]/g, ''))
+      if (isFreeTournament) {
+        setSubmittingStep('Registering...')
+        let registeredRecord = null
+        if (registerTeam) {
+          registeredRecord = await registerTeam(tournament.id, {
+            refId,
+            name: sanitizeString(formData.teamName),
+            captain: toCanonicalIgn(formData.captainName),
+            email: sanitizeString(formData.email),
+            freeFireUid: sanitizeString(formData.freeFireUid),
+            whatsappNumber: sanitizeString(formData.whatsappNumber),
+            mode,
+            teammates: activeTeammates,
+            teammateIgns: activeTeammateIgns,
+            userId: user?.id || `guest-${Date.now()}`,
+            status: 'Approved',
+            paymentStatus: 'Free',
+          })
+        }
 
-      const initialStatus = isFree ? 'Approved' : 'Pending'
-      const initialPaymentStatus = isFree ? 'Free' : 'Pending'
+        showSuccess('Tournament Registered', 'Slot Registration Confirmed')
 
-      // Local or Context registration (No Supabase mandatory)
-      let registeredRecord = null
-      if (registerTeam) {
-        registeredRecord = await registerTeam(tournament.id, {
+        if (onRegistered) {
+          onRegistered(registeredRecord)
+        }
+
+        setRegistrationSummary({
           refId,
-          name: sanitizeString(formData.teamName),
+          teamName: sanitizeString(formData.teamName),
           captain: toCanonicalIgn(formData.captainName),
-          email: sanitizeString(formData.email),
-          freeFireUid: sanitizeString(formData.freeFireUid),
-          whatsappNumber: sanitizeString(formData.whatsappNumber),
           mode,
+          freeFireUid: sanitizeString(formData.freeFireUid),
           teammates: activeTeammates,
           teammateIgns: activeTeammateIgns,
-          userId: user?.id || `guest-${Date.now()}`,
-          status: initialStatus,
-          paymentStatus: initialPaymentStatus,
+          status: 'Approved',
+          paymentStatus: 'Free',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          registeredRecord,
+        })
+      } else {
+        // PAID TOURNAMENT FLOW
+        if (!user?.id) {
+          throw new Error('You must be logged in to register for a paid tournament.')
+        }
+
+        setSubmittingStep('Creating Payment Order...')
+        const orderRes = await createTournamentOrder(tournament.id)
+        if (!orderRes?.order_id) {
+          throw new Error(orderRes?.error || 'Failed to create payment order with server.')
+        }
+
+        setSubmittingStep('Awaiting Payment...')
+        await new Promise((resolve, reject) => {
+          launchRazorpayCheckout({
+            orderData: orderRes,
+            tournament,
+            userInfo: {
+              name: sanitizeString(formData.captainName),
+              email: sanitizeString(formData.email),
+              contact: sanitizeString(formData.whatsappNumber),
+            },
+            onSuccess: async (payResponse) => {
+              try {
+                setSubmittingStep('Verifying Payment...')
+                const verifyRes = await verifyTournamentPayment({
+                  orderId: payResponse.orderId,
+                  paymentId: payResponse.paymentId,
+                  signature: payResponse.signature,
+                  tournamentId: tournament.id,
+                })
+
+                if (!verifyRes?.success) {
+                  throw new Error(verifyRes?.error || 'Server signature verification failed.')
+                }
+
+                setSubmittingStep('Confirming Registration...')
+                const registeredRecord = await registerTeam(tournament.id, {
+                  refId,
+                  name: sanitizeString(formData.teamName),
+                  captain: toCanonicalIgn(formData.captainName),
+                  email: sanitizeString(formData.email),
+                  freeFireUid: sanitizeString(formData.freeFireUid),
+                  whatsappNumber: sanitizeString(formData.whatsappNumber),
+                  mode,
+                  teammates: activeTeammates,
+                  teammateIgns: activeTeammateIgns,
+                  userId: user.id,
+                  paymentId: verifyRes.payment_id,
+                  razorpayPaymentId: verifyRes.razorpay_payment_id || payResponse.paymentId,
+                  status: 'Approved',
+                  paymentStatus: 'Paid',
+                })
+
+                showSuccess('Payment & Registration Confirmed', `Slot Confirmed • ID: ${payResponse.paymentId}`)
+
+                if (onRegistered) {
+                  onRegistered(registeredRecord)
+                }
+
+                setRegistrationSummary({
+                  refId,
+                  teamName: sanitizeString(formData.teamName),
+                  captain: toCanonicalIgn(formData.captainName),
+                  mode,
+                  freeFireUid: sanitizeString(formData.freeFireUid),
+                  teammates: activeTeammates,
+                  teammateIgns: activeTeammateIgns,
+                  status: 'Approved',
+                  paymentStatus: 'Paid',
+                  paymentId: payResponse.paymentId,
+                  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                  registeredRecord,
+                })
+
+                resolve()
+              } catch (verifyErr) {
+                reject(verifyErr)
+              }
+            },
+            onDismiss: () => {
+              reject(new Error('Payment window was closed. Registration was not booked.'))
+            },
+            onError: (payErr) => {
+              reject(payErr)
+            },
+          }).catch(reject)
         })
       }
-
-      showSuccess('Tournament Registered', isFree ? 'Slot Registration Confirmed' : 'Registration Submitted')
-
-      if (onRegistered) {
-        onRegistered(registeredRecord)
-      }
-
-      setRegistrationSummary({
-        refId,
-        teamName: sanitizeString(formData.teamName),
-        captain: toCanonicalIgn(formData.captainName),
-        mode,
-        freeFireUid: sanitizeString(formData.freeFireUid),
-        teammates: activeTeammates,
-        teammateIgns: activeTeammateIgns,
-        status: isFree ? 'Approved' : 'Payment Pending',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        registeredRecord,
-      })
     } catch (err) {
       console.error('[Registration Submission Error]:', err)
       const errorMsg = err?.message || 'Registration failed. Please check your inputs and try again.'
@@ -376,6 +468,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       showError(errorMsg, 'Registration Failed')
     } finally {
       setIsSubmitting(false)
+      setSubmittingStep('')
     }
   }
 
@@ -470,6 +563,13 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   <span className="text-[#8e9dae]">{mode === 'Solo' ? 'Player UID' : 'Captain UID'}</span>
                   <span className="font-bold text-[#00f2ff]">{registrationSummary.freeFireUid}</span>
                 </div>
+
+                {registrationSummary.paymentId && (
+                  <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
+                    <span className="text-[#8e9dae]">Payment ID</span>
+                    <span className="font-mono text-[11px] text-[#00ff9d]">{registrationSummary.paymentId}</span>
+                  </div>
+                )}
 
                 <div className="flex justify-between pt-1">
                   <span className="text-[#8e9dae]">Status</span>
@@ -769,11 +869,13 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                 <LoadingButton
                   type="submit"
                   loading={isSubmitting}
-                  loadingText="Registering..."
+                  loadingText={submittingStep || (isFreeTournament ? 'Registering...' : 'Processing Payment...')}
                   disabled={!isFormValid || isSubmitting}
                   className="flex-1 py-3"
                 >
-                  {isFormValid ? 'Confirm Registration' : 'Complete Required Items'}
+                  {isFormValid
+                    ? (isFreeTournament ? 'Register' : `Pay ₹${numericEntryFee} & Register`)
+                    : 'Complete Required Items'}
                 </LoadingButton>
               </div>
             </div>

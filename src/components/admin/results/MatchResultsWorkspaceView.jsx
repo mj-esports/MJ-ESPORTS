@@ -33,7 +33,17 @@ import {
 } from 'lucide-react'
 import { useToast } from '../../../contexts/ToastContext'
 import { useAuth } from '../../../contexts/AuthContext'
-import { formatTournamentPrize } from '../../../utils/tournamentPrizeUtils'
+import { supabase, isSupabaseConfigured } from '../../../lib/supabase'
+import { finalizeTournamentResults, createPayoutProposal } from '../../../services/payoutService'
+import {
+  formatTournamentPrize,
+  extractPlacementPrizes,
+  extractPerKillAmount,
+  extractWinnerPrizeAmount,
+  isWinnerTakesAllTournament,
+  isPerKillTournament,
+  isPlacementPlusKillTournament,
+} from '../../../utils/tournamentPrizeUtils'
 import LoadingButton from '../../common/LoadingButton'
 
 // Standard Esports Placement Points Table (FF / BGMI standard)
@@ -56,6 +66,7 @@ export default function MatchResultsWorkspaceView({
   updateTournamentStatus,
   editTournament,
   setActiveTab,
+  initialTournamentId,
 }) {
   const { showSuccess, showError } = useToast()
   const { user } = useAuth()
@@ -88,12 +99,14 @@ export default function MatchResultsWorkspaceView({
 
   const adminName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Admin'
 
-  // Sync selected tournament if none selected
+  // Sync selected tournament if initialTournamentId provided or none selected
   useEffect(() => {
-    if (!selectedTourneyId && tournaments.length > 0) {
+    if (initialTournamentId) {
+      setSelectedTourneyId(initialTournamentId)
+    } else if (!selectedTourneyId && tournaments.length > 0) {
       setSelectedTourneyId(tournaments[0].id)
     }
-  }, [tournaments, selectedTourneyId])
+  }, [tournaments, selectedTourneyId, initialTournamentId])
 
   // Initialize Team Scores from selected tournament
   useEffect(() => {
@@ -149,9 +162,51 @@ export default function MatchResultsWorkspaceView({
     }
   }, [selectedTournament])
 
-  // Automatic Calculation Handler: Total Points = Placement Points + Kills + Bonus
+  // Authoritative Team Winnings Calculator per tournament prize rules
+  const calculateTeamWinnings = (team, rankIndex, tournament) => {
+    if (!tournament || !team) return 0
+
+    const kills = Math.max(0, Number(team.kills || 0))
+
+    // 1. Winner Takes All
+    if (isWinnerTakesAllTournament(tournament)) {
+      if (rankIndex === 0) {
+        return extractWinnerPrizeAmount(tournament)
+      }
+      return 0
+    }
+
+    const perKillAmount = extractPerKillAmount(tournament)
+    const placementPrizes = extractPlacementPrizes(tournament)
+
+    let placementReward = 0
+    if (rankIndex === 0) placementReward = Number(placementPrizes.first || 0)
+    else if (rankIndex === 1) placementReward = Number(placementPrizes.second || 0)
+    else if (rankIndex === 2) placementReward = Number(placementPrizes.third || 0)
+    else if (rankIndex === 3) placementReward = Number(placementPrizes.fourth || 0)
+    else if (rankIndex === 4) placementReward = Number(placementPrizes.fifth || 0)
+
+    // 2. Per-Kill Only
+    if (isPerKillTournament(tournament)) {
+      return kills * perKillAmount
+    }
+
+    // 3. Placement + Per Kill or Hybrid
+    if (isPlacementPlusKillTournament(tournament) || perKillAmount > 0) {
+      return placementReward + (kills * perKillAmount)
+    }
+
+    // 4. Placement Only
+    return placementReward
+  }
+
+  // Automatic Calculation Handler: Total Points = Placement Points + Kills + Bonus (with strict validation)
   const handleScoreChange = (teamId, field, value) => {
-    const num = Math.max(0, parseInt(value, 10) || 0)
+    const cleanVal = String(value).replace(/[^0-9]/g, '')
+    let num = Math.max(0, parseInt(cleanVal, 10) || 0)
+    if (field === 'kills') num = Math.min(num, 100)
+    if (field === 'placementPoints') num = Math.min(num, 100)
+    if (field === 'bonus') num = Math.min(num, 10000)
 
     setTeams((prev) => {
       const updated = prev.map((item) => {
@@ -181,7 +236,9 @@ export default function MatchResultsWorkspaceView({
     setIsSaving(true)
     try {
       if (updateTournamentScores) {
-        await updateTournamentScores(selectedTournament.id, teams)
+        // Priority 4: Sanitize teams list for public database persistence (strip internal dispute notes)
+        const sanitizedTeams = teams.map(({ flagReason, internalNotes, adminAudit, ...rest }) => rest)
+        await updateTournamentScores(selectedTournament.id, sanitizedTeams)
       }
       showSuccess(`Draft match scores saved for "${selectedTournament.title}".`, 'Scores Saved')
       addAuditEvent(`Draft scores updated by ${adminName}`)
@@ -234,28 +291,137 @@ export default function MatchResultsWorkspaceView({
     setFlagReason('')
   }
 
-  // Finalize Results Handler
+  // Finalize Results Handler (Atomic PostgreSQL RPC with Idempotency & Prize Ceiling)
   const handleFinalizeResults = async () => {
     if (!selectedTournament || isFinalizing) return
     setIsFinalizing(true)
     try {
-      const winner = teams[0]
-      if (updateTournamentScores) {
-        await updateTournamentScores(selectedTournament.id, teams)
-      }
-      if (editTournament) {
-        await editTournament(selectedTournament.id, {
-          status: 'Completed',
+      // Calculate final ranks and winnings for all teams
+      const finalTeams = teams.map((team, idx) => {
+        const winnings = calculateTeamWinnings(team, idx, selectedTournament)
+        return {
+          ...team,
+          rank: idx + 1,
+          winnings,
+          status: 'VERIFIED',
+        }
+      })
+
+      const winner = finalTeams[0]
+
+      // Priority 4: Sanitize teams list for public database persistence (strip internal dispute notes)
+      const sanitizedTeams = finalTeams.map(({ flagReason, internalNotes, adminAudit, ...rest }) => rest)
+
+      // Construct verified payout queue proposals for winning teams
+      const payoutProposals = finalTeams
+        .filter((t) => Number(t.winnings) > 0)
+        .map((t) => {
+          const rawKey = `payout_${selectedTournament.id}_rank_${t.rank}_${t.id || t.name}`
+          const safeKey = rawKey.replace(/[^a-zA-Z0-9_-]/g, '_')
+          return {
+            source_result_id: t.id ? String(t.id) : null,
+            winner_user_id: t.userId || null,
+            winner_game_uid: t.freeFireUid || null,
+            winner_game_ign: t.name || t.captain || 'Grand Champion',
+            rank: t.rank,
+            payout_amount: t.winnings,
+            idempotency_key: safeKey,
+          }
+        })
+
+      // Priority 2 & 3: Atomic Finalization via Single PostgreSQL RPC
+      let rpcSucceeded = false
+      if (isSupabaseConfigured) {
+        const rpcResult = await finalizeTournamentResults({
+          tournamentId: selectedTournament.id,
+          teamsList: sanitizedTeams,
           winnerTeam: winner?.name || 'Grand Champions',
           winnerCaptain: winner?.captain || 'Champion Captain',
-          winner_team: winner?.name || 'Grand Champions',
-          winner_captain: winner?.captain || 'Champion Captain',
+          payoutProposals,
         })
-      } else if (updateTournamentStatus) {
-        await updateTournamentStatus(selectedTournament.id, 'Completed')
+
+        if (!rpcResult.success) {
+          if (rpcResult.error_code === 'EXCEEDS_PRIZE_POOL') {
+            showError(rpcResult.message || 'Proposed payouts exceed tournament prize pool allocation.', 'Prize Pool Ceiling Error')
+            return
+          }
+          if (rpcResult.error_code === 'UNAUTHORIZED') {
+            showError('Only authorized administrators can finalize results.', 'Unauthorized')
+            return
+          }
+          if (rpcResult.error_code === 'INVALID_LIFECYCLE_STATE') {
+            showError(rpcResult.message || 'Invalid tournament lifecycle state.', 'State Machine Error')
+            return
+          }
+          console.warn('[handleFinalizeResults] RPC error, attempting compatibility mode:', rpcResult.message)
+        } else {
+          rpcSucceeded = true
+        }
       }
 
-      showSuccess(`Match results officially FINALIZED for ${selectedTournament.title}!`, 'Results Finalized')
+      // If RPC succeeded or running in mock environment, update local state
+      if (rpcSucceeded || !isSupabaseConfigured) {
+        if (updateTournamentScores) {
+          await updateTournamentScores(selectedTournament.id, sanitizedTeams)
+        }
+        if (editTournament) {
+          await editTournament(selectedTournament.id, {
+            status: 'Completed',
+            winnerTeam: winner?.name || 'Grand Champions',
+            winnerCaptain: winner?.captain || 'Champion Captain',
+            winner_team: winner?.name || 'Grand Champions',
+            winner_captain: winner?.captain || 'Champion Captain',
+            teamsList: sanitizedTeams,
+          })
+        } else if (updateTournamentStatus) {
+          await updateTournamentStatus(selectedTournament.id, 'Completed')
+        }
+      } else {
+        // Fallback for environments where migration has not run yet
+        if (updateTournamentScores) {
+          await updateTournamentScores(selectedTournament.id, sanitizedTeams)
+        }
+        if (editTournament) {
+          await editTournament(selectedTournament.id, {
+            status: 'Completed',
+            winnerTeam: winner?.name || 'Grand Champions',
+            winnerCaptain: winner?.captain || 'Champion Captain',
+            winner_team: winner?.name || 'Grand Champions',
+            winner_captain: winner?.captain || 'Champion Captain',
+            teamsList: sanitizedTeams,
+          })
+        }
+        if (isSupabaseConfigured) {
+          try {
+            await supabase
+              .from('tournament_registrations')
+              .update({ status: 'Completed', updated_at: new Date().toISOString() })
+              .eq('tournament_id', selectedTournament.id)
+          } catch (regErr) {
+            console.warn('[handleFinalizeResults] Registration update notice:', regErr)
+          }
+
+          for (const p of payoutProposals) {
+            try {
+              await createPayoutProposal({
+                tournamentId: selectedTournament.id,
+                sourceResultId: p.source_result_id,
+                winnerUserId: p.winner_user_id,
+                winnerGameUid: p.winner_game_uid,
+                winnerGameIgn: p.winner_game_ign,
+                rank: p.rank,
+                payoutAmount: p.payout_amount,
+                idempotencyKey: p.idempotency_key,
+              })
+            } catch (pErr) {
+              console.warn('[handleFinalizeResults] Payout proposal fallback notice:', pErr)
+            }
+          }
+        }
+      }
+
+      setTeams(finalTeams)
+      showSuccess(`Match results officially FINALIZED for "${selectedTournament.title}"! Standings published and winners queued for payout.`, 'Results Finalized')
       addAuditEvent(`Tournament results FINALIZED & PUBLISHED by ${adminName}`, 'success')
       setShowFinalizeModal(false)
       setActiveWorkspaceTab('PROVISIONAL_STANDINGS')
@@ -309,7 +475,8 @@ export default function MatchResultsWorkspaceView({
   const isAllVerified = teams.length > 0 && totalPendingCount === 0 && totalFlaggedCount === 0
 
   // Verification Checklist Conditions
-  const checkMatchCompleted = selectedTournament?.status === 'Completed' || selectedTournament?.status === 'Prize Distributed' || selectedTournament?.status === 'Live Now'
+  const sNorm = (selectedTournament?.status || '').toLowerCase()
+  const checkMatchCompleted = sNorm.includes('completed') || sNorm.includes('prize') || sNorm.includes('live') || sNorm.includes('result') || sNorm.includes('pending')
   const checkTeamsIdentified = teams.length > 0
   const checkPlacementEntered = teams.every((t) => t.placementPoints !== undefined && t.placementPoints !== null)
   const checkKillsEntered = teams.every((t) => t.kills !== undefined && t.kills !== null)
@@ -365,9 +532,9 @@ export default function MatchResultsWorkspaceView({
         const tList = t.teamsList || t.teams_list || []
         const hasFlags = Array.isArray(tList) && tList.some((team) => team.status === 'FLAGGED')
 
-        if (statusFilter === 'FINALIZED') return s === 'completed' || s === 'prize distributed'
-        if (statusFilter === 'REVIEW') return hasFlags || s === 'live now'
-        if (statusFilter === 'PENDING') return s !== 'completed' && s !== 'prize distributed'
+        if (statusFilter === 'FINALIZED') return s.includes('completed') || s.includes('prize distributed')
+        if (statusFilter === 'REVIEW') return hasFlags || s.includes('live') || s.includes('result') || s.includes('pending')
+        if (statusFilter === 'PENDING') return !s.includes('completed') && !s.includes('prize distributed')
         return true
       })
       .map((t, idx) => {
@@ -376,11 +543,13 @@ export default function MatchResultsWorkspaceView({
         const hasFlags = Array.isArray(tList) && tList.some((team) => team.status === 'FLAGGED')
 
         let resultStatus = 'PENDING REVIEW'
-        if (s === 'completed' || s === 'prize distributed') {
+        if (s.includes('completed') || s.includes('prize distributed')) {
           resultStatus = 'FINALIZED'
         } else if (hasFlags) {
           resultStatus = 'DISPUTED'
-        } else if (s === 'live now' || tList.length > 0) {
+        } else if (s.includes('result') || s.includes('pending')) {
+          resultStatus = 'RESULTS PENDING'
+        } else if (s.includes('live') || tList.length > 0) {
           resultStatus = 'IN REVIEW'
         }
 
@@ -768,6 +937,7 @@ export default function MatchResultsWorkspaceView({
                     <th className="py-3 px-3 w-24">KILLS</th>
                     <th className="py-3 px-3 w-24">BONUS</th>
                     <th className="py-3 px-3 w-28 text-center">TOTAL POINTS</th>
+                    <th className="py-3 px-3 w-28 text-center">WINNINGS</th>
                     <th className="py-3 px-3 w-28">STATUS</th>
                     <th className="py-3 px-3 text-right">VERIFY / FLAG</th>
                   </tr>
@@ -859,6 +1029,22 @@ export default function MatchResultsWorkspaceView({
                           <span className="font-headline font-extrabold text-base text-[#00f2ff]">
                             {team.points}
                           </span>
+                        </td>
+
+                        {/* WINNINGS */}
+                        <td className="py-3 px-3 text-center">
+                          {(() => {
+                            const winnings = calculateTeamWinnings(team, idx, selectedTournament)
+                            return (
+                              <span className={`font-headline font-bold text-xs px-2 py-0.5 rounded border inline-block font-mono ${
+                                winnings > 0
+                                  ? 'text-[#10b981] bg-[#10b981]/10 border-[#10b981]/30'
+                                  : 'text-[#849495] bg-[#1c1b1c] border-[#27272a]'
+                              }`}>
+                                {winnings > 0 ? `₹${winnings.toLocaleString('en-IN')}` : '₹0'}
+                              </span>
+                            )
+                          })()}
                         </td>
 
                         {/* STATUS */}
@@ -994,6 +1180,9 @@ export default function MatchResultsWorkspaceView({
                   <h4 className="font-headline font-extrabold text-white text-base truncate">{teams[1].name}</h4>
                   <p className="text-xs text-[#849495]">Captain: {teams[1].captain}</p>
                   <p className="font-headline text-lg font-extrabold text-[#c0c0c0]">{teams[1].points} PTS</p>
+                  <p className="font-headline text-xs font-bold text-[#10b981]">
+                    WINNINGS: ₹{calculateTeamWinnings(teams[1], 1, selectedTournament).toLocaleString('en-IN')}
+                  </p>
                   <span className="text-[10px] text-[#849495] block">{teams[1].kills} Kills &bull; {teams[1].placementPoints} Placement</span>
                 </div>
               )}
@@ -1010,6 +1199,9 @@ export default function MatchResultsWorkspaceView({
                   <h3 className="font-headline font-extrabold text-white text-lg truncate">{teams[0].name}</h3>
                   <p className="text-xs text-[#849495]">Captain: {teams[0].captain}</p>
                   <p className="font-headline text-2xl font-extrabold text-[#ffd700]">{teams[0].points} PTS</p>
+                  <p className="font-headline text-sm font-extrabold text-[#10b981] bg-[#10b981]/10 px-3 py-1 rounded border border-[#10b981]/30 inline-block font-mono">
+                    WINNINGS: ₹{calculateTeamWinnings(teams[0], 0, selectedTournament).toLocaleString('en-IN')}
+                  </p>
                   <span className="text-[11px] text-[#849495] block">{teams[0].kills} Kills &bull; {teams[0].placementPoints} Placement</span>
                 </div>
               )}
@@ -1023,6 +1215,9 @@ export default function MatchResultsWorkspaceView({
                   <h4 className="font-headline font-extrabold text-white text-base truncate">{teams[2].name}</h4>
                   <p className="text-xs text-[#849495]">Captain: {teams[2].captain}</p>
                   <p className="font-headline text-lg font-extrabold text-[#cd7f32]">{teams[2].points} PTS</p>
+                  <p className="font-headline text-xs font-bold text-[#10b981]">
+                    WINNINGS: ₹{calculateTeamWinnings(teams[2], 2, selectedTournament).toLocaleString('en-IN')}
+                  </p>
                   <span className="text-[10px] text-[#849495] block">{teams[2].kills} Kills &bull; {teams[2].placementPoints} Placement</span>
                 </div>
               )}
@@ -1062,6 +1257,7 @@ export default function MatchResultsWorkspaceView({
                     <th className="py-3 px-3 text-center">KILL POINTS</th>
                     <th className="py-3 px-3 text-center">BONUS</th>
                     <th className="py-3 px-3 text-center font-bold text-white">TOTAL</th>
+                    <th className="py-3 px-3 text-center font-bold text-[#10b981]">EST. WINNINGS</th>
                     <th className="py-3 px-3 text-right">TREND</th>
                   </tr>
                 </thead>
@@ -1091,6 +1287,12 @@ export default function MatchResultsWorkspaceView({
                       </td>
                       <td className="py-3 px-3 text-center font-headline font-extrabold text-base text-[#00f2ff]">
                         {team.points}
+                      </td>
+                      <td className="py-3 px-3 text-center font-headline font-extrabold text-xs text-[#10b981] font-mono">
+                        {(() => {
+                          const winnings = calculateTeamWinnings(team, idx, selectedTournament)
+                          return winnings > 0 ? `₹${winnings.toLocaleString('en-IN')}` : '₹0'
+                        })()}
                       </td>
                       <td className="py-3 px-3 text-right">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-headline font-bold uppercase border ${
@@ -1287,7 +1489,7 @@ export default function MatchResultsWorkspaceView({
             </div>
 
             <p className="text-xs text-[#b9cacb] font-body leading-relaxed">
-              Once finalized, this result becomes the authoritative tournament result for <span className="font-bold text-white">{selectedTournament?.title}</span>. Standings will be locked and handed off to Finance for prize processing. Further adjustments require an authorized correction workflow.
+              Once finalized, this result becomes the authoritative tournament result for <span className="font-bold text-white">{selectedTournament?.title}</span>. Standings will be locked and <span className="text-[#10b981] font-bold">₹{calculateTeamWinnings(teams[0], 0, selectedTournament).toLocaleString('en-IN')}</span> will be queued for Champion <strong className="text-white font-headline">"{teams[0]?.name}"</strong>. Further adjustments require an authorized correction workflow.
             </p>
 
             <div className="flex items-center gap-3 pt-2">

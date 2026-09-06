@@ -42,9 +42,10 @@ import {
   generateRandomNumericRoomPassword,
   sanitizeDigitsOnly,
 } from '../../utils/validationUtils'
+import { formatTournamentPrize } from '../../utils/tournamentPrizeUtils'
 import LoadingButton from '../common/LoadingButton'
 
-export default function MatchControlView({ tournaments = [], setActiveTab }) {
+export default function MatchControlView({ tournaments = [], setActiveTab, initialTournamentId }) {
   const { showSuccess, showError } = useToast()
   const { updateRoomDetails, updateTournamentStatus, getRoomCredentials } = useTournaments()
   const { user } = useAuth()
@@ -93,12 +94,14 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
 
   const adminName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Admin'
 
-  // Sync selected tournament if none selected
+  // Sync selected tournament if initialTournamentId provided or none selected
   useEffect(() => {
-    if (!selectedTourneyId && tournaments.length > 0) {
+    if (initialTournamentId) {
+      setSelectedTourneyId(initialTournamentId)
+    } else if (!selectedTourneyId && tournaments.length > 0) {
       setSelectedTourneyId(tournaments[0].id)
     }
-  }, [tournaments, selectedTourneyId])
+  }, [tournaments, selectedTourneyId, initialTournamentId])
 
   // Fetch room credentials securely when selected tournament changes
   useEffect(() => {
@@ -108,9 +111,10 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
       setIsLocked(selectedTourney.status === 'Bracket Locked' || selectedTourney.status === 'Completed')
 
       // Sync match status from tournament status
-      if (selectedTourney.status === 'Live Now') {
+      const normStatus = (selectedTourney.status || '').toLowerCase()
+      if (normStatus.includes('live')) {
         setMatchStatus('Match Live')
-      } else if (selectedTourney.status === 'Completed') {
+      } else if (normStatus.includes('ended') || normStatus.includes('completed') || normStatus.includes('result') || normStatus.includes('pending')) {
         setMatchStatus('Ended')
       } else {
         setMatchStatus('Lobby Waiting')
@@ -315,11 +319,11 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
   const handleConfirmEndMatch = async () => {
     try {
       if (updateTournamentStatus && selectedTourney) {
-        await updateTournamentStatus(selectedTourney.id, 'Completed')
+        await updateTournamentStatus(selectedTourney.id, 'Results Pending')
       }
       setMatchStatus('Ended')
-      showSuccess('Match marked as COMPLETED. Post-match scoring is now ready.', 'Match Concluded')
-      addIncidentEvent('Match concluded. Transitioning to Score Verification.')
+      showSuccess('Match ended! Tournament status is now "Results Pending". Post-match scoring is ready in the Results Console.', 'Match Concluded')
+      addIncidentEvent('Match concluded. Transitioned tournament status to Results Pending.')
       setShowEndMatchModal(false)
     } catch (err) {
       showError(err?.message || 'Failed to end match', 'Error')
@@ -706,6 +710,15 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
               <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-[#00f2ff] border border-[#00f2ff]/30 rounded text-[10px] font-mono font-bold uppercase">
                 {totalPlayersCount} PLAYERS
               </span>
+              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-[#fed83a] border border-[#fed83a]/30 rounded text-[10px] font-headline font-bold uppercase">
+                PRIZE: {formatTournamentPrize(selectedTourney)}
+              </span>
+              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-white border border-[#27272a] rounded text-[10px] font-headline font-bold uppercase">
+                ENTRY: {selectedTourney?.entryFee ? '₹' + selectedTourney.entryFee : 'FREE'}
+              </span>
+              <span className="px-2.5 py-0.5 bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 rounded text-[10px] font-headline font-bold uppercase">
+                STATUS: {selectedTourney?.status || 'OPEN'}
+              </span>
             </div>
 
             <h2 className="font-headline text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
@@ -828,7 +841,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
                 </span>
                 {setActiveTab && (
                   <button
-                    onClick={() => setActiveTab('results')}
+                    onClick={() => setActiveTab('results', selectedTourney?.id)}
                     className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded-lg text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center gap-2 cursor-pointer"
                   >
                     <span>RESULTS CONSOLE &rarr;</span>
@@ -1189,7 +1202,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab }) {
             </div>
 
             <p className="text-xs text-[#b9cacb] font-body leading-relaxed">
-              Are you sure you want to end match <span className="font-bold text-white font-headline">"{selectedMatchId}"</span> for <span className="font-bold text-white">{selectedTourney?.title}</span>? This will close live room telemetry and transition to post-match score entry.
+              Are you sure you want to end match <span className="font-bold text-white font-headline">"{selectedMatchId}"</span> for <span className="font-bold text-white">{selectedTourney?.title}</span>? This will close live room operations and transition tournament status to <span className="text-[#00f2ff] font-bold">"Results Pending"</span> for score entry and verification.
             </p>
 
             <div className="flex items-center gap-3 pt-2">
