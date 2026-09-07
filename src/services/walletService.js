@@ -1,5 +1,50 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 
+/**
+ * Phase 9.1: Fetch or initialize user wallet via secure RPC
+ * Authoritative source of wallet balance (PostgreSQL wallets table)
+ */
+export async function fetchUserWallet() {
+  if (!isSupabaseConfigured) {
+    return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('get_or_create_wallet')
+    if (error) {
+      console.warn('[walletService] get_or_create_wallet RPC warning:', error.message)
+      return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
+    }
+    return data || { success: false, error_code: 'NO_DATA', message: 'No wallet data returned.' }
+  } catch (err) {
+    console.warn('[walletService] fetchUserWallet exception:', err.message)
+    return { success: false, error_code: 'EXCEPTION', message: err.message }
+  }
+}
+
+/**
+ * Phase 9.1: Fetch immutable wallet ledger entries for authenticated user
+ */
+export async function fetchWalletLedger({ limit = 50 } = {}) {
+  if (!isSupabaseConfigured) return []
+  try {
+    const { data, error } = await supabase
+      .from('wallet_ledger')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (error) {
+      console.warn('[walletService] fetchWalletLedger warning:', error.message)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.warn('[walletService] fetchWalletLedger exception:', err.message)
+    return []
+  }
+}
+
 export async function fetchWalletTransactions(userId) {
   if (!isSupabaseConfigured || !userId) return []
   try {
@@ -19,6 +64,7 @@ export async function fetchWalletTransactions(userId) {
     return []
   }
 }
+
 
 /**
  * Secure Deposit RPC Call

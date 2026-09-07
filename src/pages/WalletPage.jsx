@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
-import { fetchWalletTransactions, depositMoney, requestWithdrawal } from '../services/walletService'
+import { fetchUserWallet, fetchWalletTransactions, depositMoney, requestWithdrawal } from '../services/walletService'
 
 export default function WalletPage() {
   const { user } = useAuth()
@@ -26,6 +26,7 @@ export default function WalletPage() {
   const [upiIdInput, setUpiIdInput] = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [transactions, setTransactions] = useState([])
+  const [dbWalletBalance, setDbWalletBalance] = useState(null)
 
   // Wallet stats derived from real database transactions
   const [walletStats, setWalletStats] = useState({
@@ -37,12 +38,20 @@ export default function WalletPage() {
     monthlySpending: 0.0,
   })
 
-  const userWalletBalance = user?.user_metadata?.wallet_balance ?? 0.0
+  // Authoritative balance from Phase 9.1 wallets table, falling back to legacy profile/metadata
+  const userWalletBalance = dbWalletBalance !== null ? dbWalletBalance : (user?.user_metadata?.wallet_balance ?? 0.0)
 
   const syncWalletData = useCallback(async () => {
     if (!user?.id) return
     setIsRefreshing(true)
     try {
+      // 1. Fetch authoritative wallet balance via Phase 9.1 get_or_create_wallet RPC
+      const walletRes = await fetchUserWallet()
+      if (walletRes?.success && walletRes.wallet) {
+        setDbWalletBalance(Number(walletRes.wallet.balance || 0.0))
+      }
+
+      // 2. Fetch existing transaction history
       const data = await fetchWalletTransactions(user.id)
       const mapped = (data || []).map((t) => {
         const isDebit = t.type === 'Entry Fee Debit' || t.type === 'Withdrawal'
