@@ -51,6 +51,8 @@ export default function WalletPage() {
 
   // Authoritative balance from Phase 9.1 wallets table, falling back to legacy profile/metadata
   const userWalletBalance = dbWalletBalance !== null ? dbWalletBalance : (user?.user_metadata?.wallet_balance ?? 0.0)
+  const authoritativeBalance = Math.floor(Number(userWalletBalance || 0))
+  const maxAllowedTopup = Math.max(0, 200 - authoritativeBalance)
 
   const syncWalletData = useCallback(async () => {
     if (!user?.id) return
@@ -158,21 +160,26 @@ export default function WalletPage() {
   const handleDepositSubmit = async (e) => {
     e.preventDefault()
 
-    // 1. Local amount validation
+    // 1. Phase 9.4: Strict Whole-Rupee and ₹200 Balance Ceiling Validation
     const trimmedAmount = (amountInput || '').toString().trim()
-    const validAmountRegex = /^\d+(\.\d{1,2})?$/
-    if (!trimmedAmount || !validAmountRegex.test(trimmedAmount)) {
-      showError('Please enter a valid amount (maximum 2 decimal places).', 'Invalid Amount')
+    const wholeRupeeRegex = /^\d+$/
+    if (!trimmedAmount || !wholeRupeeRegex.test(trimmedAmount)) {
+      showError('Please enter a valid whole rupee amount (no decimals or paise permitted).', 'Invalid Amount')
       return
     }
 
-    const num = parseFloat(Number(trimmedAmount).toFixed(2))
-    if (isNaN(num) || num < 10.00) {
-      showError('Minimum deposit amount is ₹10.00.', 'Invalid Amount')
+    const num = parseInt(trimmedAmount, 10)
+    // Phase 9.4 bounds: 1 <= num <= 200 (supersedes legacy num < 10.00, num > 10000.00)
+    if (isNaN(num) || num < 1 || num > 200) {
+      showError('Deposit amount must be a whole rupee amount between ₹1 and ₹200.', 'Invalid Amount')
       return
     }
-    if (num > 10000.00) {
-      showError('Maximum deposit amount is ₹10,000.00.', 'Limit Exceeded')
+
+    if ((authoritativeBalance + num) > 200) {
+      showError(
+        `Top-up rejected: wallet balance cannot exceed ₹200. Current balance: ₹${authoritativeBalance}. Maximum allowed top-up: ₹${maxAllowedTopup}.`,
+        'Limit Exceeded'
+      )
       return
     }
 
@@ -203,7 +210,7 @@ export default function WalletPage() {
         amount: orderRes.amount,
         currency: orderRes.currency || 'INR',
         name: 'MJ ESPORTS',
-        description: `Wallet Add Funds ₹${num.toFixed(2)}`,
+        description: `Wallet Add Funds ₹${num}`,
         order_id: orderRes.order_id,
         handler: async (response) => {
           try {
@@ -217,7 +224,7 @@ export default function WalletPage() {
 
             if (verifyRes && verifyRes.success) {
               // 7. On success, refresh authoritative balance
-              showSuccess(`₹${num.toFixed(2)} credited to your wallet!`, 'Deposit Successful')
+              showSuccess(`₹${num} credited to your wallet!`, 'Deposit Successful')
               setIsDepositModalOpen(false)
               setAmountInput('')
               setTopupIdempotencyKey(null)
@@ -340,12 +347,22 @@ export default function WalletPage() {
               </div>
 
               <div className="space-y-1">
-                <span className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-headline tracking-tight text-white block leading-tight">
-                  ₹{Number(userWalletBalance).toFixed(2)}
-                </span>
-                <span className="text-[10px] sm:text-xs text-[#849495] block uppercase font-label-bold tracking-wider">
-                  INR Wallet Balance
-                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-headline tracking-tight text-white block leading-tight">
+                    ₹{authoritativeBalance}
+                  </span>
+                  <span className="text-[10px] sm:text-xs text-[#849495] font-mono">
+                    / ₹200 max
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] sm:text-xs text-[#849495] block uppercase font-label-bold tracking-wider">
+                    INR Wallet Balance
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] text-[#00f2ff] bg-[#00f2ff]/10 px-1.5 py-0.5 rounded border border-[#00f2ff]/20 uppercase font-headline font-bold">
+                    Maximum wallet balance: ₹200
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -587,31 +604,90 @@ export default function WalletPage() {
             <h3 className="font-headline text-lg font-extrabold text-white uppercase tracking-wider">
               Add Instant Funds
             </h3>
-            <p className="text-[#849495] text-xs font-body">
-              Enter amount between ₹10.00 and ₹10,000.00 to top-up your verified wallet.
-            </p>
-
-            <form onSubmit={handleDepositSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[10px] uppercase font-bold text-[#849495] font-label-bold mb-1.5">
-                  Amount to Add (INR)
-                </label>
-                <input
-                  type="number"
-                  min="10"
-                  max="10000"
-                  step="0.01"
-                  value={amountInput}
-                  disabled={isSubmittingTopup}
-                  onChange={(e) => {
-                    setAmountInput(e.target.value)
-                    setTopupIdempotencyKey(null)
-                  }}
-                  placeholder="e.g. 500.00"
-                  required
-                  className="w-full bg-[#1c1b1c] border border-[#27272a] rounded px-4 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-body disabled:opacity-50"
-                />
+            <div className="space-y-1">
+              <p className="text-[#849495] text-xs font-body">
+                Maximum wallet balance: ₹200. Whole rupees only (no decimals or paise).
+              </p>
+              <div className="flex items-center justify-between text-[11px] bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-1.5 font-mono">
+                <span className="text-[#849495]">Current Balance: <strong className="text-white">₹{authoritativeBalance}</strong></span>
+                <span className="text-[#00f2ff]">Max Additional Top-Up: <strong>₹{maxAllowedTopup}</strong></span>
               </div>
+            </div>
+
+            {maxAllowedTopup <= 0 ? (
+              <div className="space-y-4">
+                <div className="bg-red-950/40 border border-red-900/50 rounded p-4 text-center space-y-1">
+                  <p className="text-xs font-bold text-red-400 font-headline uppercase">
+                    Wallet Balance Limit Reached (₹200)
+                  </p>
+                  <p className="text-[11px] text-[#849495] font-body">
+                    Your wallet is currently at the maximum ₹200 balance ceiling. You cannot add more funds until your balance decreases.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDepositModalOpen(false)}
+                  className="w-full py-2.5 bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 text-white rounded text-xs font-bold uppercase font-headline transition-all cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleDepositSubmit} className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-[10px] uppercase font-bold text-[#849495] font-label-bold">
+                      Amount to Add (INR Whole Rupees)
+                    </label>
+                    <span className="text-[10px] text-[#00f2ff] font-mono">
+                      Allowed: ₹1 - ₹{Math.min(200, maxAllowedTopup)}
+                    </span>
+                  </div>
+                  <input
+                    type="number"
+                    min="1"
+                    max={Math.min(200, maxAllowedTopup)}
+                    step="1"
+                    value={amountInput}
+                    disabled={isSubmittingTopup}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^0-9]/g, '')
+                      setAmountInput(val)
+                      setTopupIdempotencyKey(null)
+                    }}
+                    placeholder={`e.g. ${Math.min(50, maxAllowedTopup)}`}
+                    required
+                    className="w-full bg-[#1c1b1c] border border-[#27272a] rounded px-4 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-body disabled:opacity-50"
+                  />
+                  {/* Quick Preset Buttons */}
+                  <div className="flex gap-2 mt-2">
+                    {[10, 50, 100].filter(amt => amt <= maxAllowedTopup).map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => {
+                          setAmountInput(preset.toString())
+                          setTopupIdempotencyKey(null)
+                        }}
+                        className="flex-1 py-1 bg-[#1c1b1c] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff]/40 text-[#00f2ff] rounded text-[10px] font-bold font-mono transition-all cursor-pointer"
+                      >
+                        +₹{preset}
+                      </button>
+                    ))}
+                    {maxAllowedTopup > 0 && ![10, 50, 100].includes(maxAllowedTopup) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAmountInput(maxAllowedTopup.toString())
+                          setTopupIdempotencyKey(null)
+                        }}
+                        className="flex-1 py-1 bg-[#00f2ff]/10 hover:bg-[#00f2ff]/20 border border-[#00f2ff]/40 text-[#00f2ff] rounded text-[10px] font-bold font-mono transition-all cursor-pointer"
+                      >
+                        Max (₹{maxAllowedTopup})
+                      </button>
+                    )}
+                  </div>
+                </div>
 
               <div>
                 <label className="block text-[10px] uppercase font-bold text-[#849495] font-label-bold mb-1.5">
@@ -686,6 +762,7 @@ export default function WalletPage() {
                 </button>
               </div>
             </form>
+            )}
           </div>
         </div>
       )}

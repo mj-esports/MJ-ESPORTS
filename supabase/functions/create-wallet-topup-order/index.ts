@@ -71,8 +71,9 @@ serve(async (req: Request) => {
       )
     }
 
-    // 4. Validate amount precision and range
-    // Amount must have at most 2 decimal places and be between 10.00 and 10000.00
+    // 4. Phase 9.4: Validate amount precision and range
+    // Amount must be whole rupees only (no decimals/paise) and between 1 and 200 INR.
+    // Legacy Phase 9.2 bounds (numericAmount < 10.00, numericAmount > 10000.00) are superseded by Phase 9.4 limit.
     if (amount === undefined || amount === null) {
       return new Response(
         JSON.stringify({ error: 'amount is required' }),
@@ -81,32 +82,32 @@ serve(async (req: Request) => {
     }
 
     const rawAmountStr = String(amount).trim()
-    const validAmountRegex = /^\d+(\.\d{1,2})?$/
-    if (!validAmountRegex.test(rawAmountStr)) {
+    const wholeRupeeRegex = /^\d+$/
+    if (!wholeRupeeRegex.test(rawAmountStr)) {
       return new Response(
-        JSON.stringify({ error: 'amount must be a positive number with at most 2 decimal places' }),
+        JSON.stringify({ error: 'amount must be a whole INR number of rupees (no decimals or paise permitted)' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    const numericAmount = parseFloat(Number(rawAmountStr).toFixed(2))
-    if (isNaN(numericAmount) || numericAmount < 10.00 || numericAmount > 10000.00) {
+    const numericAmount = parseInt(rawAmountStr, 10)
+    if (isNaN(numericAmount) || numericAmount < 1 || numericAmount > 200) {
       return new Response(
-        JSON.stringify({ error: 'amount must be between ₹10.00 and ₹10,000.00' }),
+        JSON.stringify({ error: 'amount must be between ₹1 and ₹200' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
     // Amount in integer paise safely
-    const amountInPaise = Math.round(numericAmount * 100)
-    if (amountInPaise < 1000 || amountInPaise > 1000000) {
+    const amountInPaise = numericAmount * 100
+    if (amountInPaise < 100 || amountInPaise > 20000) {
       return new Response(
         JSON.stringify({ error: 'amount in paise is out of valid bounds' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // 5. Ensure user has a wallet via get_or_create_wallet()
+    // 5. Ensure user has a wallet via get_or_create_wallet() & verify ₹200 balance ceiling
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
     const { data: walletData, error: walletError } = await supabaseClient.rpc('get_or_create_wallet')
 
@@ -118,6 +119,21 @@ serve(async (req: Request) => {
       )
     }
     const walletId = walletData.wallet.id
+    const currentBalance = Number(walletData.wallet.balance || 0.0)
+
+    // Phase 9.4: Check that current balance + topup amount does not exceed ₹200
+    if ((currentBalance + numericAmount) > 200.0) {
+      const maxAllowed = Math.max(0, 200 - Math.floor(currentBalance))
+      return new Response(
+        JSON.stringify({
+          error: `Top-up rejected: wallet balance cannot exceed ₹200. Current balance is ₹${Math.floor(currentBalance)}. Maximum allowed top-up is ₹${maxAllowed}.`,
+          error_code: 'WALLET_LIMIT_EXCEEDED',
+          current_balance: currentBalance,
+          max_allowed_topup: maxAllowed,
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     // 6. Check for existing top-up order with this client_idempotency_key
     const { data: existingTopup, error: existingError } = await supabaseAdmin
