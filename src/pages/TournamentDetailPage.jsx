@@ -195,6 +195,12 @@ export default function TournamentDetailPage() {
   const isClosed = tournament.status === 'Registration Closed' || tournament.status === 'Bracket Locked' || tournament.status === 'Completed'
   const isRegistrationDisabled = isFull || isClosed || isAlreadyRegistered
 
+  // Authoritative Fee & Payment Status Derivation
+  const entryFeeStr = String(tournament.entryFee || tournament.entry_fee || 'Free').trim()
+  const rawFeeDigits = entryFeeStr.replace(/[^0-9.]/g, '')
+  const numericEntryFee = entryFeeStr.toLowerCase() === 'free' || !rawFeeDigits ? 0 : parseFloat(rawFeeDigits)
+  const isPaidTournament = Boolean(tournament.paymentEnabled || tournament.payment_enabled || numericEntryFee > 0)
+
   const handleRegisterClick = () => {
     if (!isAuthenticated) {
       navigate('/login')
@@ -325,7 +331,8 @@ export default function TournamentDetailPage() {
                 {/* PRIZE POOL BREAKDOWN & DISTRIBUTION CARD */}
                 <div className="mt-6">
                   <EntryPrizeSystem
-                    entryFee={tournament.entryFee || '₹50'}
+                    entryFee={entryFeeStr}
+                    paymentEnabled={isPaidTournament}
                     maxTeams={tournament.maxTeams || tournament.max_teams || 12}
                     game={tournament.game}
                     mode={tournament.mode}

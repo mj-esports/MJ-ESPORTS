@@ -993,6 +993,41 @@ test('SlotBookingModal.jsx extracts walletData?.wallet?.balance correctly (HOTFI
   assert.ok(modalContent.includes('Pay ₹${numericEntryFee.toFixed(2)} from Wallet'), 'Must render Pay from Wallet button')
 })
 
+test('TournamentDetailPage.jsx derives isPaidTournament and passes paymentEnabled to EntryPrizeSystem', () => {
+  const detailPath = path.join(process.cwd(), 'src', 'pages', 'TournamentDetailPage.jsx')
+  const detailContent = fs.readFileSync(detailPath, 'utf8')
+  assert.ok(detailContent.includes('isPaidTournament'), 'Must derive isPaidTournament in TournamentDetailPage')
+  assert.ok(detailContent.includes('paymentEnabled={isPaidTournament}'), 'Must pass paymentEnabled to EntryPrizeSystem')
+  assert.ok(detailContent.includes('entryFee={entryFeeStr}'), 'Must pass entryFeeStr to EntryPrizeSystem')
+
+  // Simulate derivation logic
+  const parseTournamentPayment = (t) => {
+    const entryFeeStr = String(t?.entryFee || t?.entry_fee || 'Free').trim()
+    const rawFeeDigits = entryFeeStr.replace(/[^0-9.]/g, '')
+    const numericEntryFee = entryFeeStr.toLowerCase() === 'free' || !rawFeeDigits ? 0 : parseFloat(rawFeeDigits)
+    const isPaidTournament = Boolean(t?.paymentEnabled || t?.payment_enabled || numericEntryFee > 0)
+    return { entryFeeStr, numericEntryFee, isPaidTournament }
+  }
+
+  // Case 1: Paid tournament (₹50)
+  const paidResult = parseTournamentPayment({ entryFee: '₹50' })
+  assert.strictEqual(paidResult.isPaidTournament, true, '₹50 must be recognized as paid tournament')
+  assert.strictEqual(paidResult.numericEntryFee, 50, 'Fee must parse to 50')
+
+  // Case 2: Free tournament (Free)
+  const freeResult = parseTournamentPayment({ entryFee: 'Free' })
+  assert.strictEqual(freeResult.isPaidTournament, false, 'Free must be recognized as free tournament')
+  assert.strictEqual(freeResult.numericEntryFee, 0, 'Fee must parse to 0')
+})
+
+test('EntryPrizeSystem.jsx synchronizes paymentEnabled and displays Paid Entry / Free Entry correctly', () => {
+  const systemPath = path.join(process.cwd(), 'src', 'components', 'common', 'EntryPrizeSystem.jsx')
+  const systemContent = fs.readFileSync(systemPath, 'utf8')
+  assert.ok(systemContent.includes('setLocalPaymentEnabled(Boolean(paymentEnabled))'), 'Must sync paymentEnabled via effect')
+  assert.ok(systemContent.includes('localPaymentEnabled ? \'Paid Entry\' : \'Free Entry\''), 'Must toggle Paid/Free Entry badge')
+  assert.ok(systemContent.includes('!localPaymentEnabled || localEntryFee === 0 ? \'Free\' : `₹${localEntryFee}`'), 'Must render exact fee or Free')
+})
+
 console.log('\n============================================================')
 console.log(`📊 TEST RESULTS: ${passed} PASSED | ${failed} FAILED`)
 console.log('============================================================\n')

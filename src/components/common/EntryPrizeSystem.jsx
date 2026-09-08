@@ -65,6 +65,15 @@ export default function EntryPrizeSystem({
     }
   }, [maxTeams, defaultCap.maxTeams])
 
+  useEffect(() => {
+    setLocalPaymentEnabled(Boolean(paymentEnabled))
+    if (paymentEnabled) {
+      setLocalEntryFee(parseNum(entryFee, 50))
+    } else {
+      setLocalEntryFee(0)
+    }
+  }, [paymentEnabled, entryFee])
+
   const [localPrizeType, setLocalPrizeType] = useState(prizeType || 'placement')
   const [localPerKill, setLocalPerKill] = useState(() => parseNum(perKillReward, 30))
   const [localPrizes, setLocalPrizes] = useState({
