@@ -67,7 +67,74 @@ export async function fetchWalletTransactions(userId) {
 
 
 /**
- * Secure Deposit RPC Call
+ * Phase 9.2: Generates a unique client idempotency key for top-up attempts
+ */
+export function generateTopupIdempotencyKey() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
+  }
+  return 'topup-req-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 11)
+}
+
+/**
+ * Phase 9.2: Create Razorpay order for wallet top-up via authoritative Edge Function
+ */
+export async function createWalletTopupOrder(amount, clientIdempotencyKey) {
+  if (!isSupabaseConfigured) {
+    return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
+  }
+
+  try {
+    const { data, error } = await supabase.functions.invoke('create-wallet-topup-order', {
+      body: {
+        amount,
+        client_idempotency_key: clientIdempotencyKey,
+      },
+    })
+
+    if (error) {
+      console.error('[walletService] create-wallet-topup-order error:', error)
+      return { success: false, message: error.message || 'Failed to create top-up order.' }
+    }
+
+    return data || { success: false, message: 'No response data from server.' }
+  } catch (err) {
+    console.error('[walletService] createWalletTopupOrder exception:', err)
+    return { success: false, message: err.message || 'Unexpected error creating top-up order.' }
+  }
+}
+
+/**
+ * Phase 9.2: Verify Razorpay payment signature and execute atomic settlement via Edge Function
+ */
+export async function verifyWalletTopup({ orderId, paymentId, signature }) {
+  if (!isSupabaseConfigured) {
+    return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
+  }
+
+  try {
+    const { data, error } = await supabase.functions.invoke('verify-wallet-topup', {
+      body: {
+        order_id: orderId,
+        payment_id: paymentId,
+        signature: signature,
+      },
+    })
+
+    if (error) {
+      console.error('[walletService] verify-wallet-topup error:', error)
+      return { success: false, message: error.message || 'Payment verification failed.' }
+    }
+
+    return data || { success: false, message: 'No verification response data from server.' }
+  } catch (err) {
+    console.error('[walletService] verifyWalletTopup exception:', err)
+    return { success: false, message: err.message || 'Unexpected error verifying top-up.' }
+  }
+}
+
+/**
+ * Secure Deposit RPC Call (Legacy/Manual)
  */
 export async function depositMoney({ amount, paymentMethod = 'UPI', gatewayOrderId = null, gatewayPaymentId = null }) {
   if (!isSupabaseConfigured) {

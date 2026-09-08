@@ -11,7 +11,16 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
-import { fetchUserWallet, fetchWalletTransactions, depositMoney, requestWithdrawal } from '../services/walletService'
+import {
+  fetchUserWallet,
+  fetchWalletTransactions,
+  depositMoney,
+  requestWithdrawal,
+  createWalletTopupOrder,
+  verifyWalletTopup,
+  generateTopupIdempotencyKey,
+} from '../services/walletService'
+import { loadRazorpayScript } from '../services/tournamentPaymentService'
 
 export default function WalletPage() {
   const { user } = useAuth()
@@ -25,6 +34,8 @@ export default function WalletPage() {
   const [paymentMethod, setPaymentMethod] = useState('UPI')
   const [upiIdInput, setUpiIdInput] = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isSubmittingTopup, setIsSubmittingTopup] = useState(false)
+  const [topupIdempotencyKey, setTopupIdempotencyKey] = useState(null)
   const [transactions, setTransactions] = useState([])
   const [dbWalletBalance, setDbWalletBalance] = useState(null)
 
@@ -133,32 +144,108 @@ export default function WalletPage() {
     syncWalletData()
   }
 
-  // Handle Add Money / Deposit via Secure RPC
+  // Phase 9.2: Handle Add Money via Razorpay Checkout & Authoritative Verification
   const handleDepositSubmit = async (e) => {
     e.preventDefault()
-    const num = parseFloat(amountInput)
-    if (isNaN(num) || num <= 0) {
-      showError('Please enter a valid amount to deposit.', 'Invalid Amount')
+
+    // 1. Local amount validation
+    const trimmedAmount = (amountInput || '').toString().trim()
+    const validAmountRegex = /^\d+(\.\d{1,2})?$/
+    if (!trimmedAmount || !validAmountRegex.test(trimmedAmount)) {
+      showError('Please enter a valid amount (maximum 2 decimal places).', 'Invalid Amount')
       return
     }
 
+    const num = parseFloat(Number(trimmedAmount).toFixed(2))
+    if (isNaN(num) || num < 10.00) {
+      showError('Minimum deposit amount is ₹10.00.', 'Invalid Amount')
+      return
+    }
+    if (num > 10000.00) {
+      showError('Maximum deposit amount is ₹10,000.00.', 'Limit Exceeded')
+      return
+    }
+
+    // 2. Client Idempotency Key: Generate once per top-up attempt, preserve across retries
+    const idempotencyKey = topupIdempotencyKey || generateTopupIdempotencyKey()
+    if (!topupIdempotencyKey) {
+      setTopupIdempotencyKey(idempotencyKey)
+    }
+
+    setIsSubmittingTopup(true)
+
     try {
-      if (user?.id) {
-        const res = await depositMoney({
-          amount: num,
-          paymentMethod: paymentMethod,
-        })
-        if (res && res.success === false) {
-          throw new Error(res.message || 'Deposit processing failed.')
-        }
+      // 3. Ensure Razorpay checkout script is loaded
+      const isScriptLoaded = await loadRazorpayScript()
+      if (!isScriptLoaded || typeof window === 'undefined' || !window.Razorpay) {
+        throw new Error('Unable to load payment gateway. Please check your network connection.')
       }
 
-      showSuccess('Wallet Updated', 'Deposit Successful')
-      setIsDepositModalOpen(false)
-      setAmountInput('')
-      await syncWalletData()
+      // 4. Create authoritative server-side Razorpay order
+      const orderRes = await createWalletTopupOrder(num, idempotencyKey)
+      if (!orderRes || !orderRes.success || !orderRes.order_id) {
+        throw new Error(orderRes?.message || orderRes?.error || 'Failed to initialize top-up order.')
+      }
+
+      // 5. Open Razorpay Checkout modal
+      const options = {
+        key: orderRes.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID || '',
+        amount: orderRes.amount,
+        currency: orderRes.currency || 'INR',
+        name: 'MJ ESPORTS',
+        description: `Wallet Add Funds ₹${num.toFixed(2)}`,
+        order_id: orderRes.order_id,
+        handler: async (response) => {
+          try {
+            setIsSubmittingTopup(true)
+            // 6. Server-side verification & atomic credit
+            const verifyRes = await verifyWalletTopup({
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+            })
+
+            if (verifyRes && verifyRes.success) {
+              // 7. On success, refresh authoritative balance
+              showSuccess(`₹${num.toFixed(2)} credited to your wallet!`, 'Deposit Successful')
+              setIsDepositModalOpen(false)
+              setAmountInput('')
+              setTopupIdempotencyKey(null)
+              await syncWalletData()
+            } else {
+              showError(verifyRes?.error || verifyRes?.message || 'Payment verification failed.', 'Verification Error')
+            }
+          } catch (verifyErr) {
+            showError(verifyErr.message || 'Payment verification failed.', 'Verification Error')
+          } finally {
+            setIsSubmittingTopup(false)
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsSubmittingTopup(false)
+          },
+        },
+        prefill: {
+          name: user?.user_metadata?.full_name || user?.user_metadata?.username || 'MJ Esports Player',
+          email: user?.email || '',
+        },
+        theme: {
+          color: '#00f2ff',
+        },
+      }
+
+      const rzpInstance = new window.Razorpay(options)
+      rzpInstance.on('payment.failed', (resp) => {
+        console.error('[Razorpay Payment Failed]:', resp.error)
+        showError(resp.error?.description || 'Payment was declined.', 'Payment Failed')
+        setIsSubmittingTopup(false)
+      })
+      rzpInstance.open()
     } catch (err) {
+      console.error('[Deposit Error]:', err)
       showError(err.message || 'Deposit Failed', 'Deposit Failed')
+      setIsSubmittingTopup(false)
     }
   }
 
@@ -466,8 +553,13 @@ export default function WalletPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
           <div className="w-full max-w-md bg-[#141416] border border-[#27272a] rounded p-6 space-y-4 shadow-2xl relative">
             <button
-              onClick={() => setIsDepositModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 text-[#849495] hover:text-white rounded bg-[#1c1b1c] border border-[#27272a] transition-colors"
+              onClick={() => {
+                setIsDepositModalOpen(false)
+                setTopupIdempotencyKey(null)
+                setIsSubmittingTopup(false)
+              }}
+              disabled={isSubmittingTopup}
+              className="absolute top-4 right-4 p-1.5 text-[#849495] hover:text-white rounded bg-[#1c1b1c] border border-[#27272a] transition-colors disabled:opacity-40"
             >
               <X className="w-4 h-4" />
             </button>
@@ -476,7 +568,7 @@ export default function WalletPage() {
               Add Instant Funds
             </h3>
             <p className="text-[#849495] text-xs font-body">
-              Enter cash payload to load money into your esports wallet ledger.
+              Enter amount between ₹10.00 and ₹10,000.00 to top-up your verified wallet.
             </p>
 
             <form onSubmit={handleDepositSubmit} className="space-y-4">
@@ -486,11 +578,18 @@ export default function WalletPage() {
                 </label>
                 <input
                   type="number"
+                  min="10"
+                  max="10000"
+                  step="0.01"
                   value={amountInput}
-                  onChange={(e) => setAmountInput(e.target.value)}
-                  placeholder="e.g. 500"
+                  disabled={isSubmittingTopup}
+                  onChange={(e) => {
+                    setAmountInput(e.target.value)
+                    setTopupIdempotencyKey(null)
+                  }}
+                  placeholder="e.g. 500.00"
                   required
-                  className="w-full bg-[#1c1b1c] border border-[#27272a] rounded px-4 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-body"
+                  className="w-full bg-[#1c1b1c] border border-[#27272a] rounded px-4 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-body disabled:opacity-50"
                 />
               </div>
 
@@ -502,7 +601,8 @@ export default function WalletPage() {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('UPI')}
-                    className={`py-2 text-[10px] font-bold uppercase rounded border transition-all cursor-pointer font-headline ${
+                    disabled={isSubmittingTopup}
+                    className={`py-2 text-[10px] font-bold uppercase rounded border transition-all cursor-pointer font-headline disabled:opacity-50 ${
                       paymentMethod === 'UPI'
                         ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]'
                         : 'bg-[#1c1b1c] border-[#27272a] text-[#849495] hover:text-white'
@@ -513,7 +613,8 @@ export default function WalletPage() {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('CARD')}
-                    className={`py-2 text-[10px] font-bold uppercase rounded border transition-all cursor-pointer font-headline ${
+                    disabled={isSubmittingTopup}
+                    className={`py-2 text-[10px] font-bold uppercase rounded border transition-all cursor-pointer font-headline disabled:opacity-50 ${
                       paymentMethod === 'CARD'
                         ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]'
                         : 'bg-[#1c1b1c] border-[#27272a] text-[#849495] hover:text-white'
@@ -524,7 +625,8 @@ export default function WalletPage() {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('NETBANK')}
-                    className={`py-2 text-[10px] font-bold uppercase rounded border transition-all cursor-pointer font-headline ${
+                    disabled={isSubmittingTopup}
+                    className={`py-2 text-[10px] font-bold uppercase rounded border transition-all cursor-pointer font-headline disabled:opacity-50 ${
                       paymentMethod === 'NETBANK'
                         ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]'
                         : 'bg-[#1c1b1c] border-[#27272a] text-[#849495] hover:text-white'
@@ -538,16 +640,29 @@ export default function WalletPage() {
               <div className="flex gap-3 pt-3 border-t border-[#27272a]">
                 <button
                   type="button"
-                  onClick={() => setIsDepositModalOpen(false)}
-                  className="flex-1 py-2.5 bg-[#1c1b1c] border border-[#27272a] hover:border-red-500 hover:text-red-400 rounded text-xs font-bold uppercase font-headline transition-all cursor-pointer"
+                  onClick={() => {
+                    setIsDepositModalOpen(false)
+                    setTopupIdempotencyKey(null)
+                    setIsSubmittingTopup(false)
+                  }}
+                  disabled={isSubmittingTopup}
+                  className="flex-1 py-2.5 bg-[#1c1b1c] border border-[#27272a] hover:border-red-500 hover:text-red-400 rounded text-xs font-bold uppercase font-headline transition-all cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] rounded text-xs font-bold uppercase font-headline transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] cursor-pointer"
+                  disabled={isSubmittingTopup}
+                  className="flex-1 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] rounded text-xs font-bold uppercase font-headline transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Deposit
+                  {isSubmittingTopup ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Processing...</span>
+                    </>
+                  ) : (
+                    'Deposit Funds'
+                  )}
                 </button>
               </div>
             </form>
