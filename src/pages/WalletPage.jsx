@@ -13,7 +13,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import {
   fetchUserWallet,
-  fetchWalletTransactions,
+  fetchWalletLedger,
   depositMoney,
   requestWithdrawal,
   createWalletTopupOrder,
@@ -39,7 +39,7 @@ export default function WalletPage() {
   const [transactions, setTransactions] = useState([])
   const [dbWalletBalance, setDbWalletBalance] = useState(null)
 
-  // Wallet stats derived from real database transactions
+  // Wallet stats derived strictly from authoritative Phase 9 wallet system
   const [walletStats, setWalletStats] = useState({
     totalWinnings: 0.0,
     totalDeposits: 0.0,
@@ -56,33 +56,41 @@ export default function WalletPage() {
     if (!user?.id) return
     setIsRefreshing(true)
     try {
-      // 1. Fetch authoritative wallet balance via Phase 9.1 get_or_create_wallet RPC
-      const walletRes = await fetchUserWallet()
+      // 1. Concurrently fetch authoritative wallet balance and immutable ledger entries (Phase 9)
+      const [walletRes, ledgerData] = await Promise.all([
+        fetchUserWallet(),
+        fetchWalletLedger({ limit: 50, userId: user.id }),
+      ])
+
+      // 2. Set authoritative wallet balance from public.wallets
       if (walletRes?.success && walletRes.wallet) {
         setDbWalletBalance(Number(walletRes.wallet.balance || 0.0))
       }
 
-      // 2. Fetch existing transaction history
-      const data = await fetchWalletTransactions(user.id)
-      const mapped = (data || []).map((t) => {
-        const isDebit = t.type === 'Entry Fee Debit' || t.type === 'Withdrawal'
+      // 3. Map immutable wallet_ledger rows
+      const mapped = (ledgerData || []).map((t) => {
+        const isDebit = t.direction === 'DEBIT'
         const amt = isDebit ? -Math.abs(Number(t.amount)) : Math.abs(Number(t.amount))
+
+        let category = 'DEPOSIT'
+        if (t.transaction_type === 'PRIZE_CREDIT') category = 'PRIZE'
+        else if (t.transaction_type === 'ENTRY_FEE_DEBIT') category = 'ENTRY_FEE'
+        else if (t.transaction_type === 'WITHDRAWAL') category = 'WITHDRAWAL'
+        else if (t.transaction_type === 'REFUND') category = 'REFUND'
+        else if (t.transaction_type === 'DEPOSIT') category = 'DEPOSIT'
+        else category = t.transaction_type || 'TRANSACTION'
+
         return {
           id: t.id,
-          tournament: t.description || 'Transaction Log',
-          type: t.type,
-          category:
-            t.type === 'Prize Credit'
-              ? 'PRIZE'
-              : t.type === 'Entry Fee Debit'
-              ? 'ENTRY_FEE'
-              : t.type === 'Deposit'
-              ? 'DEPOSIT'
-              : t.type === 'Withdrawal'
-              ? 'WITHDRAWAL'
-              : 'REFUND',
+          tournament: t.description || 'Instant Wallet Top-up via Razorpay',
+          description: t.description || 'Instant Wallet Top-up via Razorpay',
+          type: t.transaction_type,
+          direction: t.direction,
+          category: category,
           amount: amt,
-          status: t.status || 'Completed',
+          balanceBefore: Number(t.balance_before != null ? t.balance_before : 0.0),
+          balanceAfter: Number(t.balance_after != null ? t.balance_after : 0.0),
+          status: 'Completed',
           date: new Date(t.created_at).toLocaleDateString(undefined, {
             month: 'short',
             day: 'numeric',
@@ -96,41 +104,43 @@ export default function WalletPage() {
       })
       setTransactions(mapped)
 
-      // Calculate aggregated metrics
-      let winnings = 0
-      let deposits = 0
-      let entryFees = 0
-      let pending = 0
-      let spend = 0
-      let earn = 0
+      // 4. Calculate aggregated metrics strictly from modern wallet_ledger
+      let modernDeposits = 0
+      let modernWinnings = 0
+      let modernEntryFees = 0
+      let modernPendingWithdrawals = 0 // Withdrawals not yet implemented in Phase 9
 
       mapped.forEach((t) => {
         const amt = Math.abs(t.amount)
-        if (t.type === 'Prize Credit') {
-          winnings += amt
-          earn += amt
-        } else if (t.type === 'Deposit') {
-          deposits += amt
-        } else if (t.type === 'Entry Fee Debit') {
-          entryFees += amt
-          spend += amt
-        } else if (t.type === 'Withdrawal') {
-          if (t.status === 'Pending') {
-            pending += amt
-          }
+        if (t.type === 'DEPOSIT' && t.direction === 'CREDIT') {
+          modernDeposits += amt
+        } else if (t.type === 'PRIZE_CREDIT' && t.direction === 'CREDIT') {
+          modernWinnings += amt
+        } else if (t.type === 'ENTRY_FEE_DEBIT' && t.direction === 'DEBIT') {
+          modernEntryFees += amt
         }
       })
 
       setWalletStats({
-        totalWinnings: winnings,
-        totalDeposits: deposits,
-        totalEntryFees: entryFees,
-        pendingWithdrawals: pending,
-        monthlyEarnings: earn,
-        monthlySpending: spend,
+        totalWinnings: modernWinnings,
+        totalDeposits: modernDeposits,
+        totalEntryFees: modernEntryFees,
+        pendingWithdrawals: modernPendingWithdrawals,
+        monthlyEarnings: modernWinnings,
+        monthlySpending: modernEntryFees,
       })
     } catch (err) {
       console.warn('[Wallet page sync warning]:', err)
+      // Never silently fall back to legacy statement sources
+      setTransactions([])
+      setWalletStats({
+        totalWinnings: 0.0,
+        totalDeposits: 0.0,
+        totalEntryFees: 0.0,
+        pendingWithdrawals: 0.0,
+        monthlyEarnings: 0.0,
+        monthlySpending: 0.0,
+      })
     } finally {
       setIsRefreshing(false)
     }
@@ -292,8 +302,10 @@ export default function WalletPage() {
         const query = searchQuery.toLowerCase()
         return (
           t.id.toLowerCase().includes(query) ||
-          t.tournament.toLowerCase().includes(query) ||
-          t.type.toLowerCase().includes(query)
+          (t.tournament && t.tournament.toLowerCase().includes(query)) ||
+          (t.description && t.description.toLowerCase().includes(query)) ||
+          t.type.toLowerCase().includes(query) ||
+          (t.direction && t.direction.toLowerCase().includes(query))
         )
       }
       return true
@@ -476,11 +488,14 @@ export default function WalletPage() {
                       return (
                         <tr key={tx.id} className="hover:bg-[#201f20] transition-colors">
                           <td className="py-3.5 sm:py-4 px-3 sm:px-6 min-w-0 max-w-[180px] sm:max-w-[280px]">
-                            <span className="font-bold text-white block truncate font-headline text-xs" title={tx.tournament}>
-                              {tx.tournament}
+                            <span className="font-bold text-white block truncate font-headline text-xs" title={tx.description || tx.tournament}>
+                              {tx.description || tx.tournament}
                             </span>
-                            <span className="text-[10px] text-[#849495] block font-mono truncate" title={`ID: ${tx.id} • ${tx.type}`}>
-                              ID: {tx.id} &bull; {tx.type}
+                            <span className="text-[10px] text-[#849495] block font-mono truncate" title={`ID: ${tx.id} • ${tx.type} • ${tx.direction}`}>
+                              ID: {tx.id} &bull; {tx.type} &bull; {tx.direction}
+                            </span>
+                            <span className="text-[10px] text-[#00f2ff]/80 block font-mono">
+                              Before: ₹{tx.balanceBefore.toFixed(2)} &bull; After: ₹{tx.balanceAfter.toFixed(2)}
                             </span>
                             <span className="text-[10px] text-[#849495] block font-mono sm:hidden mt-0.5">
                               {tx.date} {tx.time}
@@ -501,6 +516,8 @@ export default function WalletPage() {
                                   ? 'bg-[#ff5e07]/10 text-[#ff5e07] border border-[#ff5e07]/30'
                                   : tx.category === 'ENTRY_FEE'
                                   ? 'bg-red-950/40 text-red-400 border border-red-900/40'
+                                  : tx.category === 'PRIZE'
+                                  ? 'bg-[#fed83a]/10 text-[#fed83a] border border-[#fed83a]/30'
                                   : 'bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30'
                               }`}
                             >
@@ -530,11 +547,14 @@ export default function WalletPage() {
                             </span>
                           </td>
                           <td
-                            className={`py-3.5 sm:py-4 px-3 sm:px-6 text-right pr-3 sm:pr-6 font-bold text-xs sm:text-sm font-headline whitespace-nowrap ${
-                              isPositive ? 'text-[#10b981]' : 'text-red-400'
-                            }`}
+                            className="py-3.5 sm:py-4 px-3 sm:px-6 text-right pr-3 sm:pr-6 font-headline whitespace-nowrap"
                           >
-                            {isPositive ? '+' : ''}₹{Math.abs(tx.amount).toFixed(2)}
+                            <span className={`font-bold text-xs sm:text-sm block ${isPositive ? 'text-[#10b981]' : 'text-red-400'}`}>
+                              {isPositive ? '+' : ''}₹{Math.abs(tx.amount).toFixed(2)}
+                            </span>
+                            <span className="text-[10px] text-[#849495] font-mono block">
+                              Bal: ₹{tx.balanceAfter.toFixed(2)}
+                            </span>
                           </td>
                         </tr>
                       )

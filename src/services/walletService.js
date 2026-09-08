@@ -25,14 +25,20 @@ export async function fetchUserWallet() {
 /**
  * Phase 9.1: Fetch immutable wallet ledger entries for authenticated user
  */
-export async function fetchWalletLedger({ limit = 50 } = {}) {
+export async function fetchWalletLedger({ limit = 50, userId = null } = {}) {
   if (!isSupabaseConfigured) return []
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('wallet_ledger')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit)
+
+    if (userId) {
+      query = query.eq('user_id', userId)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.warn('[walletService] fetchWalletLedger warning:', error.message)
