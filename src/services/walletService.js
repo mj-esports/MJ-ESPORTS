@@ -1,5 +1,41 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 
+// Phase 9.4: Shared Authoritative Wallet Balance Event Bus
+let cachedAuthoritativeBalance = null
+const balanceListeners = new Set()
+
+export function getAuthoritativeWalletBalance() {
+  return cachedAuthoritativeBalance
+}
+
+export function subscribeToWalletBalance(callback) {
+  if (typeof callback === 'function') {
+    balanceListeners.add(callback)
+    if (cachedAuthoritativeBalance !== null) {
+      try {
+        callback(cachedAuthoritativeBalance)
+      } catch (err) {
+        console.warn('[walletService] listener callback error:', err)
+      }
+    }
+  }
+  return () => {
+    balanceListeners.delete(callback)
+  }
+}
+
+export function notifyWalletBalanceUpdated(newBalance) {
+  const numeric = typeof newBalance === 'number' ? newBalance : Number(newBalance || 0)
+  cachedAuthoritativeBalance = numeric
+  balanceListeners.forEach((listener) => {
+    try {
+      listener(numeric)
+    } catch (err) {
+      console.warn('[walletService] listener dispatch error:', err)
+    }
+  })
+}
+
 /**
  * Phase 9.1: Fetch or initialize user wallet via secure RPC
  * Authoritative source of wallet balance (PostgreSQL wallets table)
@@ -14,6 +50,10 @@ export async function fetchUserWallet() {
     if (error) {
       console.warn('[walletService] get_or_create_wallet RPC warning:', error.message)
       return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
+    }
+    if (data?.success && data?.wallet) {
+      const balance = Number(data.wallet.balance || 0.0)
+      notifyWalletBalanceUpdated(balance)
     }
     return data || { success: false, error_code: 'NO_DATA', message: 'No wallet data returned.' }
   } catch (err) {
@@ -146,6 +186,10 @@ export async function verifyWalletTopup({ orderId, paymentId, signature }) {
     if (error) {
       console.error('[walletService] verify-wallet-topup error:', error)
       return { success: false, message: error.message || 'Payment verification failed.' }
+    }
+
+    if (data?.success && data?.balance_after !== undefined) {
+      notifyWalletBalanceUpdated(Number(data.balance_after))
     }
 
     return data || { success: false, message: 'No verification response data from server.' }

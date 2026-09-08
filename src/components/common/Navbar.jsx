@@ -19,6 +19,11 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 import { fetchUserNotifications, markNotificationAsRead } from '../../services/notificationService'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
+import {
+  fetchUserWallet,
+  subscribeToWalletBalance,
+  getAuthoritativeWalletBalance,
+} from '../../services/walletService'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -36,6 +41,50 @@ export default function Navbar() {
   const dropdownRef = useRef(null)
   const notifRef = useRef(null)
   const [profileAvatar, setProfileAvatar] = useState(null)
+
+  // Phase 9.4: Authoritative public.wallets.balance Synchronization
+  const [navWalletBalance, setNavWalletBalance] = useState(getAuthoritativeWalletBalance())
+  const [isWalletLoading, setIsWalletLoading] = useState(getAuthoritativeWalletBalance() === null)
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) {
+      setNavWalletBalance(null)
+      setIsWalletLoading(false)
+      return
+    }
+
+    let isMounted = true
+
+    // 1. Subscribe to shared authoritative balance changes
+    const unsubscribe = subscribeToWalletBalance((updatedBalance) => {
+      if (isMounted) {
+        setNavWalletBalance(updatedBalance)
+        setIsWalletLoading(false)
+      }
+    })
+
+    // 2. Fetch fresh authoritative balance on mount and route change
+    fetchUserWallet()
+      .then((res) => {
+        if (isMounted && res?.success && res.wallet) {
+          const bal = Number(res.wallet.balance || 0)
+          setNavWalletBalance(bal)
+        }
+      })
+      .catch((err) => {
+        console.warn('[Navbar fetchUserWallet warn]:', err)
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsWalletLoading(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+      unsubscribe()
+    }
+  }, [isAuthenticated, user?.id, location.pathname])
 
   // Fetch live profile avatar from profiles table
   useEffect(() => {
@@ -127,7 +176,6 @@ export default function Navbar() {
   }
 
   const userDisplayName = profile?.username || user?.user_metadata?.username || user?.email?.split('@')[0] || 'Player'
-  const userWalletBalance = user?.user_metadata?.wallet_balance ?? 0.0
   const userAvatarUrl = profile?.avatar_url || profileAvatar || user?.user_metadata?.avatar_url || user?.user_metadata?.avatarUrl || ''
   const userInitial = (userDisplayName || 'M').charAt(0).toUpperCase()
   const unreadNotificationsCount = notifications.filter((n) => !n.is_read).length
@@ -191,10 +239,14 @@ export default function Navbar() {
                       ? 'bg-[#10b981]/10 border-[#10b981]/40 text-[#10b981] shadow-[0_0_12px_rgba(16,185,129,0.25)]'
                       : 'bg-[#141416] border-[#27272a] text-[#ff5e07] hover:border-[#ff5e07]'
                   }`}
-                  title="Esports Wallet Balance"
+                  title="Esports Authoritative Wallet Balance"
                 >
                   <Wallet className="w-3.5 h-3.5 text-[#ff5e07]" />
-                  <span>₹{Number(userWalletBalance).toFixed(2)}</span>
+                  {isWalletLoading || navWalletBalance === null ? (
+                    <span className="inline-block w-8 h-3.5 bg-[#27272a] animate-pulse rounded my-0.5"></span>
+                  ) : (
+                    <span>₹{Math.floor(navWalletBalance)}</span>
+                  )}
                 </Link>
 
                 {/* Real-time Notification Bell */}
@@ -496,14 +548,23 @@ export default function Navbar() {
                   <Link
                     to="/wallet"
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`px-4 py-3 rounded flex items-center gap-2.5 min-h-[44px] uppercase tracking-wider ${
+                    className={`px-4 py-3 rounded flex items-center justify-between min-h-[44px] uppercase tracking-wider ${
                       isActive('/wallet')
                         ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
                         : 'text-[#b9cacb] hover:bg-[#141416]'
                     }`}
                   >
-                    <Wallet className={`w-4.5 h-4.5 ${isActive('/wallet') ? 'text-[#00f2ff]' : 'text-[#10b981]'}`} />
-                    <span>Wallet</span>
+                    <div className="flex items-center gap-2.5">
+                      <Wallet className={`w-4.5 h-4.5 ${isActive('/wallet') ? 'text-[#00f2ff]' : 'text-[#10b981]'}`} />
+                      <span>Wallet</span>
+                    </div>
+                    {isWalletLoading || navWalletBalance === null ? (
+                      <span className="inline-block w-8 h-3.5 bg-[#27272a] animate-pulse rounded my-0.5"></span>
+                    ) : (
+                      <span className="text-xs font-mono font-bold text-[#00f2ff] bg-[#00f2ff]/10 px-2 py-0.5 rounded border border-[#00f2ff]/20">
+                        ₹{Math.floor(navWalletBalance)}
+                      </span>
+                    )}
                   </Link>
 
                   <Link

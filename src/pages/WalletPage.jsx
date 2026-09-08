@@ -19,6 +19,8 @@ import {
   createWalletTopupOrder,
   verifyWalletTopup,
   generateTopupIdempotencyKey,
+  getAuthoritativeWalletBalance,
+  subscribeToWalletBalance,
 } from '../services/walletService'
 import { loadRazorpayScript } from '../services/tournamentPaymentService'
 
@@ -37,7 +39,7 @@ export default function WalletPage() {
   const [isSubmittingTopup, setIsSubmittingTopup] = useState(false)
   const [topupIdempotencyKey, setTopupIdempotencyKey] = useState(null)
   const [transactions, setTransactions] = useState([])
-  const [dbWalletBalance, setDbWalletBalance] = useState(null)
+  const [dbWalletBalance, setDbWalletBalance] = useState(() => getAuthoritativeWalletBalance())
 
   // Wallet stats derived strictly from authoritative Phase 9 wallet system
   const [walletStats, setWalletStats] = useState({
@@ -49,8 +51,8 @@ export default function WalletPage() {
     monthlySpending: 0.0,
   })
 
-  // Authoritative balance from Phase 9.1 wallets table, falling back to legacy profile/metadata
-  const userWalletBalance = dbWalletBalance !== null ? dbWalletBalance : (user?.user_metadata?.wallet_balance ?? 0.0)
+  // Authoritative balance from Phase 9.1 wallets table
+  const userWalletBalance = dbWalletBalance !== null ? dbWalletBalance : (getAuthoritativeWalletBalance() ?? 0.0)
   const authoritativeBalance = Math.floor(Number(userWalletBalance || 0))
   const maxAllowedTopup = Math.max(0, 200 - authoritativeBalance)
 
@@ -150,6 +152,10 @@ export default function WalletPage() {
 
   useEffect(() => {
     syncWalletData()
+    const unsubscribe = subscribeToWalletBalance((newBal) => {
+      setDbWalletBalance(newBal)
+    })
+    return unsubscribe
   }, [syncWalletData])
 
   const handleRefreshBalance = () => {

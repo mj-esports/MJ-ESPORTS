@@ -16,6 +16,7 @@ import {
   isValidRoomPassword,
   sanitizeDigitsOnly,
 } from '../utils/validationUtils'
+import { notifyWalletBalanceUpdated } from '../services/walletService'
 
 export {
   mapTournamentFromDb,
@@ -536,6 +537,9 @@ export function TournamentProvider({ children }) {
       }
 
       console.log('[RPC Diagnostic]: Wallet Registration Success! Synchronizing tournaments state...')
+      if (data?.balance_after !== undefined) {
+        notifyWalletBalanceUpdated(Number(data.balance_after))
+      }
       await fetchTournaments()
       return data
     } finally {
