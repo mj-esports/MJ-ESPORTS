@@ -497,10 +497,14 @@ export default function Navbar() {
                   <Link
                     to="/wallet"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="px-4 py-3 rounded flex items-center gap-2.5 text-[#b9cacb] hover:bg-[#141416] min-h-[44px] uppercase tracking-wider"
+                    className={`px-4 py-3 rounded flex items-center gap-2.5 min-h-[44px] uppercase tracking-wider ${
+                      isActive('/wallet')
+                        ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
+                        : 'text-[#b9cacb] hover:bg-[#141416]'
+                    }`}
                   >
-                    <Wallet className="w-4.5 h-4.5 text-[#10b981]" />
-                    <span>Wallet Ledger</span>
+                    <Wallet className={`w-4.5 h-4.5 ${isActive('/wallet') ? 'text-[#00f2ff]' : 'text-[#10b981]'}`} />
+                    <span>Wallet</span>
                   </Link>
 
                   <Link
@@ -512,8 +516,7 @@ export default function Navbar() {
                     <span>Settings</span>
                   </Link>
 
-                  {/* TEMPORARY TESTING ACCESS — RESTORE ADMIN-ONLY GUARD BEFORE PRODUCTION */}
-                  {(isAdmin || isAuthenticated) && (
+                  {isAdmin && (
                     <Link
                       to="/admin"
                       onClick={() => {

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, Trophy, BarChart3, Wallet, User, LogIn, Shield } from 'lucide-react'
+import { Home, Trophy, BarChart3, User, LogIn, Shield } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function BottomNavigation() {
@@ -9,11 +9,7 @@ export default function BottomNavigation() {
     { name: 'Home', path: '/', icon: Home },
     { name: 'Tournaments', path: '/tournaments', icon: Trophy },
     { name: 'Ranks', path: '/leaderboard', icon: BarChart3 },
-    ...(isAuthenticated
-      ? [{ name: 'Wallet', path: '/wallet', icon: Wallet }]
-      : []),
-    // TEMPORARY TESTING ACCESS — RESTORE ADMIN-ONLY GUARD BEFORE PRODUCTION
-    ...((isAdmin || isAuthenticated)
+    ...(isAdmin
       ? [{ name: 'Admin', path: '/admin', icon: Shield }]
       : []),
     isAuthenticated
