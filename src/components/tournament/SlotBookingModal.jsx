@@ -14,13 +14,19 @@ import {
   Sparkles,
   Smartphone,
   Upload,
-  FileImage
+  FileImage,
+  Wallet,
+  AlertTriangle
 } from 'lucide-react'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { uploadProfileProof } from '../../services/playerEvidenceService'
+import {
+  fetchUserWallet,
+  generateWalletRegistrationIdempotencyKey
+} from '../../services/walletService'
 import {
   createTournamentOrder,
   verifyTournamentPayment,
@@ -50,7 +56,7 @@ import {
 export { getTournamentMode }
 
 export default function SlotBookingModal({ tournament, onClose, onRegistered }) {
-  const { registerTeam } = useTournaments()
+  const { registerTeam, registerTeamWithWallet } = useTournaments()
   const { user } = useAuth()
   const { showSuccess, showError } = useToast()
 
@@ -58,6 +64,11 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const [proofFile, setProofFile] = useState(null)
   const [proofPreview, setProofPreview] = useState('')
   const [showRulebook, setShowRulebook] = useState(false)
+
+  // Phase 9.3: Wallet Payment State
+  const [walletData, setWalletData] = useState(null)
+  const [walletLoading, setWalletLoading] = useState(false)
+  const [walletIdempotencyKey, setWalletIdempotencyKey] = useState(null)
 
   // Lock body scrolling when modal is open
   useEffect(() => {
@@ -93,6 +104,38 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const rawFeeDigits = entryFeeStr.replace(/[^0-9.]/g, '')
   const numericEntryFee = entryFeeStr.toLowerCase() === 'free' || !rawFeeDigits ? 0 : parseFloat(rawFeeDigits)
   const isFreeTournament = numericEntryFee <= 0
+
+  // Reset idempotency key when target tournament changes (preserves key across retries for the same tournament)
+  useEffect(() => {
+    setWalletIdempotencyKey(null)
+  }, [tournament?.id])
+
+  // Fetch Authoritative Wallet Balance for Paid Tournaments
+  useEffect(() => {
+    let isMounted = true
+    if (user?.id && !isFreeTournament) {
+      setWalletLoading(true)
+      fetchUserWallet()
+        .then((res) => {
+          if (isMounted && res && res.success !== false) {
+            setWalletData(res)
+          }
+        })
+        .catch((err) => {
+          console.warn('[SlotBookingModal] fetchUserWallet error:', err)
+        })
+        .finally(() => {
+          if (isMounted) setWalletLoading(false)
+        })
+    }
+    return () => {
+      isMounted = false
+    }
+  }, [user?.id, isFreeTournament])
+
+  const userWalletBalance = Number(walletData?.balance ?? 0)
+  const hasSufficientWalletBalance = userWalletBalance >= numericEntryFee
+  const walletShortfall = Math.max(0, numericEntryFee - userWalletBalance)
 
   const isFormValid = useMemo(() => {
     if (!formData.acceptRules) return false
@@ -466,6 +509,109 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       const errorMsg = err?.message || 'Registration failed. Please check your inputs and try again.'
       setError(errorMsg)
       showError(errorMsg, 'Registration Failed')
+    } finally {
+      setIsSubmitting(false)
+      setSubmittingStep('')
+    }
+  }
+
+  // Phase 9.3: Dedicated Wallet Payment Submission Handler
+  const handleWalletPaymentSubmit = async (e) => {
+    if (e) e.preventDefault()
+    setError(null)
+
+    const validationError = validateForm()
+    if (validationError) {
+      setError(validationError)
+      showError(validationError, 'Validation Error')
+      return
+    }
+
+    if (!user?.id) {
+      showError('You must be logged in to register for a paid tournament.', 'Authentication Required')
+      return
+    }
+
+    // Preserve one UUID v4 per attempt across retries
+    let currentKey = walletIdempotencyKey
+    if (!currentKey) {
+      currentKey = generateWalletRegistrationIdempotencyKey()
+      setWalletIdempotencyKey(currentKey)
+    }
+
+    setIsSubmitting(true)
+    setSubmittingStep('Debiting Wallet & Registering...')
+
+    const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
+    const activeTeammates = formData.teammates
+      .slice(0, requiredTeammatesCount)
+      .map((t) => sanitizeString(t))
+    const activeTeammateIgns = formData.teammateIgns
+      .slice(0, requiredTeammatesCount)
+      .map((t) => toCanonicalIgn(t))
+
+    const refId = `REG-MJ-${Date.now().toString(36).toUpperCase()}`
+
+    try {
+      if (proofFile && user?.id) {
+        uploadProfileProof(proofFile, {
+          userId: user.id,
+          gameUid: sanitizeString(formData.freeFireUid),
+          gameIgn: toCanonicalIgn(formData.captainName),
+          tournamentId: tournament.id,
+          fallbackDataUrl: proofPreview,
+        }).catch((proofErr) => {
+          console.warn('[Profile Proof Upload Notice]:', proofErr)
+        })
+      }
+
+      const res = await registerTeamWithWallet(
+        tournament.id,
+        {
+          refId,
+          name: sanitizeString(formData.teamName),
+          captain: toCanonicalIgn(formData.captainName),
+          email: sanitizeString(formData.email),
+          freeFireUid: sanitizeString(formData.freeFireUid),
+          whatsappNumber: sanitizeString(formData.whatsappNumber),
+          mode,
+          teammates: activeTeammates,
+          teammateIgns: activeTeammateIgns,
+        },
+        currentKey
+      )
+
+      // Refresh authoritative wallet balance after settlement
+      const updatedWallet = await fetchUserWallet()
+      if (updatedWallet && updatedWallet.success !== false) {
+        setWalletData(updatedWallet)
+      }
+
+      showSuccess(
+        'Payment & Registration Confirmed',
+        res?.idempotent_replay
+          ? `Slot already processed (idempotent replay) • Ref: ${res.refId || refId}`
+          : `Paid ₹${numericEntryFee.toFixed(2)} from Wallet • Ref: ${res.refId || refId}`
+      )
+
+      if (onRegistered) {
+        onRegistered(res.teamRecord || {
+          refId: res.refId || refId,
+          name: sanitizeString(formData.teamName),
+          captain: toCanonicalIgn(formData.captainName),
+          mode,
+          freeFireUid: sanitizeString(formData.freeFireUid),
+          status: 'Approved',
+          paymentStatus: 'Paid',
+          paymentId: res.payment_id,
+        })
+      }
+
+      onClose()
+    } catch (err) {
+      console.error('[handleWalletPaymentSubmit error]:', err)
+      setError(err.message || 'Failed to complete wallet registration.')
+      showError(err.message || 'Failed to complete wallet registration.', 'Registration Failed')
     } finally {
       setIsSubmitting(false)
       setSubmittingStep('')
@@ -850,6 +996,50 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               )}
             </div>
 
+            {/* PHASE 9.3: WALLET ENTRY FEE & BALANCE CARD FOR PAID TOURNAMENTS */}
+            {!isFreeTournament && (
+              <div className="p-3 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-4 h-4 text-[#00f2ff]" />
+                    <span className="font-label-caps text-xs font-bold text-white uppercase tracking-wider">
+                      Tournament Entry Fee & Payment
+                    </span>
+                  </div>
+                  <span className="font-mono text-xs font-extrabold text-[#00ff9d]">
+                    Fee: ₹{numericEntryFee.toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-2.5 bg-[#151a21] rounded-lg border border-[#3a494b]/40">
+                  <span className="text-xs text-[#8e9dae] font-medium">Available MJ Wallet Balance:</span>
+                  <span className="font-mono text-xs font-bold text-white">
+                    {walletLoading ? 'Checking...' : `₹${userWalletBalance.toFixed(2)}`}
+                  </span>
+                </div>
+
+                {hasSufficientWalletBalance ? (
+                  <div className="flex items-center gap-2 p-2 bg-[#00ff9d]/10 border border-[#00ff9d]/30 rounded-lg text-[11px] text-[#00ff9d]">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>Wallet balance is sufficient. You can pay directly from your wallet with zero gateway charges.</span>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 p-2 bg-[#ff4655]/10 border border-[#ff4655]/30 rounded-lg">
+                    <div className="flex items-center justify-between text-[11px] text-[#ff4655] font-semibold">
+                      <div className="flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                        <span>Wallet Shortfall:</span>
+                      </div>
+                      <span className="font-mono font-bold">₹{walletShortfall.toFixed(2)}</span>
+                    </div>
+                    <p className="text-[10px] text-[#8e9dae]">
+                      Your wallet has ₹{userWalletBalance.toFixed(2)}. Pay ₹{numericEntryFee.toFixed(2)} via Razorpay (UPI, Cards, NetBanking) or top up your wallet.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* ACTION BUTTONS */}
             <div className="pt-1 space-y-1.5">
               {!isFormValid && (
@@ -857,26 +1047,60 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   Please complete all required fields and agreements to continue.
                 </p>
               )}
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-2.5">
                 <button
                   type="button"
                   onClick={onClose}
                   disabled={isSubmitting}
-                  className="flex-1 py-3 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded-xl hover:bg-[#1d232c] transition-colors min-h-[44px] disabled:opacity-50 uppercase cursor-pointer"
+                  className="sm:w-28 py-3 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded-xl hover:bg-[#1d232c] transition-colors min-h-[44px] disabled:opacity-50 uppercase cursor-pointer"
                 >
                   Cancel
                 </button>
-                <LoadingButton
-                  type="submit"
-                  loading={isSubmitting}
-                  loadingText={submittingStep || (isFreeTournament ? 'Registering...' : 'Processing Payment...')}
-                  disabled={!isFormValid || isSubmitting}
-                  className="flex-1 py-3"
-                >
-                  {isFormValid
-                    ? (isFreeTournament ? 'Register' : `Pay ₹${numericEntryFee} & Register`)
-                    : 'Complete Required Items'}
-                </LoadingButton>
+
+                {isFreeTournament ? (
+                  <LoadingButton
+                    type="submit"
+                    loading={isSubmitting}
+                    loadingText={submittingStep || 'Registering...'}
+                    disabled={!isFormValid || isSubmitting}
+                    className="flex-1 py-3"
+                  >
+                    {isFormValid ? 'Register' : 'Complete Required Items'}
+                  </LoadingButton>
+                ) : hasSufficientWalletBalance ? (
+                  <>
+                    <LoadingButton
+                      type="button"
+                      onClick={handleWalletPaymentSubmit}
+                      loading={isSubmitting && submittingStep.includes('Wallet')}
+                      loadingText={submittingStep || 'Debiting Wallet...'}
+                      disabled={!isFormValid || isSubmitting}
+                      className="flex-1 py-3 bg-[#00f2ff] hover:bg-[#00d0dd] text-black font-extrabold shadow-[0_0_15px_rgba(0,242,255,0.3)] cursor-pointer"
+                    >
+                      {isFormValid ? `Pay ₹${numericEntryFee.toFixed(2)} from Wallet` : 'Complete Required Items'}
+                    </LoadingButton>
+
+                    <LoadingButton
+                      type="submit"
+                      loading={isSubmitting && !submittingStep.includes('Wallet')}
+                      loadingText={submittingStep || 'Opening Razorpay...'}
+                      disabled={!isFormValid || isSubmitting}
+                      className="sm:w-44 py-3 bg-[#07090c] hover:bg-[#1d232c] text-[#8e9dae] hover:text-white border border-[#3a494b] font-bold text-xs cursor-pointer"
+                    >
+                      Pay via Razorpay
+                    </LoadingButton>
+                  </>
+                ) : (
+                  <LoadingButton
+                    type="submit"
+                    loading={isSubmitting}
+                    loadingText={submittingStep || 'Processing Payment...'}
+                    disabled={!isFormValid || isSubmitting}
+                    className="flex-1 py-3"
+                  >
+                    {isFormValid ? `Pay ₹${numericEntryFee.toFixed(2)} via Razorpay` : 'Complete Required Items'}
+                  </LoadingButton>
+                )}
               </div>
             </div>
           </form>

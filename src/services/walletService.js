@@ -83,6 +83,22 @@ export function generateTopupIdempotencyKey() {
 }
 
 /**
+ * Phase 9.3: Generates a standard client-generated UUID v4 idempotency key
+ * for wallet-funded tournament registration.
+ */
+export function generateWalletRegistrationIdempotencyKey() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
+  }
+  // RFC 4122 compliant fallback UUID v4 generator
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
+
+/**
  * Phase 9.2: Create Razorpay order for wallet top-up via authoritative Edge Function
  */
 export async function createWalletTopupOrder(amount, clientIdempotencyKey) {

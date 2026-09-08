@@ -404,6 +404,145 @@ export function TournamentProvider({ children }) {
     }
   }
 
+  const registerTeamWithWallet = async (tournamentId, teamInfo, idempotencyKey) => {
+    const lockKey = `wallet_reg_${tournamentId}_${idempotencyKey || teamInfo?.freeFireUid || ''}`
+    if (activeSubmissionsRef.current.has(lockKey)) {
+      throw new Error('Registration is currently processing. Please wait.')
+    }
+    activeSubmissionsRef.current.add(lockKey)
+
+    try {
+      if (!isSupabaseConfigured) {
+        throw new Error('Supabase client is not configured.')
+      }
+
+      const target = tournaments.find((t) => String(t.id) === String(tournamentId))
+      if (!target) {
+        throw new Error('Tournament not found!')
+      }
+
+      if (target.status !== 'Registration Open') {
+        throw new Error('Registration for this tournament is currently closed.')
+      }
+
+      if (target.startDate) {
+        const deadlineDate = parseTournamentDeadline(target.startDate, target.startTime || target.start_time)
+        if (deadlineDate && deadlineDate < new Date()) {
+          throw new Error('The registration deadline for this tournament has passed.')
+        }
+      }
+
+      if ((target.registeredTeams || 0) >= (target.maxTeams || target.max_teams || 12)) {
+        throw new Error('Tournament slots are full!')
+      }
+
+      // Pre-flight client validation for 10-digit UIDs and 10-digit Phone
+      const cleanCaptainUid = sanitizeDigitsOnly(teamInfo.freeFireUid, 10)
+      const cleanPhone = sanitizeDigitsOnly(teamInfo.whatsappNumber, 10)
+
+      if (!isValidGameUid(cleanCaptainUid)) {
+        throw new Error('Captain Game Character UID must be exactly 10 numeric digits (0-9).')
+      }
+      if (!isValidPhoneNumber(cleanPhone)) {
+        throw new Error('Captain WhatsApp number must be exactly 10 numeric digits (0-9).')
+      }
+
+      const cleanTeammateUids = (teamInfo.teammates || []).map((uid) => sanitizeDigitsOnly(uid, 10))
+      for (let i = 0; i < cleanTeammateUids.length; i++) {
+        const tUid = cleanTeammateUids[i]
+        if (tUid && !isValidGameUid(tUid)) {
+          throw new Error(`Teammate ${i + 1} UID must be exactly 10 numeric digits (0-9).`)
+        }
+      }
+
+      const cleanSubstituteUids = (teamInfo.substitutes || []).map((uid) => sanitizeDigitsOnly(uid, 10))
+      for (let s = 0; s < cleanSubstituteUids.length; s++) {
+        const subUid = cleanSubstituteUids[s]
+        if (subUid && !isValidGameUid(subUid)) {
+          throw new Error(`Substitute ${s + 1} UID must be exactly 10 numeric digits (0-9).`)
+        }
+      }
+
+      const refId = teamInfo.refId || `REG-MJ-${Date.now().toString(36).toUpperCase()}`
+
+      const rpcPayload = {
+        p_tournament_id: String(tournamentId),
+        p_team_name: String(teamInfo.name || '').trim(),
+        p_captain_name: String(teamInfo.captain || '').trim(),
+        p_email: String(teamInfo.email || '').trim(),
+        p_whatsapp_number: cleanPhone,
+        p_captain_uid: cleanCaptainUid,
+        p_idempotency_key: idempotencyKey,
+        p_teammate_uids: cleanTeammateUids,
+        p_substitute_uids: cleanSubstituteUids,
+        p_captain_dob: teamInfo.captainDob || null,
+        p_player_age: teamInfo.playerAge ? Number(teamInfo.playerAge) : null,
+        p_preferred_seed: teamInfo.preferredSeed ? Number(teamInfo.preferredSeed) : 1,
+        p_has_substitutes: Boolean(teamInfo.hasSubstitutes),
+        p_enable_sms_alerts: Boolean(teamInfo.enableSmsAlerts !== false),
+        p_mode: teamInfo.mode || 'Squad',
+        p_ref_id: refId,
+        p_teammate_igns: teamInfo.teammateIgns || [],
+        p_substitute_igns: teamInfo.substituteIgns || [],
+      }
+
+      console.log('[RPC Diagnostic]: Invoking register_tournament_team_with_wallet with payload ->', {
+        p_tournament_id: rpcPayload.p_tournament_id,
+        p_team_name: rpcPayload.p_team_name,
+        p_captain_name: rpcPayload.p_captain_name,
+        p_captain_uid: rpcPayload.p_captain_uid,
+        p_idempotency_key: rpcPayload.p_idempotency_key,
+        p_mode: rpcPayload.p_mode,
+        p_ref_id: rpcPayload.p_ref_id,
+      })
+
+      const { data, error } = await supabase.rpc('register_tournament_team_with_wallet', rpcPayload)
+
+      if (error) {
+        console.error('[RPC register_tournament_team_with_wallet error]:', error)
+        throw new Error(error.message || 'Database error processing wallet tournament registration.')
+      }
+
+      if (data && data.success === false) {
+        console.warn('[RPC Diagnostic]: RPC returned unsuccessful response ->', data.error_code, data.message)
+        switch (data.error_code) {
+          case 'INSUFFICIENT_FUNDS':
+            throw new Error(data.message || 'Insufficient wallet balance for this tournament entry fee.')
+          case 'NOT_A_PAID_TOURNAMENT':
+            throw new Error(data.message || 'This tournament is free. Use standard free registration.')
+          case 'INVALID_IDEMPOTENCY_KEY':
+            throw new Error(data.message || 'Invalid registration attempt key. Please retry.')
+          case 'IDEMPOTENCY_KEY_COLLISION':
+            throw new Error(data.message || 'Registration transaction collision detected.')
+          case 'IDEMPOTENCY_KEY_REUSED':
+            throw new Error(data.message || 'This idempotency key has already been used for a different tournament transaction.')
+          case 'DUPLICATE_GAME_UID':
+            throw new Error(data.message || 'One of the Game UIDs is already registered in this tournament.')
+          case 'DUPLICATE_UID_IN_ROSTER':
+            throw new Error(data.message || 'Duplicate Game UID detected within your roster.')
+          case 'DUPLICATE_USER_ACCOUNT':
+            throw new Error('You have already registered for this tournament.')
+          case 'TOURNAMENT_FULL':
+            throw new Error('All registration slots for this tournament are full.')
+          case 'REGISTRATION_CLOSED':
+            throw new Error('Registration for this tournament is currently closed.')
+          case 'UNAUTHENTICATED':
+            throw new Error('You must be logged in to register for a tournament.')
+          case 'INVALID_ROSTER':
+            throw new Error(data.message || 'Please check your player roster and try again.')
+          default:
+            throw new Error(data.message || 'Wallet registration failed.')
+        }
+      }
+
+      console.log('[RPC Diagnostic]: Wallet Registration Success! Synchronizing tournaments state...')
+      await fetchTournaments()
+      return data
+    } finally {
+      activeSubmissionsRef.current.delete(lockKey)
+    }
+  }
+
   const withdrawTeam = async (tournamentId, identifier) => {
     const target = tournaments.find((t) => String(t.id) === String(tournamentId))
     if (!target) throw new Error('Tournament not found!')
@@ -588,6 +727,7 @@ export function TournamentProvider({ children }) {
     updateTournamentStatus,
     advanceTournamentLifecycle,
     registerTeam,
+    registerTeamWithWallet,
     withdrawTeam,
     updateRegistrationStatus,
     updateTournamentScores,
