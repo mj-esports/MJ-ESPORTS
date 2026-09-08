@@ -15,7 +15,7 @@ export default function HeroSection() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-orange-500/40 text-orange-400 text-xs font-bold shadow-[0_0_15px_rgba(255,107,0,0.3)]">
             <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
             <Flame className="w-4 h-4 text-orange-500" />
-            <span>FREE FIRE & BGMI SEASON 2026 LIVE NOW</span>
+            <span>FREE FIRE MAX SEASON 2026 LIVE NOW</span>
           </div>
 
           {/* Headline */}
@@ -28,18 +28,18 @@ export default function HeroSection() {
 
           {/* Short Description */}
           <p className="text-slate-300 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed font-medium">
-            MJ ESPORTS is India's premier high-stakes tournament platform for <strong className="text-cyan-400 font-extrabold">Free Fire</strong> and <strong className="text-amber-400 font-extrabold">BGMI</strong> squads. Compete in daily battle royales, Clash Squad knockouts, and claim instant cash rewards.
+            MJ ESPORTS is India's premier high-stakes tournament platform for <strong className="text-cyan-400 font-extrabold">Free Fire MAX</strong> squads. Compete in daily battle royales, Clash Squad knockouts, and claim instant cash rewards.
           </p>
 
           {/* Featured Game Tags */}
           <div className="flex justify-center items-center gap-3 pt-1">
             <span className="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-cyan-500/40 text-cyan-400 text-xs font-extrabold flex items-center gap-2 shadow-[0_0_10px_rgba(0,240,255,0.2)]">
               <Gamepad2 className="w-4 h-4 text-cyan-400" />
-              Free Fire Max
+              Free Fire MAX
             </span>
             <span className="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-amber-500/40 text-amber-400 text-xs font-extrabold flex items-center gap-2 shadow-[0_0_10px_rgba(255,107,0,0.2)]">
-              <Gamepad2 className="w-4 h-4 text-amber-400" />
-              BGMI Mobile
+              <Flame className="w-4 h-4 text-amber-400" />
+              Battle Royale & Clash Squad
             </span>
           </div>
 
@@ -50,7 +50,7 @@ export default function HeroSection() {
               className="w-full sm:w-auto px-8 py-4 text-xs sm:text-sm font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 rounded-xl hover:brightness-110 shadow-[0_0_20px_rgba(255,107,0,0.4)] flex items-center justify-center gap-2 min-h-[44px] uppercase tracking-wider transition-all"
             >
               <Trophy className="w-4 h-4 text-slate-950" />
-              <span>Join Free Fire & BGMI Matches</span>
+              <span>Join Free Fire MAX Matches</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             

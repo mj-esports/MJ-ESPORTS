@@ -163,18 +163,10 @@ export default function AllTournamentsView({
 
         {/* Horizontal Scrollable Filter Row below search */}
         <div className="flex items-center gap-1.5 sm:gap-2 w-full max-w-full min-w-0 box-border overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex-nowrap pb-0.5 overscroll-x-contain">
-          {/* Game Filter */}
-          <div className="flex items-center gap-1 bg-[#1c1b1c] border border-[#27272a] rounded px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
+          {/* Platform Indicator */}
+          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
             <Gamepad2 className="w-3 h-3 text-[#00f2ff] shrink-0" />
-            <select
-              value={gameFilter}
-              onChange={(e) => setGameFilter(e.target.value)}
-              className="bg-transparent text-xs text-white font-headline font-bold focus:outline-none cursor-pointer"
-            >
-              <option value="ALL" className="bg-[#141416]">All Games</option>
-              <option value="Free Fire" className="bg-[#141416]">Free Fire MAX</option>
-              <option value="BGMI" className="bg-[#141416]">BGMI Mobile</option>
-            </select>
+            <span className="font-headline font-bold text-white text-xs">Free Fire MAX</span>
           </div>
 
           {/* Status Filter */}

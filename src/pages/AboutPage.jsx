@@ -76,7 +76,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                 <Trophy className="w-5 h-5" />
               </div>
               <h3 className="font-headline text-base font-bold text-white uppercase">Pro Tournaments</h3>
-              <p className="text-xs text-[#8e9dae] leading-relaxed">Daily and weekly competitive Free Fire MAX and BGMI Mobile matches with real prize pools.</p>
+              <p className="text-xs text-[#8e9dae] leading-relaxed">Daily and weekly competitive Free Fire MAX matches with real prize pools.</p>
             </div>
 
             <div className="bg-[#141416] border border-[#27272a] rounded p-5 sm:p-6 space-y-3 shadow-xl">

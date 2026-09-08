@@ -113,7 +113,7 @@ export default function Home() {
 
           {/* Hero Tagline: Maximum 2 balanced lines on mobile, 15-16px, tighter 1.36 leading, reduced gap to CTA */}
           <p className="font-body text-[#b9cacb] text-[14px] xs:text-[15px] sm:text-[16px] md:text-[17px] max-w-2xl mx-auto mb-3 sm:mb-4 md:mb-5 font-normal leading-[1.36] sm:leading-[1.4] text-center px-1">
-            Every Match Counts. Every Kill Matters. Compete in India's premier Free Fire MAX & BGMI esports tournament arena.
+            Every Match Counts. Every Kill Matters. Compete in India's premier Free Fire MAX esports tournament arena.
           </p>
 
           {/* Single Prominent Primary Action Button: TOURNAMENTS */}

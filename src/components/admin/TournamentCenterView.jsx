@@ -158,10 +158,6 @@ export default function TournamentCenterView({
     ffMap: 'Bermuda',
     ffGunAttributes: 'Disabled',
     ffCharacterSkills: 'Enabled',
-    // BGMI Specifics
-    bgmiMap: 'Erangel',
-    bgmiPerspective: 'TPP',
-    bgmiRedZone: 'Disabled',
   }
 
   const [form, setForm] = useState(defaultFormState)
@@ -208,9 +204,6 @@ export default function TournamentCenterView({
       ffMap: t.ffMap || 'Bermuda',
       ffGunAttributes: t.ffGunAttributes || 'Disabled',
       ffCharacterSkills: t.ffCharacterSkills || 'Enabled',
-      bgmiMap: t.bgmiMap || 'Erangel',
-      bgmiPerspective: t.bgmiPerspective || 'TPP',
-      bgmiRedZone: t.bgmiRedZone || 'Disabled',
       prizeType: t.prizeType || t.prize_type || 'placement',
       perKillReward: t.perKillReward || t.per_kill_reward || 30,
       prizes: t.prizes || t.prize_details || {},
@@ -466,30 +459,23 @@ export default function TournamentCenterView({
               setForm((prev) => ({ ...prev, title: e.target.value }))
               if (formErrors.title) setFormErrors((prev) => ({ ...prev, title: null }))
             }}
-            placeholder="e.g. Free Fire Friday Scrim #12 or BGMI Weekend Championship"
+            placeholder="e.g. Free Fire Friday Scrim #12 or Free Fire Pro League"
             required
             error={formErrors.title}
             icon={Trophy}
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormSelect
-              label="Game"
-              name="game"
-              value={form.game}
-              onChange={(e) => {
-                const nextGame = e.target.value
-                const nextCap = getDefaultGameCapacity(nextGame, form.mode)
-                setForm((prev) => ({
-                  ...prev,
-                  game: nextGame,
-                  maxTeams: editingId ? prev.maxTeams : nextCap.maxTeams,
-                }))
-              }}
-              options={SUPPORTED_GAMES}
-              required
-              icon={Gamepad2}
-            />
+            <div>
+              <label className="block text-xs font-mono font-bold text-[#849495] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <Gamepad2 className="w-3.5 h-3.5 text-[#00f2ff]" />
+                <span>Game Platform</span>
+              </label>
+              <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#141416] border border-[#27272a] rounded text-sm text-white font-headline font-bold min-h-[42px]">
+                <span>Free Fire MAX</span>
+                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">Official</span>
+              </div>
+            </div>
 
             <FormModeSelector
               label="Match Mode"
@@ -575,7 +561,7 @@ export default function TournamentCenterView({
                 <span>Match Configuration Preset</span>
               </span>
               <span className="px-2 py-0.5 rounded text-[9px] font-headline font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
-                {form.game?.startsWith('Free Fire') ? 'Free Fire Preset' : 'BGMI Preset'}
+                Free Fire MAX Preset
               </span>
             </div>
 
@@ -583,20 +569,9 @@ export default function TournamentCenterView({
               <FormSelect
                 label="Map"
                 name="map"
-                value={form.game?.startsWith('Free Fire') ? (form.ffMap || 'Bermuda') : (form.bgmiMap || 'Erangel')}
-                onChange={(e) => {
-                  const mapVal = e.target.value
-                  if (form.game?.startsWith('Free Fire')) {
-                    setForm((prev) => ({ ...prev, ffMap: mapVal }))
-                  } else {
-                    setForm((prev) => ({ ...prev, bgmiMap: mapVal }))
-                  }
-                }}
-                options={
-                  form.game?.startsWith('Free Fire')
-                    ? ['Bermuda', 'Kalahari', 'Purgatory', 'Alpine', 'Nexterra', 'Random']
-                    : ['Erangel', 'Miramar', 'Sanhok', 'Vikendi', 'Livik', 'Nusa', 'Random']
-                }
+                value={form.ffMap || 'Bermuda'}
+                onChange={(e) => setForm((prev) => ({ ...prev, ffMap: e.target.value }))}
+                options={['Bermuda', 'Purgatory', 'Kalahari', 'Alpine', 'NexTERRA', 'Random']}
                 required
                 icon={MapPin}
               />
@@ -606,11 +581,7 @@ export default function TournamentCenterView({
                 name="matchType"
                 value={form.matchType || 'Battle Royale'}
                 onChange={(e) => setForm((prev) => ({ ...prev, matchType: e.target.value }))}
-                options={
-                  form.game?.startsWith('Free Fire')
-                    ? ['Battle Royale', 'Clash Squad (Free Fire)', 'Classic', 'Custom']
-                    : ['Battle Royale', 'Classic', 'Custom']
-                }
+                options={['Battle Royale', 'Clash Squad', 'Custom']}
                 icon={Flame}
               />
 

@@ -32,7 +32,7 @@ export default function Footer() {
             </Link>
             <span className="hidden sm:inline text-[#3f3f46]">&bull;</span>
             <span className="text-[14px] xs:text-[15px] sm:text-sm font-headline font-bold tracking-wider text-[#ff5e07] uppercase">
-              Free Fire MAX & BGMI Arena
+              Free Fire MAX Tournament Arena
             </span>
           </div>
 

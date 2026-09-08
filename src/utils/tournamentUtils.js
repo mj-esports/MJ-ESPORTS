@@ -148,18 +148,14 @@ export function calculateTotalPlayerSlots(tournament) {
 /**
  * Authoritative default game and mode capacity configuration.
  * Free Fire MAX: 50 room capacity (Squad: 12 squads = 48 players, Duo: 25 duos = 50 players, Solo: 50 players)
- * BGMI: 100 room capacity (Squad: 25 squads = 100 players, Duo: 50 duos = 100 players, Solo: 100 players)
  * 
- * @param {string} game 
- * @param {string} mode 
+ * @param {string} [game] 
+ * @param {string} [mode] 
  * @returns {{ maxTeams: number, maxPlayers: number, roomCap: number, teamSize: number, teamUnit: string }}
  */
 export function getDefaultGameCapacity(game, mode) {
-  const cleanGame = String(game || '').toLowerCase().trim()
   const cleanMode = String(mode || '').toLowerCase().trim()
-
-  const isBgmi = cleanGame.includes('bgmi') || cleanGame.includes('battlegrounds')
-  const roomCap = isBgmi ? 100 : 50
+  const roomCap = 50
 
   let teamSize = 4
   let teamUnit = 'Squads'

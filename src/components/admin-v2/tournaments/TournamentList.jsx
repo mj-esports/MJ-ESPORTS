@@ -22,8 +22,8 @@ const mockTournamentsUI = [
   },
   {
     id: 't-102',
-    title: 'Battlegrounds Pro Invitational 2026',
-    game: 'BGMI',
+    title: 'Free Fire MAX Pro Invitational 2026',
+    game: 'Free Fire MAX',
     format: 'SQUAD (4P)',
     match_format: 'SQUAD (4P)',
     prize_pool: '₹2,00,000',

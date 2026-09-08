@@ -111,32 +111,17 @@ export default function ReviewSummaryStep({ form }) {
           <div className="space-y-2.5 text-xs font-mono">
             <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
               <span className="text-[#8e9dae]">Match Map:</span>
-              <strong className="text-white font-bold">{form.game === 'Free Fire' ? form.ffMap : form.bgmiMap}</strong>
+              <strong className="text-white font-bold">{form.ffMap || 'Bermuda'}</strong>
             </div>
 
-            {form.game === 'Free Fire' ? (
-              <>
-                <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
-                  <span className="text-[#8e9dae]">Gun Attributes:</span>
-                  <strong className="text-[#00ff9d]">{form.ffGunAttributes}</strong>
-                </div>
-                <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
-                  <span className="text-[#8e9dae]">Character Skills:</span>
-                  <strong className="text-[#00f2ff]">{form.ffCharacterSkills}</strong>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
-                  <span className="text-[#8e9dae]">Camera Perspective:</span>
-                  <strong className="text-[#00ff9d]">{form.bgmiPerspective}</strong>
-                </div>
-                <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
-                  <span className="text-[#8e9dae]">Red Zone:</span>
-                  <strong className="text-[#fe6b00]">{form.bgmiRedZone}</strong>
-                </div>
-              </>
-            )}
+            <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
+              <span className="text-[#8e9dae]">Gun Attributes:</span>
+              <strong className="text-[#00ff9d]">{form.ffGunAttributes || 'Disabled'}</strong>
+            </div>
+            <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
+              <span className="text-[#8e9dae]">Character Skills:</span>
+              <strong className="text-[#00f2ff]">{form.ffCharacterSkills || 'Enabled'}</strong>
+            </div>
 
             <div className="flex justify-between py-1">
               <span className="text-[#8e9dae]">Required Players / Squad:</span>

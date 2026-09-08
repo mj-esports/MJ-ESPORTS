@@ -61,8 +61,7 @@ export default function TournamentsPage() {
       const matchesGame =
         selectedGame === 'All' ||
         (t.game || '').toLowerCase() === selectedGame.toLowerCase() ||
-        (selectedGame.toLowerCase().includes('free fire') && (t.game || '').toLowerCase().includes('free fire')) ||
-        (selectedGame.toLowerCase().includes('bgmi') && (t.game || '').toLowerCase().includes('bgmi'))
+        (selectedGame.toLowerCase().includes('free fire') && (t.game || '').toLowerCase().includes('free fire'))
 
       // 4. Case-insensitive & Synonymous Status Filter Match
       let matchesStatus = true

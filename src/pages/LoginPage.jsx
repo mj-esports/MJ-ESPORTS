@@ -239,7 +239,7 @@ export default function LoginPage() {
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </h1>
               <p className="text-xs text-[#b9cacb] leading-relaxed font-body">
-                India's premier high-stakes tournament platform for Free Fire and BGMI squads. Compete, dominate, and claim verified cash payouts.
+                India's premier high-stakes tournament platform for Free Fire MAX squads. Compete, dominate, and claim verified cash payouts.
               </p>
             </div>
           </div>

@@ -143,7 +143,7 @@ export default function RegisterPage() {
                 JOIN THE <span className="text-[#00f2ff]">ARENA</span>
               </h1>
               <p className="text-xs text-[#b9cacb] leading-relaxed font-body">
-                Enter competitive Free Fire & BGMI tournaments, build your pro squad roster, and win real cash rewards.
+                Enter competitive Free Fire MAX tournaments, build your pro squad roster, and win real cash rewards.
               </p>
             </div>
 
