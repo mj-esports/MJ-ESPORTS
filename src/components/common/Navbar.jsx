@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
-  Swords,
   Menu,
   X,
   User,
@@ -146,12 +145,12 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo (LEFT) */}
-          <Link to="/" className="flex items-center gap-2 xs:gap-3 group shrink min-w-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded bg-[#00f2ff] p-[1px] shadow-[0_0_15px_rgba(0,242,255,0.4)] group-hover:scale-105 transition-transform duration-200 shrink-0">
-              <div className="w-full h-full bg-[#131314] rounded-[3px] flex items-center justify-center">
-                <Swords className="w-4 h-4 sm:w-5 sm:h-5 text-[#00f2ff]" />
-              </div>
-            </div>
+          <Link to="/" className="flex items-center gap-2.5 xs:gap-3.5 group shrink min-w-0" aria-label="MJ ESPORTS Home">
+            <img
+              src="/mj-esports-logo.png"
+              alt="MJ ESPORTS"
+              className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-contain shrink-0 group-hover:scale-105 transition-transform duration-200"
+            />
             <div className="min-w-0">
               <span className="font-headline text-sm xs:text-base sm:text-xl font-extrabold tracking-wider text-white truncate block uppercase">
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>

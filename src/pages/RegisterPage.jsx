@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, Mail, Lock, UserPlus, ArrowRight, ShieldCheck, Check } from 'lucide-react'
+import { User, Mail, Lock, UserPlus, ArrowRight, Check } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import FormInput from '../components/common/FormInput'
@@ -132,9 +132,11 @@ export default function RegisterPage() {
           </div>
 
           <div className="relative z-10 text-center space-y-6 max-w-sm">
-            <div className="w-16 h-16 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/40 flex items-center justify-center mx-auto text-[#00f2ff] shadow-[0_0_20px_rgba(0,242,255,0.3)]">
-              <ShieldCheck className="w-8 h-8 text-[#00f2ff]" />
-            </div>
+            <img
+              src="/mj-esports-logo.png"
+              alt="MJ ESPORTS"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-contain mx-auto shadow-[0_0_20px_rgba(0,242,255,0.3)]"
+            />
 
             <div className="space-y-2">
               <h1 className="font-headline text-3xl font-extrabold tracking-tight text-white uppercase italic">

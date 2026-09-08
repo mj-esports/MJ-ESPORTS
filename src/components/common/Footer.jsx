@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Swords, Headphones, ShieldCheck } from 'lucide-react'
+import { Headphones, ShieldCheck } from 'lucide-react'
 
 /**
  * MJ ESPORTS — Compact Official Esports Platform Footer
@@ -20,12 +20,12 @@ export default function Footer() {
           
           {/* Brand Info (1. Strong Brand, 2. Secondary Game Subtitle) */}
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center sm:text-left">
-            <Link to="/" className="inline-flex items-center gap-2.5 group">
-              <div className="w-7 h-7 rounded bg-[#00f2ff] p-[1px] shadow-[0_0_12px_rgba(0,242,255,0.35)] transition-transform duration-200 group-hover:scale-105">
-                <div className="w-full h-full bg-[#141416] rounded-[3px] flex items-center justify-center">
-                  <Swords className="w-3.5 h-3.5 text-[#00f2ff]" />
-                </div>
-              </div>
+            <Link to="/" className="inline-flex items-center gap-2.5 group" aria-label="MJ ESPORTS Home">
+              <img
+                src="/mj-esports-logo.png"
+                alt="MJ ESPORTS"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-contain shrink-0 group-hover:scale-105 transition-transform duration-200"
+              />
               <span className="font-headline text-lg sm:text-xl font-extrabold tracking-wider text-white uppercase leading-none">
                 MJ <span className="text-[#00f2ff]">ESPORTS</span>
               </span>

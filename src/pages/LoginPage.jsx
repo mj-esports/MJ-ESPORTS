@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Mail, Lock, LogIn, ShieldCheck, KeyRound, ArrowRight, Zap, Shield, Trophy } from 'lucide-react'
+import { Mail, Lock, LogIn, KeyRound, ArrowRight, Zap, Shield, Trophy } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import FormInput from '../components/common/FormInput'
@@ -221,11 +221,13 @@ export default function LoginPage() {
             <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-[#00f2ff]/10 rounded-full blur-3xl pointer-events-none" />
           </div>
 
-          {/* Left Column Top: Shield Badge & Branding */}
+          {/* Left Column Top: Official Logo & Branding */}
           <div className="relative z-10 space-y-6">
-            <div className="w-14 h-14 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/35 flex items-center justify-center text-[#00f2ff] shadow-[0_0_20px_rgba(0,242,255,0.25)]">
-              <ShieldCheck className="w-7 h-7 text-[#00f2ff]" />
-            </div>
+            <img
+              src="/mj-esports-logo.png"
+              alt="MJ ESPORTS"
+              className="w-16 h-16 rounded-full object-contain shadow-[0_0_20px_rgba(0,242,255,0.25)]"
+            />
 
             <div className="space-y-2">
               <div className="flex items-center gap-2">

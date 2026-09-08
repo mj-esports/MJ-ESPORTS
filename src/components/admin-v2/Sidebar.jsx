@@ -5,7 +5,6 @@ import {
   Users,
   Wallet,
   Settings,
-  Shield,
   X,
   ChevronRight,
   LogOut
@@ -40,11 +39,11 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) 
         {/* Brand Logo Header */}
         <div className="h-16 px-6 flex items-center justify-between border-b border-slate-800/60">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 p-[1px] shadow-lg shadow-cyan-500/20">
-              <div className="h-full w-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-                <Shield className="w-5 h-5 text-cyan-400" />
-              </div>
-            </div>
+            <img
+              src="/mj-esports-logo.png"
+              alt="MJ ESPORTS"
+              className="h-10 w-10 rounded-full object-contain shrink-0 shadow-[0_0_12px_rgba(0,242,255,0.25)]"
+            />
             <div>
               <h1 className="font-extrabold text-lg text-white tracking-wider font-mono">
                 MJ <span className="text-cyan-400">ESPORTS</span>

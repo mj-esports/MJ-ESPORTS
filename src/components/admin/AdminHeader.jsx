@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Swords, User, LogOut, Shield, Menu, Search, Bell } from 'lucide-react'
+import { User, LogOut, Shield, Menu, Search, Bell } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 
@@ -60,12 +60,12 @@ export default function AdminHeader({
         )}
 
         {/* Brand Logo */}
-        <Link to="/admin" className="flex items-center gap-2 group shrink-0">
-          <div className="w-8 h-8 rounded bg-[#00f2ff] p-[1px] shadow-[0_0_12px_rgba(0,242,255,0.35)] group-hover:scale-105 transition-transform flex items-center justify-center shrink-0">
-            <div className="w-full h-full bg-[#141416] rounded flex items-center justify-center">
-              <Swords className="w-4 h-4 text-[#00f2ff]" />
-            </div>
-          </div>
+        <Link to="/admin" className="flex items-center gap-2 group shrink-0" aria-label="MJ ESPORTS Admin Console">
+          <img
+            src="/mj-esports-logo.png"
+            alt="MJ ESPORTS"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-contain shrink-0 group-hover:scale-105 transition-transform"
+          />
           <div className="block min-w-0">
             <span className="font-headline font-extrabold text-xs sm:text-sm tracking-wider text-white uppercase block leading-none truncate">
               MJ <span className="text-[#00f2ff]">ESPORTS</span>
