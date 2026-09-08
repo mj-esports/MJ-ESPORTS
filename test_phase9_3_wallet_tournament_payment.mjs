@@ -963,6 +963,36 @@ test('SlotBookingModal.jsx resets walletIdempotencyKey when tournament.id change
   assert.ok(modalContent.includes('[tournament?.id]'), 'Must trigger effect on tournament?.id change')
 })
 
+test('SlotBookingModal.jsx extracts walletData?.wallet?.balance correctly (HOTFIX: ₹50 balance on ₹50 fee)', () => {
+  const modalPath = path.join(process.cwd(), 'src', 'components/tournament/SlotBookingModal.jsx')
+  const modalContent = fs.readFileSync(modalPath, 'utf8')
+  assert.ok(modalContent.includes('walletData?.wallet?.balance'), 'Must extract balance from nested wallet object')
+
+  // Simulate exact UI calculation logic
+  const mockRpcResponse = {
+    success: true,
+    wallet: {
+      id: 'b9a30554-5e1f-42f9-853c-05b06d8f7827',
+      user_id: '4c60c072-345b-443b-af55-a93b1a804c65',
+      balance: '50.00',
+      currency: 'INR',
+    }
+  }
+
+  const walletData = mockRpcResponse
+  const numericEntryFee = 50.00
+  const userWalletBalance = Number(
+    walletData?.wallet?.balance ?? walletData?.balance ?? 0
+  )
+  const hasSufficientWalletBalance = userWalletBalance >= numericEntryFee
+  const walletShortfall = Math.max(0, numericEntryFee - userWalletBalance)
+
+  assert.strictEqual(userWalletBalance, 50.00, 'User wallet balance must resolve to 50.00')
+  assert.strictEqual(hasSufficientWalletBalance, true, 'hasSufficientWalletBalance must be true for ₹50 fee')
+  assert.strictEqual(walletShortfall, 0, 'walletShortfall must be ₹0')
+  assert.ok(modalContent.includes('Pay ₹${numericEntryFee.toFixed(2)} from Wallet'), 'Must render Pay from Wallet button')
+})
+
 console.log('\n============================================================')
 console.log(`📊 TEST RESULTS: ${passed} PASSED | ${failed} FAILED`)
 console.log('============================================================\n')

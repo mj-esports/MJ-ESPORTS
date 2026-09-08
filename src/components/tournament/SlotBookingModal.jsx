@@ -133,7 +133,9 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     }
   }, [user?.id, isFreeTournament])
 
-  const userWalletBalance = Number(walletData?.balance ?? 0)
+  const userWalletBalance = Number(
+    walletData?.wallet?.balance ?? walletData?.balance ?? 0
+  )
   const hasSufficientWalletBalance = userWalletBalance >= numericEntryFee
   const walletShortfall = Math.max(0, numericEntryFee - userWalletBalance)
 
