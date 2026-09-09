@@ -26,7 +26,8 @@ import {
   Sparkles,
   Award,
   CircleDollarSign,
-  Activity
+  Activity,
+  Ban,
 } from 'lucide-react'
 import AdminStatusBadge from '../AdminStatusBadge'
 import RegistrationQueueView from '../RegistrationQueueView'
@@ -54,9 +55,13 @@ export default function TournamentOperationsWorkspace({
   updateRegistrationStatus
 }) {
   const { showSuccess, showError } = useToast()
-  const { updateRoomDetails, updateTournamentStatus, getRoomCredentials } = useTournaments()
+  const { updateRoomDetails, updateTournamentStatus, getRoomCredentials, cancelTournament } = useTournaments()
 
   const [activeOpsSection, setActiveOpsSection] = useState('REGISTRATION') // 'REGISTRATION' | 'MATCH_CONTROL' | 'RESULTS' | 'PRIZE_PAYOUT' | 'ACTIVITY'
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [cancelReason, setCancelReason] = useState('Tournament Cancelled by Organizer')
+  const [isCancelling, setIsCancelling] = useState(false)
+  const [cancelSummary, setCancelSummary] = useState(null)
 
   const sectionTabContainerRef = useRef(null)
   const sectionTabRefs = useRef({})
@@ -204,6 +209,30 @@ export default function TournamentOperationsWorkspace({
     }
   }
 
+  const handleConfirmCancel = async () => {
+    if (!tournament?.id) return
+    setIsCancelling(true)
+    try {
+      const res = await cancelTournament(tournament.id, cancelReason)
+      if (res && res.success) {
+        setCancelSummary(res)
+        showSuccess(res.message || 'Tournament cancelled and refunds processed successfully.', 'Tournament Cancelled')
+      } else {
+        showError(res?.message || 'Failed to cancel tournament.', 'Cancellation Error')
+      }
+    } catch (err) {
+      showError(err?.message || 'An unexpected error occurred during cancellation.', 'Cancellation Exception')
+    } finally {
+      setIsCancelling(false)
+    }
+  }
+
+  const handleCloseCancelModal = () => {
+    setShowCancelModal(false)
+    setCancelSummary(null)
+  }
+
+
   return (
     <div className="space-y-6 font-body antialiased">
 
@@ -264,6 +293,17 @@ export default function TournamentOperationsWorkspace({
               <Swords className="w-3.5 h-3.5" />
               <span>Match Control</span>
             </button>
+
+            {tournament.status !== 'Cancelled' && tournament.status !== 'Completed' && (
+              <button
+                onClick={() => setShowCancelModal(true)}
+                className="px-3 py-2 bg-red-950/30 hover:bg-red-900/40 text-[#ff5e07] border border-[#ff5e07]/40 rounded text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer"
+                title="Cancel tournament and refund paid registrations to wallet"
+              >
+                <Ban className="w-3.5 h-3.5 text-[#ff5e07]" />
+                <span>Cancel Arena</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -544,6 +584,137 @@ export default function TournamentOperationsWorkspace({
           <div className="p-4 bg-[#1c1b1c] rounded border border-[#27272a] text-xs text-[#849495] font-body space-y-1">
             <p>Created: <span className="text-white">{tournament.created_at ? new Date(tournament.created_at).toLocaleString() : 'Recent'}</span></p>
             <p>Current Lifecycle: <span className="text-[#00f2ff] font-bold">{tournament.status}</span></p>
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRMATION & SUMMARY MODAL FOR TOURNAMENT CANCELLATION */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#141416] border border-[#27272a] rounded p-6 max-w-lg w-full space-y-4 shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 text-[#ff5e07]">
+              <div className="w-10 h-10 rounded bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center shrink-0">
+                <Ban className="w-5 h-5 text-[#ff5e07]" />
+              </div>
+              <div>
+                <h3 className="font-headline font-extrabold text-sm sm:text-base uppercase text-white tracking-wide">
+                  {cancelSummary ? 'Cancellation Summary' : 'Cancel Tournament Arena?'}
+                </h3>
+                <p className="text-xs text-[#849495] font-body">
+                  {cancelSummary
+                    ? 'Official settlement and wallet refund report'
+                    : '100% Entry fee wallet refund will be issued'}
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Body: Active Confirmation */}
+            {!cancelSummary ? (
+              <div className="space-y-3.5 text-xs font-body">
+                <div className="p-3 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1.5">
+                  <div className="flex justify-between text-[#849495]">
+                    <span>Tournament Arena:</span>
+                    <strong className="text-white font-headline">{tournament.title}</strong>
+                  </div>
+                  <div className="flex justify-between text-[#849495]">
+                    <span>Entry Fee / Slot:</span>
+                    <strong className="text-[#10b981] font-mono">{feeDisplay}</strong>
+                  </div>
+                  <div className="flex justify-between text-[#849495]">
+                    <span>Registered Squads:</span>
+                    <strong className="text-white font-mono">{regTeams} squads</strong>
+                  </div>
+                </div>
+
+                <div className="p-3.5 bg-[#ff5e07]/5 border border-[#ff5e07]/20 rounded space-y-2 text-[#b9cacb] leading-relaxed">
+                  <span className="font-headline font-bold text-[#ff5e07] block uppercase text-[11px] tracking-wider">
+                    Official Cancellation Terms:
+                  </span>
+                  <ul className="list-disc pl-4 space-y-1 text-[11px]">
+                    <li>Tournament status will transition to <strong className="text-white">Cancelled</strong>.</li>
+                    <li>Eligible paid player registrations will receive their exact entry fee as <strong className="text-[#10b981]">authoritative wallet credit</strong>.</li>
+                    <li>Refunds are processed <strong className="text-white">strictly once</strong> with immutable ledger tracking.</li>
+                    <li><strong className="text-white">Razorpay gateway refunds are NOT issued</strong>; payments remain historical evidence.</li>
+                    <li>Players can immediately use their refunded wallet balance for another tournament or withdraw per platform rules.</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-label-bold uppercase text-[#849495] mb-1">
+                    Cancellation Reason (Visible to Players):
+                  </label>
+                  <input
+                    type="text"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    placeholder="e.g. Tournament Cancelled by Organizer"
+                    className="w-full bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-2 text-xs text-white placeholder-[#849495] focus:outline-none focus:border-[#ff5e07]"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    onClick={handleCloseCancelModal}
+                    disabled={isCancelling}
+                    className="flex-1 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    Keep Tournament
+                  </button>
+                  <button
+                    onClick={handleConfirmCancel}
+                    disabled={isCancelling}
+                    className="flex-1 py-2.5 bg-[#ff5e07] hover:bg-[#ff7a33] text-white rounded text-xs font-headline font-bold uppercase transition-all cursor-pointer shadow-lg shadow-[#ff5e07]/30 flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isCancelling ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Refunding Players...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Ban className="w-3.5 h-3.5" />
+                        <span>Cancel & Refund</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Modal Body: Post-Cancellation Summary Report */
+              <div className="space-y-4 text-xs font-body">
+                <div className="p-4 bg-[#1c1b1c] rounded border border-[#10b981]/30 space-y-2">
+                  <div className="flex items-center gap-2 text-[#10b981] font-headline font-bold uppercase text-xs">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Cancellation & Refund Completed</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="p-2.5 bg-[#141416] rounded border border-[#27272a]">
+                      <span className="text-[10px] text-[#849495] block uppercase font-label-bold">Squads Refunded</span>
+                      <strong className="text-sm font-headline text-white">{cancelSummary.refunded_count ?? 0} squads</strong>
+                    </div>
+                    <div className="p-2.5 bg-[#141416] rounded border border-[#27272a]">
+                      <span className="text-[10px] text-[#849495] block uppercase font-label-bold">Total Wallet Disbursed</span>
+                      <strong className="text-sm font-headline text-[#10b981]">₹{cancelSummary.total_refund_amount ?? 0}</strong>
+                    </div>
+                  </div>
+                  {Number(cancelSummary.skipped_count || 0) > 0 && (
+                    <p className="text-[11px] text-[#849495] pt-1">
+                      {cancelSummary.skipped_count} free or unverified registration(s) skipped without wallet charge.
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    onClick={handleCloseCancelModal}
+                    className="px-6 py-2 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded text-xs uppercase tracking-wider transition-all cursor-pointer shadow-sm"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

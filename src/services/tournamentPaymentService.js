@@ -144,3 +144,28 @@ export async function launchRazorpayCheckout({
 
   rzpInstance.open()
 }
+
+/**
+ * Authoritatively requests tournament cancellation and player wallet refunds via RPC.
+ * Only callable by administrators or service_role.
+ */
+export async function cancelTournamentWithRefund(tournamentId, reason = 'Tournament Cancelled by Organizer') {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase client is not configured.')
+  }
+
+  const { data, error } = await supabase.rpc('cancel_tournament_and_refund', {
+    p_tournament_id: String(tournamentId),
+    p_reason: String(reason || 'Tournament Cancelled by Organizer'),
+  })
+
+  if (error) {
+    throw new Error(error.message || 'Failed to cancel tournament and issue refunds.')
+  }
+
+  if (data?.success === false) {
+    throw new Error(data.message || 'Failed to cancel tournament.')
+  }
+
+  return data
+}

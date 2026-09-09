@@ -16,7 +16,8 @@ import {
   isValidRoomPassword,
   sanitizeDigitsOnly,
 } from '../utils/validationUtils'
-import { notifyWalletBalanceUpdated } from '../services/walletService'
+import { notifyWalletBalanceUpdated, fetchUserWallet } from '../services/walletService'
+import { cancelTournamentWithRefund } from '../services/tournamentPaymentService'
 
 export {
   mapTournamentFromDb,
@@ -577,6 +578,25 @@ export function TournamentProvider({ children }) {
     })
   }
 
+  const cancelTournament = async (tournamentId, reason = 'Tournament Cancelled by Organizer') => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured.')
+    }
+
+    const res = await cancelTournamentWithRefund(tournamentId, reason)
+
+    // Refresh authoritative user wallet if active user received a refund
+    try {
+      await fetchUserWallet()
+    } catch (err) {
+      console.warn('[TournamentContext] User wallet refresh notice:', err)
+    }
+
+    // Refresh tournaments state
+    await fetchTournaments()
+    return res
+  }
+
   const updateRegistrationStatus = async (tournamentId, registrationIdentifier, newStatus) => {
     const target = tournaments.find((t) => String(t.id) === String(tournamentId))
     if (!target) return
@@ -733,6 +753,7 @@ export function TournamentProvider({ children }) {
     registerTeam,
     registerTeamWithWallet,
     withdrawTeam,
+    cancelTournament,
     updateRegistrationStatus,
     updateTournamentScores,
     updateRoomDetails,

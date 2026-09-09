@@ -21,7 +21,8 @@ import {
   Share2,
   Bookmark,
   Eye,
-  EyeOff
+  EyeOff,
+  Ban
 } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -192,8 +193,10 @@ export default function TournamentDetailPage() {
   const maxTeams = Number(tournament.maxTeams || tournament.max_teams || 12)
 
   const isFull = regTeams >= maxTeams
-  const isClosed = tournament.status === 'Registration Closed' || tournament.status === 'Bracket Locked' || tournament.status === 'Completed'
-  const isRegistrationDisabled = isFull || isClosed || isAlreadyRegistered
+  const isCancelled = tournament.status === 'Cancelled'
+  const isUserRefunded = userRegistration?.payment_status === 'Refunded' || userRegistration?.status === 'Cancelled'
+  const isClosed = tournament.status === 'Registration Closed' || tournament.status === 'Bracket Locked' || tournament.status === 'Completed' || isCancelled
+  const isRegistrationDisabled = isFull || isClosed || isAlreadyRegistered || isCancelled
 
   // Authoritative Fee & Payment Status Derivation
   const entryFeeStr = String(tournament.entryFee || tournament.entry_fee || 'Free').trim()
@@ -241,8 +244,8 @@ export default function TournamentDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent"></div>
         <div className="absolute bottom-0 left-0 w-full p-4 sm:p-6 md:p-12 max-w-7xl mx-auto flex flex-col justify-end">
           <div className="inline-flex items-center gap-2 bg-[#111111]/50 backdrop-blur-sm border border-[#333333] px-3 py-1 rounded-full w-max mb-3 sm:mb-4">
-            <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></span>
-            <span className="text-[10px] xs:text-xs font-label text-[#a3a3a3] uppercase tracking-wider">
+            <span className={`w-2 h-2 rounded-full ${isCancelled ? 'bg-red-500' : 'bg-[#22c55e] animate-pulse'}`}></span>
+            <span className={`text-[10px] xs:text-xs font-label uppercase tracking-wider ${isCancelled ? 'text-red-400 font-bold' : 'text-[#a3a3a3]'}`}>
               {tournament.status || 'Registration Open'}
             </span>
           </div>
@@ -268,6 +271,25 @@ export default function TournamentDetailPage() {
 
       {/* 2. MAIN CONTENT AREA (2 COLS: OVERVIEW & STICKY SIDEBAR) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        {isCancelled && (
+          <div className="mb-6 p-4 sm:p-5 bg-red-950/40 border border-red-500/40 rounded-xl flex items-start gap-3.5">
+            <Ban className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <div className="space-y-1 text-xs font-body">
+              <h4 className="font-headline font-bold text-sm uppercase text-red-300">
+                Tournament Cancelled by Organizer
+              </h4>
+              <p className="text-[#b9cacb] leading-relaxed">
+                This tournament has been cancelled. All registered players who paid entry fees have received a full (100%) refund directly into their authoritative MJ ESPORTS wallet.
+              </p>
+              {isUserRefunded && (
+                <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-950/60 border border-emerald-500/40 rounded text-emerald-400 font-headline font-bold uppercase text-[11px]">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Your entry fee has been credited back to your wallet</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* LEFT COLUMN: DETAILS & TABS */}
@@ -625,6 +647,37 @@ export default function TournamentDetailPage() {
                     <Clock className="w-4 h-4 text-[#f97316] animate-spin" />
                     <span>Verifying Registration...</span>
                   </button>
+                ) : isCancelled ? (
+                  <div className="space-y-3">
+                    <button
+                      disabled
+                      className="w-full bg-red-950/50 text-red-400 border border-red-500/40 font-headline font-bold text-base py-4 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed select-none"
+                    >
+                      <Ban className="w-5 h-5 text-red-400" />
+                      <span>Tournament Cancelled</span>
+                    </button>
+                    {isAlreadyRegistered && (
+                      <div className="p-3.5 bg-[#111111] border border-emerald-500/30 rounded-xl space-y-2 text-xs font-mono">
+                        <div className="flex justify-between items-center text-white">
+                          <span className="text-[#a3a3a3]">Refund Status:</span>
+                          <span className="text-[#22c55e] font-bold uppercase flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> 100% Refunded
+                          </span>
+                        </div>
+                        {userRegistration?.team_name && (
+                          <div className="flex justify-between items-center text-white">
+                            <span className="text-[#a3a3a3]">Registered Entry:</span>
+                            <span className="font-bold text-[#00FFFF] truncate max-w-[160px]">
+                              {userRegistration.team_name}
+                            </span>
+                          </div>
+                        )}
+                        <p className="text-[11px] text-emerald-400/90 pt-1 border-t border-[#262626] font-body leading-relaxed">
+                          Your entry fee has been credited directly back to your authoritative MJ ESPORTS wallet.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 ) : isAlreadyRegistered ? (
                   <div className="space-y-3">
                     <button
