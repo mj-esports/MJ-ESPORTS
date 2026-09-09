@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   User,
   Shield,
@@ -14,47 +15,96 @@ import {
   Smartphone,
   Globe,
   Clock,
-  Gamepad2,
   Download,
   Trash2,
   LogOut,
   Key,
   ShieldCheck,
   Sparkles,
-  Save
+  Save,
+  ArrowLeft,
+  ExternalLink,
+  Zap,
+  Info
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
-import { supabase } from '../lib/supabase'
-import {
-  isValidGameUid,
-  isValidPhoneNumber,
-  sanitizeDigitsOnly,
-} from '../utils/validationUtils'
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 export default function SettingsPage() {
-  const { user, updateProfile } = useAuth()
-  const { showSuccess, showError } = useToast()
+  const { user, profile, updateUserPassword, signOut } = useAuth()
+  const { showSuccess, showError, showInfo } = useToast()
+  const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useState('general')
 
-  // General Settings States
-  const [displayName, setDisplayName] = useState(
-    user?.user_metadata?.username || user?.email?.split('@')[0] || 'Neo_Striker'
-  )
-  const [emailAddress, setEmailAddress] = useState(user?.email || 'player@mjesports.pro')
-  const [phoneNumber, setPhoneNumber] = useState(
-    sanitizeDigitsOnly(user?.user_metadata?.phone || user?.user_metadata?.whatsappNumber || '9876543210', 10)
-  )
-  const [freeFireUid, setFreeFireUid] = useState(
-    sanitizeDigitsOnly(user?.user_metadata?.free_fire_uid || user?.user_metadata?.freeFireUid || user?.user_metadata?.game_uid || '1092837482', 10)
-  )
-  const [bgmiUid, setBgmiUid] = useState(
-    sanitizeDigitsOnly(user?.user_metadata?.bgmi_uid || user?.user_metadata?.bgmiUid || '', 10)
-  )
-  const [generalErrors, setGeneralErrors] = useState({ freeFireUid: '', bgmiUid: '', phoneNumber: '' })
+  // 1. Authoritative Verification Status (public.profiles.verification_status)
+  const [isVerified, setIsVerified] = useState(false)
 
-  // Security States
+  useEffect(() => {
+    if (!user?.id) {
+      setIsVerified(false)
+      return
+    }
+
+    let isMounted = true
+
+    async function checkVerification() {
+      if (!isSupabaseConfigured) {
+        const metaStatus = user?.user_metadata?.verification_status
+        const profStatus = profile?.verification_status
+        if (isMounted) {
+          setIsVerified(metaStatus === 'Verified' || profStatus === 'Verified')
+        }
+        return
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('verification_status')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        if (isMounted) {
+          if (!error && data?.verification_status === 'Verified') {
+            setIsVerified(true)
+          } else {
+            setIsVerified(false)
+          }
+        }
+      } catch (err) {
+        if (isMounted) setIsVerified(false)
+      }
+    }
+
+    checkVerification()
+
+    return () => {
+      isMounted = false
+    }
+  }, [user?.id, profile?.verification_status, user?.user_metadata?.verification_status])
+
+  // 2. Authoritative Player Identity Details
+  const meta = user?.user_metadata || {}
+  const displayName = meta.username || meta.full_name || profile?.username || user?.email?.split('@')[0] || 'Player'
+  const emailAddress = user?.email || '—'
+  const phoneNumber = meta.phone || meta.whatsappNumber || profile?.phone || ''
+  const freeFireUid = meta.free_fire_uid || meta.freeFireUid || meta.game_uid || profile?.game_uid || ''
+  const isPro = Boolean(meta.is_pro || meta.isPro || profile?.is_pro)
+  const avatarUrl = meta.avatar_url || meta.avatarUrl || profile?.avatar_url || 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=400&q=80'
+
+  // Detect real Google OAuth link status
+  const isGoogleLinked = useMemo(() => {
+    if (!user) return false
+    const providers = user?.app_metadata?.providers || []
+    if (Array.isArray(providers) && providers.includes('google')) return true
+    const identities = user?.identities || []
+    if (Array.isArray(identities) && identities.some((id) => id.provider === 'google')) return true
+    return false
+  }, [user])
+
+  // 3. Security Form States
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -62,39 +112,6 @@ export default function SettingsPage() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
-  const [is2FAEnabled, setIs2FAEnabled] = useState(false)
-
-  // Notifications Toggles
-  const [notifications, setNotifications] = useState({
-    tournamentAlerts: true,
-    matchReminders: true,
-    prizeNotifications: true,
-    emailNotifications: true,
-    pushNotifications: false,
-  })
-
-  // Privacy Toggles
-  const [privacy, setPrivacy] = useState({
-    profileVisibility: 'PUBLIC', // PUBLIC | FRIENDS | PRIVATE
-    hideStats: false,
-    hideUid: false,
-  })
-
-  // Preferences States
-  const [preferences, setPreferences] = useState({
-    theme: 'DARK',
-    language: 'English (US)',
-    timeZone: '(UTC+05:30) Asia/Kolkata (IST)',
-    defaultGame: 'Free Fire MAX',
-  })
-
-  // Linked Accounts
-  const [linkedAccounts, setLinkedAccounts] = useState({
-    google: true,
-    discord: true,
-    youtube: false,
-    twitter: false,
-  })
 
   // Password Strength Calculation
   const passwordStrength = useMemo(() => {
@@ -111,65 +128,9 @@ export default function SettingsPage() {
     return { width: '100%', label: 'Strong', color: 'bg-[#00ff9d]' }
   }, [newPassword])
 
-  // Handle General Profile Save
-  const handleSaveGeneral = async (e) => {
-    e.preventDefault()
-    setGeneralErrors({ freeFireUid: '', bgmiUid: '', phoneNumber: '' })
-
-    let hasError = false
-    const newErrors = { freeFireUid: '', bgmiUid: '', phoneNumber: '' }
-
-    // Validate Phone Number (10 digits)
-    if (phoneNumber && !isValidPhoneNumber(phoneNumber)) {
-      newErrors.phoneNumber = 'Phone number must be exactly 10 numeric digits (0-9).'
-      hasError = true
-    }
-
-    // Validate Free Fire UID (Required & exactly 10 digits)
-    if (!freeFireUid.trim()) {
-      newErrors.freeFireUid = 'Free Fire UID is required.'
-      hasError = true
-    } else if (!isValidGameUid(freeFireUid)) {
-      newErrors.freeFireUid = 'Free Fire UID must be exactly 10 numeric digits (0-9).'
-      hasError = true
-    }
-
-    // Validate BGMI UID (Optional & exactly 10 digits if provided)
-    if (bgmiUid.trim() && !isValidGameUid(bgmiUid)) {
-      newErrors.bgmiUid = 'BGMI UID must be exactly 10 numeric digits (0-9).'
-      hasError = true
-    }
-
-    if (hasError) {
-      setGeneralErrors(newErrors)
-      showError('Please fix the validation errors before saving.', 'Validation Error')
-      return
-    }
-
-    try {
-      if (updateProfile) {
-        await updateProfile({
-          username: displayName,
-          phone: phoneNumber.trim(),
-          free_fire_uid: freeFireUid.trim(),
-          freeFireUid: freeFireUid.trim(),
-          bgmi_uid: bgmiUid.trim(),
-          bgmiUid: bgmiUid.trim(),
-        })
-      }
-      showSuccess('Settings Saved', 'Settings Saved')
-    } catch (err) {
-      showError(err.message || 'Failed to update settings.', 'Error')
-    }
-  }
-
-  // Handle Password Update with Supabase Auth
+  // Real Password Change Handler via Supabase Auth
   const handlePasswordChange = async (e) => {
     e.preventDefault()
-    if (!currentPassword) {
-      showError('Current password is required.', 'Security Error')
-      return
-    }
     if (newPassword.length < 6) {
       showError('New password must be at least 6 characters long.', 'Security Error')
       return
@@ -181,10 +142,14 @@ export default function SettingsPage() {
 
     setIsChangingPassword(true)
     try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword })
-      if (error) throw error
+      if (updateUserPassword) {
+        await updateUserPassword(newPassword)
+      } else if (isSupabaseConfigured) {
+        const { error } = await supabase.auth.updateUser({ password: newPassword })
+        if (error) throw error
+      }
 
-      showSuccess('Password Changed', 'Security Updated')
+      showSuccess('Password updated successfully.', 'Security Updated')
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
@@ -195,60 +160,128 @@ export default function SettingsPage() {
     }
   }
 
-  const handleLogoutAllDevices = () => {
-    showSuccess('Successfully logged out from all active sessions on other devices.', 'Sessions Terminated')
-  }
-
-  const handleDownloadData = () => {
-    const dataObj = {
-      user: displayName,
-      email: emailAddress,
-      phone: phoneNumber,
-      preferences,
-      exportDate: new Date().toISOString(),
+  // Real Sign Out Handler
+  const handleSignOutCurrentDevice = async () => {
+    try {
+      await signOut()
+      showSuccess('Logged out successfully.', 'Session Closed')
+      navigate('/')
+    } catch (err) {
+      showError(err.message || 'Failed to log out.', 'Error')
     }
-    const blob = new Blob([JSON.stringify(dataObj, null, 2)], { type: 'application/json' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `MJ_ESPORTS_Account_Data_${displayName}.json`
-    a.click()
-    showSuccess('Account archive download initialized.', 'Data Exported')
   }
 
   return (
-    <div className="bg-[#09090b] text-[#f8fafc] font-body min-h-screen pb-20 antialiased">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-10">
+    <div className="bg-[#08080a] text-[#b9cacb] font-body min-h-screen pb-28 sm:pb-32 antialiased text-xs overflow-x-hidden">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-6 sm:space-y-8 font-mono">
 
-        {/* 1. SETTINGS HEADER */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#27272a]">
-          <div>
-            <h1 className="font-headline text-3xl sm:text-4xl font-black text-white uppercase tracking-tight flex items-center gap-3">
-              <Sliders className="w-8 h-8 text-[#00f2ff]" />
-              <span>Account Settings</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-[#a1a1aa] mt-1 font-body">
-              Manage your esports profile, security credentials, preferences, and privacy controls.
-            </p>
+        {/* ================================================== */}
+        {/* 1. HEADER & BACK LINK                              */}
+        {/* ================================================== */}
+        <section aria-label="Settings Header" className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Link
+              to="/profile"
+              className="inline-flex items-center gap-1.5 text-xs text-[#8e95a5] hover:text-[#00f2ff] transition-colors group cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+              <span>Return to Profile</span>
+            </Link>
+
+            <span className="px-2.5 py-1 rounded bg-[#141620] border border-[#222638] text-[10px] font-bold text-[#fe6b00] tracking-wider uppercase">
+              FREE FIRE MAX ONLY
+            </span>
           </div>
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 w-fit">
-            SYSTEM TELEMETRY v2.6
-          </span>
-        </div>
 
-        {/* 2. SETTINGS NAVIGATION TABS */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* Side Tabs Bar (Spans 3 cols) */}
-          <div className="lg:col-span-3 space-y-1 font-headline text-xs font-bold uppercase">
+          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-[#1f2230] pb-4">
+            <div className="space-y-1">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight uppercase">
+                PLAYER DOSSIER
+              </h1>
+              <p className="text-xs text-[#8e95a5] font-sans">
+                ACCOUNT & PREFERENCES
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================== */}
+        {/* 2. COMPACT IDENTITY STRIP                          */}
+        {/* ================================================== */}
+        <section
+          aria-label="Player Identity Strip"
+          className="p-4 sm:p-5 rounded-2xl bg-[#0d0e15] border border-[#1f2230] shadow-[0_4px_25px_rgba(0,0,0,0.3)] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="relative shrink-0">
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="w-12 h-12 rounded-xl object-cover border border-[#1f2230]"
+              />
+              {isVerified && (
+                <div
+                  title="Authoritative Verified Player"
+                  className="absolute -bottom-1 -right-1 p-0.5 bg-[#08080a] rounded-full"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-[#00ff9d] fill-[#08080a]" />
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-sm sm:text-base font-bold text-white truncate max-w-xs">
+                  {displayName}
+                </h2>
+
+                {isVerified && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                    <ShieldCheck className="w-2.5 h-2.5" />
+                    <span>VERIFIED</span>
+                  </span>
+                )}
+
+                {isPro && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#fe6b00]/15 text-[#fe6b00] border border-[#fe6b00]/30">
+                    <Zap className="w-2.5 h-2.5" />
+                    <span>PRO</span>
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 text-[10px] text-[#8e95a5] font-mono">
+                <span>FF MAX UID: {freeFireUid || 'Not registered'}</span>
+                <span>&bull;</span>
+                <span className="truncate max-w-[150px]">{emailAddress}</span>
+              </div>
+            </div>
+          </div>
+
+          <Link
+            to="/profile/edit"
+            className="self-start sm:self-auto px-4 py-2 rounded-xl bg-[#141620] hover:bg-[#1a1d29] text-white hover:text-[#00f2ff] border border-[#222638] hover:border-[#00f2ff]/40 font-bold uppercase tracking-wider text-xs transition-all flex items-center gap-2 cursor-pointer shrink-0"
+          >
+            <span>Edit Profile</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+        </section>
+
+        {/* ================================================== */}
+        {/* 3. SETTINGS MAIN WORKSPACE                         */}
+        {/* ================================================== */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+          {/* Navigation Tabs Bar */}
+          <nav aria-label="Settings Tabs" className="lg:col-span-4 space-y-1 font-mono text-xs">
             {[
-              { id: 'general', label: 'General Info', icon: User },
-              { id: 'security', label: 'Security & Auth', icon: Lock },
-              { id: 'notifications', label: 'Notifications', icon: Bell },
-              { id: 'privacy', label: 'Privacy & Visibility', icon: Shield },
-              { id: 'preferences', label: 'App Preferences', icon: Sliders },
-              { id: 'linked', label: 'Linked Accounts', icon: Link2 },
-              { id: 'danger', label: 'Danger Zone', icon: AlertTriangle, danger: true },
+              { id: 'general', label: 'GENERAL INFO', icon: User },
+              { id: 'security', label: 'SECURITY & AUTH', icon: Lock },
+              { id: 'notifications', label: 'NOTIFICATIONS', icon: Bell },
+              { id: 'privacy', label: 'PRIVACY', icon: Shield },
+              { id: 'preferences', label: 'APP PREFERENCES', icon: Sliders },
+              { id: 'linked', label: 'LINKED ACCOUNTS', icon: Link2 },
+              { id: 'danger', label: 'DANGER ZONE', icon: AlertTriangle, danger: true },
             ].map((tab) => {
               const Icon = tab.icon
               const isSelected = activeTab === tab.id
@@ -256,217 +289,123 @@ export default function SettingsPage() {
               return (
                 <button
                   key={tab.id}
+                  type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-left ${
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left font-bold cursor-pointer border ${
                     isSelected
                       ? tab.danger
-                        ? 'bg-[#ff3366]/10 text-[#ff3366] border border-[#ff3366]/40 shadow-lg'
-                        : 'bg-[#00f2ff] text-black shadow-[0_0_15px_rgba(34,211,238,0.3)] font-black'
-                      : 'bg-[#18181b]/60 text-[#a1a1aa] hover:text-white hover:bg-[#27272a] border border-[#27272a]'
+                        ? 'bg-[#ff3366]/10 text-[#ff3366] border-[#ff3366]/40 shadow-lg'
+                        : 'bg-[#00f2ff] text-[#08080a] border-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.25)] font-black'
+                      : 'bg-[#0d0e15] text-[#8e95a5] hover:text-white hover:bg-[#141620] border-[#1f2230]'
                   }`}
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span>{tab.label}</span>
+                  <div className="flex items-center gap-2.5">
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{tab.label}</span>
+                  </div>
+                  {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-current"></span>}
                 </button>
               )
             })}
-          </div>
+          </nav>
 
-          {/* Settings Content Body (Spans 9 cols) */}
-          <div className="lg:col-span-9 bg-[#18181b]/60 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#27272a] shadow-2xl">
+          {/* Settings Content Area */}
+          <div className="lg:col-span-8 bg-[#0d0e15] rounded-2xl p-5 sm:p-7 border border-[#1f2230] shadow-xl space-y-6">
 
-            {/* SECTION 1: GENERAL INFO */}
+            {/* TAB 1: GENERAL INFO */}
             {activeTab === 'general' && (
               <div className="space-y-6">
-                <div className="border-b border-white/5 pb-4">
-                  <h2 className="font-headline font-bold text-xl text-white uppercase tracking-wide flex items-center gap-2">
-                    <User className="w-5 h-5 text-[#00f2ff]" />
-                    <span>General Profile Information</span>
+                <div className="border-b border-[#1f2230] pb-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <User className="w-4 h-4 text-[#00f2ff]" />
+                    <span>GENERAL INFO</span>
                   </h2>
-                  <p className="text-xs text-[#a1a1aa] mt-1">Update your display name and public contact metadata.</p>
+                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                    Core identity, Free Fire MAX game ID, and contact data.
+                  </p>
                 </div>
 
-                <form onSubmit={handleSaveGeneral} className="space-y-4 font-mono text-xs max-w-xl">
-                  {/* 1. Display Name */}
-                  <div className="space-y-1.5">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">Display Name</label>
-                    <input
-                      type="text"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      required
-                      className="w-full bg-[#09090b] border border-[#27272a] rounded-xl p-3 text-sm text-white focus:border-[#00f2ff] focus:outline-none"
-                    />
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                      DISPLAY NAME
+                    </span>
+                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-xl text-xs text-white font-mono flex items-center justify-between">
+                      <span>{displayName}</span>
+                      <span className="text-[10px] text-[#717a8e] font-sans">Synced from Profile</span>
+                    </div>
                   </div>
 
-                  {/* 2. Email Address (Read Only) */}
-                  <div className="space-y-1.5">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">Email Address (Read Only)</label>
-                    <input
-                      type="email"
-                      value={emailAddress}
-                      disabled
-                      className="w-full bg-[#18181b] border border-[#27272a] rounded-xl p-3 text-sm text-[#71717a] cursor-not-allowed"
-                    />
-                  </div>
-
-                  {/* 3. Phone Number */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[#a1a1aa] uppercase font-bold block text-xs">Phone Number</label>
-                      <span className={`text-[10px] font-mono font-bold ${phoneNumber.length === 10 ? 'text-[#00f2ff]' : 'text-[#71717a]'}`}>
-                        {phoneNumber.length}/10
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                      EMAIL ADDRESS (READ ONLY)
+                    </span>
+                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-xl text-xs text-[#8e95a5] font-mono flex items-center justify-between">
+                      <span>{emailAddress}</span>
+                      <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-[#08080a] border border-[#222638] text-[#717a8e] uppercase font-bold">
+                        Read Only
                       </span>
                     </div>
-                    <div className="flex items-stretch rounded-xl overflow-hidden border border-[#27272a] focus-within:border-[#00f2ff]">
-                      <span className="flex items-center px-3.5 bg-[#18181b] border-r border-[#27272a] text-xs font-mono font-bold text-[#00f2ff] select-none">
-                        +91
-                      </span>
-                      <input
-                        type="tel"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={10}
-                        value={phoneNumber}
-                        onChange={(e) => {
-                          const val = sanitizeDigitsOnly(e.target.value, 10)
-                          setPhoneNumber(val)
-                          if (generalErrors.phoneNumber) setGeneralErrors((prev) => ({ ...prev, phoneNumber: '' }))
-                        }}
-                        placeholder="9876543210"
-                        className="w-full bg-[#09090b] p-3 text-sm text-white focus:outline-none"
-                      />
-                    </div>
-                    {generalErrors.phoneNumber && (
-                      <p className="text-[11px] text-[#ff3366] font-mono font-bold mt-1">
-                        {generalErrors.phoneNumber}
-                      </p>
-                    )}
                   </div>
 
-                  {/* 4. FREE FIRE UID * */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[#a1a1aa] uppercase font-bold block text-xs">
-                        FREE FIRE UID <span className="text-[#ff3366]">*</span>
-                      </label>
-                      <span className={`text-[10px] font-mono font-bold ${freeFireUid.length === 10 ? 'text-[#00f2ff]' : 'text-[#71717a]'}`}>
-                        {freeFireUid.length}/10
-                      </span>
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                      PHONE NUMBER
+                    </span>
+                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-xl text-xs text-white font-mono flex items-center justify-between">
+                      <span>{phoneNumber ? `+91 ${phoneNumber}` : 'Not linked'}</span>
+                      <span className="text-[10px] text-[#717a8e] font-sans">WhatsApp Contact</span>
                     </div>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={10}
-                      value={freeFireUid}
-                      onChange={(e) => {
-                        const val = sanitizeDigitsOnly(e.target.value, 10)
-                        setFreeFireUid(val)
-                        if (generalErrors.freeFireUid) setGeneralErrors((prev) => ({ ...prev, freeFireUid: '' }))
-                      }}
-                      placeholder="0123456789"
-                      required
-                      className={`w-full bg-[#09090b] border rounded-xl p-3 text-sm text-white focus:outline-none transition-colors ${
-                        generalErrors.freeFireUid
-                          ? 'border-[#ff3366] focus:border-[#ff3366]'
-                          : 'border-[#27272a] focus:border-[#00f2ff]'
-                      }`}
-                    />
-                    {generalErrors.freeFireUid && (
-                      <p className="text-[11px] text-[#ff3366] font-mono font-bold mt-1">
-                        {generalErrors.freeFireUid}
-                      </p>
-                    )}
                   </div>
 
-                  {/* 5. BGMI UID (Optional) */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[#a1a1aa] uppercase font-bold block text-xs">
-                        BGMI UID (Optional)
-                      </label>
-                      <span className={`text-[10px] font-mono font-bold ${bgmiUid.length === 10 ? 'text-[#00f2ff]' : 'text-[#71717a]'}`}>
-                        {bgmiUid.length}/10
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                      FREE FIRE MAX UID
+                    </span>
+                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-xl text-xs text-white font-mono flex items-center justify-between">
+                      <span className="font-bold text-[#00f2ff]">{freeFireUid || 'Not registered'}</span>
+                      <span className="text-[9.5px] px-2 py-0.5 rounded bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/30 font-bold uppercase">
+                        FF MAX ONLY
                       </span>
                     </div>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={10}
-                      value={bgmiUid}
-                      onChange={(e) => {
-                        const val = sanitizeDigitsOnly(e.target.value, 10)
-                        setBgmiUid(val)
-                        if (generalErrors.bgmiUid) setGeneralErrors((prev) => ({ ...prev, bgmiUid: '' }))
-                      }}
-                      placeholder="0123456789"
-                      className={`w-full bg-[#09090b] border rounded-xl p-3 text-sm text-white focus:outline-none transition-colors ${
-                        generalErrors.bgmiUid
-                          ? 'border-[#ff3366] focus:border-[#ff3366]'
-                          : 'border-[#27272a] focus:border-[#00f2ff]'
-                      }`}
-                    />
-                    {generalErrors.bgmiUid && (
-                      <p className="text-[11px] text-[#ff3366] font-mono font-bold mt-1">
-                        {generalErrors.bgmiUid}
-                      </p>
-                    )}
                   </div>
 
-                  {/* 6. Save General Settings Button */}
-                  <div className="pt-4 font-sans">
-                    <button
-                      type="submit"
-                      className="px-6 py-3 bg-[#00f2ff] text-black font-extrabold rounded-xl text-xs uppercase hover:bg-cyan-300 transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)] flex items-center gap-2"
+                  <div className="pt-2">
+                    <Link
+                      to="/profile/edit"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(0,242,255,0.25)] cursor-pointer"
                     >
-                      <Save className="w-4 h-4" />
-                      <span>Save General Settings</span>
-                    </button>
+                      <span>Edit in Profile Center</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
-                </form>
+                </div>
               </div>
             )}
 
-            {/* SECTION 2: SECURITY */}
+            {/* TAB 2: SECURITY & AUTH */}
             {activeTab === 'security' && (
-              <div className="space-y-8">
-                <div className="border-b border-white/5 pb-4">
-                  <h2 className="font-headline font-bold text-xl text-white uppercase tracking-wide flex items-center gap-2">
-                    <Lock className="w-5 h-5 text-[#00f2ff]" />
-                    <span>Security & Authentication</span>
+              <div className="space-y-6">
+                <div className="border-b border-[#1f2230] pb-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-[#00f2ff]" />
+                    <span>SECURITY & AUTH</span>
                   </h2>
-                  <p className="text-xs text-[#a1a1aa] mt-1">Manage login password, 2FA, and active sessions.</p>
+                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                    Password credentials and session protection.
+                  </p>
                 </div>
 
                 {/* Change Password Form */}
-                <form onSubmit={handlePasswordChange} className="space-y-4 font-mono text-xs max-w-xl">
-                  <h3 className="font-headline font-bold text-sm text-white uppercase tracking-wider">Change Account Password</h3>
+                <form onSubmit={handlePasswordChange} className="space-y-4">
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                    CHANGE PASSWORD
+                  </h3>
 
                   <div className="space-y-1.5">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">Current Password *</label>
-                    <div className="relative">
-                      <input
-                        type={showCurrentPassword ? 'text' : 'password'}
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        placeholder="••••••••••••"
-                        required
-                        className="w-full bg-[#09090b] border border-[#27272a] rounded-xl pl-3.5 pr-10 py-3 text-sm text-white focus:border-[#00f2ff] focus:outline-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowCurrentPassword((prev) => !prev)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a1a1aa] hover:text-[#00f2ff]"
-                      >
-                        {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">New Password *</label>
+                    <label className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                      New Password *
+                    </label>
                     <div className="relative">
                       <input
                         type={showNewPassword ? 'text' : 'password'}
@@ -474,26 +413,26 @@ export default function SettingsPage() {
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="Minimum 6 characters"
                         required
-                        className="w-full bg-[#09090b] border border-[#27272a] rounded-xl pl-3.5 pr-10 py-3 text-sm text-white focus:border-[#00f2ff] focus:outline-none"
+                        className="w-full bg-[#141620] border border-[#222638] rounded-xl pl-3.5 pr-10 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono"
                       />
                       <button
                         type="button"
                         onClick={() => setShowNewPassword((prev) => !prev)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a1a1aa] hover:text-[#00f2ff]"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8e95a5] hover:text-[#00f2ff] cursor-pointer"
                       >
-                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
                     </div>
 
                     {newPassword && (
                       <div className="space-y-1 pt-1">
                         <div className="flex justify-between items-center text-[10px]">
-                          <span className="text-[#a1a1aa]">Password Strength:</span>
+                          <span className="text-[#8e95a5]">Strength:</span>
                           <span className={`font-bold ${passwordStrength.label === 'Strong' ? 'text-[#00ff9d]' : passwordStrength.label === 'Medium' ? 'text-[#fe6b00]' : 'text-[#ff3366]'}`}>
                             {passwordStrength.label}
                           </span>
                         </div>
-                        <div className="w-full bg-[#09090b] h-1.5 rounded-full overflow-hidden border border-[#27272a]">
+                        <div className="w-full bg-[#141620] h-1.5 rounded-full overflow-hidden border border-[#222638]">
                           <div className={`h-full transition-all duration-300 ${passwordStrength.color}`} style={{ width: passwordStrength.width }}></div>
                         </div>
                       </div>
@@ -501,7 +440,9 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">Confirm New Password *</label>
+                    <label className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                      Confirm New Password *
+                    </label>
                     <div className="relative">
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
@@ -509,14 +450,14 @@ export default function SettingsPage() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Re-enter new password"
                         required
-                        className="w-full bg-[#09090b] border border-[#27272a] rounded-xl pl-3.5 pr-10 py-3 text-sm text-white focus:border-[#00f2ff] focus:outline-none"
+                        className="w-full bg-[#141620] border border-[#222638] rounded-xl pl-3.5 pr-10 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword((prev) => !prev)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a1a1aa] hover:text-[#00f2ff]"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8e95a5] hover:text-[#00f2ff] cursor-pointer"
                       >
-                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
                     </div>
                   </div>
@@ -524,267 +465,346 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={isChangingPassword}
-                    className="px-6 py-2.5 bg-[#00f2ff] text-black font-extrabold rounded-xl text-xs uppercase hover:bg-cyan-300 transition-all font-sans"
+                    className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(0,242,255,0.25)] cursor-pointer disabled:opacity-50"
                   >
-                    {isChangingPassword ? 'Updating Password...' : 'Update Password'}
+                    {isChangingPassword ? 'Updating...' : 'Update Password'}
                   </button>
                 </form>
 
-                {/* Two-Factor Authentication & Sessions */}
-                <div className="pt-6 border-t border-white/5 space-y-6">
-                  <div className="flex items-center justify-between p-4 bg-[#09090b] rounded-xl border border-[#27272a]">
-                    <div>
-                      <h4 className="font-headline font-bold text-sm text-white">Two-Factor Authentication (2FA)</h4>
-                      <p className="text-xs text-[#a1a1aa] mt-0.5">Secure your account with TOTP authenticator apps.</p>
+                {/* Two-Factor Auth (Truthful Coming Soon) */}
+                <div className="pt-6 border-t border-[#1f2230] space-y-4">
+                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-white uppercase">TWO-FACTOR AUTH (2FA)</span>
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#fe6b00]/15 text-[#fe6b00] border border-[#fe6b00]/30">
+                          COMING SOON
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#8e95a5] font-sans">
+                        TOTP mobile authenticator verification is scheduled for an upcoming security release.
+                      </p>
                     </div>
+
                     <button
                       type="button"
-                      onClick={() => setIs2FAEnabled((prev) => !prev)}
-                      className={`px-4 py-2 rounded-xl font-headline font-bold text-xs uppercase transition-all ${
-                        is2FAEnabled ? 'bg-[#00ff9d] text-black' : 'bg-[#27272a] text-white'
-                      }`}
+                      disabled
+                      className="px-3 py-1.5 rounded-lg bg-[#08080a] text-[#525866] border border-[#222638] text-xs font-bold uppercase cursor-not-allowed opacity-60"
                     >
-                      {is2FAEnabled ? 'Enabled' : 'Enable 2FA'}
+                      Disabled
                     </button>
                   </div>
 
+                  {/* Active Sessions & Sign Out */}
                   <div className="space-y-3">
-                    <h4 className="font-headline font-bold text-sm text-white uppercase tracking-wider">Active Login Sessions</h4>
-                    <div className="p-4 bg-[#09090b] rounded-xl border border-[#27272a] flex items-center justify-between">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white uppercase tracking-wider">
+                        ACTIVE SESSIONS
+                      </span>
+                      <span className="text-[10px] text-[#00ff9d] font-mono font-bold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#00ff9d] animate-pulse"></span>
+                        <span>Current Session Active</span>
+                      </span>
+                    </div>
+
+                    <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <Smartphone className="w-5 h-5 text-[#00f2ff]" />
+                        <Smartphone className="w-5 h-5 text-[#00f2ff] shrink-0" />
                         <div>
-                          <span className="text-xs font-bold text-white block">Windows PC — Chrome Browser</span>
-                          <span className="text-[10px] text-[#a1a1aa] font-mono block">Current Active Session • IP 49.37.102.14</span>
+                          <span className="text-xs font-bold text-white block">This Device</span>
+                          <span className="text-[10px] text-[#8e95a5] font-mono block">
+                            Authenticated via Supabase Session
+                          </span>
                         </div>
                       </div>
-                      <span className="px-2 py-0.5 bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 rounded text-[10px] font-mono font-bold">ONLINE</span>
+
+                      <button
+                        type="button"
+                        onClick={handleSignOutCurrentDevice}
+                        className="px-3 py-1.5 bg-[#1f2230] hover:bg-red-950/40 text-[#f87171] border border-red-900/40 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        <span>Sign Out</span>
+                      </button>
                     </div>
 
-                    <button
-                      onClick={handleLogoutAllDevices}
-                      className="px-4 py-2 bg-[#27272a] hover:bg-[#3f3f46] text-[#fe6b00] border border-[#fe6b00]/30 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-2"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Logout From All Devices</span>
-                    </button>
+                    <div className="p-3 bg-[#141620]/60 rounded-xl border border-[#222638] flex items-center justify-between text-[11px]">
+                      <span className="text-[#8e95a5] font-sans">Remote multi-session revocation (Logout All Devices)</span>
+                      <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#222638] text-[#8e95a5]">
+                        COMING SOON
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* SECTION 3: NOTIFICATIONS */}
+            {/* TAB 3: NOTIFICATIONS */}
             {activeTab === 'notifications' && (
               <div className="space-y-6">
-                <div className="border-b border-white/5 pb-4">
-                  <h2 className="font-headline font-bold text-xl text-white uppercase tracking-wide flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-[#00f2ff]" />
-                    <span>Notification Preferences</span>
+                <div className="border-b border-[#1f2230] pb-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-[#00f2ff]" />
+                    <span>NOTIFICATION PREFERENCES</span>
                   </h2>
-                  <p className="text-xs text-[#a1a1aa] mt-1">Customize push, email, and match notification alerts.</p>
+                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                    Live match reminders, slot alerts, and competitive telemetry.
+                  </p>
                 </div>
 
-                <div className="space-y-4 font-mono text-xs">
+                <div className="p-3.5 rounded-xl border border-[#00f2ff]/20 bg-[#00f2ff]/5 text-xs text-[#8e95a5] font-sans flex items-start gap-2.5">
+                  <Info className="w-4 h-4 text-[#00f2ff] shrink-0 mt-0.5" />
+                  <span>
+                    Real-time match alerts and tournament announcements are currently published in the in-app notification center. Granular push and email preference toggles are coming soon.
+                  </span>
+                </div>
+
+                <div className="space-y-3 font-mono">
                   {[
-                    { key: 'tournamentAlerts', label: 'Tournament Registration Alerts', desc: 'Notify when open tournament slots are available.' },
-                    { key: 'matchReminders', label: 'Match Start Reminders', desc: 'Send alerts 15 minutes before custom room start time.' },
-                    { key: 'prizeNotifications', label: 'Prize & Payout Notifications', desc: 'Notify when prize winnings are credited to wallet.' },
-                    { key: 'emailNotifications', label: 'Email Newsletters & Summaries', desc: 'Receive weekly leaderboard standings via email.' },
-                    { key: 'pushNotifications', label: 'Browser Push Notifications', desc: 'Allow browser desktop push alerts.' },
+                    { title: 'Tournament Registration & Slot Alerts', desc: 'Instant alerts when tournament slots open for registration.' },
+                    { title: 'Room ID & Password Match Reminders', desc: 'Direct custom room credential alerts 15 minutes before start.' },
+                    { title: 'Prize & Payout Notifications', desc: 'Wallet credit confirmations for confirmed tournament winnings.' },
+                    { title: 'Marketing & Email Updates', desc: 'Weekly competitive digests and leaderboards via email.' },
+                    { title: 'Browser Push Notifications', desc: 'Desktop and browser web push notifications.' },
                   ].map((item) => (
-                    <div key={item.key} className="flex items-center justify-between p-4 bg-[#09090b] rounded-xl border border-[#27272a]">
-                      <div>
-                        <span className="text-sm font-bold text-white block">{item.label}</span>
-                        <span className="text-[10px] text-[#a1a1aa] block mt-0.5">{item.desc}</span>
+                    <div
+                      key={item.title}
+                      className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4"
+                    >
+                      <div className="space-y-0.5">
+                        <span className="text-xs font-bold text-white block">{item.title}</span>
+                        <span className="text-[10px] text-[#8e95a5] font-sans block">{item.desc}</span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setNotifications((prev) => ({ ...prev, [item.key]: !prev[item.key] }))}
-                        className={`w-12 h-6 rounded-full transition-colors relative p-0.5 ${
-                          notifications[item.key] ? 'bg-[#00f2ff]' : 'bg-[#27272a]'
-                        }`}
-                      >
-                        <div className={`w-5 h-5 rounded-full bg-black transition-transform ${
-                          notifications[item.key] ? 'translate-x-6' : 'translate-x-0'
-                        }`}></div>
-                      </button>
+
+                      <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                        COMING SOON
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* SECTION 4: PRIVACY */}
+            {/* TAB 4: PRIVACY */}
             {activeTab === 'privacy' && (
               <div className="space-y-6">
-                <div className="border-b border-white/5 pb-4">
-                  <h2 className="font-headline font-bold text-xl text-white uppercase tracking-wide flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-[#00f2ff]" />
-                    <span>Privacy Controls</span>
+                <div className="border-b border-[#1f2230] pb-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-[#00f2ff]" />
+                    <span>PRIVACY & VISIBILITY</span>
                   </h2>
-                  <p className="text-xs text-[#a1a1aa] mt-1">Control who can view your player profile and match statistics.</p>
+                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                    Esports profile accessibility and public telemetry controls.
+                  </p>
                 </div>
 
-                <div className="space-y-4 font-mono text-xs">
-                  <div className="space-y-2">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">Profile Visibility</label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {['PUBLIC', 'FRIENDS', 'PRIVATE'].map((vis) => (
-                        <button
-                          key={vis}
-                          type="button"
-                          onClick={() => setPrivacy((prev) => ({ ...prev, profileVisibility: vis }))}
-                          className={`p-3 rounded-xl border text-center font-bold transition-all ${
-                            privacy.profileVisibility === vis
-                              ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]'
-                              : 'bg-[#09090b] border-[#27272a] text-[#a1a1aa]'
-                          }`}
-                        >
-                          {vis}
-                        </button>
-                      ))}
+                <div className="space-y-4 font-mono">
+                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-white uppercase">Profile Visibility</span>
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                          PUBLIC (ACTIVE)
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-[#8e95a5] font-sans">
+                        Tournament leaderboards, match placements, and verified IGN are publicly visible to competitors.
+                      </p>
                     </div>
+
+                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                      COMING SOON
+                    </span>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-[#09090b] rounded-xl border border-[#27272a]">
-                    <div>
-                      <span className="text-sm font-bold text-white block">Hide Match Statistics</span>
-                      <span className="text-[10px] text-[#a1a1aa] block mt-0.5">Hide win rates and K/D ratios from public view.</span>
+                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-white uppercase">Match Telemetry & Stats</span>
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                          PUBLIC (ACTIVE)
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-[#8e95a5] font-sans">
+                        Win rates and confirmed kill records are publicly auditable for competitive integrity.
+                      </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setPrivacy((prev) => ({ ...prev, hideStats: !prev.hideStats }))}
-                      className={`w-12 h-6 rounded-full transition-colors relative p-0.5 ${
-                        privacy.hideStats ? 'bg-[#00f2ff]' : 'bg-[#27272a]'
-                      }`}
-                    >
-                      <div className={`w-5 h-5 rounded-full bg-black transition-transform ${
-                        privacy.hideStats ? 'translate-x-6' : 'translate-x-0'
-                      }`}></div>
-                    </button>
+
+                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                      COMING SOON
+                    </span>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* SECTION 5: PREFERENCES */}
+            {/* TAB 5: APP PREFERENCES */}
             {activeTab === 'preferences' && (
               <div className="space-y-6">
-                <div className="border-b border-white/5 pb-4">
-                  <h2 className="font-headline font-bold text-xl text-white uppercase tracking-wide flex items-center gap-2">
-                    <Sliders className="w-5 h-5 text-[#00f2ff]" />
-                    <span>App Preferences</span>
+                <div className="border-b border-[#1f2230] pb-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-[#00f2ff]" />
+                    <span>APP PREFERENCES</span>
                   </h2>
-                  <p className="text-xs text-[#a1a1aa] mt-1">Customize regional settings and default game filters.</p>
+                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                    Platform language and game ecosystem settings.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
-                  <div className="space-y-1.5">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">Language</label>
-                    <select
-                      value={preferences.language}
-                      onChange={(e) => setPreferences((prev) => ({ ...prev, language: e.target.value }))}
-                      className="w-full bg-[#09090b] border border-[#27272a] rounded-xl p-3 text-sm text-white focus:border-[#00f2ff] focus:outline-none"
-                    >
-                      <option>English (US)</option>
-                      <option>Hindi (हिन्दी)</option>
-                      <option>Tamil (தமிழ்)</option>
-                    </select>
+                <div className="space-y-4 font-mono">
+                  {/* Language */}
+                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-white uppercase block">Platform Language</span>
+                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                        English (US) is the primary supported platform language.
+                      </span>
+                    </div>
+
+                    <span className="px-2.5 py-1 rounded-lg bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-xs font-bold uppercase">
+                      English (US)
+                    </span>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[#a1a1aa] uppercase font-bold block">Default Game</label>
-                    <select
-                      value={preferences.defaultGame}
-                      onChange={(e) => setPreferences((prev) => ({ ...prev, defaultGame: e.target.value }))}
-                      className="w-full bg-[#09090b] border border-[#27272a] rounded-xl p-3 text-sm text-white focus:border-[#00f2ff] focus:outline-none"
-                    >
-                      <option>Free Fire MAX</option>
-                      <option>BGMI</option>
-                    </select>
+                  {/* Dedicated Game */}
+                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-white uppercase block">Dedicated Platform Game</span>
+                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                        MJ ESPORTS is exclusively optimized for Free Fire MAX.
+                      </span>
+                    </div>
+
+                    <span className="px-2.5 py-1 rounded-lg bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/30 text-xs font-bold uppercase">
+                      FREE FIRE MAX
+                    </span>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* SECTION 6: LINKED ACCOUNTS */}
+            {/* TAB 6: LINKED ACCOUNTS */}
             {activeTab === 'linked' && (
               <div className="space-y-6">
-                <div className="border-b border-white/5 pb-4">
-                  <h2 className="font-headline font-bold text-xl text-white uppercase tracking-wide flex items-center gap-2">
-                    <Link2 className="w-5 h-5 text-[#00f2ff]" />
-                    <span>Linked Accounts</span>
+                <div className="border-b border-[#1f2230] pb-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <Link2 className="w-4 h-4 text-[#00f2ff]" />
+                    <span>LINKED ACCOUNTS</span>
                   </h2>
-                  <p className="text-xs text-[#a1a1aa] mt-1">Connect your social accounts for easy single sign-on.</p>
+                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                    Connected authentication identities and social platforms.
+                  </p>
                 </div>
 
-                <div className="space-y-3 font-mono text-xs">
-                  {[
-                    { name: 'Google', handle: 'player@gmail.com', connected: linkedAccounts.google, key: 'google' },
-                    { name: 'Discord', handle: 'NeoStriker#1337', connected: linkedAccounts.discord, key: 'discord' },
-                    { name: 'YouTube', handle: 'Connect Channel', connected: linkedAccounts.youtube, key: 'youtube' },
-                    { name: 'X (Twitter)', handle: 'Connect @handle', connected: linkedAccounts.twitter, key: 'twitter' },
-                  ].map((acc) => (
-                    <div key={acc.name} className="flex items-center justify-between p-4 bg-[#09090b] rounded-xl border border-[#27272a]">
-                      <div>
-                        <span className="text-sm font-bold text-white block">{acc.name}</span>
-                        <span className="text-xs text-[#a1a1aa] block">{acc.handle}</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setLinkedAccounts((prev) => ({ ...prev, [acc.key]: !prev[acc.key] }))}
-                        className={`px-4 py-2 rounded-xl font-bold text-xs uppercase transition-all ${
-                          acc.connected
-                            ? 'bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30'
-                            : 'bg-[#27272a] text-white hover:bg-[#3f3f46]'
-                        }`}
-                      >
-                        {acc.connected ? 'Connected' : 'Connect'}
-                      </button>
+                <div className="space-y-3 font-mono">
+                  {/* Google */}
+                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-white block">Google</span>
+                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                        Single Sign-On authentication via Google OAuth.
+                      </span>
                     </div>
-                  ))}
+
+                    {isGoogleLinked ? (
+                      <span className="px-2.5 py-1 rounded-lg bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 text-xs font-bold uppercase">
+                        CONNECTED
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-1 rounded-lg bg-[#08080a] text-[#8e95a5] border border-[#222638] text-xs font-bold uppercase">
+                        NOT CONNECTED
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Discord */}
+                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-white block">Discord</span>
+                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                        Tournament room voice channels and role verification.
+                      </span>
+                    </div>
+
+                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                      COMING SOON
+                    </span>
+                  </div>
+
+                  {/* YouTube */}
+                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-white block">YouTube</span>
+                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                        Creator channel highlights and broadcast links.
+                      </span>
+                    </div>
+
+                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                      COMING SOON
+                    </span>
+                  </div>
+
+                  {/* X / Twitter */}
+                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-white block">X (Twitter)</span>
+                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                        Competitive announcements and social mentions.
+                      </span>
+                    </div>
+
+                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                      COMING SOON
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* SECTION 7: DANGER ZONE */}
+            {/* TAB 7: DANGER ZONE */}
             {activeTab === 'danger' && (
               <div className="space-y-6">
                 <div className="border-b border-[#ff3366]/20 pb-4">
-                  <h2 className="font-headline font-bold text-xl text-[#ff3366] uppercase tracking-wide flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5 text-[#ff3366]" />
-                    <span>Danger Zone</span>
+                  <h2 className="text-sm sm:text-base font-bold text-[#ff3366] uppercase tracking-wider flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-[#ff3366]" />
+                    <span>DANGER ZONE</span>
                   </h2>
-                  <p className="text-xs text-[#a1a1aa] mt-1">Irreversible account actions and data exports.</p>
+                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                    Irreversible account procedures and data compliance archives.
+                  </p>
                 </div>
 
-                <div className="space-y-4 font-mono text-xs">
-                  <div className="p-4 bg-[#09090b] rounded-xl border border-[#27272a] flex items-center justify-between">
-                    <div>
-                      <span className="text-sm font-bold text-white block">Download My Account Data</span>
-                      <span className="text-[10px] text-[#a1a1aa] block mt-0.5">Export an archive of all past match records and statistics.</span>
+                <div className="space-y-4 font-mono">
+                  {/* Export My Data */}
+                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-white uppercase block">Export My Data</span>
+                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                        Automated GDPR/compliance data archives are scheduled for a future update. Contact support for immediate data exports.
+                      </span>
                     </div>
-                    <button
-                      onClick={handleDownloadData}
-                      className="px-4 py-2 bg-[#27272a] hover:bg-[#3f3f46] text-[#00f2ff] border border-[#00f2ff]/30 rounded-xl font-bold uppercase transition-all flex items-center gap-1.5"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>Export Data</span>
-                    </button>
+
+                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                      COMING SOON
+                    </span>
                   </div>
 
-                  <div className="p-4 bg-[#ff3366]/5 rounded-xl border border-[#ff3366]/30 flex items-center justify-between">
-                    <div>
-                      <span className="text-sm font-bold text-[#ff3366] block">Delete Account</span>
-                      <span className="text-[10px] text-[#a1a1aa] block mt-0.5">Permanently delete your player profile and match history.</span>
+                  {/* Delete Account */}
+                  <div className="p-4 bg-red-950/20 rounded-xl border border-red-900/40 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-[#ff3366] uppercase block">Delete Account</span>
+                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                        Account termination requires identity and wallet balance review. Please contact support.
+                      </span>
                     </div>
-                    <button
-                      onClick={() => showError('Account deletion requires admin authorization.', 'Restricted Action')}
-                      className="px-4 py-2 bg-[#ff3366] text-black font-extrabold rounded-xl uppercase hover:bg-red-400 transition-all flex items-center gap-1.5"
+
+                    <a
+                      href="mailto:mjesports.team@gmail.com?subject=Account%20Deletion%20Request"
+                      className="px-3 py-1.5 bg-[#ff3366]/20 hover:bg-[#ff3366]/30 text-[#ff3366] border border-[#ff3366]/40 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer shrink-0"
                     >
-                      <Trash2 className="w-4 h-4" />
-                      <span>Delete Account</span>
-                    </button>
+                      Contact Support
+                    </a>
                   </div>
                 </div>
               </div>

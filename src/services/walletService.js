@@ -64,18 +64,38 @@ export async function fetchUserWallet() {
 
 /**
  * Phase 9.1: Fetch immutable wallet ledger entries for authenticated user
+ * Supports optional pagination (limit, offset) and optional transaction filtering
  */
-export async function fetchWalletLedger({ limit = 50, userId = null } = {}) {
+export async function fetchWalletLedger({
+  limit = 50,
+  offset = 0,
+  userId = null,
+  transactionType = null,
+  direction = null,
+} = {}) {
   if (!isSupabaseConfigured) return []
   try {
     let query = supabase
       .from('wallet_ledger')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(limit)
 
     if (userId) {
       query = query.eq('user_id', userId)
+    }
+
+    if (transactionType) {
+      query = query.eq('transaction_type', transactionType)
+    }
+
+    if (direction) {
+      query = query.eq('direction', direction)
+    }
+
+    if (limit !== null && limit !== undefined) {
+      const from = Number(offset || 0)
+      const to = from + Number(limit) - 1
+      query = query.range(from, to)
     }
 
     const { data, error } = await query
@@ -87,6 +107,46 @@ export async function fetchWalletLedger({ limit = 50, userId = null } = {}) {
     return data || []
   } catch (err) {
     console.warn('[walletService] fetchWalletLedger exception:', err.message)
+    return []
+  }
+}
+
+/**
+ * Phase 2: Fetches ALL confirmed PRIZE_CREDIT ledger entries for the authenticated player
+ * Uses paginated batching to guarantee 100% complete traversal without arbitrary limits.
+ */
+export async function fetchAllUserPrizeCredits(userId) {
+  if (!isSupabaseConfigured || !userId) return []
+  try {
+    let allPrizeCredits = []
+    let offset = 0
+    const batchSize = 1000
+    let hasMore = true
+
+    while (hasMore) {
+      const batch = await fetchWalletLedger({
+        limit: batchSize,
+        offset: offset,
+        userId: userId,
+        transactionType: 'PRIZE_CREDIT',
+        direction: 'CREDIT',
+      })
+
+      if (Array.isArray(batch) && batch.length > 0) {
+        allPrizeCredits = allPrizeCredits.concat(batch)
+        if (batch.length < batchSize) {
+          hasMore = false
+        } else {
+          offset += batchSize
+        }
+      } else {
+        hasMore = false
+      }
+    }
+
+    return allPrizeCredits
+  } catch (err) {
+    console.warn('[walletService] fetchAllUserPrizeCredits exception:', err.message)
     return []
   }
 }
