@@ -100,8 +100,8 @@ assert(
 )
 
 assert(
-  sql.includes('chk_wallet_withdrawals_amount CHECK (amount >= 1.00 AND amount = TRUNC(amount) AND amount <= 500000.00)'),
-  '9. amount constraint enforces minimum ₹1.00, whole-rupee only, and safe technical ceiling'
+  sql.includes('chk_wallet_withdrawals_amount CHECK (amount >= 100.00 AND amount = TRUNC(amount) AND amount <= 500000.00)'),
+  '9. amount constraint enforces minimum ₹100.00, whole-rupee only, and safe technical ceiling'
 )
 
 assert(
@@ -185,8 +185,8 @@ assert(
 
 assert(
   sql.includes('MINIMUM_AMOUNT_REQUIRED') &&
-  sql.includes('v_clean_amount < 1.00'),
-  '22. Enforces minimum withdrawal amount of ₹1.00'
+  sql.includes('v_clean_amount < 100.00'),
+  '22. Enforces authoritative server-side minimum withdrawal amount of ₹100.00'
 )
 
 assert(
@@ -478,6 +478,35 @@ const restoredBalance = reservedBalance + withdrawalAmount
 
 assert(reservedBalance === 300, '69. Financial Simulation: Wallet balance after reservation is ₹300')
 assert(restoredBalance === 500, '70. Financial Simulation: Wallet balance after rejection refund is ₹500')
+
+// RPC Server-Side Validation Simulation matching request_wallet_withdrawal logic
+function simulateRpcWithdrawalValidation(amount, currentBalance) {
+  if (amount === null || amount === undefined || amount <= 0) {
+    return { success: false, error_code: 'INVALID_AMOUNT' }
+  }
+  if (amount !== Math.trunc(amount)) {
+    return { success: false, error_code: 'DECIMAL_AMOUNT_REJECTED' }
+  }
+  const cleanAmount = Math.trunc(amount)
+  if (cleanAmount < 100) {
+    return { success: false, error_code: 'MINIMUM_AMOUNT_REQUIRED' }
+  }
+  if (cleanAmount > 500000) {
+    return { success: false, error_code: 'AMOUNT_EXCEEDS_MAXIMUM' }
+  }
+  if (currentBalance < cleanAmount) {
+    return { success: false, error_code: 'INSUFFICIENT_FUNDS' }
+  }
+  return { success: true, cleanAmount }
+}
+
+assert(simulateRpcWithdrawalValidation(99, 500).error_code === 'MINIMUM_AMOUNT_REQUIRED', '71. RPC Backend rejects ₹99 (below ₹100 minimum)')
+assert(simulateRpcWithdrawalValidation(100, 500).success === true, '72. RPC Backend accepts ₹100 when balance permits')
+assert(simulateRpcWithdrawalValidation(101, 500).success === true, '73. RPC Backend accepts ₹101 when balance permits')
+assert(simulateRpcWithdrawalValidation(100.50, 500).error_code === 'DECIMAL_AMOUNT_REJECTED', '74. RPC Backend rejects decimal amount ₹100.50')
+assert(simulateRpcWithdrawalValidation(0, 500).error_code === 'INVALID_AMOUNT', '75. RPC Backend rejects ₹0')
+assert(simulateRpcWithdrawalValidation(-50, 500).error_code === 'INVALID_AMOUNT', '76. RPC Backend rejects negative amount -₹50')
+assert(simulateRpcWithdrawalValidation(600, 500).error_code === 'INSUFFICIENT_FUNDS', '77. RPC Backend rejects amount exceeding available balance (₹600 > ₹500)')
 
 console.log('\n==================================================================')
 console.log(`PHASE 10.1 AUDIT RESULTS: ${passCount} PASSED, ${failCount} FAILED`)

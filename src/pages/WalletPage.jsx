@@ -25,6 +25,7 @@ import {
   fetchWalletLedger,
   fetchAllUserPrizeCredits,
   requestWithdrawal,
+  fetchUserWithdrawals,
   createWalletTopupOrder,
   verifyWalletTopup,
   generateTopupIdempotencyKey,
@@ -46,7 +47,18 @@ export default function WalletPage() {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
   const [amountInput, setAmountInput] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('UPI')
+
+  // Withdrawal Modal States
+  const [withdrawalPayoutMethod, setWithdrawalPayoutMethod] = useState('UPI') // 'UPI' | 'BANK_TRANSFER'
+  const [withdrawAmountInput, setWithdrawAmountInput] = useState('')
   const [upiIdInput, setUpiIdInput] = useState('')
+  const [bankAccountNumber, setBankAccountNumber] = useState('')
+  const [bankAccountConfirm, setBankAccountConfirm] = useState('')
+  const [bankIfsc, setBankIfsc] = useState('')
+  const [bankAccountHolder, setBankAccountHolder] = useState('')
+  const [bankName, setBankName] = useState('')
+  const [isSubmittingWithdrawal, setIsSubmittingWithdrawal] = useState(false)
+  const [withdrawalIdempotencyKey, setWithdrawalIdempotencyKey] = useState(null)
 
   // Loading & Submitting States
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -56,8 +68,10 @@ export default function WalletPage() {
   const [topupIdempotencyKey, setTopupIdempotencyKey] = useState(null)
   const [walletError, setWalletError] = useState(null)
 
-  // Authoritative State: Balances & Ledger
+  // Authoritative State: Balances, Ledger & Withdrawals
   const [transactions, setTransactions] = useState([])
+  const [userWithdrawals, setUserWithdrawals] = useState([])
+  const [loadingWithdrawals, setLoadingWithdrawals] = useState(true)
   const [dbWalletBalance, setDbWalletBalance] = useState(() => getAuthoritativeWalletBalance())
   const [prizeEarnings, setPrizeEarnings] = useState(null)
   const [loadingPrizeEarnings, setLoadingPrizeEarnings] = useState(true)
@@ -78,14 +92,21 @@ export default function WalletPage() {
     setWalletError(null)
 
     try {
-      // Fetch authoritative wallet balance and immutable ledger entries concurrently
-      const [walletRes, ledgerData] = await Promise.all([
+      // Fetch authoritative wallet balance, immutable ledger entries, and withdrawal requests concurrently
+      const [walletRes, ledgerData, withdrawalsRes] = await Promise.all([
         fetchUserWallet(),
         fetchWalletLedger({ limit: 100, userId: user.id }),
+        fetchUserWithdrawals(user.id),
       ])
 
       if (walletRes?.success && walletRes.wallet) {
         setDbWalletBalance(Number(walletRes.wallet.balance || 0.0))
+      }
+
+      if (withdrawalsRes?.success && Array.isArray(withdrawalsRes.data)) {
+        setUserWithdrawals(withdrawalsRes.data)
+      } else {
+        setUserWithdrawals([])
       }
 
       // Map immutable ledger rows to player-facing transaction records
@@ -137,9 +158,11 @@ export default function WalletPage() {
       console.warn('[WalletPage] syncWalletData error:', err)
       setWalletError('WALLET TEMPORARILY UNAVAILABLE')
       setTransactions([])
+      setUserWithdrawals([])
     } finally {
       setIsRefreshing(false)
       setIsPageLoading(false)
+      setLoadingWithdrawals(false)
     }
   }, [user?.id])
 
@@ -311,33 +334,143 @@ export default function WalletPage() {
     }
   }
 
-  // 5. Handle Withdrawal Request via Secure RPC
+  // Helper functions for masking payout details securely
+  const maskUpiId = (upi) => {
+    if (!upi || typeof upi !== 'string') return '—'
+    const parts = upi.split('@')
+    if (parts.length !== 2) return upi
+    const [handle, domain] = parts
+    const visible = handle.slice(0, Math.min(2, handle.length))
+    return `${visible}***@${domain}`
+  }
+
+  const maskAccountNumber = (acc) => {
+    if (!acc || typeof acc !== 'string') return '—'
+    const last4 = acc.slice(-4)
+    return `••••••${last4}`
+  }
+
+  const formatPayoutSummary = (method, details) => {
+    if (!details) return '—'
+    if (typeof details === 'string') return details
+    if (method === 'UPI' || details.vpa || details.upi_id) {
+      return `UPI: ${maskUpiId(details.vpa || details.upi_id)}`
+    }
+    if (method === 'BANK_TRANSFER' || details.account_number) {
+      const bank = details.bank_name ? `${details.bank_name} ` : ''
+      return `${bank}(A/C: ${maskAccountNumber(details.account_number)})`
+    }
+    return JSON.stringify(details)
+  }
+
+  // 5. Handle Withdrawal Request via Secure Phase 10.1 RPC
   const handleWithdrawSubmit = async (e) => {
     e.preventDefault()
-    const num = parseFloat(amountInput)
+
+    // Whole-rupee validation
+    const trimmedAmount = (withdrawAmountInput || '').toString().trim()
+    const wholeRupeeRegex = /^\d+$/
+    if (!trimmedAmount || !wholeRupeeRegex.test(trimmedAmount)) {
+      showError('Please enter a valid whole rupee amount (no decimals or paise permitted).', 'Invalid Amount')
+      return
+    }
+
+    const num = parseInt(trimmedAmount, 10)
     if (isNaN(num) || num <= 0) {
       showError('Please enter a valid withdrawal amount.', 'Invalid Amount')
       return
     }
 
+    if (num < 100) {
+      showError('Minimum withdrawal amount is ₹100.', 'Minimum Amount ₹100')
+      return
+    }
+
+    if (num > authoritativeBalance) {
+      showError(`Insufficient wallet balance. You have ₹${authoritativeBalance} available.`, 'Insufficient Balance')
+      return
+    }
+
+    // Validate payout details based on chosen method
+    let payoutDetails = {}
+    if (withdrawalPayoutMethod === 'UPI') {
+      const trimmedUpi = upiIdInput.trim()
+      const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/
+      if (!trimmedUpi || !upiRegex.test(trimmedUpi)) {
+        showError('Please enter a valid UPI ID (e.g. username@okhdfcbank or 9876543210@ybl).', 'Invalid UPI ID')
+        return
+      }
+      payoutDetails = { vpa: trimmedUpi }
+    } else if (withdrawalPayoutMethod === 'BANK_TRANSFER') {
+      const accNum = bankAccountNumber.trim()
+      const accConfirm = bankAccountConfirm.trim()
+      const ifsc = bankIfsc.trim().toUpperCase()
+      const holder = bankAccountHolder.trim()
+      const bank = bankName.trim()
+
+      if (!accNum || accNum.length < 8 || accNum.length > 20 || !/^\d+$/.test(accNum)) {
+        showError('Please enter a valid bank account number (8-20 digits).', 'Invalid Account Number')
+        return
+      }
+      if (accNum !== accConfirm) {
+        showError('Bank account numbers do not match. Please verify.', 'Account Mismatch')
+        return
+      }
+      if (!ifsc || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
+        showError('Please enter a valid 11-character Indian Bank IFSC code (e.g. HDFC0001234).', 'Invalid IFSC Code')
+        return
+      }
+      if (!holder || holder.length < 2) {
+        showError('Please enter the account holder name as registered with the bank.', 'Invalid Holder Name')
+        return
+      }
+      if (!bank || bank.length < 2) {
+        showError('Please enter the bank name.', 'Invalid Bank Name')
+        return
+      }
+      payoutDetails = {
+        account_number: accNum,
+        ifsc_code: ifsc,
+        account_holder_name: holder,
+        bank_name: bank,
+      }
+    }
+
+    const idempotencyKey = withdrawalIdempotencyKey || `with_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+    if (!withdrawalIdempotencyKey) {
+      setWithdrawalIdempotencyKey(idempotencyKey)
+    }
+
+    setIsSubmittingWithdrawal(true)
+
     try {
       if (user?.id) {
         const res = await requestWithdrawal({
           amount: num,
-          payoutDetails: `Bank Payout (${upiIdInput || 'UPI Transfer'})`,
+          payoutDetails,
+          payoutMethod: withdrawalPayoutMethod,
+          idempotencyKey,
         })
         if (res && res.success === false) {
-          throw new Error(res.message || 'Withdrawal processing failed.')
+          throw new Error(res.message || res.error || 'Withdrawal processing failed.')
         }
       }
 
-      showSuccess('Payment Submitted', 'Payout Request Pending')
+      showSuccess(`Withdrawal request for ₹${num} submitted! Funds are locked pending admin review.`, 'Payout Request Submitted')
       setIsWithdrawModalOpen(false)
-      setAmountInput('')
+      setWithdrawAmountInput('')
       setUpiIdInput('')
+      setBankAccountNumber('')
+      setBankAccountConfirm('')
+      setBankIfsc('')
+      setBankAccountHolder('')
+      setBankName('')
+      setWithdrawalIdempotencyKey(null)
       await syncWalletData()
     } catch (err) {
       showError(err.message || 'Withdrawal Failed', 'Withdrawal Failed')
+    } finally {
+      setIsSubmittingWithdrawal(false)
     }
   }
 
@@ -490,7 +623,15 @@ export default function WalletPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setAmountInput('')
+                  setWithdrawAmountInput('')
+                  setUpiIdInput('')
+                  setBankAccountNumber('')
+                  setBankAccountConfirm('')
+                  setBankIfsc('')
+                  setBankAccountHolder('')
+                  setBankName('')
+                  setWithdrawalPayoutMethod('UPI')
+                  setWithdrawalIdempotencyKey(null)
                   setIsWithdrawModalOpen(true)
                 }}
                 className="py-3 bg-[#141620] hover:bg-[#1a1d29] text-white hover:text-[#00f2ff] border border-[#222638] hover:border-[#00f2ff]/40 font-bold uppercase tracking-wider rounded-xl text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
@@ -535,6 +676,138 @@ export default function WalletPage() {
             </div>
           </article>
 
+        </section>
+
+        {/* ================================================== */}
+        {/* 2.5 WITHDRAWAL REQUESTS QUEUE / HISTORY            */}
+        {/* ================================================== */}
+        <section aria-label="Withdrawal Requests" className="space-y-4">
+          <div className="flex items-center justify-between border-b border-[#1f2230] pb-4">
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-base sm:text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <ArrowUpRight className="w-4 h-4 text-[#fe6b00]" />
+                <span>WITHDRAWAL REQUESTS</span>
+              </h2>
+              <span className="px-2 py-0.5 rounded-full bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#fe6b00]">
+                {userWithdrawals.length} {userWithdrawals.length === 1 ? 'Request' : 'Requests'}
+              </span>
+            </div>
+
+            <span className="text-[10px] text-[#8e95a5] font-sans hidden sm:inline-block">
+              Manual Admin Review & Direct Bank / UPI Disbursement
+            </span>
+          </div>
+
+          {loadingWithdrawals ? (
+            <div className="space-y-3">
+              {[1, 2].map((n) => (
+                <div key={n} className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse"></div>
+              ))}
+            </div>
+          ) : userWithdrawals.length === 0 ? (
+            <div className="py-10 text-center border border-[#1f2230] bg-[#0d0e15] rounded-2xl p-6 space-y-2">
+              <ArrowUpRight className="w-8 h-8 text-[#525866] mx-auto" />
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                NO WITHDRAWAL REQUESTS YET
+              </h3>
+              <p className="text-[11px] text-[#8e95a5] font-sans max-w-sm mx-auto">
+                When you request a payout, its live review and disbursement status will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {userWithdrawals.map((w) => {
+                const createdAt = w.created_at ? new Date(w.created_at) : new Date()
+                const dateStr = createdAt.toLocaleDateString(undefined, {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })
+                const timeStr = createdAt.toLocaleTimeString(undefined, {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                })
+
+                return (
+                  <article
+                    key={w.id}
+                    className="p-4 sm:p-5 rounded-2xl bg-[#0d0e15] border border-[#1f2230] hover:border-[#fe6b00]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_2px_15px_rgba(0,0,0,0.25)]"
+                  >
+                    <div className="flex items-start gap-3.5 min-w-0">
+                      <div className="w-10 h-10 rounded-xl border border-[#fe6b00]/30 bg-[#fe6b00]/10 text-[#fe6b00] flex items-center justify-center shrink-0 mt-0.5">
+                        <ArrowUpRight className="w-5 h-5" />
+                      </div>
+
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/30">
+                            {w.payout_method === 'BANK_TRANSFER' ? 'BANK TRANSFER' : 'UPI TRANSFER'}
+                          </span>
+
+                          <span className="text-[10px] text-[#525866] font-mono">
+                            {dateStr} • {timeStr}
+                          </span>
+                        </div>
+
+                        <div className="text-xs font-bold text-white truncate max-w-md">
+                          {formatPayoutSummary(w.payout_method, w.payout_details)}
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[10px] text-[#717a8e] font-mono flex-wrap">
+                          <span>Ref: {w.id.substring(0, 8)}...</span>
+                          {w.payment_reference && (
+                            <>
+                              <span>&bull;</span>
+                              <span className="text-[#00ff9d] font-bold">UTR: {w.payment_reference}</span>
+                            </>
+                          )}
+                          {w.rejection_reason && (
+                            <>
+                              <span>&bull;</span>
+                              <span className="text-[#f87171]">Reason: {w.rejection_reason}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[#1f2230] shrink-0">
+                      <span className="text-sm sm:text-base font-black font-mono text-[#fe6b00]">
+                        ₹{Math.floor(Number(w.amount || 0))}
+                      </span>
+
+                      <div className="mt-1">
+                        {w.status === 'PENDING' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9.5px] font-bold text-[#fbbf24] bg-[#fbbf24]/10 border border-[#fbbf24]/30 uppercase">
+                            <Clock className="w-3 h-3" />
+                            <span>PENDING REVIEW</span>
+                          </span>
+                        )}
+                        {w.status === 'APPROVED' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9.5px] font-bold text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/30 uppercase">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>APPROVED - PROCESSING</span>
+                          </span>
+                        )}
+                        {w.status === 'PAID' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9.5px] font-bold text-[#00ff9d] bg-[#00ff9d]/10 border border-[#00ff9d]/30 uppercase">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>PAID</span>
+                          </span>
+                        )}
+                        {w.status === 'REJECTED' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9.5px] font-bold text-[#f87171] bg-red-950/40 border border-red-900/50 uppercase">
+                            <AlertCircle className="w-3 h-3" />
+                            <span>REJECTED (REFUNDED)</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          )}
         </section>
 
         {/* ================================================== */}
@@ -892,71 +1165,243 @@ export default function WalletPage() {
       {/* 5. WITHDRAW FUNDS MODAL                            */}
       {/* ================================================== */}
       {isWithdrawModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md font-mono">
-          <div className="w-full max-w-md bg-[#0d0e15] border border-[#1f2230] rounded-2xl p-6 space-y-4 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md font-mono">
+          <div className="w-full max-w-lg bg-[#0d0e15] border border-[#1f2230] rounded-2xl p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button
               type="button"
-              onClick={() => setIsWithdrawModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 text-[#8e95a5] hover:text-white rounded-lg bg-[#141620] border border-[#222638] transition-colors cursor-pointer"
+              onClick={() => {
+                if (!isSubmittingWithdrawal) {
+                  setIsWithdrawModalOpen(false)
+                }
+              }}
+              disabled={isSubmittingWithdrawal}
+              className="absolute top-4 right-4 p-1.5 text-[#8e95a5] hover:text-white rounded-lg bg-[#141620] border border-[#222638] transition-colors cursor-pointer disabled:opacity-40"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="space-y-1">
-              <span className="text-[10px] font-bold text-[#fe6b00] uppercase tracking-wider">
-                COMPETITIVE PAYOUT
+              <span className="text-[10px] font-bold text-[#fe6b00] uppercase tracking-wider flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-[#fe6b00]" />
+                <span>COMPETITIVE PAYOUT DISBURSEMENT</span>
               </span>
               <h3 className="text-lg font-black text-white uppercase tracking-wider">
-                WITHDRAW FUNDS
+                REQUEST WITHDRAWAL
               </h3>
               <p className="text-xs text-[#8e95a5] font-sans">
-                Request a direct bank or UPI transfer. Minimum amount ₹100.
+                Transfer your tournament winnings and balance to your verified bank or UPI account. Available balance: <strong className="text-[#00ff9d] font-mono">₹{authoritativeBalance}</strong>.
               </p>
             </div>
 
+            {/* Payout Method Selector */}
+            <div className="space-y-1.5">
+              <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                Select Disbursement Channel
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setWithdrawalPayoutMethod('UPI')}
+                  disabled={isSubmittingWithdrawal}
+                  className={`py-2.5 px-3 rounded-xl border text-xs font-bold font-mono uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    withdrawalPayoutMethod === 'UPI'
+                      ? 'bg-[#00f2ff]/15 border-[#00f2ff] text-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.2)]'
+                      : 'bg-[#141620] border-[#222638] text-[#8e95a5] hover:text-white'
+                  }`}
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>UPI VPA (Instant)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setWithdrawalPayoutMethod('BANK_TRANSFER')}
+                  disabled={isSubmittingWithdrawal}
+                  className={`py-2.5 px-3 rounded-xl border text-xs font-bold font-mono uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    withdrawalPayoutMethod === 'BANK_TRANSFER'
+                      ? 'bg-[#00f2ff]/15 border-[#00f2ff] text-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.2)]'
+                      : 'bg-[#141620] border-[#222638] text-[#8e95a5] hover:text-white'
+                  }`}
+                >
+                  <Wallet className="w-3.5 h-3.5" />
+                  <span>Bank Account</span>
+                </button>
+              </div>
+            </div>
+
             <form onSubmit={handleWithdrawSubmit} className="space-y-4">
+              {/* Amount Input */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
-                  Withdrawal Amount (INR)
-                </label>
-                <input
-                  type="number"
-                  min="100"
-                  value={amountInput}
-                  onChange={(e) => setAmountInput(e.target.value)}
-                  placeholder="e.g. 100"
-                  required
-                  className="w-full bg-[#141620] border border-[#222638] rounded-xl px-4 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono"
-                />
+                <div className="flex justify-between items-center text-[10px]">
+                  <label className="uppercase font-bold text-[#8e95a5]">
+                    Withdrawal Amount (Whole INR)
+                  </label>
+                  <span className="text-[#fe6b00] font-mono">
+                    Min: ₹100 • Max: ₹{authoritativeBalance}
+                  </span>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white font-bold text-sm">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    min="100"
+                    max={authoritativeBalance}
+                    step="1"
+                    value={withdrawAmountInput}
+                    disabled={isSubmittingWithdrawal}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^0-9]/g, '')
+                      setWithdrawAmountInput(val)
+                    }}
+                    placeholder="Enter whole rupee amount (min 100)"
+                    required
+                    className="w-full bg-[#141620] border border-[#222638] rounded-xl pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
-                  UPI ID (Virtual Payment Address)
-                </label>
-                <input
-                  type="text"
-                  value={upiIdInput}
-                  onChange={(e) => setUpiIdInput(e.target.value)}
-                  placeholder="username@okhdfcbank or 9876543210@ybl"
-                  required
-                  className="w-full bg-[#141620] border border-[#222638] rounded-xl px-4 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono"
-                />
+              {/* UPI Fields */}
+              {withdrawalPayoutMethod === 'UPI' && (
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                    UPI ID / Virtual Payment Address (VPA)
+                  </label>
+                  <input
+                    type="text"
+                    value={upiIdInput}
+                    disabled={isSubmittingWithdrawal}
+                    onChange={(e) => setUpiIdInput(e.target.value)}
+                    placeholder="e.g. username@okhdfcbank or 9876543210@ybl"
+                    required
+                    className="w-full bg-[#141620] border border-[#222638] rounded-xl px-4 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                  />
+                  <p className="text-[10px] text-[#525866] font-sans">
+                    Must be registered with BHIM, Google Pay, PhonePe, Paytm, or your banking app.
+                  </p>
+                </div>
+              )}
+
+              {/* Bank Transfer Fields */}
+              {withdrawalPayoutMethod === 'BANK_TRANSFER' && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                        Bank Name
+                      </label>
+                      <input
+                        type="text"
+                        value={bankName}
+                        disabled={isSubmittingWithdrawal}
+                        onChange={(e) => setBankName(e.target.value)}
+                        placeholder="e.g. HDFC Bank, SBI"
+                        required
+                        className="w-full bg-[#141620] border border-[#222638] rounded-xl px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                        Account Holder Name
+                      </label>
+                      <input
+                        type="text"
+                        value={bankAccountHolder}
+                        disabled={isSubmittingWithdrawal}
+                        onChange={(e) => setBankAccountHolder(e.target.value)}
+                        placeholder="As on bank passbook"
+                        required
+                        className="w-full bg-[#141620] border border-[#222638] rounded-xl px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                        Account Number
+                      </label>
+                      <input
+                        type="password"
+                        value={bankAccountNumber}
+                        disabled={isSubmittingWithdrawal}
+                        onChange={(e) => setBankAccountNumber(e.target.value.replace(/[^0-9]/g, ''))}
+                        placeholder="Enter account number"
+                        required
+                        className="w-full bg-[#141620] border border-[#222638] rounded-xl px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                        Confirm Account Number
+                      </label>
+                      <input
+                        type="text"
+                        value={bankAccountConfirm}
+                        disabled={isSubmittingWithdrawal}
+                        onChange={(e) => setBankAccountConfirm(e.target.value.replace(/[^0-9]/g, ''))}
+                        placeholder="Re-enter account number"
+                        required
+                        className="w-full bg-[#141620] border border-[#222638] rounded-xl px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                      Bank IFSC Code
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={11}
+                      value={bankIfsc}
+                      disabled={isSubmittingWithdrawal}
+                      onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+                      placeholder="e.g. HDFC0001234, SBIN0004567"
+                      required
+                      className="w-full bg-[#141620] border border-[#222638] rounded-xl px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono uppercase disabled:opacity-50"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Zero-Trust Security Note */}
+              <div className="p-3 rounded-xl bg-[#141620] border border-[#222638] space-y-1 text-[11px] font-sans text-[#8e95a5]">
+                <div className="flex items-center gap-1.5 text-[#00f2ff] font-mono font-bold text-[10px] uppercase">
+                  <Lock className="w-3 h-3 text-[#00f2ff]" />
+                  <span>Zero-Trust Payout Security</span>
+                </div>
+                <p>
+                  MJ ESPORTS will <strong>NEVER</strong> ask for your ATM PIN, UPI PIN, passwords, or OTP. Payouts are manually approved and disbursed directly to your designated account.
+                </p>
               </div>
 
+              {/* Actions */}
               <div className="flex gap-3 pt-3 border-t border-[#1f2230]">
                 <button
                   type="button"
                   onClick={() => setIsWithdrawModalOpen(false)}
-                  className="flex-1 py-2.5 bg-[#141620] border border-[#222638] hover:border-red-500 hover:text-red-400 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer"
+                  disabled={isSubmittingWithdrawal}
+                  className="flex-1 py-2.5 bg-[#141620] border border-[#222638] hover:border-red-500 hover:text-red-400 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] rounded-xl text-xs font-black uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] cursor-pointer"
+                  disabled={isSubmittingWithdrawal || !withdrawAmountInput || parseInt(withdrawAmountInput, 10) < 100 || parseInt(withdrawAmountInput, 10) > authoritativeBalance}
+                  className="flex-1 py-2.5 bg-[#fe6b00] hover:bg-[#ff7d1a] text-white rounded-xl text-xs font-black uppercase transition-all shadow-[0_0_15px_rgba(254,107,0,0.3)] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  REQUEST PAYOUT
+                  {isSubmittingWithdrawal ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>SUBMITTING</span>
+                    </>
+                  ) : (
+                    `WITHDRAW ₹${withdrawAmountInput || 0}`
+                  )}
                 </button>
               </div>
             </form>

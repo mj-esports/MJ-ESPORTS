@@ -288,17 +288,29 @@ export async function depositMoney({ amount, paymentMethod = 'UPI', gatewayOrder
 }
 
 /**
- * Secure Withdrawal Request RPC Call
+ * Phase 10.1 & 10.2: Secure Withdrawal Request RPC Call
+ * Atomically reserves/debits funds from public.wallets.balance and creates a PENDING withdrawal
  */
-export async function requestWithdrawal({ amount, payoutDetails }) {
+export async function requestWithdrawal({
+  amount,
+  payoutDetails = {},
+  payoutMethod = 'UPI',
+  idempotencyKey = null,
+}) {
   if (!isSupabaseConfigured) {
     return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
   }
 
   try {
+    const cleanDetails = typeof payoutDetails === 'string'
+      ? { note: payoutDetails }
+      : (payoutDetails || {})
+
     const { data, error } = await supabase.rpc('request_wallet_withdrawal', {
       p_amount: Number(amount),
-      p_payout_details: payoutDetails || 'Bank Payout Request',
+      p_payout_details: cleanDetails,
+      p_payout_method: payoutMethod,
+      p_idempotency_key: idempotencyKey || null,
     })
 
     if (error) {
@@ -306,9 +318,135 @@ export async function requestWithdrawal({ amount, payoutDetails }) {
       return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
     }
 
+    if (data?.success && data?.balance_after !== undefined) {
+      notifyWalletBalanceUpdated(Number(data.balance_after))
+    }
+
     return data || { success: true }
   } catch (err) {
     console.error('[walletService] withdrawal exception:', err)
+    return { success: false, error_code: 'EXCEPTION', message: err.message }
+  }
+}
+
+/**
+ * Phase 10.2: Fetch player-isolated withdrawal history from public.wallet_withdrawals
+ */
+export async function fetchUserWithdrawals(userId = null) {
+  if (!isSupabaseConfigured) return []
+  try {
+    let query = supabase
+      .from('wallet_withdrawals')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (userId) {
+      query = query.eq('user_id', userId)
+    }
+
+    const { data, error } = await query
+    if (error) {
+      console.warn('[walletService] fetchUserWithdrawals error:', error.message)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.warn('[walletService] fetchUserWithdrawals exception:', err.message)
+    return []
+  }
+}
+
+/**
+ * Phase 10.2: Fetch administrative withdrawal review queue from public.wallet_withdrawals
+ */
+export async function fetchAdminWithdrawals() {
+  if (!isSupabaseConfigured) return []
+  try {
+    const { data, error } = await supabase
+      .from('wallet_withdrawals')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[walletService] fetchAdminWithdrawals error:', error.message)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.warn('[walletService] fetchAdminWithdrawals exception:', err.message)
+    return []
+  }
+}
+
+/**
+ * Phase 10.2: Admin approve withdrawal RPC (PENDING -> APPROVED)
+ */
+export async function adminApproveWithdrawal({ withdrawalId, adminNotes = null }) {
+  if (!isSupabaseConfigured) {
+    return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
+  }
+  try {
+    const { data, error } = await supabase.rpc('admin_approve_withdrawal', {
+      p_withdrawal_id: withdrawalId,
+      p_admin_notes: adminNotes || null,
+    })
+    if (error) {
+      console.error('[walletService] admin_approve_withdrawal RPC error:', error)
+      return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
+    }
+    return data || { success: true }
+  } catch (err) {
+    console.error('[walletService] admin_approve_withdrawal exception:', err)
+    return { success: false, error_code: 'EXCEPTION', message: err.message }
+  }
+}
+
+/**
+ * Phase 10.2: Admin reject withdrawal RPC (PENDING -> REJECTED)
+ * Atomically returns reserved funds to user wallet and writes WITHDRAWAL_REVERSED credit ledger entry
+ */
+export async function adminRejectWithdrawal({ withdrawalId, rejectionReason, idempotencyKey = null }) {
+  if (!isSupabaseConfigured) {
+    return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
+  }
+  try {
+    const { data, error } = await supabase.rpc('admin_reject_withdrawal', {
+      p_withdrawal_id: withdrawalId,
+      p_rejection_reason: rejectionReason,
+      p_idempotency_key: idempotencyKey || null,
+    })
+    if (error) {
+      console.error('[walletService] admin_reject_withdrawal RPC error:', error)
+      return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
+    }
+    return data || { success: true }
+  } catch (err) {
+    console.error('[walletService] admin_reject_withdrawal exception:', err)
+    return { success: false, error_code: 'EXCEPTION', message: err.message }
+  }
+}
+
+/**
+ * Phase 10.2: Admin mark withdrawal paid RPC (APPROVED -> PAID)
+ * Records official UTR / payment reference
+ */
+export async function adminMarkWithdrawalPaid({ withdrawalId, paymentReference, adminNotes = null }) {
+  if (!isSupabaseConfigured) {
+    return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
+  }
+  try {
+    const { data, error } = await supabase.rpc('admin_mark_withdrawal_paid', {
+      p_withdrawal_id: withdrawalId,
+      p_payment_reference: paymentReference,
+      p_admin_notes: adminNotes || null,
+    })
+    if (error) {
+      console.error('[walletService] admin_mark_withdrawal_paid RPC error:', error)
+      return { success: false, error_code: error.code || 'RPC_ERROR', message: error.message }
+    }
+    return data || { success: true }
+  } catch (err) {
+    console.error('[walletService] admin_mark_withdrawal_paid exception:', err)
     return { success: false, error_code: 'EXCEPTION', message: err.message }
   }
 }

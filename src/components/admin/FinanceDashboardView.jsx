@@ -49,6 +49,12 @@ import {
   rejectPayoutProposal,
   checkIsOwner,
 } from '../../services/payoutService'
+import {
+  fetchAdminWithdrawals,
+  adminApproveWithdrawal,
+  adminRejectWithdrawal,
+  adminMarkWithdrawalPaid,
+} from '../../services/walletService'
 
 export default function FinanceDashboardView({ tournaments = [] }) {
   const { showSuccess, showError } = useToast()
@@ -56,6 +62,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
   const [walletTxList, setWalletTxList] = useState([])
   const [dbPayoutQueue, setDbPayoutQueue] = useState([])
   const [dbApprovalRequests, setDbApprovalRequests] = useState([])
+  const [adminWithdrawals, setAdminWithdrawals] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isOwnerSession, setIsOwnerSession] = useState(false)
@@ -80,6 +87,15 @@ export default function FinanceDashboardView({ tournaments = [] }) {
   const [rejectionReasonInput, setRejectionReasonInput] = useState('')
   const [showRejectModal, setShowRejectModal] = useState(false)
 
+  // Modal State for Admin Review of Player Withdrawals (Phase 10.2)
+  const [selectedWithdrawalForAction, setSelectedWithdrawalForAction] = useState(null)
+  const [adminRejectReasonInput, setAdminRejectReasonInput] = useState('')
+  const [showAdminRejectModal, setShowAdminRejectModal] = useState(false)
+  const [adminPaymentRefInput, setAdminPaymentRefInput] = useState('')
+  const [adminNotesInput, setAdminNotesInput] = useState('')
+  const [showAdminMarkPaidModal, setShowAdminMarkPaidModal] = useState(false)
+  const [isProcessingWithdrawal, setIsProcessingWithdrawal] = useState(false)
+
   // Fetch real payment, registration, wallet, and payout queue records from Supabase
   const fetchFinanceData = useCallback(async () => {
     setLoading(true)
@@ -102,19 +118,24 @@ export default function FinanceDashboardView({ tournaments = [] }) {
           .select('*')
           .order('created_at', { ascending: false })
 
-        // Fetch Payout Queue & Approval Requests via service
-        const queueData = await fetchPayoutQueue()
-        const approvalData = await fetchPayoutApprovalRequests()
+        // Fetch Payout Queue, Approval Requests, and Admin Withdrawals concurrently
+        const [queueData, approvalData, withdrawalsRes] = await Promise.all([
+          fetchPayoutQueue(),
+          fetchPayoutApprovalRequests(),
+          fetchAdminWithdrawals(),
+        ])
 
         setRegistrations(regData || [])
         setWalletTxList(walletData || [])
         setDbPayoutQueue(queueData || [])
         setDbApprovalRequests(approvalData || [])
+        setAdminWithdrawals(withdrawalsRes?.data || [])
       } else {
         setRegistrations([])
         setWalletTxList([])
         setDbPayoutQueue([])
         setDbApprovalRequests([])
+        setAdminWithdrawals([])
         setIsOwnerSession(false)
       }
     } catch (err) {
@@ -155,6 +176,11 @@ export default function FinanceDashboardView({ tournaments = [] }) {
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'tournaments' },
+          () => fetchFinanceData()
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'wallet_withdrawals' },
           () => fetchFinanceData()
         )
         .subscribe()
@@ -643,6 +669,121 @@ export default function FinanceDashboardView({ tournaments = [] }) {
       showError(err.message || 'Failed to reject payout.', 'RPC Error')
     } finally {
       setIsProcessingAction(false)
+    }
+  }
+
+  // Helper functions for masking player withdrawal payout details in Admin Queue
+  const maskUpiForAdmin = (upi) => {
+    if (!upi || typeof upi !== 'string') return '—'
+    const parts = upi.split('@')
+    if (parts.length !== 2) return upi
+    const [handle, domain] = parts
+    const visible = handle.slice(0, Math.min(2, handle.length))
+    return `${visible}***@${domain}`
+  }
+
+  const maskAccountForAdmin = (acc) => {
+    if (!acc || typeof acc !== 'string') return '—'
+    const last4 = acc.slice(-4)
+    return `••••••${last4}`
+  }
+
+  const formatAdminPayoutDetails = (method, details) => {
+    if (!details) return '—'
+    if (typeof details === 'string') return details
+    if (method === 'UPI' || details.vpa || details.upi_id) {
+      return `UPI: ${maskUpiForAdmin(details.vpa || details.upi_id)}`
+    }
+    if (method === 'BANK_TRANSFER' || details.account_number) {
+      const bank = details.bank_name ? `${details.bank_name} ` : ''
+      const holder = details.account_holder_name ? ` (${details.account_holder_name})` : ''
+      return `${bank}${maskAccountForAdmin(details.account_number)}${holder}`
+    }
+    return JSON.stringify(details)
+  }
+
+  // Phase 10.2 Admin Action: Approve Withdrawal
+  const handleAdminApprove = async (withdrawal) => {
+    setIsProcessingWithdrawal(true)
+    try {
+      const res = await adminApproveWithdrawal({
+        withdrawalId: withdrawal.id,
+        adminNotes: 'Approved for payout processing by platform admin.',
+      })
+      if (res && res.success === false) {
+        throw new Error(res.message || res.error || 'Failed to approve withdrawal.')
+      }
+
+      showSuccess(`Withdrawal ${withdrawal.id.slice(0, 8)} approved. Awaiting manual payout & UTR record.`, 'Withdrawal Approved')
+      await fetchFinanceData()
+    } catch (err) {
+      showError(err.message || 'Failed to approve withdrawal.', 'RPC Error')
+    } finally {
+      setIsProcessingWithdrawal(false)
+    }
+  }
+
+  // Phase 10.2 Admin Action: Reject Withdrawal (Triggers Atomic Reversal)
+  const handleAdminRejectSubmit = async () => {
+    if (!selectedWithdrawalForAction) return
+    const reason = adminRejectReasonInput.trim()
+    if (!reason) {
+      showError('Please enter a valid rejection reason for the player and audit trail.', 'Reason Required')
+      return
+    }
+
+    setIsProcessingWithdrawal(true)
+    try {
+      const res = await adminRejectWithdrawal({
+        withdrawalId: selectedWithdrawalForAction.id,
+        rejectionReason: reason,
+      })
+      if (res && res.success === false) {
+        throw new Error(res.message || res.error || 'Failed to reject withdrawal.')
+      }
+
+      showSuccess(`Withdrawal ${selectedWithdrawalForAction.id.slice(0, 8)} rejected. Funds returned to player wallet.`, 'Withdrawal Rejected & Refunded')
+      setShowAdminRejectModal(false)
+      setSelectedWithdrawalForAction(null)
+      setAdminRejectReasonInput('')
+      await fetchFinanceData()
+    } catch (err) {
+      showError(err.message || 'Failed to reject withdrawal.', 'RPC Error')
+    } finally {
+      setIsProcessingWithdrawal(false)
+    }
+  }
+
+  // Phase 10.2 Admin Action: Mark Withdrawal Paid (Requires UTR)
+  const handleAdminMarkPaidSubmit = async () => {
+    if (!selectedWithdrawalForAction) return
+    const utr = adminPaymentRefInput.trim()
+    if (!utr) {
+      showError('Please enter the bank UTR or payment reference number.', 'UTR Required')
+      return
+    }
+
+    setIsProcessingWithdrawal(true)
+    try {
+      const res = await adminMarkWithdrawalPaid({
+        withdrawalId: selectedWithdrawalForAction.id,
+        paymentReference: utr,
+        adminNotes: adminNotesInput.trim() || 'Paid via manual banking portal by admin.',
+      })
+      if (res && res.success === false) {
+        throw new Error(res.message || res.error || 'Failed to mark withdrawal paid.')
+      }
+
+      showSuccess(`Withdrawal ${selectedWithdrawalForAction.id.slice(0, 8)} marked as PAID. Reference: ${utr}`, 'Withdrawal Finalized')
+      setShowAdminMarkPaidModal(false)
+      setSelectedWithdrawalForAction(null)
+      setAdminPaymentRefInput('')
+      setAdminNotesInput('')
+      await fetchFinanceData()
+    } catch (err) {
+      showError(err.message || 'Failed to mark withdrawal as paid.', 'RPC Error')
+    } finally {
+      setIsProcessingWithdrawal(false)
     }
   }
 
@@ -1288,9 +1429,48 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                       Explicit Architectural Separation: User Wallet Withdrawal Requests ≠ Tournament Prize Pool Payouts.
                     </p>
                   </div>
-                  <span className="px-3 py-1 bg-[#fe6b00]/10 border border-[#fe6b00]/40 text-[#fe6b00] rounded font-bold text-xs">
-                    RPC: admin_review_withdrawal
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-[#fe6b00]/10 border border-[#fe6b00]/40 text-[#fe6b00] rounded font-bold text-xs uppercase">
+                      SECURE RPC GATE
+                    </span>
+                    <button
+                      onClick={fetchFinanceData}
+                      disabled={loading}
+                      className="p-1.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] rounded transition-colors"
+                      title="Refresh Queue"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#00f2ff]' : ''}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Live Queue Overview KPI Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                  <div className="p-3 bg-[#07090c] border border-[#3a494b]/60 rounded-lg">
+                    <span className="text-[#8e9dae] text-[10px] uppercase block">Total Requests</span>
+                    <span className="text-lg font-black text-white">{adminWithdrawals.length}</span>
+                  </div>
+                  <div className="p-3 bg-[#07090c] border border-[#fbbf24]/40 rounded-lg">
+                    <span className="text-[#fbbf24] text-[10px] uppercase block">Pending Review</span>
+                    <span className="text-lg font-black text-[#fbbf24]">
+                      {adminWithdrawals.filter((w) => w.status === 'PENDING').length}
+                    </span>
+                  </div>
+                  <div className="p-3 bg-[#07090c] border border-[#00f2ff]/40 rounded-lg">
+                    <span className="text-[#00f2ff] text-[10px] uppercase block">Awaiting Disbursement</span>
+                    <span className="text-lg font-black text-[#00f2ff]">
+                      {adminWithdrawals.filter((w) => w.status === 'APPROVED').length}
+                    </span>
+                  </div>
+                  <div className="p-3 bg-[#07090c] border border-[#00ff9d]/40 rounded-lg">
+                    <span className="text-[#00ff9d] text-[10px] uppercase block">Total Disbursed (Paid)</span>
+                    <span className="text-lg font-black text-[#00ff9d]">
+                      ₹{adminWithdrawals
+                        .filter((w) => w.status === 'PAID')
+                        .reduce((sum, w) => sum + Number(w.amount || 0), 0)
+                        .toLocaleString()}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Table of Wallet Withdrawals */}
@@ -1298,64 +1478,116 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
                       <tr className="bg-[#07090c] border-b border-[#3a494b]/60 text-[#8e9dae] uppercase tracking-wider">
-                        <th className="p-3 pl-4">Tx ID</th>
+                        <th className="p-3 pl-4">Request ID</th>
                         <th className="p-3">User ID</th>
-                        <th className="p-3">Payout Details / VPA</th>
+                        <th className="p-3">Method</th>
+                        <th className="p-3">Payout Details</th>
                         <th className="p-3 text-right">Amount</th>
                         <th className="p-3 text-center">Status</th>
-                        <th className="p-3 text-right">Timestamp</th>
-                        <th className="p-3 text-right pr-4">Review Action</th>
+                        <th className="p-3">Ref / UTR</th>
+                        <th className="p-3 text-right">Requested</th>
+                        <th className="p-3 text-right pr-4">Admin Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#3a494b]/40">
-                      {walletTxList.filter((w) => w.type === 'Withdrawal').length === 0 ? (
+                      {adminWithdrawals.length === 0 ? (
                         <tr>
-                          <td colSpan={7} className="p-8 text-center text-[#8e9dae]">
-                            No user wallet withdrawal records found in the database.
+                          <td colSpan={9} className="p-8 text-center text-[#8e9dae] font-sans">
+                            No user wallet withdrawal requests recorded in public.wallet_withdrawals.
                           </td>
                         </tr>
                       ) : (
-                        walletTxList.filter((w) => w.type === 'Withdrawal').map((tx) => (
-                          <tr key={`w-row-${tx.id}`} className="hover:bg-[#1d232c] transition-colors">
+                        adminWithdrawals.map((w) => (
+                          <tr key={`w-row-${w.id}`} className="hover:bg-[#1d232c] transition-colors font-mono">
                             <td className="p-3 pl-4 font-bold text-[#00f2ff]">
-                              {tx.id.slice(0, 8)}...
+                              {w.id.slice(0, 8)}...
                             </td>
-                            <td className="p-3 text-white font-mono">{tx.user_id?.slice(0, 8)}...</td>
-                            <td className="p-3 text-white">{tx.description}</td>
-                            <td className="p-3 text-right font-extrabold text-[#fe6b00]">
-                              ₹{Number(tx.amount).toFixed(2)}
-                            </td>
-                            <td className="p-3 text-center">
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                                tx.status === 'Completed'
-                                  ? 'bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40'
-                                  : tx.status === 'Pending'
-                                  ? 'bg-[#fe6b00]/20 text-[#fe6b00] border border-[#fe6b00]/40'
-                                  : 'bg-red-950 text-[#ff3366] border border-red-800'
-                              }`}>
-                                {tx.status}
+                            <td className="p-3 text-white">{w.user_id?.slice(0, 8)}...</td>
+                            <td className="p-3">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#141620] border border-[#222638] text-[#8e9dae]">
+                                {w.payout_method === 'BANK_TRANSFER' ? 'BANK' : 'UPI'}
                               </span>
                             </td>
-                            <td className="p-3 text-right text-[#8e9dae]">
-                              {new Date(tx.created_at).toLocaleDateString()}
+                            <td className="p-3 text-white max-w-[200px] truncate" title={JSON.stringify(w.payout_details)}>
+                              {formatAdminPayoutDetails(w.payout_method, w.payout_details)}
+                            </td>
+                            <td className="p-3 text-right font-extrabold text-[#fe6b00]">
+                              ₹{Number(w.amount).toFixed(2)}
+                            </td>
+                            <td className="p-3 text-center">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                                w.status === 'PAID'
+                                  ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
+                                  : w.status === 'APPROVED'
+                                  ? 'bg-[#00f2ff]/15 text-[#00f2ff] border-[#00f2ff]/40'
+                                  : w.status === 'PENDING'
+                                  ? 'bg-[#fbbf24]/20 text-[#fbbf24] border-[#fbbf24]/40'
+                                  : 'bg-red-950 text-[#ff3366] border-red-800'
+                              }`}>
+                                {w.status}
+                              </span>
+                            </td>
+                            <td className="p-3 text-[#8e9dae] max-w-[140px] truncate font-sans text-[11px]">
+                              {w.payment_reference ? (
+                                <span className="text-[#00ff9d] font-mono font-bold">{w.payment_reference}</span>
+                              ) : w.rejection_reason ? (
+                                <span className="text-[#ff3366]">{w.rejection_reason}</span>
+                              ) : (
+                                '—'
+                              )}
+                            </td>
+                            <td className="p-3 text-right text-[#8e9dae] text-[11px]">
+                              {new Date(w.created_at).toLocaleDateString()}
                             </td>
                             <td className="p-3 text-right pr-4">
-                              {tx.status === 'Pending' ? (
+                              {w.status === 'PENDING' && (
                                 <div className="flex items-center justify-end gap-1.5">
                                   <button
-                                    onClick={() => showSuccess(`Withdrawal ${tx.id.slice(0,6)} approve endpoint ready.`, 'Admin RPC Guard')}
-                                    className="px-2.5 py-1 bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 rounded text-[10px] font-bold uppercase"
+                                    onClick={() => handleAdminApprove(w)}
+                                    disabled={isProcessingWithdrawal}
+                                    className="px-2.5 py-1 bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 rounded text-[10px] font-bold uppercase cursor-pointer disabled:opacity-50"
                                   >
                                     Approve
                                   </button>
                                   <button
-                                    onClick={() => showSuccess(`Withdrawal ${tx.id.slice(0,6)} reject endpoint ready.`, 'Admin RPC Guard')}
-                                    className="px-2.5 py-1 bg-red-950/60 hover:bg-red-900/60 text-[#ff3366] border border-red-800 rounded text-[10px] font-bold uppercase"
+                                    onClick={() => {
+                                      setSelectedWithdrawalForAction(w)
+                                      setShowAdminRejectModal(true)
+                                    }}
+                                    disabled={isProcessingWithdrawal}
+                                    className="px-2.5 py-1 bg-red-950/60 hover:bg-red-900/60 text-[#ff3366] border border-red-800 rounded text-[10px] font-bold uppercase cursor-pointer disabled:opacity-50"
                                   >
                                     Reject
                                   </button>
                                 </div>
-                              ) : (
+                              )}
+
+                              {w.status === 'APPROVED' && (
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedWithdrawalForAction(w)
+                                      setShowAdminMarkPaidModal(true)
+                                    }}
+                                    disabled={isProcessingWithdrawal}
+                                    className="px-2.5 py-1 bg-[#00ff9d] hover:bg-[#00ff9d]/90 text-black font-extrabold rounded text-[10px] uppercase cursor-pointer disabled:opacity-50 shadow-[0_0_10px_rgba(0,255,157,0.3)]"
+                                  >
+                                    Mark Paid
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedWithdrawalForAction(w)
+                                      setShowAdminRejectModal(true)
+                                    }}
+                                    disabled={isProcessingWithdrawal}
+                                    className="px-2 py-1 bg-red-950/60 hover:bg-red-900/60 text-[#ff3366] border border-red-800 rounded text-[10px] font-bold uppercase cursor-pointer disabled:opacity-50"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              )}
+
+                              {(w.status === 'PAID' || w.status === 'REJECTED') && (
                                 <span className="text-[10px] text-[#8e9dae]">Finalized</span>
                               )}
                             </td>
@@ -1695,6 +1927,176 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   className="flex-1 py-2.5 bg-red-950 hover:bg-red-900 text-[#ff3366] border border-red-800 rounded text-xs font-extrabold uppercase shadow-lg disabled:opacity-50"
                 >
                   Confirm Rejection
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. MODAL FOR REJECTING PLAYER WALLET WITHDRAWAL (PHASE 10.2) */}
+      {showAdminRejectModal && selectedWithdrawalForAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md font-mono">
+          <div className="bg-[#151a21] border border-red-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <button
+              onClick={() => {
+                setShowAdminRejectModal(false)
+                setSelectedWithdrawalForAction(null)
+                setAdminRejectReasonInput('')
+              }}
+              disabled={isProcessingWithdrawal}
+              className="absolute top-4 right-4 p-1.5 text-[#8e9dae] hover:text-white rounded-lg bg-[#07090c] border border-[#3a494b] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="text-base font-extrabold text-[#ff3366] uppercase flex items-center gap-2 border-b border-[#3a494b]/60 pb-3">
+              <Ban className="w-5 h-5 text-[#ff3366]" />
+              <span>Reject Withdrawal Request</span>
+            </h3>
+
+            <div className="space-y-3 text-xs">
+              <div className="p-3 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-1">
+                <p className="text-[#8e9dae]">Request ID: <span className="text-white font-bold">{selectedWithdrawalForAction.id}</span></p>
+                <p className="text-[#8e9dae]">Amount: <span className="text-[#fe6b00] font-bold text-sm">₹{Number(selectedWithdrawalForAction.amount).toFixed(2)}</span></p>
+                <p className="text-[#8e9dae]">Channel: <span className="text-white uppercase font-bold">{selectedWithdrawalForAction.payout_method}</span></p>
+                <p className="text-[#8e9dae]">Details: <span className="text-white font-sans">{formatAdminPayoutDetails(selectedWithdrawalForAction.payout_method, selectedWithdrawalForAction.payout_details)}</span></p>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-red-950/40 border border-red-900/50 text-[#ff3366] text-[11px] font-sans">
+                <strong>ATOMIC REVERSAL:</strong> Rejection will immediately reverse the withdrawal debit and credit the full amount back to the player's wallet balance.
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[10px] uppercase font-bold text-[#8e9dae]">
+                  Rejection Reason (Required)
+                </label>
+                <textarea
+                  value={adminRejectReasonInput}
+                  onChange={(e) => setAdminRejectReasonInput(e.target.value)}
+                  placeholder="e.g. Invalid UPI VPA, Bank account verification failed, Suspicious activity..."
+                  required
+                  className="w-full bg-[#07090c] border border-[#3a494b] rounded-xl p-3 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-red-500 min-h-[80px]"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAdminRejectModal(false)
+                    setSelectedWithdrawalForAction(null)
+                    setAdminRejectReasonInput('')
+                  }}
+                  disabled={isProcessingWithdrawal}
+                  className="flex-1 py-2.5 bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded-xl text-xs font-bold uppercase transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAdminRejectSubmit}
+                  disabled={isProcessingWithdrawal || !adminRejectReasonInput.trim()}
+                  className="flex-1 py-2.5 bg-red-950 hover:bg-red-900 text-[#ff3366] border border-red-800 rounded-xl text-xs font-extrabold uppercase shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  {isProcessingWithdrawal ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    'Confirm Rejection'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. MODAL FOR MARKING WITHDRAWAL AS PAID (UTR REQUIRED, PHASE 10.2) */}
+      {showAdminMarkPaidModal && selectedWithdrawalForAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md font-mono">
+          <div className="bg-[#151a21] border border-[#00ff9d]/50 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <button
+              onClick={() => {
+                setShowAdminMarkPaidModal(false)
+                setSelectedWithdrawalForAction(null)
+                setAdminPaymentRefInput('')
+                setAdminNotesInput('')
+              }}
+              disabled={isProcessingWithdrawal}
+              className="absolute top-4 right-4 p-1.5 text-[#8e9dae] hover:text-white rounded-lg bg-[#07090c] border border-[#3a494b] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="text-base font-extrabold text-[#00ff9d] uppercase flex items-center gap-2 border-b border-[#3a494b]/60 pb-3">
+              <CheckCircle2 className="w-5 h-5 text-[#00ff9d]" />
+              <span>Record Payment & Finalize</span>
+            </h3>
+
+            <div className="space-y-3 text-xs">
+              <div className="p-3 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-1">
+                <p className="text-[#8e9dae]">Request ID: <span className="text-white font-bold">{selectedWithdrawalForAction.id}</span></p>
+                <p className="text-[#8e9dae]">Payable Amount: <span className="text-[#00ff9d] font-bold text-sm">₹{Number(selectedWithdrawalForAction.amount).toFixed(2)}</span></p>
+                <p className="text-[#8e9dae]">Channel: <span className="text-white uppercase font-bold">{selectedWithdrawalForAction.payout_method}</span></p>
+                <p className="text-[#8e9dae]">Destination: <span className="text-white font-sans">{formatAdminPayoutDetails(selectedWithdrawalForAction.payout_method, selectedWithdrawalForAction.payout_details)}</span></p>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-[#00ff9d]/10 border border-[#00ff9d]/30 text-[#00ff9d] text-[11px] font-sans">
+                <strong>EXTERNAL SETTLEMENT:</strong> Confirm that the manual bank transfer or UPI payment has succeeded in your banking portal before recording the UTR reference.
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[10px] uppercase font-bold text-[#8e9dae]">
+                  Bank UTR / Transaction Reference (Required)
+                </label>
+                <input
+                  type="text"
+                  value={adminPaymentRefInput}
+                  onChange={(e) => setAdminPaymentRefInput(e.target.value)}
+                  placeholder="e.g. UTR492819284918, CMS2918239"
+                  required
+                  className="w-full bg-[#07090c] border border-[#3a494b] rounded-xl px-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00ff9d] font-mono"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[10px] uppercase font-bold text-[#8e9dae]">
+                  Admin Notes (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={adminNotesInput}
+                  onChange={(e) => setAdminNotesInput(e.target.value)}
+                  placeholder="e.g. Processed via HDFC Corporate NetBanking"
+                  className="w-full bg-[#07090c] border border-[#3a494b] rounded-xl px-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00ff9d] font-sans"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAdminMarkPaidModal(false)
+                    setSelectedWithdrawalForAction(null)
+                    setAdminPaymentRefInput('')
+                    setAdminNotesInput('')
+                  }}
+                  disabled={isProcessingWithdrawal}
+                  className="flex-1 py-2.5 bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded-xl text-xs font-bold uppercase transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAdminMarkPaidSubmit}
+                  disabled={isProcessingWithdrawal || !adminPaymentRefInput.trim()}
+                  className="flex-1 py-2.5 bg-[#00ff9d] hover:bg-emerald-400 text-black font-black uppercase rounded-xl text-xs shadow-[0_0_15px_rgba(0,255,157,0.3)] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  {isProcessingWithdrawal ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    'Record & Mark Paid'
+                  )}
                 </button>
               </div>
             </div>

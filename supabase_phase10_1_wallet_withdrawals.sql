@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS public.wallet_withdrawals (
   rejected_by UUID REFERENCES auth.users(id) ON DELETE RESTRICT,
 
   -- Constraints
-  CONSTRAINT chk_wallet_withdrawals_amount CHECK (amount >= 1.00 AND amount = TRUNC(amount) AND amount <= 500000.00),
+  CONSTRAINT chk_wallet_withdrawals_amount CHECK (amount >= 100.00 AND amount = TRUNC(amount) AND amount <= 500000.00),
   CONSTRAINT chk_wallet_withdrawals_paid_ref CHECK (
     (status = 'PAID' AND payment_reference IS NOT NULL AND TRIM(payment_reference) != '')
     OR (status != 'PAID')
@@ -190,13 +190,13 @@ BEGIN
 
   v_clean_amount := TRUNC(p_amount::NUMERIC);
 
-  -- 2.2 Bounds check (Minimum ₹1, Technical ceiling ₹500,000)
-  IF v_clean_amount < 1.00 THEN
+  -- 2.2 Bounds check (Minimum ₹100, Technical ceiling ₹500,000)
+  IF v_clean_amount < 100.00 THEN
     RETURN jsonb_build_object(
       'success', false,
       'error_code', 'MINIMUM_AMOUNT_REQUIRED',
       'amount', v_clean_amount,
-      'message', 'Minimum withdrawal amount is ₹1.'
+      'message', 'Minimum withdrawal amount is ₹100.'
     );
   END IF;
 
