@@ -129,4 +129,58 @@ export function buildRosterArray({
   return roster
 }
 
+/**
+ * Compares an existing profile UID against an extracted OCR UID.
+ * Strict comparison: requires exact string equality.
+ * 
+ * @param {string} profileUid - User's current saved/profile UID
+ * @param {string} ocrUid - UID extracted by OCR
+ * @returns {'MATCH' | 'MISMATCH' | 'UNKNOWN'}
+ */
+export function compareProfileUid(profileUid, ocrUid) {
+  if (!profileUid || typeof profileUid !== 'string' || !profileUid.trim()) {
+    return 'UNKNOWN'
+  }
+  if (!ocrUid || typeof ocrUid !== 'string' || !ocrUid.trim()) {
+    return 'UNKNOWN'
+  }
+  return profileUid.trim() === ocrUid.trim() ? 'MATCH' : 'MISMATCH'
+}
+
+/**
+ * Compares an existing profile username/IGN against an extracted OCR IGN.
+ * Computes both exact match and separate normalized match.
+ * 
+ * @param {string} profileIgn - User's current saved/profile IGN or username
+ * @param {string} ocrIgn - Exact IGN extracted by OCR
+ * @returns {{ exactMatch: boolean, normalizedMatch: boolean, status: 'MATCH' | 'NORMALIZED_MATCH_ONLY' | 'MISMATCH' | 'UNKNOWN' }}
+ */
+export function compareProfileIgn(profileIgn, ocrIgn) {
+  if (!profileIgn || typeof profileIgn !== 'string' || !profileIgn.trim()) {
+    return { exactMatch: false, normalizedMatch: false, status: 'UNKNOWN' }
+  }
+  if (!ocrIgn || typeof ocrIgn !== 'string' || !ocrIgn.trim()) {
+    return { exactMatch: false, normalizedMatch: false, status: 'UNKNOWN' }
+  }
+
+  // Exact comparison: case-sensitive, character-sensitive, symbol-sensitive
+  const exactMatch = profileIgn.trim() === ocrIgn.trim()
+
+  // Normalized comparison: NFKC decomposed, lowercase, collapsed spaces
+  const normalizedMatch = normalizeIgn(profileIgn) === normalizeIgn(ocrIgn)
+
+  let status = 'MISMATCH'
+  if (exactMatch) {
+    status = 'MATCH'
+  } else if (normalizedMatch) {
+    status = 'NORMALIZED_MATCH_ONLY'
+  }
+
+  return {
+    exactMatch,
+    normalizedMatch,
+    status,
+  }
+}
+
 export { isValidGameUid, sanitizeString }

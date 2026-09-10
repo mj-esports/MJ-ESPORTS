@@ -7,7 +7,8 @@ import { uploadAvatarFile } from '../services/avatarService'
 import {
   uploadProfileProof,
   getPlayerProof,
-  invalidatePlayerVerification
+  invalidatePlayerVerification,
+  extractFreeFireProfileFromScreenshot
 } from '../services/playerEvidenceService'
 import {
   User,
@@ -29,13 +30,16 @@ import {
   Phone,
   Sparkles,
   Shield,
-  FileText
+  FileText,
+  Scan,
+  RefreshCw
 } from 'lucide-react'
 import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'
 import LoadingButton from '../components/common/LoadingButton'
 import AvatarUploadModal from '../components/common/AvatarUploadModal'
 import { isValidGameUid, isValidPhoneNumber, sanitizeString, sanitizeDigitsOnly } from '../utils/validationUtils'
+import { compareProfileUid, compareProfileIgn } from '../utils/playerIdentityUtils'
 
 export default function EditProfilePage() {
   const { user, profile, updateProfile } = useAuth()
@@ -84,6 +88,12 @@ export default function EditProfilePage() {
   const [stagedFile, setStagedFile] = useState(null)
   const [isProofUploading, setIsProofUploading] = useState(false)
   const [proofError, setProofError] = useState(null)
+
+  // OCR Extraction State (Phase 1B)
+  const [isOcrScanning, setIsOcrScanning] = useState(false)
+  const [ocrResult, setOcrResult] = useState(null) // { exactIgn, canonicalIgn, uid, isLegible, confidenceNotes }
+  const [ocrError, setOcrError] = useState(null)
+  const [ocrConfirmed, setOcrConfirmed] = useState(false)
 
   // Initial verified values tracker for invalidation detection
   const [initialVerifiedUid, setInitialVerifiedUid] = useState('')
@@ -153,6 +163,20 @@ export default function EditProfilePage() {
     return profile?.tier === 'PRO' || profile?.tier === 'pro' || user?.user_metadata?.is_pro === true
   }, [profile?.tier, user?.user_metadata?.is_pro])
 
+  // Phase 2: Profile vs OCR Identity Consistency Evaluation
+  const currentProfileUid = String(formData.freeFireUid || meta.freeFireUid || profile?.game_uid || '').trim()
+  const currentProfileIgn = String(formData.username || meta.username || profile?.username || '').trim()
+
+  const uidComparison = useMemo(() => {
+    if (!ocrResult?.uid) return 'UNKNOWN'
+    return compareProfileUid(currentProfileUid, ocrResult.uid)
+  }, [currentProfileUid, ocrResult?.uid])
+
+  const ignComparison = useMemo(() => {
+    if (!ocrResult?.exactIgn) return { exactMatch: false, normalizedMatch: false, status: 'UNKNOWN' }
+    return compareProfileIgn(currentProfileIgn, ocrResult.exactIgn)
+  }, [currentProfileIgn, ocrResult?.exactIgn])
+
   const handleProofFileChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -171,12 +195,62 @@ export default function EditProfilePage() {
     }
 
     setStagedFile(file)
+    // Reset OCR state when a new file is chosen
+    setOcrResult(null)
+    setOcrError(null)
+    setOcrConfirmed(false)
 
     const reader = new FileReader()
     reader.onload = (event) => {
       setProofPreviewUrl(event.target?.result || '')
     }
     reader.readAsDataURL(file)
+  }
+
+  // Handle OCR scanning of selected screenshot (Phase 1B)
+  const handleScanProfileOcr = async () => {
+    if (!stagedFile && !proofPreviewUrl) {
+      setOcrError('Please select a profile screenshot before scanning.')
+      return
+    }
+
+    setIsOcrScanning(true)
+    setOcrError(null)
+    setOcrConfirmed(false)
+
+    try {
+      const res = await extractFreeFireProfileFromScreenshot(stagedFile, proofPreviewUrl)
+
+      if (res.success && res.data) {
+        setOcrResult(res.data)
+        setOcrError(null)
+        showSuccess('Profile details extracted from screenshot!', 'OCR Scan Complete')
+      } else {
+        setOcrResult(null)
+        setOcrError(res.error || "We couldn't reliably read your Free Fire profile. Please upload a clearer screenshot.")
+      }
+    } catch (err) {
+      console.error('[OCR Scan Error]:', err)
+      setOcrResult(null)
+      setOcrError(err.message || 'Failed to scan screenshot.')
+    } finally {
+      setIsOcrScanning(false)
+    }
+  }
+
+  // Handle user confirmation of detected OCR result (Phase 1B - frontend state only)
+  const handleConfirmOcrResult = () => {
+    if (!ocrResult) return
+
+    setOcrConfirmed(true)
+    showInfo('Extracted profile details confirmed. You can submit your proof for admin verification.', 'Confirmed by Player')
+  }
+
+  // Handle retry / rescan of OCR
+  const handleRetryOcr = () => {
+    setOcrResult(null)
+    setOcrError(null)
+    setOcrConfirmed(false)
   }
 
   // Handle player evidence upload & submission
@@ -216,6 +290,9 @@ export default function EditProfilePage() {
       if (res.success) {
         setProofEvidence(res.evidence || { status: 'PENDING', game_uid: finalUid, canonical_ign: finalIgn })
         setStagedFile(null)
+        setOcrResult(null)
+        setOcrError(null)
+        setOcrConfirmed(false)
         showSuccess('Profile screenshot proof uploaded successfully! Awaiting admin verification.', 'Submitted for Audit')
       } else {
         setProofError(res.error || 'Failed to submit proof. Please try again.')
@@ -230,6 +307,9 @@ export default function EditProfilePage() {
 
   const handleCancelStagedFile = () => {
     setStagedFile(null)
+    setOcrResult(null)
+    setOcrError(null)
+    setOcrConfirmed(false)
     if (proofEvidence?.signedUrl) {
       setProofPreviewUrl(proofEvidence.signedUrl)
     } else {
@@ -785,16 +865,29 @@ export default function EditProfilePage() {
                           type="file"
                           accept="image/png,image/jpeg,image/jpg,image/webp"
                           onChange={handleProofFileChange}
-                          disabled={isProofUploading}
+                          disabled={isProofUploading || isOcrScanning}
                           className="hidden"
                         />
                       </label>
+
+                      {/* OCR Action: SCAN PROFILE (Phase 1B) */}
+                      {stagedFile && !ocrResult && (
+                        <button
+                          type="button"
+                          onClick={handleScanProfileOcr}
+                          disabled={isOcrScanning || isProofUploading}
+                          className="px-3 py-2 bg-[#18181b] border border-[#00f2ff]/40 hover:border-[#00f2ff] text-[#00f2ff] rounded-lg text-xs font-mono font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-[0_0_10px_rgba(0,242,255,0.15)]"
+                        >
+                          <Scan className={`w-3.5 h-3.5 ${isOcrScanning ? 'animate-spin' : ''}`} />
+                          <span>{isOcrScanning ? 'SCANNING PROFILE...' : 'SCAN PROFILE'}</span>
+                        </button>
+                      )}
 
                       {stagedFile && (
                         <button
                           type="button"
                           onClick={handleSubmitProof}
-                          disabled={isProofUploading}
+                          disabled={isProofUploading || isOcrScanning}
                           className="px-3.5 py-2 bg-[#00f2ff] hover:bg-cyan-300 text-black font-mono font-bold uppercase rounded-lg text-xs transition-all shadow-[0_0_12px_rgba(0,242,255,0.3)] flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                         >
                           <Check className="w-3.5 h-3.5" />
@@ -806,7 +899,7 @@ export default function EditProfilePage() {
                         <button
                           type="button"
                           onClick={handleCancelStagedFile}
-                          disabled={isProofUploading}
+                          disabled={isProofUploading || isOcrScanning}
                           className="px-2.5 py-2 bg-[#18181b] border border-[#27272a] hover:border-[#ff4655] hover:text-[#ff4655] rounded-lg text-xs font-mono font-bold uppercase transition-all flex items-center gap-1 cursor-pointer"
                         >
                           <X className="w-3.5 h-3.5" />
@@ -814,6 +907,141 @@ export default function EditProfilePage() {
                         </button>
                       )}
                     </div>
+
+                    {/* OCR Scanning Progress Notice */}
+                    {isOcrScanning && (
+                      <div className="p-2.5 bg-[#00f2ff]/5 border border-[#00f2ff]/20 rounded-lg flex items-center gap-2 text-xs text-[#00f2ff] font-mono">
+                        <Scan className="w-3.5 h-3.5 animate-spin shrink-0" />
+                        <span>Analyzing screenshot with Gemini Vision OCR...</span>
+                      </div>
+                    )}
+
+                    {/* OCR Error / Uncertain Notice */}
+                    {ocrError && (
+                      <div className="p-2.5 bg-[#ff4655]/10 border border-[#ff4655]/30 rounded-lg text-xs text-[#ff4655] space-y-1.5" role="alert">
+                        <div className="flex items-center gap-1.5 font-mono font-bold uppercase text-[10px]">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>OCR SCAN RESULT</span>
+                        </div>
+                        <p className="font-sans text-[11px]">{ocrError}</p>
+                        <button
+                          type="button"
+                          onClick={handleScanProfileOcr}
+                          disabled={isOcrScanning}
+                          className="px-2 py-1 bg-[#18181b] border border-[#ff4655]/40 hover:border-[#ff4655] text-white rounded text-[10px] font-mono uppercase flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          <span>RETRY SCAN</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* OCR Success Panel (Phase 1B - Detected from screenshot) */}
+                    {ocrResult && (
+                      <div className="p-3 bg-[#121214] border border-[#00f2ff]/30 rounded-lg space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[10px] font-bold text-[#00f2ff] uppercase tracking-wider flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-[#00f2ff]" />
+                            DETECTED FROM SCREENSHOT
+                          </span>
+                          {ocrConfirmed ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 uppercase flex items-center gap-1">
+                              <Check className="w-3 h-3" />
+                              CONFIRMED BY YOU
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-mono text-[#849495] bg-[#18181b] border border-[#27272a] uppercase">
+                              PENDING CONFIRMATION
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                          <div className="p-2 bg-[#18181b] border border-[#27272a] rounded space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono text-[10px] text-[#71717a] block uppercase">DETECTED IGN</span>
+                              {ignComparison.status === 'MATCH' && (
+                                <span className="text-[9px] font-mono font-bold text-[#10b981] bg-[#10b981]/10 px-1.5 py-0.5 rounded border border-[#10b981]/30">
+                                  MATCHES PROFILE
+                                </span>
+                              )}
+                              {ignComparison.status === 'NORMALIZED_MATCH_ONLY' && (
+                                <span className="text-[9px] font-mono text-[#f59e0b] bg-[#f59e0b]/10 px-1.5 py-0.5 rounded border border-[#f59e0b]/30">
+                                  STYLE DIFFERS
+                                </span>
+                              )}
+                              {ignComparison.status === 'MISMATCH' && (
+                                <span className="text-[9px] font-mono text-[#ff4655] bg-[#ff4655]/10 px-1.5 py-0.5 rounded border border-[#ff4655]/30">
+                                  IGN MISMATCH
+                                </span>
+                              )}
+                            </div>
+                            <span className="font-sans font-bold text-white text-sm break-all select-all block">
+                              {ocrResult.exactIgn}
+                            </span>
+                          </div>
+                          <div className="p-2 bg-[#18181b] border border-[#27272a] rounded space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono text-[10px] text-[#71717a] block uppercase">FREE FIRE UID</span>
+                              {uidComparison === 'MATCH' && (
+                                <span className="text-[9px] font-mono font-bold text-[#10b981] bg-[#10b981]/10 px-1.5 py-0.5 rounded border border-[#10b981]/30">
+                                  MATCHES PROFILE
+                                </span>
+                              )}
+                              {uidComparison === 'MISMATCH' && (
+                                <span className="text-[9px] font-mono text-[#ff4655] bg-[#ff4655]/10 px-1.5 py-0.5 rounded border border-[#ff4655]/30">
+                                  UID MISMATCH
+                                </span>
+                              )}
+                            </div>
+                            <span className="font-mono font-bold text-[#00f2ff] text-sm tracking-wide select-all block">
+                              {ocrResult.uid}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Consistency Warning for Mismatches */}
+                        {uidComparison === 'MISMATCH' && (
+                          <div className="p-2 bg-[#ff4655]/10 border border-[#ff4655]/30 rounded text-[11px] text-[#ff4655] font-sans flex items-start gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                            <span>
+                              <strong>UID Mismatch:</strong> Detected UID ({ocrResult.uid}) does not match your current profile UID ({currentProfileUid}). Your profile UID will not be modified automatically.
+                            </span>
+                          </div>
+                        )}
+                        {ignComparison.status === 'MISMATCH' && (
+                          <div className="p-2 bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded text-[11px] text-[#f59e0b] font-sans flex items-start gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                            <span>
+                              <strong>IGN Mismatch:</strong> Detected IGN does not match your current profile display name.
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 pt-1">
+                          {!ocrConfirmed ? (
+                            <button
+                              type="button"
+                              onClick={handleConfirmOcrResult}
+                              className="px-3 py-1.5 bg-[#10b981] hover:bg-emerald-400 text-black rounded text-xs font-mono font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>CONFIRM</span>
+                            </button>
+                          ) : null}
+
+                          <button
+                            type="button"
+                            onClick={handleRetryOcr}
+                            className="px-2.5 py-1.5 bg-[#18181b] border border-[#27272a] hover:border-[#00f2ff] text-[#849495] hover:text-white rounded text-xs font-mono uppercase transition-all flex items-center gap-1 cursor-pointer"
+                          >
+                            <RefreshCw className="w-3 h-3" />
+                            <span>RESCAN</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     <p className="text-[10px] text-[#71717a] font-sans">
                       Accepted formats: PNG, JPG, WEBP (Max 10 MB). Screenshot must clearly display player IGN and 10-digit UID.
                     </p>
