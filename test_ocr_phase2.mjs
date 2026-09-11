@@ -67,6 +67,7 @@ import {
   normalizeIgn,
   compareProfileUid,
   compareProfileIgn,
+  resolveAuthoritativeProfileIgn,
 } from './src/utils/playerIdentityUtils.js'
 
 console.log('\n==================================================================')
@@ -136,6 +137,36 @@ assert(exactMismatchRes.status === 'NORMALIZED_MATCH_ONLY', '20. Normalized matc
 assert(compareProfileUid('1234567890', '1234567890') === 'MATCH', '21. UID match detected')
 assert(compareProfileUid('1234567890', '9876543210') === 'MISMATCH', '22. UID mismatch detected')
 assert(compareProfileUid('', '1234567890') === 'UNKNOWN', '22b. UID unknown detected when profile UID is missing')
+
+// Scenario A: MJ ESPORTS username differs from Free Fire IGN
+// Must NOT classify as mismatch if authoritative Free Fire IGN field exists
+const authoritativeResolved = resolveAuthoritativeProfileIgn({
+  evidenceIgn: 'KA¹⁷ Mĵff',
+  verifiedIgn: '',
+  metaIgn: '',
+  profileIgn: '',
+  formUsername: 'Manjunath', // Different account username
+  ocrIgn: 'KA¹⁷ Mĵff',
+})
+assert(authoritativeResolved === 'KA¹⁷ Mĵff', '22c. Scenario A: Authoritative Free Fire IGN preferred over differing MJ ESPORTS username')
+const scenarioAComparison = compareProfileIgn(authoritativeResolved, 'KA¹⁷ Mĵff')
+assert(scenarioAComparison.status === 'MATCH', '22d. Scenario A: Differing username does NOT cause false mismatch when authoritative IGN matches')
+
+// Scenario B: Exact Free Fire IGN match
+const scenarioBComparison = compareProfileIgn('KA¹⁷ Mĵff', 'KA¹⁷ Mĵff')
+assert(scenarioBComparison.exactMatch === true && scenarioBComparison.status === 'MATCH', '22e. Scenario B: Exact Free Fire IGN match detected (MATCH)')
+
+// Scenario C: Same identity but Unicode/style normalization difference
+const scenarioCComparison = compareProfileIgn('KA¹⁷ Mjᶠᶠ', 'ka17 mjff')
+assert(scenarioCComparison.exactMatch === false && scenarioCComparison.normalizedMatch === true && scenarioCComparison.status === 'NORMALIZED_MATCH_ONLY', '22f. Scenario C: Style difference detected as NORMALIZED_MATCH_ONLY')
+
+// Scenario D: Actually different Free Fire IGN
+const scenarioDComparison = compareProfileIgn('KA¹⁷ Mĵff', 'CompletelyDifferentPlayer')
+assert(scenarioDComparison.status === 'MISMATCH', '22g. Scenario D: Actually different Free Fire IGN classified as MISMATCH')
+
+// Scenario E: UID exact match
+assert(compareProfileUid('3619879816', '3619879816') === 'MATCH', '22h. Scenario E: Real Free Fire UID 3619879816 matches exactly')
+assert(compareProfileUid('3619879816', '1234567890') === 'MISMATCH', '22i. Scenario E: Different UID correctly classified as MISMATCH')
 
 // --- SUITE 4: Safety & State Boundaries ---
 console.log('\n--- SUITE 4: Safety & State Boundaries ---')

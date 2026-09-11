@@ -183,4 +183,47 @@ export function compareProfileIgn(profileIgn, ocrIgn) {
   }
 }
 
+/**
+ * Resolves the authoritative Free Fire IGN for identity comparison.
+ * Prioritizes stored canonical IGN from player evidence (player_identity_evidence.canonical_ign)
+ * or verified status, then explicit game IGN metadata, before falling back to account display name.
+ * 
+ * @param {Object} [params]
+ * @param {string} [params.evidenceIgn] - Stored canonical_ign from player_identity_evidence
+ * @param {string} [params.verifiedIgn] - Stored verified canonical IGN
+ * @param {string} [params.metaIgn] - Game IGN stored in user_metadata (canonical_ign, freeFireIgn, gameIgn)
+ * @param {string} [params.profileIgn] - Canonical IGN stored in profile
+ * @param {string} [params.formUsername] - Current form display name / account username
+ * @param {string} [params.ocrIgn] - Detected IGN from OCR (optional, for branch checking)
+ * @returns {string} Authoritative Free Fire IGN for comparison
+ */
+export function resolveAuthoritativeProfileIgn({
+  evidenceIgn = '',
+  verifiedIgn = '',
+  metaIgn = '',
+  profileIgn = '',
+  formUsername = '',
+  ocrIgn = '',
+} = {}) {
+  const storedCanonical = String(
+    evidenceIgn ||
+    verifiedIgn ||
+    metaIgn ||
+    profileIgn ||
+    ''
+  ).trim()
+
+  const cleanForm = String(formUsername || '').trim()
+
+  if (storedCanonical) {
+    // If form username matches OCR exactly while stored does not, allow form
+    if (ocrIgn && cleanForm && cleanForm === ocrIgn.trim() && storedCanonical !== ocrIgn.trim()) {
+      return cleanForm
+    }
+    return storedCanonical
+  }
+
+  return cleanForm
+}
+
 export { isValidGameUid, sanitizeString }

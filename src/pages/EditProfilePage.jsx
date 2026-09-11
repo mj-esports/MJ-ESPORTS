@@ -39,7 +39,7 @@ import AuthAlert from '../components/common/AuthAlert'
 import LoadingButton from '../components/common/LoadingButton'
 import AvatarUploadModal from '../components/common/AvatarUploadModal'
 import { isValidGameUid, isValidPhoneNumber, sanitizeString, sanitizeDigitsOnly } from '../utils/validationUtils'
-import { compareProfileUid, compareProfileIgn } from '../utils/playerIdentityUtils'
+import { compareProfileUid, compareProfileIgn, resolveAuthoritativeProfileIgn } from '../utils/playerIdentityUtils'
 
 export default function EditProfilePage() {
   const { user, profile, updateProfile } = useAuth()
@@ -165,7 +165,31 @@ export default function EditProfilePage() {
 
   // Phase 2: Profile vs OCR Identity Consistency Evaluation
   const currentProfileUid = String(formData.freeFireUid || meta.freeFireUid || profile?.game_uid || '').trim()
-  const currentProfileIgn = String(formData.username || meta.username || profile?.username || '').trim()
+
+  // Authoritative Free Fire IGN resolution:
+  // Prioritizes stored canonical IGN from player_identity_evidence (proofEvidence.canonical_ign)
+  // or verified status, preventing false mismatches when MJ ESPORTS username differs from game IGN.
+  const currentProfileIgn = useMemo(() => {
+    return resolveAuthoritativeProfileIgn({
+      evidenceIgn: proofEvidence?.canonical_ign,
+      verifiedIgn: initialVerifiedIgn,
+      metaIgn: meta.canonical_ign || meta.freeFireIgn || meta.gameIgn,
+      profileIgn: profile?.canonical_ign,
+      formUsername: formData.username || meta.username || profile?.username,
+      ocrIgn: ocrResult?.exactIgn,
+    })
+  }, [
+    proofEvidence?.canonical_ign,
+    initialVerifiedIgn,
+    meta.canonical_ign,
+    meta.freeFireIgn,
+    meta.gameIgn,
+    meta.username,
+    profile?.canonical_ign,
+    profile?.username,
+    formData.username,
+    ocrResult?.exactIgn,
+  ])
 
   const uidComparison = useMemo(() => {
     if (!ocrResult?.uid) return 'UNKNOWN'
@@ -1013,7 +1037,7 @@ export default function EditProfilePage() {
                           <div className="p-2 bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded text-[11px] text-[#f59e0b] font-sans flex items-start gap-1.5">
                             <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                             <span>
-                              <strong>IGN Mismatch:</strong> Detected IGN does not match your current profile display name.
+                              <strong>IGN Mismatch:</strong> Detected IGN does not match your profile Free Fire identity.
                             </span>
                           </div>
                         )}
