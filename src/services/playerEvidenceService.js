@@ -384,3 +384,70 @@ export async function reviewPlayerProof(evidenceId, status, rejectionReason = nu
 
   return data
 }
+
+/**
+ * Invokes the secure backend Edge Function 'extract-free-fire-profile' to perform Gemini Vision OCR.
+ * Extracts exact In-Game Name (IGN) and 10-digit Free Fire Character UID from a screenshot.
+ * 
+ * @param {File|Blob} imageFile - The profile screenshot
+ * @param {string} [fallbackDataUrl] - Pre-loaded data URL fallback
+ * @returns {Promise<{ success: boolean, data?: { exactIgn: string, canonicalIgn: string, uid: string, isLegible: boolean, confidenceNotes: string }, error?: string }>}
+ */
+export async function extractFreeFireProfileFromScreenshot(imageFile, fallbackDataUrl = '') {
+  if (!imageFile && !fallbackDataUrl) {
+    return { success: false, error: 'Please select a profile screenshot to scan.' }
+  }
+
+  if (!isSupabaseConfigured) {
+    return { success: false, error: 'Supabase client is not configured.' }
+  }
+
+  try {
+    let base64String = ''
+    let mimeType = imageFile?.type || 'image/png'
+
+    if (imageFile) {
+      base64String = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = (err) => reject(err)
+        reader.readAsDataURL(imageFile)
+      })
+    } else if (fallbackDataUrl) {
+      base64String = fallbackDataUrl
+      const match = fallbackDataUrl.match(/^data:(image\/[a-z]+);base64,/)
+      if (match) mimeType = match[1]
+    }
+
+    const { data, error } = await supabase.functions.invoke('extract-free-fire-profile', {
+      body: {
+        imageBase64: base64String,
+        mimeType,
+      },
+    })
+
+    if (error) {
+      console.error('[playerEvidenceService] extract-free-fire-profile invocation error:', error)
+      return { success: false, error: error.message || 'Failed to scan screenshot.' }
+    }
+
+    if (!data || data.success === false) {
+      return {
+        success: false,
+        error: data?.error || 'Could not clearly detect Free Fire IGN and UID from screenshot.',
+        details: data?.details || null,
+      }
+    }
+
+    return {
+      success: true,
+      data: data.data,
+    }
+  } catch (err) {
+    console.error('[playerEvidenceService] extractFreeFireProfileFromScreenshot exception:', err)
+    return {
+      success: false,
+      error: err.message || 'Unexpected error during profile screenshot OCR scanning.',
+    }
+  }
+}
