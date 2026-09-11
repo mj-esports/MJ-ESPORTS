@@ -30,6 +30,7 @@ const AdminDashboardPage = lazy(() => import('../pages/AdminDashboardPage'))
 const AdminFinancePage = lazy(() => import('../pages/AdminFinancePage'))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
 const ServerErrorPage = lazy(() => import('../pages/ServerErrorPage'))
+const PaddleOcrTestPage = lazy(() => import('../pages/PaddleOcrTestPage'))
 
 function PageFallback() {
   return (
@@ -64,6 +65,7 @@ export default function AppRoutes() {
           <Route path="terms" element={<AboutPage defaultTab="terms" />} />
           <Route path="403" element={<AccessDeniedPage />} />
           <Route path="500" element={<ServerErrorPage />} />
+          <Route path="test/paddle-ocr" element={<PaddleOcrTestPage />} />
           
           {/* Protected Player Routes */}
           <Route element={<ProtectedRoute redirectTo="/login" />}>
