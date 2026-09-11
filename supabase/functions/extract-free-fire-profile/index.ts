@@ -200,22 +200,47 @@ You MUST respond with valid, raw JSON only (no markdown code blocks, no backtick
       },
     }
 
-    const upstreamResponse = await fetch(geminiEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(geminiPayload),
-    })
+    // Upstream call with server-side transient retry for 503 and 429
+    const MAX_RETRIES = 3
+    const BACKOFF_DELAYS_MS = [1500, 3000]
 
-    if (!upstreamResponse.ok) {
-      const errorText = await upstreamResponse.text().catch(() => '')
-      console.error('[Gemini OCR Upstream Error]:', upstreamResponse.status, errorText)
-      
+    let upstreamResponse: Response | null = null
+    let errorText = ''
+
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      upstreamResponse = await fetch(geminiEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(geminiPayload),
+      })
+
+      if (upstreamResponse.ok) {
+        break
+      }
+
+      errorText = await upstreamResponse.text().catch(() => '')
+      console.error(`[Gemini OCR Upstream Error] (attempt ${attempt}/${MAX_RETRIES}):`, upstreamResponse.status, errorText)
+
+      // Only retry transient 503 (high demand) and 429 (rate limit)
+      const isTransient = upstreamResponse.status === 503 || upstreamResponse.status === 429
+      if (isTransient && attempt < MAX_RETRIES) {
+        const delayMs = BACKOFF_DELAYS_MS[attempt - 1] || 3000
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
+        continue
+      }
+
+      // Non-transient errors (400, 401, 403, etc.) or final attempt exhausted
+      break
+    }
+
+    if (!upstreamResponse || !upstreamResponse.ok) {
+      const status = upstreamResponse?.status || 502
       let clientMessage = 'Failed to process screenshot with OCR engine'
-      if (upstreamResponse.status === 429) {
+      if (status === 429) {
         clientMessage = 'OCR service rate limit reached. Please try again shortly.'
-      } else if (upstreamResponse.status === 503) {
+      } else if (status === 503) {
         clientMessage = 'Upstream Gemini vision service is currently experiencing high demand. Please retry shortly.'
-      } else if (upstreamResponse.status >= 500) {
+      } else if (status >= 500) {
         clientMessage = 'Upstream OCR vision service is temporarily unavailable.'
       }
 
@@ -230,7 +255,7 @@ You MUST respond with valid, raw JSON only (no markdown code blocks, no backtick
         JSON.stringify({
           success: false,
           error: clientMessage,
-          upstreamStatus: upstreamResponse.status,
+          upstreamStatus: status,
           upstreamMessage: sanitizedUpstreamError,
         }),
         { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
