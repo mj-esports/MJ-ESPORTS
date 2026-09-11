@@ -932,14 +932,6 @@ export default function EditProfilePage() {
                       )}
                     </div>
 
-                    {/* OCR Scanning Progress Notice */}
-                    {isOcrScanning && (
-                      <div className="p-2.5 bg-[#00f2ff]/5 border border-[#00f2ff]/20 rounded-lg flex items-center gap-2 text-xs text-[#00f2ff] font-mono">
-                        <Scan className="w-3.5 h-3.5 animate-spin shrink-0" />
-                        <span>Analyzing screenshot with Gemini Vision OCR...</span>
-                      </div>
-                    )}
-
                     {/* OCR Error / Uncertain Notice */}
                     {ocrError && (
                       <div className="p-2.5 bg-[#ff4655]/10 border border-[#ff4655]/30 rounded-lg text-xs text-[#ff4655] space-y-1.5" role="alert">

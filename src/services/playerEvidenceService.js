@@ -428,7 +428,20 @@ export async function extractFreeFireProfileFromScreenshot(imageFile, fallbackDa
 
     if (error) {
       console.error('[playerEvidenceService] extract-free-fire-profile invocation error:', error)
-      return { success: false, error: error.message || 'Failed to scan screenshot.' }
+      let displayError = error.message || 'Failed to scan screenshot.'
+
+      if (error.context && typeof error.context.json === 'function') {
+        try {
+          const errBody = await error.context.json()
+          if (errBody && typeof errBody.error === 'string' && errBody.error.trim()) {
+            displayError = errBody.error.trim()
+          }
+        } catch {
+          // Safely retain fallback if parsing fails or body stream is unavailable
+        }
+      }
+
+      return { success: false, error: displayError }
     }
 
     if (!data || data.success === false) {
