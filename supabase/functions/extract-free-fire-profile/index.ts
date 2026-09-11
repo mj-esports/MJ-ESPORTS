@@ -33,6 +33,65 @@ function isValidIgn(ign: string): boolean {
   return trimmed.length >= 1 && trimmed.length <= 30
 }
 
+// Server-side safe Retry-After parser: extracts integer seconds between 1 and 300, or returns null
+function extractSafeRetryAfterSeconds(upstreamRes: Response | null, errText: string): number | null {
+  // 1. Check upstream HTTP Retry-After header
+  try {
+    const headerVal = upstreamRes?.headers?.get('retry-after')
+    if (headerVal) {
+      const num = parseFloat(headerVal)
+      if (!isNaN(num) && num >= 1 && num <= 300) {
+        return Math.ceil(num)
+      }
+      const dateParsed = Date.parse(headerVal)
+      if (!isNaN(dateParsed)) {
+        const diffSec = Math.ceil((dateParsed - Date.now()) / 1000)
+        if (diffSec >= 1 && diffSec <= 300) return diffSec
+      }
+    }
+  } catch {
+    // Ignore header parse exceptions
+  }
+
+  // 2. Parse Google RPC RetryInfo or message in errorText
+  if (errText) {
+    try {
+      const parsed = JSON.parse(errText)
+      const details = parsed?.error?.details
+      if (Array.isArray(details)) {
+        for (const item of details) {
+          if (item?.retryDelay && typeof item.retryDelay === 'string') {
+            const match = item.retryDelay.match(/^(\d+(?:\.\d+)?)s?$/)
+            if (match) {
+              const sec = Math.ceil(parseFloat(match[1]))
+              if (sec >= 1 && sec <= 300) return sec
+            }
+          }
+        }
+      }
+      const msg = parsed?.error?.message || ''
+      const msgMatch = msg.match(/retry in\s+([\d.]+)\s*s/i)
+      if (msgMatch) {
+        const sec = Math.ceil(parseFloat(msgMatch[1]))
+        if (sec >= 1 && sec <= 300) return sec
+      }
+    } catch {
+      // Regex fallback on unparsed string
+      try {
+        const rawMatch = errText.match(/retry in\s+([\d.]+)\s*s/i)
+        if (rawMatch) {
+          const sec = Math.ceil(parseFloat(rawMatch[1]))
+          if (sec >= 1 && sec <= 300) return sec
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  return null
+}
+
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -234,29 +293,59 @@ You MUST respond with valid, raw JSON only (no markdown code blocks, no backtick
     }
 
     if (!upstreamResponse || !upstreamResponse.ok) {
-      const status = upstreamResponse?.status || 502
-      let clientMessage = 'Failed to process screenshot with OCR engine'
-      if (status === 429) {
-        clientMessage = 'OCR service rate limit reached. Please try again shortly.'
-      } else if (status === 503) {
-        clientMessage = 'Upstream Gemini vision service is currently experiencing high demand. Please retry shortly.'
-      } else if (status >= 500) {
-        clientMessage = 'Upstream OCR vision service is temporarily unavailable.'
+      const upstreamStatus = upstreamResponse?.status || 502
+
+      // 429 Quota Exhaustion / Rate Limit handling
+      if (upstreamStatus === 429) {
+        const safeRetryAfterSeconds = extractSafeRetryAfterSeconds(upstreamResponse, errorText)
+        const responseHeaders: Record<string, string> = {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        }
+        if (safeRetryAfterSeconds) {
+          responseHeaders['Retry-After'] = String(safeRetryAfterSeconds)
+        }
+
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'OCR service rate limit reached. Please try again shortly.',
+            retryAfterSeconds: safeRetryAfterSeconds,
+          }),
+          { status: 429, headers: responseHeaders }
+        )
       }
 
-      let sanitizedUpstreamError = ''
-      try {
-        const parsedErr = JSON.parse(errorText)
-        sanitizedUpstreamError = parsedErr?.error?.message || ''
-      } catch {
-        sanitizedUpstreamError = (errorText || '').slice(0, 150)
+      // 503 Service High Demand handling
+      if (upstreamStatus === 503) {
+        const safeRetryAfterSeconds = extractSafeRetryAfterSeconds(upstreamResponse, errorText)
+        const responseHeaders: Record<string, string> = {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        }
+        if (safeRetryAfterSeconds) {
+          responseHeaders['Retry-After'] = String(safeRetryAfterSeconds)
+        }
+
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Upstream Gemini vision service is currently experiencing high demand. Please retry shortly.',
+            retryAfterSeconds: safeRetryAfterSeconds,
+          }),
+          { status: 503, headers: responseHeaders }
+        )
       }
+
+      // Other 5xx or unhandled upstream status -> 502 Bad Gateway
+      const clientMessage = upstreamStatus >= 500
+        ? 'Upstream OCR vision service is temporarily unavailable.'
+        : 'Failed to process screenshot with OCR engine'
+
       return new Response(
         JSON.stringify({
           success: false,
           error: clientMessage,
-          upstreamStatus: status,
-          upstreamMessage: sanitizedUpstreamError,
         }),
         { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )

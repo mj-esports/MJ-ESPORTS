@@ -429,6 +429,7 @@ export async function extractFreeFireProfileFromScreenshot(imageFile, fallbackDa
     if (error) {
       console.error('[playerEvidenceService] extract-free-fire-profile invocation error:', error)
       let displayError = error.message || 'Failed to scan screenshot.'
+      let retryAfterSeconds = null
 
       if (error.context && typeof error.context.json === 'function') {
         try {
@@ -436,19 +437,52 @@ export async function extractFreeFireProfileFromScreenshot(imageFile, fallbackDa
           if (errBody && typeof errBody.error === 'string' && errBody.error.trim()) {
             displayError = errBody.error.trim()
           }
+          if (errBody && typeof errBody.retryAfterSeconds === 'number' && errBody.retryAfterSeconds > 0) {
+            retryAfterSeconds = Math.ceil(errBody.retryAfterSeconds)
+          }
         } catch {
           // Safely retain fallback if parsing fails or body stream is unavailable
         }
       }
 
-      return { success: false, error: displayError }
+      // Check headers if retryAfterSeconds was not in body
+      if (!retryAfterSeconds && error.context?.headers && typeof error.context.headers.get === 'function') {
+        try {
+          const headerVal = error.context.headers.get('retry-after')
+          if (headerVal) {
+            const num = parseFloat(headerVal)
+            if (!isNaN(num) && num >= 1 && num <= 300) {
+              retryAfterSeconds = Math.ceil(num)
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      const isRateLimited = error.context?.status === 429 || displayError.toLowerCase().includes('rate limit')
+
+      return {
+        success: false,
+        error: displayError,
+        retryAfterSeconds,
+        isRateLimited,
+        status: error.context?.status || 500,
+      }
     }
 
     if (!data || data.success === false) {
+      const isRateLimited = data?.error?.toLowerCase().includes('rate limit') || false
+      const retryAfterSeconds = typeof data?.retryAfterSeconds === 'number' && data.retryAfterSeconds > 0
+        ? Math.ceil(data.retryAfterSeconds)
+        : null
+
       return {
         success: false,
         error: data?.error || 'Could not clearly detect Free Fire IGN and UID from screenshot.',
         details: data?.details || null,
+        retryAfterSeconds,
+        isRateLimited,
       }
     }
 

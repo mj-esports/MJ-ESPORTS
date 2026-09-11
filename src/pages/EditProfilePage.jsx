@@ -94,6 +94,22 @@ export default function EditProfilePage() {
   const [ocrResult, setOcrResult] = useState(null) // { exactIgn, canonicalIgn, uid, isLegible, confidenceNotes }
   const [ocrError, setOcrError] = useState(null)
   const [ocrConfirmed, setOcrConfirmed] = useState(false)
+  const [ocrCooldownSeconds, setOcrCooldownSeconds] = useState(0)
+
+  // OCR rate-limit cooldown countdown timer
+  useEffect(() => {
+    if (ocrCooldownSeconds <= 0) return
+    const timer = setInterval(() => {
+      setOcrCooldownSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [ocrCooldownSeconds])
 
   // Initial verified values tracker for invalidation detection
   const [initialVerifiedUid, setInitialVerifiedUid] = useState('')
@@ -233,6 +249,7 @@ export default function EditProfilePage() {
 
   // Handle OCR scanning of selected screenshot (Phase 1B)
   const handleScanProfileOcr = async () => {
+    if (ocrCooldownSeconds > 0) return
     if (!stagedFile && !proofPreviewUrl) {
       setOcrError('Please select a profile screenshot before scanning.')
       return
@@ -248,10 +265,23 @@ export default function EditProfilePage() {
       if (res.success && res.data) {
         setOcrResult(res.data)
         setOcrError(null)
+        setOcrCooldownSeconds(0)
         showSuccess('Profile details extracted from screenshot!', 'OCR Scan Complete')
       } else {
         setOcrResult(null)
-        setOcrError(res.error || "We couldn't reliably read your Free Fire profile. Please upload a clearer screenshot.")
+        if (res.isRateLimited || (res.retryAfterSeconds && res.retryAfterSeconds > 0)) {
+          const cooldown = (typeof res.retryAfterSeconds === 'number' && res.retryAfterSeconds > 0)
+            ? Math.min(res.retryAfterSeconds, 300)
+            : 0
+          if (cooldown > 0) {
+            setOcrCooldownSeconds(cooldown)
+            setOcrError(`OCR service is temporarily rate-limited. Please try again in ${cooldown} seconds.`)
+          } else {
+            setOcrError('OCR service is temporarily rate-limited. Please try again shortly.')
+          }
+        } else {
+          setOcrError(res.error || "We couldn't reliably read your Free Fire profile. Please upload a clearer screenshot.")
+        }
       }
     } catch (err) {
       console.error('[OCR Scan Error]:', err)
@@ -272,6 +302,7 @@ export default function EditProfilePage() {
 
   // Handle retry / rescan of OCR
   const handleRetryOcr = () => {
+    if (ocrCooldownSeconds > 0) return
     setOcrResult(null)
     setOcrError(null)
     setOcrConfirmed(false)
@@ -899,11 +930,17 @@ export default function EditProfilePage() {
                         <button
                           type="button"
                           onClick={handleScanProfileOcr}
-                          disabled={isOcrScanning || isProofUploading}
-                          className="px-3 py-2 bg-[#18181b] border border-[#00f2ff]/40 hover:border-[#00f2ff] text-[#00f2ff] rounded-lg text-xs font-mono font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-[0_0_10px_rgba(0,242,255,0.15)]"
+                          disabled={isOcrScanning || isProofUploading || ocrCooldownSeconds > 0}
+                          className="px-3 py-2 bg-[#18181b] border border-[#00f2ff]/40 hover:border-[#00f2ff] text-[#00f2ff] rounded-lg text-xs font-mono font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_10px_rgba(0,242,255,0.15)]"
                         >
                           <Scan className={`w-3.5 h-3.5 ${isOcrScanning ? 'animate-spin' : ''}`} />
-                          <span>{isOcrScanning ? 'SCANNING PROFILE...' : 'SCAN PROFILE'}</span>
+                          <span>
+                            {isOcrScanning
+                              ? 'SCANNING PROFILE...'
+                              : ocrCooldownSeconds > 0
+                              ? `SCAN PROFILE (${ocrCooldownSeconds}s)`
+                              : 'SCAN PROFILE'}
+                          </span>
                         </button>
                       )}
 
@@ -939,15 +976,19 @@ export default function EditProfilePage() {
                           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                           <span>OCR SCAN RESULT</span>
                         </div>
-                        <p className="font-sans text-[11px]">{ocrError}</p>
+                        <p className="font-sans text-[11px]">
+                          {ocrCooldownSeconds > 0
+                            ? `OCR service is temporarily rate-limited. Please try again in ${ocrCooldownSeconds} seconds.`
+                            : ocrError}
+                        </p>
                         <button
                           type="button"
                           onClick={handleScanProfileOcr}
-                          disabled={isOcrScanning}
-                          className="px-2 py-1 bg-[#18181b] border border-[#ff4655]/40 hover:border-[#ff4655] text-white rounded text-[10px] font-mono uppercase flex items-center gap-1 cursor-pointer transition-colors"
+                          disabled={isOcrScanning || ocrCooldownSeconds > 0}
+                          className="px-2 py-1 bg-[#18181b] border border-[#ff4655]/40 hover:border-[#ff4655] text-white rounded text-[10px] font-mono uppercase flex items-center gap-1 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <RefreshCw className="w-3 h-3" />
-                          <span>RETRY SCAN</span>
+                          <span>{ocrCooldownSeconds > 0 ? `RETRY SCAN (${ocrCooldownSeconds}s)` : 'RETRY SCAN'}</span>
                         </button>
                       </div>
                     )}
