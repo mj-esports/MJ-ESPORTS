@@ -139,6 +139,47 @@ it('16. vite.config.js isolates paddleocr into vendor-paddleocr chunk', () => {
   assert(viteConfigContent.includes("'vendor-paddleocr'"), 'Must define vendor-paddleocr manual chunk')
 })
 
+// SUITE 5: Experiment 2 — Cropped Identity Region & Performance Audit
+console.log('\n--- SUITE 5: Experiment 2 — Cropped Identity Region & Performance ---')
+
+it('17. Page defines layout-based crop presets for Free Fire MAX profile', () => {
+  assert(testPageContent.includes('CROP_PRESETS'), 'Must define CROP_PRESETS')
+  assert(testPageContent.includes('standard_ff_max'), 'Must include standard_ff_max preset')
+  assert(testPageContent.includes('generateCroppedCanvas'), 'Must have canvas cropping function')
+})
+
+it('18. Page supports scale factor options (1x, 2x, 3x)', () => {
+  assert(testPageContent.includes('scaleFactor'), 'Must support scale factor')
+  assert(testPageContent.includes('[1, 2, 3]'), 'Must provide 1x, 2x, 3x scale options')
+  assert(testPageContent.includes('Crop Scale Factor'), 'Must render scale factor control')
+})
+
+it('19. Page displays crop preview and dimensions', () => {
+  assert(testPageContent.includes('Cropped Region Preview'), 'Must render cropped region preview')
+  assert(testPageContent.includes('cropDimensions'), 'Must compute and display crop dimensions')
+  assert(testPageContent.includes('croppedPreviewUrl'), 'Must render cropped preview URL')
+})
+
+it('20. Page separates Full Screenshot and Cropped Region results', () => {
+  assert(testPageContent.includes('FULL SCREENSHOT (MODE A)'), 'Must have distinct Full Screenshot section')
+  assert(testPageContent.includes('CROPPED REGION (MODE B)'), 'Must have distinct Cropped Region section')
+  assert(testPageContent.includes('fullMetrics'), 'Must track full screenshot metrics separately')
+  assert(testPageContent.includes('croppedMetrics'), 'Must track cropped region metrics separately')
+})
+
+it('21. Page implements PaddleOCR instance reuse (warm start caching)', () => {
+  assert(testPageContent.includes('ocrInstanceRef.current'), 'Must cache instance in ref')
+  assert(testPageContent.includes('activeConfigKeyRef'), 'Must track active config key')
+  assert(testPageContent.includes('Clear Cache'), 'Must provide option to manage cache')
+})
+
+it('22. Page does NOT hard-code user UID "3619879816" or IGN "KA17" / "KA¹⁷" / "MJff"', () => {
+  assert(!testPageContent.includes('3619879816'), 'Must not hard-code UID 3619879816')
+  assert(!testPageContent.includes('KA17'), 'Must not hard-code KA17')
+  assert(!testPageContent.includes('KA¹⁷'), 'Must not hard-code KA¹⁷')
+  assert(!testPageContent.includes('MJff'), 'Must not hard-code MJff')
+})
+
 console.log('\n==================================================================')
 console.log(`PADDLEOCR PROOF OF CONCEPT AUDIT: ${passed} PASSED, ${failed} FAILED`)
 console.log('==================================================================\n')
@@ -146,3 +187,4 @@ console.log('==================================================================\
 if (failed > 0) {
   process.exit(1)
 }
+
