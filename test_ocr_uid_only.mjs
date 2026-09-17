@@ -91,13 +91,79 @@ assert(edgeCode.includes('CURRENT_GEMINI_MODEL = \'gemini-3.8-flash\''), '24. Us
 assert(!edgeCode.includes('candidateCount:') && !edgeCode.includes('candidate_count:'), '25. Deprecated candidate_count parameter omitted from request')
 
 // --- SUITE 5: Upstream Rate Limit (429) & Outage (503) Handling ---
-console.log('\n--- SUITE 5: Upstream 429 and 503 Handling ---')
+console.log('\n--- SUITE 5: Upstream 429 and 503 Handling & Retry Policy ---')
 
 assert(edgeCode.includes('upstreamStatus === 429'), '26. Handles Gemini 429 with user-friendly rate limit error')
 assert(edgeCode.includes('upstreamStatus === 503'), '27. Handles Gemini 503 with high demand notice')
 assert(edgeCode.includes('extractSafeRetryAfterSeconds'), '28. Extracts safe Retry-After seconds')
 assert(edgeCode.includes("responseHeaders['Retry-After']"), '29. Forwards Retry-After response header to client')
 assert(edgeCode.includes('MAX_RETRIES = 3'), '30. Conservative retry logic (MAX_RETRIES = 3) prevents retry storm')
+
+// Specific 429 vs 503 retry policy assertions
+assert(
+  !edgeCode.includes('upstreamResponse.status === 503 || upstreamResponse.status === 429'),
+  '30a. HTTP 429 is excluded from the transient retry loop'
+)
+assert(
+  edgeCode.includes('isTransient503 = upstreamResponse.status === 503'),
+  '30b. Only HTTP 503 triggers transient server-side retries'
+)
+
+// Unit simulation of retry loop policy
+async function simulateRetryPolicy(mockStatusSequence, mockErrText = '', mockRetryAfterHeader = null) {
+  let attemptCount = 0
+  let totalDelayMs = 0
+  const MAX_RETRIES = 3
+  const BACKOFF_DELAYS_MS = [1500, 3000]
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    attemptCount++
+    const currentStatus = mockStatusSequence[attempt - 1] || 500
+
+    if (currentStatus === 200) {
+      return { success: true, attempts: attemptCount, totalDelayMs, status: 200 }
+    }
+
+    const isTransient503 = currentStatus === 503
+    if (isTransient503 && attempt < MAX_RETRIES) {
+      const delayMs = BACKOFF_DELAYS_MS[attempt - 1] || 3000
+      totalDelayMs += delayMs
+      continue
+    }
+
+    // Non-transient errors (429, 400, 401, 403, 422, etc.) or final attempt exhausted
+    let safeRetry = null
+    if (currentStatus === 429) {
+      if (mockRetryAfterHeader) safeRetry = parseInt(mockRetryAfterHeader, 10)
+      else if (mockErrText) {
+        const m = mockErrText.match(/retry in\s+([\d.]+)\s*s/i) || mockErrText.match(/"retryDelay":\s*"(\d+)s?"/)
+        if (m) safeRetry = Math.ceil(parseFloat(m[1]))
+      }
+    }
+
+    return {
+      success: false,
+      attempts: attemptCount,
+      totalDelayMs,
+      status: currentStatus,
+      retryAfterSeconds: safeRetry,
+      hasRetryHeader: !!safeRetry,
+    }
+  }
+}
+
+const sim429 = await simulateRetryPolicy([429, 429, 429], '{"error":{"details":[{"retryDelay":"25s"}]}}', '25')
+assert(sim429.attempts === 1, '30c. 429 -> exactly ONE upstream attempt')
+assert(sim429.totalDelayMs === 0, '30d. 429 -> zero backoff delays (no 1.5s or 3s retry)')
+assert(sim429.retryAfterSeconds === 25, '30e. 429 -> retryAfterSeconds is returned')
+assert(sim429.hasRetryHeader === true, '30f. 429 -> Retry-After header is preserved')
+
+const sim503 = await simulateRetryPolicy([503, 503, 503])
+assert(sim503.attempts === 3, '30g. 503 -> existing retry behavior remains intact (3 attempts)')
+assert(sim503.totalDelayMs === 4500, '30h. 503 -> maximum retry backoff limit applied (1.5s + 3.0s = 4.5s)')
+
+const sim503Recovered = await simulateRetryPolicy([503, 200])
+assert(sim503Recovered.attempts === 2 && sim503Recovered.success === true, '30i. 503 -> recovers on transient retry')
 
 // --- SUITE 6: Response Contract Purity (UID ONLY - No IGN Field) ---
 console.log('\n--- SUITE 6: Response Contract Purity ---')

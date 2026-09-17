@@ -276,15 +276,17 @@ You MUST respond with valid, raw JSON only (no markdown code blocks, no backtick
       errorText = await upstreamResponse.text().catch(() => '')
       console.error(`[Gemini OCR Upstream Error] (attempt ${attempt}/${MAX_RETRIES}):`, upstreamResponse.status, errorText)
 
-      // Only retry transient 503 (high demand) and 429 (rate limit)
-      const isTransient = upstreamResponse.status === 503 || upstreamResponse.status === 429
-      if (isTransient && attempt < MAX_RETRIES) {
+      // Only retry transient 503 (service high demand).
+      // Do NOT retry HTTP 429: Google provides an explicit retry delay / quota reset window.
+      // Retrying after 1.5s/3s can trigger immediate secondary quota violations and worsen rate-limit penalties.
+      const isTransient503 = upstreamResponse.status === 503
+      if (isTransient503 && attempt < MAX_RETRIES) {
         const delayMs = BACKOFF_DELAYS_MS[attempt - 1] || 3000
         await new Promise((resolve) => setTimeout(resolve, delayMs))
         continue
       }
 
-      // Non-transient errors (400, 401, 403, etc.) or final attempt exhausted
+      // Non-transient errors (429, 400, 401, 403, 422, etc.) or final attempt exhausted
       break
     }
 
@@ -292,7 +294,7 @@ You MUST respond with valid, raw JSON only (no markdown code blocks, no backtick
       const upstreamStatus = upstreamResponse?.status || 502
 
       // 429 Quota Exhaustion / Rate Limit handling
-      if (upstreamStatus === 429) {
+      if (upstreamStatus === 429 || upstreamResponse.status === 429) {
         const safeRetryAfterSeconds = extractSafeRetryAfterSeconds(upstreamResponse, errorText)
         const responseHeaders: Record<string, string> = {
           ...corsHeaders,
