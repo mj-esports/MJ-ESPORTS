@@ -393,7 +393,22 @@ export async function reviewPlayerProof(evidenceId, status, rejectionReason = nu
  * @param {string} [fallbackDataUrl] - Pre-loaded data URL fallback
  * @returns {Promise<{ success: boolean, data?: { exactIgn: string, canonicalIgn: string, uid: string, isLegible: boolean, confidenceNotes: string }, error?: string }>}
  */
+/**
+ * Feature Flag: Temporarily pause live Gemini OCR during alternative API evaluation.
+ * Setting this to true prevents frontend code from making live Gemini API requests,
+ * while preserving the entire underlying OCR implementation, Edge Function, and tests intact.
+ */
+export const IS_PROFILE_OCR_PAUSED = false
+
 export async function extractFreeFireProfileFromScreenshot(imageFile, fallbackDataUrl = '') {
+  if (IS_PROFILE_OCR_PAUSED) {
+    return {
+      success: false,
+      error: 'Profile OCR is temporarily unavailable.',
+      isPaused: true,
+    }
+  }
+
   if (!imageFile && !fallbackDataUrl) {
     return { success: false, error: 'Please select a profile screenshot to scan.' }
   }

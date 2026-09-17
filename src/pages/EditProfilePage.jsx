@@ -8,7 +8,8 @@ import {
   uploadProfileProof,
   getPlayerProof,
   invalidatePlayerVerification,
-  extractFreeFireProfileFromScreenshot
+  extractFreeFireProfileFromScreenshot,
+  IS_PROFILE_OCR_PAUSED
 } from '../services/playerEvidenceService'
 import {
   User,
@@ -32,7 +33,8 @@ import {
   Shield,
   FileText,
   Scan,
-  RefreshCw
+  RefreshCw,
+  Info
 } from 'lucide-react'
 import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'
@@ -192,7 +194,7 @@ export default function EditProfilePage() {
       metaIgn: meta.canonical_ign || meta.freeFireIgn || meta.gameIgn,
       profileIgn: profile?.canonical_ign,
       formUsername: formData.username || meta.username || profile?.username,
-      ocrIgn: ocrResult?.exactIgn,
+      ocrIgn: null, // IGN OCR is paused: Gemini extracts UID only
     })
   }, [
     proofEvidence?.canonical_ign,
@@ -204,18 +206,12 @@ export default function EditProfilePage() {
     profile?.canonical_ign,
     profile?.username,
     formData.username,
-    ocrResult?.exactIgn,
   ])
 
   const uidComparison = useMemo(() => {
     if (!ocrResult?.uid) return 'UNKNOWN'
     return compareProfileUid(currentProfileUid, ocrResult.uid)
   }, [currentProfileUid, ocrResult?.uid])
-
-  const ignComparison = useMemo(() => {
-    if (!ocrResult?.exactIgn) return { exactMatch: false, normalizedMatch: false, status: 'UNKNOWN' }
-    return compareProfileIgn(currentProfileIgn, ocrResult.exactIgn)
-  }, [currentProfileIgn, ocrResult?.exactIgn])
 
   const handleProofFileChange = (e) => {
     const file = e.target.files?.[0]
@@ -249,6 +245,10 @@ export default function EditProfilePage() {
 
   // Handle OCR scanning of selected screenshot (Phase 1B)
   const handleScanProfileOcr = async () => {
+    if (IS_PROFILE_OCR_PAUSED) {
+      setOcrError('Profile OCR is temporarily unavailable.')
+      return
+    }
     if (ocrCooldownSeconds > 0) return
     if (!stagedFile && !proofPreviewUrl) {
       setOcrError('Please select a profile screenshot before scanning.')
@@ -266,7 +266,7 @@ export default function EditProfilePage() {
         setOcrResult(res.data)
         setOcrError(null)
         setOcrCooldownSeconds(0)
-        showSuccess('Profile details extracted from screenshot!', 'OCR Scan Complete')
+        showSuccess('Free Fire UID extracted from screenshot!', 'OCR Scan Complete')
       } else {
         setOcrResult(null)
         if (res.isRateLimited || (res.retryAfterSeconds && res.retryAfterSeconds > 0)) {
@@ -930,8 +930,9 @@ export default function EditProfilePage() {
                         <button
                           type="button"
                           onClick={handleScanProfileOcr}
-                          disabled={isOcrScanning || isProofUploading || ocrCooldownSeconds > 0}
+                          disabled={IS_PROFILE_OCR_PAUSED || isOcrScanning || isProofUploading || ocrCooldownSeconds > 0}
                           className="px-3 py-2 bg-[#18181b] border border-[#00f2ff]/40 hover:border-[#00f2ff] text-[#00f2ff] rounded-lg text-xs font-mono font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_10px_rgba(0,242,255,0.15)]"
+                          title={IS_PROFILE_OCR_PAUSED ? 'Profile OCR is temporarily unavailable.' : undefined}
                         >
                           <Scan className={`w-3.5 h-3.5 ${isOcrScanning ? 'animate-spin' : ''}`} />
                           <span>
@@ -968,6 +969,14 @@ export default function EditProfilePage() {
                         </button>
                       )}
                     </div>
+
+                    {/* OCR Paused Evaluation Notice */}
+                    {stagedFile && IS_PROFILE_OCR_PAUSED && !ocrResult && (
+                      <div className="p-2.5 bg-[#18181b] border border-[#27272a] rounded-lg text-xs text-[#849495] flex items-center gap-2 font-mono" role="status">
+                        <Info className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+                        <span>Profile OCR is temporarily unavailable.</span>
+                      </div>
+                    )}
 
                     {/* OCR Error / Uncertain Notice */}
                     {ocrError && (
@@ -1013,48 +1022,33 @@ export default function EditProfilePage() {
                           )}
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                          <div className="p-2 bg-[#18181b] border border-[#27272a] rounded space-y-1">
-                            <div className="flex items-center justify-between">
-                              <span className="font-mono text-[10px] text-[#71717a] block uppercase">DETECTED IGN</span>
-                              {ignComparison.status === 'MATCH' && (
-                                <span className="text-[9px] font-mono font-bold text-[#10b981] bg-[#10b981]/10 px-1.5 py-0.5 rounded border border-[#10b981]/30">
-                                  MATCHES PROFILE
-                                </span>
-                              )}
-                              {ignComparison.status === 'NORMALIZED_MATCH_ONLY' && (
-                                <span className="text-[9px] font-mono text-[#f59e0b] bg-[#f59e0b]/10 px-1.5 py-0.5 rounded border border-[#f59e0b]/30">
-                                  STYLE DIFFERS
-                                </span>
-                              )}
-                              {ignComparison.status === 'MISMATCH' && (
-                                <span className="text-[9px] font-mono text-[#ff4655] bg-[#ff4655]/10 px-1.5 py-0.5 rounded border border-[#ff4655]/30">
-                                  IGN MISMATCH
-                                </span>
-                              )}
-                            </div>
-                            <span className="font-sans font-bold text-white text-sm break-all select-all block">
-                              {ocrResult.exactIgn}
-                            </span>
+                        <div className="p-2.5 bg-[#18181b] border border-[#27272a] rounded space-y-1.5 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[10px] text-[#71717a] block uppercase">FREE FIRE UID</span>
+                            {uidComparison === 'MATCH' && (
+                              <span className="text-[9px] font-mono font-bold text-[#10b981] bg-[#10b981]/10 px-1.5 py-0.5 rounded border border-[#10b981]/30">
+                                MATCHES PROFILE
+                              </span>
+                            )}
+                            {uidComparison === 'MISMATCH' && (
+                              <span className="text-[9px] font-mono font-bold text-[#ff4655] bg-[#ff4655]/10 px-1.5 py-0.5 rounded border border-[#ff4655]/30">
+                                UID MISMATCH
+                              </span>
+                            )}
+                            {(uidComparison === 'NOT_DETECTED' || !ocrResult.uid) && (
+                              <span className="text-[9px] font-mono font-bold text-[#f59e0b] bg-[#f59e0b]/10 px-1.5 py-0.5 rounded border border-[#f59e0b]/30">
+                                UID NOT DETECTED
+                              </span>
+                            )}
+                            {uidComparison === 'UNKNOWN' && (
+                              <span className="text-[9px] font-mono text-[#00f2ff] bg-[#00f2ff]/10 px-1.5 py-0.5 rounded border border-[#00f2ff]/30">
+                                UID DETECTED
+                              </span>
+                            )}
                           </div>
-                          <div className="p-2 bg-[#18181b] border border-[#27272a] rounded space-y-1">
-                            <div className="flex items-center justify-between">
-                              <span className="font-mono text-[10px] text-[#71717a] block uppercase">FREE FIRE UID</span>
-                              {uidComparison === 'MATCH' && (
-                                <span className="text-[9px] font-mono font-bold text-[#10b981] bg-[#10b981]/10 px-1.5 py-0.5 rounded border border-[#10b981]/30">
-                                  MATCHES PROFILE
-                                </span>
-                              )}
-                              {uidComparison === 'MISMATCH' && (
-                                <span className="text-[9px] font-mono text-[#ff4655] bg-[#ff4655]/10 px-1.5 py-0.5 rounded border border-[#ff4655]/30">
-                                  UID MISMATCH
-                                </span>
-                              )}
-                            </div>
-                            <span className="font-mono font-bold text-[#00f2ff] text-sm tracking-wide select-all block">
-                              {ocrResult.uid}
-                            </span>
-                          </div>
+                          <span className="font-mono font-bold text-[#00f2ff] text-base tracking-wider select-all block">
+                            {ocrResult.uid || 'N/A'}
+                          </span>
                         </div>
 
                         {/* Consistency Warning for Mismatches */}
@@ -1063,14 +1057,6 @@ export default function EditProfilePage() {
                             <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                             <span>
                               <strong>UID Mismatch:</strong> Detected UID ({ocrResult.uid}) does not match your current profile UID ({currentProfileUid}). Your profile UID will not be modified automatically.
-                            </span>
-                          </div>
-                        )}
-                        {ignComparison.status === 'MISMATCH' && (
-                          <div className="p-2 bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded text-[11px] text-[#f59e0b] font-sans flex items-start gap-1.5">
-                            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                            <span>
-                              <strong>IGN Mismatch:</strong> Detected IGN does not match your profile Free Fire identity.
                             </span>
                           </div>
                         )}

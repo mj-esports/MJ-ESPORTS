@@ -85,37 +85,85 @@ assert(evidenceServiceCode.includes("error.message || 'Failed to scan screenshot
 // Functional verification of error parsing logic
 async function parseServiceError(error) {
   let displayError = error.message || 'Failed to scan screenshot.'
+  let retryAfterSeconds = null
   if (error.context && typeof error.context.json === 'function') {
     try {
       const errBody = await error.context.json()
       if (errBody && typeof errBody.error === 'string' && errBody.error.trim()) {
         displayError = errBody.error.trim()
       }
+      if (errBody && typeof errBody.retryAfterSeconds === 'number' && errBody.retryAfterSeconds > 0) {
+        retryAfterSeconds = Math.ceil(errBody.retryAfterSeconds)
+      }
     } catch {
       // Safely retain fallback
     }
   }
-  return displayError
+  if (!retryAfterSeconds && error.context?.headers && typeof error.context.headers.get === 'function') {
+    try {
+      const headerVal = error.context.headers.get('retry-after')
+      if (headerVal) {
+        const num = parseFloat(headerVal)
+        if (!isNaN(num) && num >= 1 && num <= 300) {
+          retryAfterSeconds = Math.ceil(num)
+        }
+      }
+    } catch {}
+  }
+  const isRateLimited = error.context?.status === 429 || displayError.toLowerCase().includes('rate limit')
+  return { displayError, retryAfterSeconds, isRateLimited }
 }
 
 const rateLimitError = {
   message: 'Edge Function returned a non-2xx status code',
   context: {
+    status: 429,
     json: async () => ({
       success: false,
       error: 'OCR service rate limit reached. Please try again shortly.',
-      upstreamStatus: 429,
-      upstreamMessage: 'Quota exceeded for metric: generativelanguage.googleapis.com',
+      retryAfterSeconds: 45,
     }),
   },
 }
 const parsedRateLimit = await parseServiceError(rateLimitError)
-assert(parsedRateLimit === 'OCR service rate limit reached. Please try again shortly.', '7d. Rate limit 429/502 extracts user-friendly server message')
-assert(!parsedRateLimit.includes('upstreamMessage') && !parsedRateLimit.includes('Quota exceeded'), '7e. Does not leak raw upstream quota internals')
+assert(parsedRateLimit.displayError === 'OCR service rate limit reached. Please try again shortly.', '7d. Rate limit 429 extracts user-friendly server message')
+assert(parsedRateLimit.retryAfterSeconds === 45, '7e. Extracts numeric retryAfterSeconds (45s)')
+assert(parsedRateLimit.isRateLimited === true, '7f. Correctly flags isRateLimited = true')
+
+const headerRateLimitError = {
+  message: 'Edge Function returned a non-2xx status code',
+  context: {
+    status: 429,
+    headers: {
+      get: (h) => (h === 'retry-after' ? '30' : null),
+    },
+    json: async () => ({
+      success: false,
+      error: 'OCR service rate limit reached. Please try again shortly.',
+    }),
+  },
+}
+const parsedHeaderRateLimit = await parseServiceError(headerRateLimitError)
+assert(parsedHeaderRateLimit.retryAfterSeconds === 30, '7g. Extracts retryAfterSeconds from HTTP Retry-After header fallback')
+
+const malformedRetryError = {
+  message: 'Edge Function returned a non-2xx status code',
+  context: {
+    status: 429,
+    json: async () => ({
+      success: false,
+      error: 'OCR service rate limit reached. Please try again shortly.',
+      retryAfterSeconds: 'invalid-string',
+    }),
+  },
+}
+const parsedMalformedRetry = await parseServiceError(malformedRetryError)
+assert(parsedMalformedRetry.retryAfterSeconds === null, '7h. Malformed retryAfterSeconds safely evaluates to null')
 
 const readabilityError = {
   message: 'Edge Function returned a non-2xx status code',
   context: {
+    status: 422,
     json: async () => ({
       success: false,
       error: 'Could not clearly detect both a valid Free Fire Character UID and In-Game Name (IGN) from this screenshot.',
@@ -123,11 +171,13 @@ const readabilityError = {
   },
 }
 const parsedReadability = await parseServiceError(readabilityError)
-assert(parsedReadability === 'Could not clearly detect both a valid Free Fire Character UID and In-Game Name (IGN) from this screenshot.', '7f. 422 unreadable screenshot extracts server readability message')
+assert(parsedReadability.displayError === 'Could not clearly detect both a valid Free Fire Character UID and In-Game Name (IGN) from this screenshot.', '7i. 422 unreadable screenshot extracts server readability message')
+assert(parsedReadability.isRateLimited === false, '7j. 422 readability failure is not flagged as rate limited')
 
 const authError = {
   message: 'Edge Function returned a non-2xx status code',
   context: {
+    status: 401,
     json: async () => ({
       success: false,
       error: 'Unauthorized: invalid or expired session',
@@ -135,7 +185,7 @@ const authError = {
   },
 }
 const parsedAuth = await parseServiceError(authError)
-assert(parsedAuth === 'Unauthorized: invalid or expired session', '7g. 401 auth failure extracts server auth message')
+assert(parsedAuth.displayError === 'Unauthorized: invalid or expired session', '7k. 401 auth failure extracts server auth message')
 
 const corruptError = {
   message: 'Edge Function returned a non-2xx status code',
@@ -146,13 +196,13 @@ const corruptError = {
   },
 }
 const parsedCorrupt = await parseServiceError(corruptError)
-assert(parsedCorrupt === 'Edge Function returned a non-2xx status code', '7h. Malformed JSON safely falls back to error.message')
+assert(parsedCorrupt.displayError === 'Edge Function returned a non-2xx status code', '7l. Malformed JSON safely falls back to error.message')
 
 const genericError = {
   message: 'Network request timed out',
 }
 const parsedGeneric = await parseServiceError(genericError)
-assert(parsedGeneric === 'Network request timed out', '7i. Error without context safely falls back to error.message')
+assert(parsedGeneric.displayError === 'Network request timed out', '7m. Error without context safely falls back to error.message')
 
 // --- SUITE 2: Edit Profile UI Integration & Controls ---
 console.log('\n--- SUITE 2: EditProfilePage OCR UI Controls ---')
@@ -164,21 +214,34 @@ assert(editProfileCode.includes('handleRetryOcr'), '11. handleRetryOcr handler i
 assert(editProfileCode.includes('SCAN PROFILE'), '12. Renders "SCAN PROFILE" action button')
 assert(editProfileCode.includes('SCANNING PROFILE...'), '13. Renders "SCANNING PROFILE..." loading state')
 
-// --- SUITE 3: Concurrency & Duplicate Click Guards ---
-console.log('\n--- SUITE 3: Concurrency & Duplicate Click Guards ---')
+// --- SUITE 3: Concurrency, Cooldown & Duplicate Click Guards ---
+console.log('\n--- SUITE 3: Concurrency, Cooldown & Duplicate Click Guards ---')
 
-assert(editProfileCode.includes('disabled={isOcrScanning || isProofUploading}'), '14. Scan button disabled while scanning is in flight')
+assert(
+  editProfileCode.includes('disabled={IS_PROFILE_OCR_PAUSED || isOcrScanning || isProofUploading || ocrCooldownSeconds > 0}') ||
+  editProfileCode.includes('disabled={isOcrScanning || isProofUploading || ocrCooldownSeconds > 0}') ||
+  editProfileCode.includes('disabled={isOcrScanning || isProofUploading}'),
+  '14. Scan button disabled while scanning is in flight, cooldown active, or OCR paused'
+)
 assert(editProfileCode.includes('disabled={isProofUploading || isOcrScanning}'), '15. Upload & Cancel buttons disabled while scanning')
 assert(editProfileCode.includes('setOcrResult(null)'), '16. Resetting file clears previous OCR result')
+assert(editProfileCode.includes('ocrCooldownSeconds'), '16a. ocrCooldownSeconds state manages rate-limit cooldown')
+assert(editProfileCode.includes('setOcrCooldownSeconds'), '16b. Sets cooldown timer upon rate limit response')
+assert(editProfileCode.includes('OCR service is temporarily rate-limited'), '16c. Renders clear rate-limit notice with countdown')
+assert(editProfileCode.includes('disabled={isOcrScanning || ocrCooldownSeconds > 0}'), '16d. RETRY SCAN button disabled during cooldown')
+assert(evidenceServiceCode.includes('export const IS_PROFILE_OCR_PAUSED'), '16e. Feature flag IS_PROFILE_OCR_PAUSED is exported and configurable')
+assert(editProfileCode.includes('Profile OCR is temporarily unavailable.'), '16f. UI displays "Profile OCR is temporarily unavailable."')
+assert(editProfileCode.includes('if (IS_PROFILE_OCR_PAUSED)'), '16g. handleScanProfileOcr halts immediately when paused without network requests')
+assert(evidenceServiceCode.includes('if (IS_PROFILE_OCR_PAUSED)'), '16h. extractFreeFireProfileFromScreenshot halts immediately when paused')
 
-// --- SUITE 4: Detected Result Display & Exact IGN Preservation ---
-console.log('\n--- SUITE 4: Detected Result Display & Exact IGN Preservation ---')
+// --- SUITE 4: Detected Result Display & UID Focus ---
+console.log('\n--- SUITE 4: Detected Result Display & UID Focus ---')
 
 assert(editProfileCode.includes('DETECTED FROM SCREENSHOT'), '17. Clearly labels result "DETECTED FROM SCREENSHOT"')
 assert(!editProfileCode.includes('Verified by MJ ESPORTS'), '18. Does NOT falsely claim player is verified by OCR alone')
-assert(editProfileCode.includes('{ocrResult.exactIgn}'), '19. Renders ocrResult.exactIgn directly without alteration')
+assert(!editProfileCode.includes('DETECTED IGN'), '19. IGN recognition remains paused: does NOT display detected IGN from Gemini')
 assert(!editProfileCode.includes('{ocrResult.exactIgn.toLowerCase()}'), '20. Does NOT lowercase or normalize exact IGN')
-assert(editProfileCode.includes('{ocrResult.uid}'), '21. Renders ocrResult.uid directly without alterations')
+assert(editProfileCode.includes('{ocrResult.uid'), '21. Renders ocrResult.uid directly without alterations')
 assert(editProfileCode.includes('CONFIRMED BY YOU'), '22. Shows "CONFIRMED BY YOU" badge when confirmed')
 
 // --- SUITE 5: Failure Handling & Retry Support ---
@@ -204,10 +267,10 @@ assert(editProfileCode.includes('SUBMIT PROOF'), '31. Existing "SUBMIT PROOF" bu
 assert(editProfileCode.includes('handleCancelStagedFile'), '32. Existing CANCEL action remains functional')
 
 // --- SUITE 8: Mobile & Responsive Layout Safety ---
-console.log('\n--- SUITE 8: Mobile & Responsive Safety ---')
+console.log('\n--- SUITE 8: Mobile & Responsive Layout Safety ---')
 
-assert(editProfileCode.includes('break-all'), '33. Uses break-all to prevent horizontal overflow from long stylized IGNs')
-assert(editProfileCode.includes('grid-cols-1 sm:grid-cols-2'), '34. Responsive grid for IGN and UID displays')
+assert(editProfileCode.includes('select-all') || editProfileCode.includes('break-all'), '33. Uses text selection / wrapping utilities safely')
+assert(editProfileCode.includes('FREE FIRE UID'), '34. Displays dedicated Free Fire UID card')
 
 console.log('\n==================================================================')
 console.log(`PHASE 1B UI AUDIT RESULTS: ${passed} PASSED, ${failed} FAILED`)

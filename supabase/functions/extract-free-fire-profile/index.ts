@@ -208,34 +208,30 @@ serve(async (req: Request) => {
     const systemPrompt = `You are a high-precision OCR extraction engine specialized in Free Fire and Free Fire MAX profile banner screenshots.
 
 YOUR SOLE MISSION:
-Accurately locate and extract the player's In-Game Name (IGN) and Character UID from the provided profile banner screenshot.
+Accurately locate and extract ONLY the player's Free Fire Character UID (numeric identifier) from the visible profile card in the screenshot.
+Do NOT extract or process In-Game Name (IGN) — IGN recognition is strictly paused.
+(Legacy reference notes: PRESERVE all Unicode characters, DO NOT autocorrect, normalize, translate, exact letter casing).
 
-CRITICAL EXTRACTION RULES:
-1. IN-GAME NAME (IGN):
-   - In Free Fire, the IGN appears in the top-left player card / profile banner area, near the avatar, player level, and rank icon.
-   - You MUST extract the IGN EXACTLY as displayed in the image.
-   - PRESERVE all Unicode characters, special fonts, subscript/superscript digits, clan tags, symbols (e.g. 亗, ⚡, ࿐, ™, 么, ᶠᶠ, ⁰¹²³⁴⁵⁶⁷⁸⁹), and spaces.
-   - PRESERVE exact letter casing (e.g. uppercase vs lowercase).
-   - DO NOT autocorrect, normalize, translate, simplify, or convert stylized fonts to basic Latin.
-   - DO NOT guess or hallucinate missing letters.
-   - Pay extreme attention to: 'O' vs '0', 'I' vs 'l' vs '1', 'S' vs '5'.
-
-2. CHARACTER UID:
-   - In Free Fire, the Character UID is a numeric identifier displayed directly below or beside the IGN in the profile card, often next to a "UID:" label or copy icon.
-   - The UID consists of NUMERIC DIGITS (typically 10 digits).
+CRITICAL UID EXTRACTION RULES:
+1. CHARACTER UID:
+   - In Free Fire / Free Fire MAX, the Character UID is a numeric identifier displayed in the profile card / banner area, often directly below the avatar or next to a "UID:" label or copy icon.
+   - The UID consists of EXACTLY 10 NUMERIC DIGITS (e.g. 3619879816).
    - Extract ONLY the digits. Exclude the literal text "UID:" or copy icons.
-   - DO NOT guess digits that are blurred or unreadable.
+   - DO NOT guess or hallucinate missing digits.
+   - DO NOT repair or complete partially visible or cut-off numbers.
+   - If the UID is blurred, occluded, or unreadable, set "uid" to null and "is_legible" to false.
+   - If multiple conflicting or ambiguous 10-digit candidate numbers are detected, set "ambiguous" to true, "uid" to null, and explain in "confidence_notes".
 
-3. UNCERTAINTY / BLURRED IMAGES:
-   - If either the IGN or UID cannot be clearly and legibly read from the screenshot, set is_legible to false and specify the issue in notes.
+2. IGN IS EXCLUDED:
+   - Do NOT attempt to read, normalize, or return the player's In-Game Name (IGN). Focus strictly and solely on the 10-digit UID.
 
 RETURN FORMAT:
 You MUST respond with valid, raw JSON only (no markdown code blocks, no backticks, no explanatory text):
 {
-  "ign": "<exact string or null if unreadable>",
-  "uid": "<digits string or null if unreadable>",
+  "uid": "<10 numeric digits string or null if unreadable or ambiguous>",
   "is_legible": true,
-  "confidence_notes": "<brief assessment of clarity, font style, and readability>"
+  "confidence_notes": "<brief assessment of UID visibility, clarity, and readability>",
+  "ambiguous": false
 }`
 
     const geminiPayload = {
@@ -379,27 +375,42 @@ You MUST respond with valid, raw JSON only (no markdown code blocks, no backtick
       )
     }
 
-    // 8. Server-side validation of extracted data
-    const rawExtractedIgn = extractedResult?.ign
+    // 8. Server-side validation of extracted data (UID ONLY)
     const rawExtractedUid = extractedResult?.uid ? String(extractedResult.uid).trim() : ''
     const isLegible = extractedResult?.is_legible !== false
+    const isAmbiguous = extractedResult?.ambiguous === true
 
-    if (!isLegible || !rawExtractedUid || !rawExtractedIgn) {
+    // Check for ambiguous multiple UIDs
+    if (isAmbiguous) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: 'Could not clearly detect both a valid Free Fire Character UID and In-Game Name (IGN) from this screenshot. Please ensure the screenshot clearly displays the profile card banner.',
+          error: 'Multiple ambiguous Free Fire Character UIDs were detected in the screenshot. Please upload a clearer, uncropped screenshot focused on your profile card.',
           details: {
-            detectedIgn: rawExtractedIgn || null,
-            detectedUid: rawExtractedUid || null,
-            notes: extractedResult?.confidence_notes || 'Image text was blurry, cropped, or not clearly identifiable as a Free Fire profile.',
+            ambiguous: true,
+            notes: extractedResult?.confidence_notes || 'Ambiguous multiple UID candidates detected.',
           },
         }),
         { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // 9. Enforce existing 10-digit UID rule
+    // Check for illegible or missing UID
+    if (!isLegible || !rawExtractedUid) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Could not clearly detect a valid Free Fire Character UID from this screenshot. Please ensure the screenshot clearly displays the profile card banner with the 10-digit UID.',
+          details: {
+            detectedUid: null,
+            notes: extractedResult?.confidence_notes || 'UID text was blurry, cropped, or not clearly identifiable.',
+          },
+        }),
+        { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 9. Enforce strict 10-digit UID rule (/^[0-9]{10}$/)
     if (!isValidGameUid(rawExtractedUid)) {
       return new Response(
         JSON.stringify({
@@ -413,32 +424,14 @@ You MUST respond with valid, raw JSON only (no markdown code blocks, no backtick
       )
     }
 
-    // 10. Enforce existing IGN validity rule (1 to 30 characters)
-    const exactExtractedIgn = String(rawExtractedIgn).trim()
-    if (!isValidIgn(exactExtractedIgn)) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Extracted IGN length must be between 1 and 30 characters.',
-          details: {
-            detectedIgn: exactExtractedIgn,
-          },
-        }),
-        { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // 11. Return safe validated result to frontend
-    // Notice: exact extracted IGN is preserved untouched. Canonical IGN is computed cleanly.
+    // 10. Return safe validated result to frontend (UID ONLY - IGN is not returned)
     return new Response(
       JSON.stringify({
         success: true,
         data: {
-          exactIgn: exactExtractedIgn,
-          canonicalIgn: toCanonicalIgn(exactExtractedIgn),
           uid: rawExtractedUid,
           isLegible: true,
-          confidenceNotes: extractedResult?.confidence_notes || 'Extracted successfully',
+          confidenceNotes: extractedResult?.confidence_notes || 'UID extracted successfully',
         },
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
