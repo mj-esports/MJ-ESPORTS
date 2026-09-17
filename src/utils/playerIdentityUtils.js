@@ -194,7 +194,6 @@ export function compareProfileIgn(profileIgn, ocrIgn) {
  * @param {string} [params.metaIgn] - Game IGN stored in user_metadata (canonical_ign, freeFireIgn, gameIgn)
  * @param {string} [params.profileIgn] - Canonical IGN stored in profile
  * @param {string} [params.formUsername] - Current form display name / account username
- * @param {string} [params.ocrIgn] - Detected IGN from OCR (optional, for branch checking)
  * @returns {string} Authoritative Free Fire IGN for comparison
  */
 export function resolveAuthoritativeProfileIgn({
@@ -203,7 +202,6 @@ export function resolveAuthoritativeProfileIgn({
   metaIgn = '',
   profileIgn = '',
   formUsername = '',
-  ocrIgn = '',
 } = {}) {
   const storedCanonical = String(
     evidenceIgn ||
@@ -216,10 +214,6 @@ export function resolveAuthoritativeProfileIgn({
   const cleanForm = String(formUsername || '').trim()
 
   if (storedCanonical) {
-    // If form username matches OCR exactly while stored does not, allow form
-    if (ocrIgn && cleanForm && cleanForm === ocrIgn.trim() && storedCanonical !== ocrIgn.trim()) {
-      return cleanForm
-    }
     return storedCanonical
   }
 
