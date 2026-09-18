@@ -10,10 +10,13 @@ import {
   Wallet,
   Bell,
   ChevronDown,
-  Info,
-  Mail,
-  ShieldCheck,
-  Check
+  BookOpen,
+  Home,
+  Trophy,
+  Gamepad2,
+  BarChart3,
+  LogIn,
+  UserPlus
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
@@ -27,6 +30,7 @@ import {
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileNotifOpen, setMobileNotifOpen] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -139,6 +143,28 @@ export default function Navbar() {
       document.body.style.overflow = ''
     }
   }, [mobileMenuOpen])
+
+  // Close mobile drawer and dropdowns on Escape key press
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false)
+        setUserDropdownOpen(false)
+        setNotificationsOpen(false)
+        setMobileNotifOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // Auto-close mobile menu and dropdowns on route navigation
+  useEffect(() => {
+    setMobileMenuOpen(false)
+    setUserDropdownOpen(false)
+    setNotificationsOpen(false)
+    setMobileNotifOpen(false)
+  }, [location.pathname])
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -372,14 +398,11 @@ export default function Navbar() {
                         <span>Settings</span>
                       </Link>
 
-                      {/* TEMPORARY TESTING ACCESS — RESTORE ADMIN-ONLY GUARD BEFORE PRODUCTION */}
-                      {(isAdmin || isAuthenticated) && (
+                      {/* Strict Admin-Only Guard */}
+                      {isAdmin && (
                         <Link
                           to="/admin"
-                          onClick={() => {
-                            console.log('[ADMIN CLICK] Desktop dropdown Admin Console clicked. Current URL:', typeof window !== 'undefined' ? window.location.href : '')
-                            setUserDropdownOpen(false)
-                          }}
+                          onClick={() => setUserDropdownOpen(false)}
                           className="flex items-center gap-2.5 px-3 py-2 rounded text-[#ff5e07] hover:text-[#ff8533] hover:bg-[#ff5e07]/10 border border-[#ff5e07]/20 my-1 transition-colors uppercase tracking-wider"
                         >
                           <Shield className="w-4 h-4 text-[#ff5e07]" />
@@ -425,8 +448,10 @@ export default function Navbar() {
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded bg-[#141416] border border-[#27272a] text-[#b9cacb] hover:text-[#00f2ff] focus:outline-none transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
-              aria-label="Toggle Mobile Menu"
+              className="p-2 rounded bg-[#141416] border border-[#27272a] text-[#b9cacb] hover:text-[#00f2ff] focus:outline-none focus:ring-2 focus:ring-[#00f2ff] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation-drawer"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -437,121 +462,158 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-16 sm:top-20 z-40 bg-[#131314]/98 backdrop-blur-xl flex flex-col justify-between p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] space-y-6 md:hidden overflow-y-auto animate-in fade-in slide-in-from-right duration-200 border-t border-[#27272a]">
-          
-          <div className="space-y-6 overflow-y-auto">
-            {/* User Wallet Overview Card */}
-            {isAuthenticated ? (
-              <div className="p-4 rounded bg-[#141416] border border-[#27272a] flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff]/40 overflow-hidden flex items-center justify-center shrink-0">
-                    {userAvatarUrl && !avatarError ? (
-                      <img
-                        src={userAvatarUrl}
-                        alt={`${userDisplayName} profile photo`}
-                        className="w-full h-full object-cover rounded-full"
-                        onError={() => setAvatarError(true)}
-                      />
-                    ) : (
-                      <span className="text-sm font-headline font-bold text-[#00f2ff] uppercase leading-none select-none" aria-hidden="true">
-                        {userInitial}
-                      </span>
-                    )}
+        <>
+          {/* Backdrop overlay - clicking outside closes drawer */}
+          <div
+            className="fixed inset-0 top-16 sm:top-20 z-40 bg-black/75 backdrop-blur-sm md:hidden animate-in fade-in duration-200"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* Drawer Panel */}
+          <div
+            id="mobile-navigation-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile Navigation Menu"
+            className="fixed inset-y-0 right-0 top-16 sm:top-20 z-50 w-full max-w-sm bg-[#131314]/98 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] space-y-4 md:hidden overflow-y-auto animate-in slide-in-from-right duration-200 border-l border-[#27272a] shadow-2xl"
+          >
+            <div className="space-y-4 overflow-y-auto pr-0.5">
+              {/* Authenticated User Overview Card */}
+              {isAuthenticated ? (
+                <div className="p-3.5 rounded bg-[#141416] border border-[#27272a] flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff]/40 overflow-hidden flex items-center justify-center shrink-0">
+                      {userAvatarUrl && !avatarError ? (
+                        <img
+                          src={userAvatarUrl}
+                          alt={`${userDisplayName} profile photo`}
+                          className="w-full h-full object-cover rounded-full"
+                          onError={() => setAvatarError(true)}
+                        />
+                      ) : (
+                        <span className="text-sm font-headline font-bold text-[#00f2ff] uppercase leading-none select-none" aria-hidden="true">
+                          {userInitial}
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-sm font-bold text-white block truncate font-headline">{userDisplayName}</span>
+                      <div className="text-[10.5px] font-mono font-bold block uppercase mt-0.5">
+                        {isWalletLoading ? (
+                          <span className="inline-flex items-center gap-1.5 text-[#849495]">
+                            <span>Wallet:</span>
+                            <span className="inline-block w-8 h-3.5 bg-[#27272a] animate-pulse rounded my-0.5"></span>
+                          </span>
+                        ) : navWalletBalance === null ? (
+                          <span className="text-[#849495]">Wallet unavailable</span>
+                        ) : (
+                          <span className="text-[#10b981]">Wallet Balance: ₹{Math.floor(navWalletBalance)}</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-sm font-bold text-white block truncate max-w-[150px] font-headline">{userDisplayName}</span>
-                    <span className="text-[10px] text-[#10b981] font-mono font-bold block uppercase mt-0.5">
-                      Wallet Balance: ₹{Number(userWalletBalance).toFixed(2)}
+                  {isAdmin && (
+                    <span className="text-[9px] font-extrabold bg-[#ff5e07] text-slate-950 px-2 py-0.5 rounded uppercase font-headline shrink-0">
+                      ADMIN
                     </span>
-                  </div>
+                  )}
                 </div>
-                {isAdmin && (
-                  <span className="text-[9px] font-extrabold bg-[#ff5e07] text-slate-950 px-2 py-0.5 rounded uppercase font-headline">
-                    ADMIN
-                  </span>
-                )}
-              </div>
-            ) : (
-              <div className="flex gap-3">
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 py-3 border border-[#27272a] hover:border-[#00f2ff]/40 text-[#e5e2e3] rounded text-center text-xs font-headline font-bold uppercase"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 py-3 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] rounded text-center text-xs font-headline font-bold uppercase shadow-[0_0_12px_rgba(0,242,255,0.35)]"
-                >
-                  Register
-                </Link>
-              </div>
-            )}
-
-            {/* Menu List */}
-            <div className="flex flex-col space-y-1.5 text-xs font-headline">
-              <span className="text-[9px] font-black uppercase tracking-widest text-[#849495] px-2 mb-1">
-                Lobby Index
-              </span>
-              
-              <Link
-                to="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-3 rounded flex items-center justify-between min-h-[44px] uppercase tracking-wider ${
-                  isActive('/')
-                    ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                    : 'text-[#b9cacb] hover:bg-[#141416]'
-                }`}
-              >
-                Home Arena
-              </Link>
-
-              <Link
-                to="/tournaments"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-3 rounded flex items-center justify-between min-h-[44px] uppercase tracking-wider ${
-                  isActive('/tournaments')
-                    ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                    : 'text-[#b9cacb] hover:bg-[#141416]'
-                }`}
-              >
-                Tournaments
-              </Link>
-
-              <Link
-                to="/leaderboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-3 rounded flex items-center justify-between min-h-[44px] uppercase tracking-wider ${
-                  isActive('/leaderboard')
-                    ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                    : 'text-[#b9cacb] hover:bg-[#141416]'
-                }`}
-              >
-                Leaderboard
-              </Link>
-
-              {isAuthenticated && (
-                <>
-                  <div className="border-t border-[#27272a] my-2"></div>
-                  
+              ) : (
+                /* Logged-Out Visitor Action Buttons */
+                <div className="flex gap-2.5">
                   <Link
-                    to="/profile"
+                    to="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="px-4 py-3 rounded flex items-center gap-2.5 text-[#b9cacb] hover:bg-[#141416] min-h-[44px] uppercase tracking-wider"
+                    className="flex-1 py-2.5 px-3 border border-[#27272a] hover:border-[#00f2ff]/40 text-[#e5e2e3] rounded text-center text-xs font-headline font-bold uppercase min-h-[44px] flex items-center justify-center gap-2 transition-colors"
                   >
-                    <User className="w-4.5 h-4.5 text-[#00f2ff]" />
-                    <span>My Profile</span>
+                    <LogIn className="w-4 h-4 text-[#00f2ff]" />
+                    <span>Login</span>
                   </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex-1 py-2.5 px-3 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] rounded text-center text-xs font-headline font-bold uppercase shadow-[0_0_12px_rgba(0,242,255,0.35)] min-h-[44px] flex items-center justify-center gap-2 transition-all active:scale-95"
+                  >
+                    <UserPlus className="w-4 h-4 text-[#00363a]" />
+                    <span>Register</span>
+                  </Link>
+                </div>
+              )}
 
+              {/* Navigation Links */}
+              <div className="flex flex-col space-y-1 text-xs font-headline">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#849495] px-2 mb-1">
+                  {isAuthenticated ? 'Arena Navigation' : 'Public Directory'}
+                </span>
+
+                {/* 1. Home */}
+                <Link
+                  to="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                    isActive('/')
+                      ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
+                      : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                  }`}
+                >
+                  <Home className="w-4.5 h-4.5 text-[#00f2ff]" />
+                  <span>Home</span>
+                </Link>
+
+                {/* 2. Tournaments */}
+                <Link
+                  to="/tournaments"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                    isActive('/tournaments')
+                      ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
+                      : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                  }`}
+                >
+                  <Trophy className="w-4.5 h-4.5 text-[#ff5e07]" />
+                  <span>Tournaments</span>
+                </Link>
+
+                {/* 3. My Matches (Authenticated Only) */}
+                {isAuthenticated && (
+                  <Link
+                    to="/profile/history"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                      isActive('/profile/history')
+                        ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
+                        : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                    }`}
+                  >
+                    <Gamepad2 className="w-4.5 h-4.5 text-[#00f2ff]" />
+                    <span>My Matches</span>
+                  </Link>
+                )}
+
+                {/* 4. Leaderboard */}
+                <Link
+                  to="/leaderboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                    isActive('/leaderboard')
+                      ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
+                      : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                  }`}
+                >
+                  <BarChart3 className="w-4.5 h-4.5 text-[#fed83a]" />
+                  <span>Leaderboard</span>
+                </Link>
+
+                {/* 5. Wallet (Authenticated Only) */}
+                {isAuthenticated && (
                   <Link
                     to="/wallet"
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`px-4 py-3 rounded flex items-center justify-between min-h-[44px] uppercase tracking-wider ${
+                    className={`px-3.5 py-2.5 rounded flex items-center justify-between min-h-[44px] uppercase tracking-wider transition-colors ${
                       isActive('/wallet')
                         ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                        : 'text-[#b9cacb] hover:bg-[#141416]'
+                        : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -566,49 +628,150 @@ export default function Navbar() {
                       </span>
                     )}
                   </Link>
+                )}
 
-                  <Link
-                    to="/settings"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-4 py-3 rounded flex items-center gap-2.5 text-[#b9cacb] hover:bg-[#141416] min-h-[44px] uppercase tracking-wider"
-                  >
-                    <Settings className="w-4.5 h-4.5 text-[#849495]" />
-                    <span>Settings</span>
-                  </Link>
+                {/* 6. Rulebook & Info */}
+                <Link
+                  to="/about"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                    isActive('/about')
+                      ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
+                      : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                  }`}
+                >
+                  <BookOpen className="w-4.5 h-4.5 text-[#00f2ff]" />
+                  <span>Rulebook & Info</span>
+                </Link>
 
-                  {isAdmin && (
+                {/* Authenticated Actions */}
+                {isAuthenticated && (
+                  <>
+                    <div className="border-t border-[#27272a] my-1.5"></div>
+
+                    {/* 7. Profile */}
                     <Link
-                      to="/admin"
-                      onClick={() => {
-                        console.log('[ADMIN CLICK] Mobile drawer Admin Console clicked. Current URL:', typeof window !== 'undefined' ? window.location.href : '')
-                        setMobileMenuOpen(false)
-                      }}
-                      className="px-4 py-3 rounded flex items-center gap-2.5 text-[#ff5e07] bg-[#ff5e07]/10 border border-[#ff5e07]/25 min-h-[44px] uppercase tracking-wider font-bold"
+                      to="/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                        isActive('/profile')
+                          ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
+                          : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                      }`}
                     >
-                      <Shield className="w-4.5 h-4.5 text-[#ff5e07]" />
-                      <span>Admin Console</span>
+                      <User className="w-4.5 h-4.5 text-[#00f2ff]" />
+                      <span>Profile</span>
                     </Link>
-                  )}
-                </>
-              )}
+
+                    {/* 8. Notifications Tray */}
+                    <div className="rounded border border-[#27272a] bg-[#141416] overflow-hidden my-1">
+                      <button
+                        type="button"
+                        onClick={() => setMobileNotifOpen(!mobileNotifOpen)}
+                        className="w-full px-3.5 py-2.5 flex items-center justify-between min-h-[44px] text-xs font-headline uppercase tracking-wider text-[#b9cacb] hover:text-white transition-colors cursor-pointer"
+                        aria-expanded={mobileNotifOpen}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Bell className="w-4.5 h-4.5 text-[#00f2ff]" />
+                          <span>Notifications</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {unreadNotificationsCount > 0 ? (
+                            <span className="min-w-[18px] h-4.5 rounded-full bg-[#ef4444] text-[9px] font-black text-white flex items-center justify-center px-1.5 animate-pulse">
+                              {unreadNotificationsCount}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-[#849495] font-mono lowercase">0 unread</span>
+                          )}
+                          <ChevronDown className={`w-3.5 h-3.5 text-[#849495] transition-transform duration-200 ${mobileNotifOpen ? 'rotate-180' : ''}`} />
+                        </div>
+                      </button>
+
+                      {mobileNotifOpen && (
+                        <div className="border-t border-[#27272a] p-3 space-y-2.5 bg-[#0f0f11]">
+                          <div className="flex items-center justify-between pb-1 border-b border-[#27272a]/60">
+                            <span className="text-[10px] font-mono text-[#849495] uppercase font-bold">
+                              Alerts ({unreadNotificationsCount} unread)
+                            </span>
+                            {unreadNotificationsCount > 0 && (
+                              <button
+                                type="button"
+                                onClick={handleMarkAllRead}
+                                className="text-[9px] text-[#00f2ff] hover:underline uppercase font-bold cursor-pointer font-mono"
+                              >
+                                Mark Read
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="max-h-44 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+                            {notifications.length === 0 ? (
+                              <div className="py-3 text-center text-[#849495] text-[11px] font-sans">
+                                No notifications on log.
+                              </div>
+                            ) : (
+                              notifications.slice(0, 5).map((n) => (
+                                <div
+                                  key={`mobile-notif-${n.id}`}
+                                  className={`p-2 rounded border text-[11px] leading-relaxed transition-all ${
+                                    n.is_read
+                                      ? 'bg-[#1c1b1c]/40 border-[#27272a]/60 text-[#b9cacb]'
+                                      : 'bg-[#00f2ff]/5 border-[#00f2ff]/30 text-white'
+                                  }`}
+                                >
+                                  <div className="flex justify-between items-start font-bold">
+                                    <span className="truncate">{n.title}</span>
+                                    {!n.is_read && <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0 mt-1"></span>}
+                                  </div>
+                                  <p className="text-[10px] text-[#b9cacb] mt-0.5 font-sans">{n.message}</p>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Admin Dashboard (Admin Only) */}
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="px-3.5 py-2.5 rounded flex items-center justify-between text-[#ff5e07] bg-[#ff5e07]/10 border border-[#ff5e07]/25 min-h-[44px] uppercase tracking-wider font-bold transition-colors hover:bg-[#ff5e07]/20"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Shield className="w-4.5 h-4.5 text-[#ff5e07]" />
+                          <span>Admin Dashboard</span>
+                        </div>
+                        <span className="text-[9px] font-extrabold bg-[#ff5e07] text-slate-950 px-1.5 py-0.5 rounded">
+                          ACCESS
+                        </span>
+                      </Link>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
+
+            {/* Drawer Footer: Logout (Authenticated Only) */}
+            {isAuthenticated && (
+              <div className="pt-2 border-t border-[#27272a]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleSignOut()
+                    setMobileMenuOpen(false)
+                  }}
+                  disabled={isSigningOut}
+                  className="w-full py-3 text-xs font-bold text-red-500 bg-[#141416] hover:bg-red-950/20 rounded border border-[#27272a] hover:border-red-500/40 flex items-center justify-center gap-2 min-h-[44px] uppercase font-headline cursor-pointer transition-colors"
+                >
+                  <LogOut className="w-4 h-4 text-red-500" />
+                  <span>{isSigningOut ? 'Disconnecting...' : 'Logout'}</span>
+                </button>
+              </div>
+            )}
           </div>
-
-          {/* Drawer footer / logout */}
-          {isAuthenticated && (
-            <button
-              onClick={() => {
-                handleSignOut()
-                setMobileMenuOpen(false)
-              }}
-              className="w-full py-3.5 text-xs font-bold text-red-500 bg-[#141416] hover:bg-red-950/20 rounded border border-[#27272a] flex items-center justify-center gap-2 min-h-[44px] uppercase font-headline cursor-pointer transition-colors"
-            >
-              <LogOut className="w-4 h-4 text-red-500" />
-              <span>Sign Out Session</span>
-            </button>
-          )}
-
-        </div>
+        </>
       )}
     </nav>
   )
