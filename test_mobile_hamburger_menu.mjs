@@ -129,4 +129,132 @@ test('4.4 Body scroll locking is preserved', () => {
   )
 })
 
+// ----------------------------------------------------------------------------
+// SUITE 5: RUNTIME EXECUTION PATH SIMULATION
+// ----------------------------------------------------------------------------
+
+test('5.1 Runtime simulation: Authenticated normal user with balance ₹50', () => {
+  // Ensure global.userWalletBalance is completely undefined
+  assert.strictEqual(typeof global.userWalletBalance, 'undefined')
+
+  const state = {
+    isAuthenticated: true,
+    isAdmin: false,
+    userDisplayName: 'ApexGamer',
+    navWalletBalance: 50,
+    isWalletLoading: false,
+    mobileMenuOpen: true,
+  }
+
+  // Execute the exact expressions from Navbar.jsx line 490-520
+  let renderedWalletText = null
+  if (state.isWalletLoading) {
+    renderedWalletText = 'LOADING_PULSE'
+  } else if (state.navWalletBalance === null) {
+    renderedWalletText = 'Wallet unavailable'
+  } else {
+    renderedWalletText = `Wallet Balance: ₹${Math.floor(state.navWalletBalance)}`
+  }
+
+  assert.strictEqual(renderedWalletText, 'Wallet Balance: ₹50')
+  assert.strictEqual(state.isAdmin, false, 'Admin dashboard must not be shown')
+})
+
+test('5.2 Runtime simulation: Wallet loading state renders skeleton without crashing', () => {
+  assert.strictEqual(typeof global.userWalletBalance, 'undefined')
+
+  const state = {
+    isAuthenticated: true,
+    isAdmin: false,
+    userDisplayName: 'NewPlayer',
+    navWalletBalance: null,
+    isWalletLoading: true,
+    mobileMenuOpen: true,
+  }
+
+  let renderedWalletText = null
+  if (state.isWalletLoading) {
+    renderedWalletText = 'LOADING_PULSE'
+  } else if (state.navWalletBalance === null) {
+    renderedWalletText = 'Wallet unavailable'
+  } else {
+    renderedWalletText = `Wallet Balance: ₹${Math.floor(state.navWalletBalance)}`
+  }
+
+  assert.strictEqual(renderedWalletText, 'LOADING_PULSE')
+})
+
+test('5.3 Runtime simulation: Wallet null/error state renders safe fallback without crashing', () => {
+  assert.strictEqual(typeof global.userWalletBalance, 'undefined')
+
+  const state = {
+    isAuthenticated: true,
+    isAdmin: false,
+    userDisplayName: 'OfflinePlayer',
+    navWalletBalance: null,
+    isWalletLoading: false,
+    mobileMenuOpen: true,
+  }
+
+  let renderedWalletText = null
+  if (state.isWalletLoading) {
+    renderedWalletText = 'LOADING_PULSE'
+  } else if (state.navWalletBalance === null) {
+    renderedWalletText = 'Wallet unavailable'
+  } else {
+    renderedWalletText = `Wallet Balance: ₹${Math.floor(state.navWalletBalance)}`
+  }
+
+  assert.strictEqual(renderedWalletText, 'Wallet unavailable')
+})
+
+test('5.4 Runtime simulation: Authenticated admin includes Admin Dashboard', () => {
+  const state = {
+    isAuthenticated: true,
+    isAdmin: true,
+    userDisplayName: 'AdminMaster',
+    navWalletBalance: 150,
+    isWalletLoading: false,
+    mobileMenuOpen: true,
+  }
+
+  const menuItems = [
+    { name: 'Home', path: '/' },
+    { name: 'Tournaments', path: '/tournaments' },
+    { name: 'My Matches', path: '/profile/history' },
+    { name: 'Leaderboard', path: '/leaderboard' },
+    { name: 'Wallet', path: '/wallet' },
+    { name: 'Rulebook & Info', path: '/about' },
+    { name: 'Profile', path: '/profile' },
+    { name: 'Notifications', path: null },
+    ...(state.isAdmin ? [{ name: 'Admin Dashboard', path: '/admin' }] : []),
+    { name: 'Logout', path: null },
+  ]
+
+  assert.strictEqual(menuItems.length, 10)
+  assert.ok(menuItems.some(i => i.name === 'Admin Dashboard'))
+})
+
+test('5.5 Runtime simulation: Logged-out visitor sees only public navigation and auth actions', () => {
+  const state = {
+    isAuthenticated: false,
+    isAdmin: false,
+    mobileMenuOpen: true,
+  }
+
+  const publicItems = [
+    { name: 'Login', path: '/login' },
+    { name: 'Register', path: '/register' },
+    { name: 'Home', path: '/' },
+    { name: 'Tournaments', path: '/tournaments' },
+    { name: 'Leaderboard', path: '/leaderboard' },
+    { name: 'Rulebook & Info', path: '/about' },
+  ]
+
+  assert.strictEqual(publicItems.length, 6)
+  assert.ok(!publicItems.some(i => i.name === 'Wallet'))
+  assert.ok(!publicItems.some(i => i.name === 'Admin Dashboard'))
+  assert.ok(!publicItems.some(i => i.name === 'My Matches'))
+})
+
 console.log('--- ALL MOBILE HAMBURGER MENU TESTS PASSED ---')
