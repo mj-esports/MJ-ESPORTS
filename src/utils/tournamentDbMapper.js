@@ -66,6 +66,9 @@ export function mapTournamentFromDb(row) {
     roomPublishedBy: row.room_published_by || null,
     winnerTeam: row.winner_team || null,
     winnerCaptain: row.winner_captain || null,
+    roomReleaseTime: row.room_release_time || null,
+    room_release_time: row.room_release_time || null,
+    roomReleaseWindowMinutes: Number(row.room_release_window_minutes || 15),
     created_at: row.created_at || null,
     updated_at: row.updated_at || null,
   }
@@ -185,6 +188,12 @@ export function mapTournamentToDb(t) {
     const wCap = t.winner_captain ?? t.winnerCaptain
     payload.winner_captain = wCap ? String(wCap).trim() : null
   }
+  if (t.roomReleaseTime !== undefined || t.room_release_time !== undefined) {
+    payload.room_release_time = t.room_release_time ?? t.roomReleaseTime ?? null
+  }
+  if (t.roomReleaseWindowMinutes !== undefined || t.room_release_window_minutes !== undefined) {
+    payload.room_release_window_minutes = Number(t.room_release_window_minutes ?? t.roomReleaseWindowMinutes ?? 15)
+  }
 
   return payload
 }
@@ -290,6 +299,13 @@ export function mapPartialTournamentToDb(fields) {
   if (fields.winnerCaptain !== undefined || fields.winner_captain !== undefined) {
     const wCap = fields.winner_captain ?? fields.winnerCaptain
     payload.winner_captain = wCap ? String(wCap).trim() : null
+  }
+
+  if (fields.roomReleaseTime !== undefined || fields.room_release_time !== undefined) {
+    payload.room_release_time = fields.room_release_time ?? fields.roomReleaseTime ?? null
+  }
+  if (fields.roomReleaseWindowMinutes !== undefined || fields.room_release_window_minutes !== undefined) {
+    payload.room_release_window_minutes = Number(fields.room_release_window_minutes ?? fields.roomReleaseWindowMinutes ?? 15)
   }
 
   if (fields.updatedAt !== undefined || fields.updated_at !== undefined) {

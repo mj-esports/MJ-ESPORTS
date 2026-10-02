@@ -49,7 +49,7 @@ export function TournamentProvider({ children }) {
       try {
         const { data, error } = await supabase
           .from('tournaments')
-          .select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, room_status, room_last_updated, room_published_by, winner_team, winner_captain, created_at, updated_at')
+          .select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, room_status, room_last_updated, room_published_by, room_release_time, room_release_window_minutes, winner_team, winner_captain, created_at, updated_at')
           .order('created_at', { ascending: false })
 
         if (error) {
@@ -634,13 +634,21 @@ export function TournamentProvider({ children }) {
       throw new Error('Room Password must contain numbers only (0-9).')
     }
 
-    return updateTournament(tournamentId, {
+    const payload = {
       roomId: cleanRoomId,
       roomPassword: cleanPassword,
       roomStatus: roomData.roomStatus,
       roomLastUpdated: new Date().toISOString(),
       roomPublishedBy: roomData.roomPublishedBy,
-    })
+    }
+    if (roomData.roomReleaseTime !== undefined || roomData.room_release_time !== undefined) {
+      payload.roomReleaseTime = roomData.roomReleaseTime ?? roomData.room_release_time
+    }
+    if (roomData.roomReleaseWindowMinutes !== undefined || roomData.room_release_window_minutes !== undefined) {
+      payload.roomReleaseWindowMinutes = roomData.roomReleaseWindowMinutes ?? roomData.room_release_window_minutes
+    }
+
+    return updateTournament(tournamentId, payload)
   }
 
   const getRoomCredentials = useCallback(async (tournamentId) => {
@@ -665,6 +673,10 @@ export function TournamentProvider({ children }) {
         return {
           success: false,
           errorCode: payload.error_code || 'DENIED',
+          error_code: payload.error_code || 'DENIED',
+          releaseTime: payload.release_time || null,
+          release_time: payload.release_time || null,
+          serverTime: payload.server_time || null,
           message: payload.message || 'Access to room credentials was denied.',
         }
       }
@@ -673,21 +685,27 @@ export function TournamentProvider({ children }) {
       const roomId = payload.roomId ?? payload.room_id ?? ''
       const roomPassword = payload.roomPassword ?? payload.room_password ?? ''
       const roomStatus = payload.roomStatus ?? payload.room_status ?? 'Draft'
+      const roomReleaseTime = payload.roomReleaseTime ?? payload.room_release_time ?? payload.release_time ?? null
       const roomLastUpdated = payload.roomLastUpdated ?? payload.room_last_updated ?? null
       const roomPublishedBy = payload.roomPublishedBy ?? payload.room_published_by ?? null
+      const isAdminOverride = Boolean(payload.is_admin_override || payload.isAdminOverride)
 
       return {
         success: true,
         roomId,
         roomPassword,
         roomStatus,
+        roomReleaseTime,
         roomLastUpdated,
         roomPublishedBy,
+        isAdminOverride,
         room_id: roomId,
         room_password: roomPassword,
         room_status: roomStatus,
+        room_release_time: roomReleaseTime,
         room_last_updated: roomLastUpdated,
         room_published_by: roomPublishedBy,
+        is_admin_override: isAdminOverride,
       }
     } catch (err) {
       console.warn('[getRoomCredentials exception]:', err)
