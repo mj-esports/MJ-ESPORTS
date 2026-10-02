@@ -45,10 +45,8 @@ import FormSelect from '../common/FormSelect'
 import FormModeSelector from '../common/FormModeSelector'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
-import StepWizard from '../common/StepWizard'
-import TournamentScheduleForm from '../common/TournamentScheduleForm'
-import EntryPrizeSystem from '../common/EntryPrizeSystem'
-import OfficialRulebook, { OFFICIAL_MJ_RULES } from '../common/OfficialRulebook'
+import { OFFICIAL_MJ_RULES } from '../common/OfficialRulebook'
+import CreateTournamentWizardModal from './tournaments/wizard/CreateTournamentWizardModal'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useToast } from '../../contexts/ToastContext'
 import { telemetry } from '../../services/telemetryService'
@@ -436,227 +434,7 @@ export default function TournamentCenterView({
     }
   }
 
-  // Define steps for Step Wizard
-  const wizardSteps = [
-    {
-      title: 'General Information',
-      shortTitle: 'General',
-      content: (
-        <div className="space-y-4">
-          <div className="border-b border-[#27272a] pb-2">
-            <h3 className="text-sm font-extrabold text-white uppercase font-headline flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-[#00f2ff]" />
-              <span>General Information</span>
-            </h3>
-            <p className="text-xs text-[#849495] font-body">Provide the basic details and game mode.</p>
-          </div>
 
-          <FormInput
-            label="Tournament Name"
-            name="title"
-            value={form.title}
-            onChange={(e) => {
-              setForm((prev) => ({ ...prev, title: e.target.value }))
-              if (formErrors.title) setFormErrors((prev) => ({ ...prev, title: null }))
-            }}
-            placeholder="e.g. Free Fire Friday Scrim #12 or Free Fire Pro League"
-            required
-            error={formErrors.title}
-            icon={Trophy}
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-mono font-bold text-[#849495] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                <Gamepad2 className="w-3.5 h-3.5 text-[#00f2ff]" />
-                <span>Game Platform</span>
-              </label>
-              <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#141416] border border-[#27272a] rounded text-sm text-white font-headline font-bold min-h-[42px]">
-                <span>Free Fire MAX</span>
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">Official</span>
-              </div>
-            </div>
-
-            <FormModeSelector
-              label="Match Mode"
-              value={form.mode}
-              onChange={(newMode) => {
-                const nextCap = getDefaultGameCapacity(form.game, newMode)
-                setForm((prev) => ({
-                  ...prev,
-                  mode: newMode,
-                  maxTeams: editingId ? prev.maxTeams : nextCap.maxTeams,
-                }))
-              }}
-              options={[
-                { key: 'solo', label: 'Solo (1 Player)', size: 1 },
-                { key: 'duo', label: 'Duo (2 Players)', size: 2 },
-                { key: 'squad', label: 'Squad (4 Players)', size: 4 },
-              ]}
-              required
-            />
-          </div>
-
-          {/* Live Preview Card */}
-          {(() => {
-            const previewCap = getDefaultGameCapacity(form.game, form.mode)
-            const currentTeams = Number(form.maxTeams || previewCap.maxTeams)
-            const currentPlayers = currentTeams * previewCap.teamSize
-
-            return (
-              <div className="p-3.5 bg-[#1c1b1c] border border-[#00f2ff]/30 rounded space-y-2">
-                <div className="flex items-center justify-between border-b border-[#27272a] pb-1.5">
-                  <span className="text-[10px] font-headline font-bold text-[#00f2ff] uppercase flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Configuration & Capacity Preview</span>
-                  </span>
-                  <span className="px-2 py-0.5 rounded text-[9px] font-headline font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
-                    {previewCap.roomCap} Player Room Cap
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-body">
-                  <div>
-                    <span className="text-[10px] text-[#849495] uppercase block">Selected Game</span>
-                    <p className="font-headline font-bold text-white uppercase truncate">{form.game || 'Free Fire MAX'}</p>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[#849495] uppercase block">Match Mode</span>
-                    <p className="font-headline font-bold text-white uppercase">
-                      {form.mode === 'solo' ? 'Solo (1P)' : form.mode === 'duo' ? 'Duo (2P)' : 'Squad (4P)'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[#849495] uppercase block">Max Squads</span>
-                    <p className="font-headline font-bold text-[#00f2ff] text-sm">{currentTeams} {previewCap.teamUnit}</p>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[#849495] uppercase block">Player Cap</span>
-                    <p className="font-headline font-bold text-[#10b981] text-sm">{currentPlayers} / {previewCap.roomCap} Players</p>
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
-        </div>
-      ),
-    },
-    {
-      title: 'Match Configuration & Schedule',
-      shortTitle: 'Match & Schedule',
-      content: (
-        <div className="space-y-4">
-          <div className="border-b border-[#27272a] pb-2">
-            <h3 className="text-sm font-extrabold text-white uppercase font-headline flex items-center gap-2">
-              <Gamepad2 className="w-4 h-4 text-[#00f2ff]" />
-              <span>Match Configuration & Schedule</span>
-            </h3>
-            <p className="text-xs text-[#849495] font-body">Configure map, rules, and match timeline execution.</p>
-          </div>
-
-          <div className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded space-y-3">
-            <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
-              <span className="text-xs font-headline font-bold text-[#00f2ff] uppercase flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5" />
-                <span>Match Configuration Preset</span>
-              </span>
-              <span className="px-2 py-0.5 rounded text-[9px] font-headline font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
-                Free Fire MAX Preset
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <FormSelect
-                label="Map"
-                name="map"
-                value={form.ffMap || 'Bermuda'}
-                onChange={(e) => setForm((prev) => ({ ...prev, ffMap: e.target.value }))}
-                options={['Bermuda', 'Purgatory', 'Kalahari', 'Alpine', 'NexTERRA', 'Random']}
-                required
-                icon={MapPin}
-              />
-
-              <FormSelect
-                label="Match Type"
-                name="matchType"
-                value={form.matchType || 'Battle Royale'}
-                onChange={(e) => setForm((prev) => ({ ...prev, matchType: e.target.value }))}
-                options={['Battle Royale', 'Clash Squad', 'Custom']}
-                icon={Flame}
-              />
-
-              <FormSelect
-                label="Gun Attributes"
-                name="gunAttributes"
-                value={form.ffGunAttributes || form.gunAttributes || 'Disabled'}
-                onChange={(e) => setForm((prev) => ({ ...prev, ffGunAttributes: e.target.value, gunAttributes: e.target.value }))}
-                options={['Enabled', 'Disabled', 'Default']}
-                icon={Crosshair}
-              />
-
-              <FormSelect
-                label="Character Skills"
-                name="characterSkills"
-                value={form.ffCharacterSkills || form.characterSkills || 'Enabled'}
-                onChange={(e) => setForm((prev) => ({ ...prev, ffCharacterSkills: e.target.value, characterSkills: e.target.value }))}
-                options={['Enabled', 'Disabled', 'Default']}
-                icon={Zap}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <h4 className="text-xs font-headline font-bold text-white uppercase">Tournament Schedule</h4>
-            <TournamentScheduleForm
-              startDate={form.startDate}
-              startTime={form.startTime}
-              registrationStart={form.registrationStart}
-              registrationEnd={form.registrationEnd}
-              checkInStart={form.checkInStart}
-              checkInEnd={form.checkInEnd || form.checkInTime}
-              checkInTime={form.checkInTime}
-              roomPublishTime={form.roomPublishTime}
-              errors={formErrors}
-              onChange={(sched) => {
-                setForm((prev) => ({ ...prev, ...sched }))
-                if (Object.keys(formErrors).length > 0) setFormErrors({})
-              }}
-            />
-          </div>
-
-          <div className="space-y-2 pt-1">
-            <h4 className="text-xs font-headline font-bold text-white uppercase">Official Rulebook</h4>
-            <OfficialRulebook rules={OFFICIAL_MJ_RULES} />
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Registration, Payment & Prize',
-      shortTitle: 'Registration & Prize',
-      content: (
-        <EntryPrizeSystem
-          entryFee={form.entryFeeNum || form.entryFee}
-          maxTeams={form.maxTeams}
-          game={form.game}
-          mode={form.mode}
-          registrationApproval={form.registrationApproval}
-          allowWaitlist={form.allowWaitlist}
-          maxWaitlistSize={form.maxWaitlistSize}
-          paymentEnabled={form.paymentEnabled}
-          paymentGateway={form.paymentGateway}
-          prizeType={form.prizeType}
-          perKillReward={form.perKillReward}
-          prizes={form.prizes}
-          errors={formErrors}
-          onChange={(financialData) => {
-            setForm((prev) => ({ ...prev, ...financialData }))
-            if (Object.keys(formErrors).length > 0) setFormErrors({})
-          }}
-        />
-      ),
-    },
-  ]
 
   const activeTournament = tournaments.find((t) => t.id === selectedTournamentId)
 
@@ -803,42 +581,27 @@ export default function TournamentCenterView({
         </>
       )}
 
-      {/* 4. STEP WIZARD MODAL DIALOG */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto font-body">
-            
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-5 right-5 p-2 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="space-y-1 border-b border-[#27272a] pb-3">
-              <h3 className="font-headline text-lg sm:text-xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-[#00f2ff]" />
-                <span>{editingId ? 'Edit Tournament Configuration' : 'Tournament Creation Wizard'}</span>
-              </h3>
-              <p className="text-xs text-[#849495]">Configure general info, schedule, and registration/prizes in 3 guided steps.</p>
-            </div>
-
-            <form onSubmit={handleSubmit} noValidate className="space-y-4">
-              <StepWizard
-                steps={wizardSteps}
-                currentStep={currentStep}
-                onNext={handleWizardNext}
-                onBack={handleWizardBack}
-                onSaveDraft={handleSaveDraft}
-                onCancel={() => setShowModal(false)}
-                nextText="Next Step"
-                finishText={editingId ? 'Update & Publish' : 'Publish Tournament'}
-                isSubmitting={isSaving}
-              />
-            </form>
-          </div>
-        </div>
-      )}
+      {/* 4. STEP WIZARD MODAL DIALOG (APPROVED GOOGLE STITCH REDESIGN) */}
+      <CreateTournamentWizardModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        form={form}
+        onFormChange={(updates) => {
+          setForm((prev) => ({ ...prev, ...updates }))
+          if (Object.keys(formErrors).length > 0) {
+            setFormErrors({})
+          }
+        }}
+        formErrors={formErrors}
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
+        onNext={handleWizardNext}
+        onBack={handleWizardBack}
+        onSaveDraft={handleSaveDraft}
+        onSubmit={handleSubmit}
+        isSaving={isSaving}
+        editingId={editingId}
+      />
 
     </div>
   )
