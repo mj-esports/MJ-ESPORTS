@@ -35,6 +35,11 @@ import { useToast } from '../../../contexts/ToastContext'
 import { useAuth } from '../../../contexts/AuthContext'
 import { supabase, isSupabaseConfigured } from '../../../lib/supabase'
 import { finalizeTournamentResults, createPayoutProposal } from '../../../services/payoutService'
+import { getTournamentCheckins } from '../../../services/matchCheckinService'
+import {
+  calculateAndFinalizeScores,
+  fetchTournamentScorecards,
+} from '../../../services/matchScoringService'
 import {
   formatTournamentPrize,
   extractPlacementPrizes,
@@ -86,6 +91,7 @@ export default function MatchResultsWorkspaceView({
   const [isFinalizing, setIsFinalizing] = useState(false)
   const [isUnlockedForCorrection, setIsUnlockedForCorrection] = useState(false)
 
+
   // Modals & Inspection States
   const [showFinalizeModal, setShowFinalizeModal] = useState(false)
   const [flagTargetTeam, setFlagTargetTeam] = useState(null)
@@ -108,58 +114,96 @@ export default function MatchResultsWorkspaceView({
     }
   }, [tournaments, selectedTourneyId, initialTournamentId])
 
-  // Initialize Team Scores from selected tournament
+  // Initialize Team Scores with verified Phase 6 Lobby Slots
   useEffect(() => {
+    let isMounted = true
     if (selectedTournament) {
       setIsUnlockedForCorrection(false)
       const rawTeams = selectedTournament.teamsList || selectedTournament.teams_list || []
-      
-      let initialList = rawTeams
-      if (!Array.isArray(initialList) || initialList.length === 0) {
-        const slotsCount = Number(selectedTournament.registeredTeams || selectedTournament.registered_teams || selectedTournament.maxTeams || 12)
-        initialList = Array.from({ length: Math.min(slotsCount, 12) }, (_, idx) => ({
-          id: `team-slot-${idx + 1}`,
-          name: `Squad #${idx + 1}`,
-          captain: `Captain #${idx + 1}`,
-          freeFireUid: `UID-${7891200 + idx}`,
-          kills: 0,
-          placementPoints: STANDARD_PLACEMENT_PTS[idx + 1] || 0,
-          bonus: 0,
-          points: STANDARD_PLACEMENT_PTS[idx + 1] || 0,
-          status: 'PENDING', // 'PENDING' | 'VERIFIED' | 'FLAGGED'
-          flagReason: '',
-        }))
-      }
 
-      const mapped = initialList.map((t, idx) => {
-        const kills = Number(t.kills || 0)
-        const placementPts = Number(t.placementPoints ?? (STANDARD_PLACEMENT_PTS[idx + 1] || 0))
-        const bonus = Number(t.bonus || 0)
-        const totalPts = Number(t.points ?? (kills + placementPts + bonus))
+      // Link with Phase 6 match_checkins to preserve authoritative lobby slots
+      getTournamentCheckins(selectedTournament.id).then((checkins) => {
+        if (!isMounted) return
+        if (Array.isArray(checkins) && checkins.length > 0) {
+          const mappedFromCheckins = checkins.map((chk, idx) => {
+            const existing = Array.isArray(rawTeams)
+              ? rawTeams.find((r) => Number(r.lobby_slot || r.lobbySlot) === Number(chk.lobby_slot) || r.id === chk.registration_id)
+              : null
 
-        return {
-          id: t.id || `team-${idx}`,
-          name: t.name || t.teamName || `Squad #${idx + 1}`,
-          captain: t.captain || t.captainName || 'Captain',
-          freeFireUid: t.freeFireUid || t.captain_uid || 'N/A',
-          kills: kills,
-          placementPoints: placementPts,
-          bonus: bonus,
-          points: totalPts,
-          status: t.verificationStatus || t.status || 'PENDING',
-          flagReason: t.flagReason || '',
-          screenshotUrl: t.screenshotUrl || null,
+            const kills = Number(existing?.kills || 0)
+            const placement = Number(existing?.placement || chk.lobby_slot || idx + 1)
+            const placementPts = Number(existing?.placementPoints ?? (STANDARD_PLACEMENT_PTS[placement] || 0))
+            const bonus = Number(existing?.bonus || 0)
+            const totalPts = Number(existing?.points ?? (kills + placementPts + bonus))
+
+            return {
+              id: chk.registration_id || `slot-${chk.lobby_slot}`,
+              lobbySlot: chk.lobby_slot || idx + 1,
+              name: chk.team_name || `Squad #${chk.lobby_slot}`,
+              captain: chk.captain_name || 'Captain',
+              freeFireUid: chk.checkin_uid || chk.registered_uid || 'N/A',
+              kills,
+              placement,
+              placementPoints: placementPts,
+              bonus,
+              points: totalPts,
+              status: chk.status === 'VERIFIED' ? 'VERIFIED' : (existing?.status || 'PENDING'),
+              flagReason: existing?.flagReason || '',
+              screenshotUrl: existing?.screenshotUrl || null,
+            }
+          })
+          setTeams(mappedFromCheckins.sort((a, b) => (b.points !== a.points ? b.points - a.points : b.kills - a.kills)))
+          return
         }
-      })
 
-      // Sort by points desc, then kills desc
-      setTeams(
-        mapped.sort((a, b) => {
-          if (b.points !== a.points) return b.points - a.points
-          return b.kills - a.kills
+        // Fallback if no checkins recorded
+        let initialList = rawTeams
+        if (!Array.isArray(initialList) || initialList.length === 0) {
+          const slotsCount = Number(selectedTournament.registeredTeams || selectedTournament.registered_teams || selectedTournament.maxTeams || 12)
+          initialList = Array.from({ length: Math.min(slotsCount, 12) }, (_, idx) => ({
+            id: `team-slot-${idx + 1}`,
+            lobbySlot: idx + 1,
+            name: `Squad #${idx + 1}`,
+            captain: `Captain #${idx + 1}`,
+            freeFireUid: `UID-${7891200 + idx}`,
+            kills: 0,
+            placement: idx + 1,
+            placementPoints: STANDARD_PLACEMENT_PTS[idx + 1] || 0,
+            bonus: 0,
+            points: STANDARD_PLACEMENT_PTS[idx + 1] || 0,
+            status: 'PENDING',
+            flagReason: '',
+          }))
+        }
+
+        const mapped = initialList.map((t, idx) => {
+          const kills = Number(t.kills || 0)
+          const placement = Number(t.placement || idx + 1)
+          const placementPts = Number(t.placementPoints ?? (STANDARD_PLACEMENT_PTS[placement] || 0))
+          const bonus = Number(t.bonus || 0)
+          const totalPts = Number(t.points ?? (kills + placementPts + bonus))
+
+          return {
+            id: t.id || `team-${idx}`,
+            lobbySlot: t.lobby_slot || t.lobbySlot || idx + 1,
+            name: t.name || t.teamName || `Squad #${idx + 1}`,
+            captain: t.captain || t.captainName || 'Captain',
+            freeFireUid: t.freeFireUid || t.captain_uid || 'N/A',
+            kills,
+            placement,
+            placementPoints: placementPts,
+            bonus,
+            points: totalPts,
+            status: t.verificationStatus || t.status || 'PENDING',
+            flagReason: t.flagReason || '',
+            screenshotUrl: t.screenshotUrl || null,
+          }
         })
-      )
+
+        setTeams(mapped.sort((a, b) => (b.points !== a.points ? b.points - a.points : b.kills - a.kills)))
+      })
     }
+    return () => { isMounted = false }
   }, [selectedTournament])
 
   // Authoritative Team Winnings Calculator per tournament prize rules
@@ -291,7 +335,8 @@ export default function MatchResultsWorkspaceView({
     setFlagReason('')
   }
 
-  // Finalize Results Handler (Atomic PostgreSQL RPC with Idempotency & Prize Ceiling)
+
+  // Finalize Results Handler (Authoritative PostgreSQL RPC with Idempotency & Prize Ceiling)
   const handleFinalizeResults = async () => {
     if (!selectedTournament || isFinalizing) return
     setIsFinalizing(true)
@@ -309,7 +354,7 @@ export default function MatchResultsWorkspaceView({
 
       const winner = finalTeams[0]
 
-      // Priority 4: Sanitize teams list for public database persistence (strip internal dispute notes)
+      // Sanitize teams list for public database persistence (strip internal dispute notes)
       const sanitizedTeams = finalTeams.map(({ flagReason, internalNotes, adminAudit, ...rest }) => rest)
 
       // Construct verified payout queue proposals for winning teams
@@ -329,33 +374,64 @@ export default function MatchResultsWorkspaceView({
           }
         })
 
-      // Priority 2 & 3: Atomic Finalization via Single PostgreSQL RPC
+      // Phase 7: Server-Authoritative Finalization via calculateAndFinalizeScores
       let rpcSucceeded = false
       if (isSupabaseConfigured) {
-        const rpcResult = await finalizeTournamentResults({
+        const teamScoresPayload = sanitizedTeams.map((t, idx) => ({
+          lobby_slot: Number(t.lobbySlot || idx + 1),
+          kills: Number(t.kills || 0),
+          placement: Number(t.placement || idx + 1),
+          bonus: Number(t.bonus || 0),
+          team_name: t.name,
+          captain_name: t.captain,
+          admin_notes: t.flagReason || null,
+        }))
+
+        const scoringRpcResult = await calculateAndFinalizeScores({
           tournamentId: selectedTournament.id,
-          teamsList: sanitizedTeams,
-          winnerTeam: winner?.name || 'Grand Champions',
-          winnerCaptain: winner?.captain || 'Champion Captain',
-          payoutProposals,
+          teamScores: teamScoresPayload,
         })
 
-        if (!rpcResult.success) {
-          if (rpcResult.error_code === 'EXCEEDS_PRIZE_POOL') {
-            showError(rpcResult.message || 'Proposed payouts exceed tournament prize pool allocation.', 'Prize Pool Ceiling Error')
+        if (scoringRpcResult.success) {
+          rpcSucceeded = true
+        } else {
+          if (scoringRpcResult.error_code === 'EXCEEDS_PRIZE_POOL') {
+            showError(scoringRpcResult.message || 'Proposed payouts exceed tournament prize pool allocation.', 'Prize Pool Ceiling Error')
             return
           }
-          if (rpcResult.error_code === 'UNAUTHORIZED') {
+          if (scoringRpcResult.error_code === 'ACTIVE_REMAKE_REQUEST') {
+            showError('Cannot finalize results while match remake requests are active.', 'Remake Active')
+            return
+          }
+          if (scoringRpcResult.error_code === 'KILL_COUNT_ANOMALY') {
+            showError(scoringRpcResult.message || 'Total reported kills exceed maximum lobby player capacity.', 'Sanity Check Failed')
+            return
+          }
+          if (scoringRpcResult.error_code === 'UNAUTHORIZED') {
             showError('Only authorized administrators can finalize results.', 'Unauthorized')
             return
           }
-          if (rpcResult.error_code === 'INVALID_LIFECYCLE_STATE') {
-            showError(rpcResult.message || 'Invalid tournament lifecycle state.', 'State Machine Error')
+          if (scoringRpcResult.error_code === 'INVALID_LIFECYCLE_STATE') {
+            showError(scoringRpcResult.message || 'Invalid tournament lifecycle state.', 'State Machine Error')
             return
           }
-          console.warn('[handleFinalizeResults] RPC error, attempting compatibility mode:', rpcResult.message)
-        } else {
-          rpcSucceeded = true
+
+          // Fallback to finalizeTournamentResults if new RPC is not yet loaded in current DB instance
+          console.warn('[handleFinalizeResults] calculateAndFinalizeScores notice, attempting fallback:', scoringRpcResult.message)
+          const fallbackResult = await finalizeTournamentResults({
+            tournamentId: selectedTournament.id,
+            teamsList: sanitizedTeams,
+            winnerTeam: winner?.name || 'Grand Champions',
+            winnerCaptain: winner?.captain || 'Champion Captain',
+            payoutProposals,
+          })
+
+          if (fallbackResult.success) {
+            rpcSucceeded = true
+          } else {
+            showError(fallbackResult.message || 'Failed to finalize tournament results.', 'Finalization Error')
+            return
+          }
         }
       }
 
@@ -375,48 +451,6 @@ export default function MatchResultsWorkspaceView({
           })
         } else if (updateTournamentStatus) {
           await updateTournamentStatus(selectedTournament.id, 'Completed')
-        }
-      } else {
-        // Fallback for environments where migration has not run yet
-        if (updateTournamentScores) {
-          await updateTournamentScores(selectedTournament.id, sanitizedTeams)
-        }
-        if (editTournament) {
-          await editTournament(selectedTournament.id, {
-            status: 'Completed',
-            winnerTeam: winner?.name || 'Grand Champions',
-            winnerCaptain: winner?.captain || 'Champion Captain',
-            winner_team: winner?.name || 'Grand Champions',
-            winner_captain: winner?.captain || 'Champion Captain',
-            teamsList: sanitizedTeams,
-          })
-        }
-        if (isSupabaseConfigured) {
-          try {
-            await supabase
-              .from('tournament_registrations')
-              .update({ status: 'Completed', updated_at: new Date().toISOString() })
-              .eq('tournament_id', selectedTournament.id)
-          } catch (regErr) {
-            console.warn('[handleFinalizeResults] Registration update notice:', regErr)
-          }
-
-          for (const p of payoutProposals) {
-            try {
-              await createPayoutProposal({
-                tournamentId: selectedTournament.id,
-                sourceResultId: p.source_result_id,
-                winnerUserId: p.winner_user_id,
-                winnerGameUid: p.winner_game_uid,
-                winnerGameIgn: p.winner_game_ign,
-                rank: p.rank,
-                payoutAmount: p.payout_amount,
-                idempotencyKey: p.idempotency_key,
-              })
-            } catch (pErr) {
-              console.warn('[handleFinalizeResults] Payout proposal fallback notice:', pErr)
-            }
-          }
         }
       }
 
@@ -931,6 +965,7 @@ export default function MatchResultsWorkspaceView({
                 <thead>
                   <tr className="bg-[#1c1b1c] text-[10px] font-headline font-extrabold text-[#849495] uppercase tracking-wider border-b border-[#27272a]">
                     <th className="py-3 px-3 w-12 text-center">RANK</th>
+                    <th className="py-3 px-2 w-14 text-center">SLOT</th>
                     <th className="py-3 px-3">TEAM & CAPTAIN</th>
                     <th className="py-3 px-3">PLAYERS / UID</th>
                     <th className="py-3 px-3 w-28">PLACEMENT</th>
@@ -971,6 +1006,11 @@ export default function MatchResultsWorkspaceView({
                           }`}>
                             {idx + 1}
                           </span>
+                        </td>
+
+                        {/* LOBBY SLOT */}
+                        <td className="py-3 px-2 text-center font-mono font-bold text-[#00f2ff]">
+                          #{team.lobbySlot || idx + 1}
                         </td>
 
                         {/* TEAM */}
@@ -1068,6 +1108,7 @@ export default function MatchResultsWorkspaceView({
                         {/* ACTIONS */}
                         <td className="py-3 px-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
+
                             <button
                               onClick={() => handleVerifyTeam(team.id)}
                               disabled={isFinalized}
@@ -1557,6 +1598,8 @@ export default function MatchResultsWorkspaceView({
           </div>
         </div>
       )}
+
+
 
     </div>
   )
