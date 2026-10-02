@@ -44,6 +44,14 @@ import {
 } from '../../utils/validationUtils'
 import { formatTournamentPrize } from '../../utils/tournamentPrizeUtils'
 import LoadingButton from '../common/LoadingButton'
+import {
+  checkMatchReadiness,
+  getTournamentCheckins,
+  adminVerifyParticipantUid,
+  adminAssignLobbySlot,
+  adminLockMatchRoster,
+  subscribeToTournamentCheckins,
+} from '../../services/matchCheckinService'
 
 export default function MatchControlView({ tournaments = [], setActiveTab, initialTournamentId }) {
   const { showSuccess, showError } = useToast()
@@ -92,7 +100,70 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
   const [isSaving, setIsSaving] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
 
+  // Phase 6 Match Readiness & Check-in State
+  const [readinessData, setReadinessData] = useState(null)
+  const [tournamentCheckins, setTournamentCheckins] = useState([])
+  const [isLockingRoster, setIsLockingRoster] = useState(false)
+
   const adminName = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Admin'
+
+  const fetchReadinessAndCheckins = useCallback(async () => {
+    if (!selectedTourneyId) return
+    try {
+      const [readiness, checkins] = await Promise.all([
+        checkMatchReadiness(selectedTourneyId),
+        getTournamentCheckins(selectedTourneyId),
+      ])
+      setReadinessData(readiness)
+      setTournamentCheckins(checkins)
+    } catch (err) {
+      console.warn('[fetchReadinessAndCheckins error]:', err)
+    }
+  }, [selectedTourneyId])
+
+  useEffect(() => {
+    fetchReadinessAndCheckins()
+    const unsubscribe = subscribeToTournamentCheckins(selectedTourneyId, () => {
+      fetchReadinessAndCheckins()
+    })
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe()
+    }
+  }, [selectedTourneyId, fetchReadinessAndCheckins])
+
+  const handleAdminVerifyUid = async (checkinId, action) => {
+    try {
+      const res = await adminVerifyParticipantUid({ checkinId, action })
+      if (res.success) {
+        showSuccess(res.message || `UID ${action === 'APPROVE' ? 'Approved' : 'Rejected'}.`, 'UID Decision Recorded')
+        await fetchReadinessAndCheckins()
+      } else {
+        showError(res.message || 'Failed to update UID status.')
+      }
+    } catch (err) {
+      showError(err.message || 'Failed to update UID status.')
+    }
+  }
+
+  const handleAdminLockRoster = async () => {
+    setIsLockingRoster(true)
+    try {
+      const res = await adminLockMatchRoster(selectedTourneyId)
+      if (res.success) {
+        showSuccess('Match roster locked and check-in window closed.', 'Roster Locked')
+        await fetchReadinessAndCheckins()
+        if (updateTournamentStatus) {
+          updateTournamentStatus(selectedTourneyId, 'Check-in Closed')
+        }
+      } else {
+        showError(res.message || 'Failed to lock roster.')
+      }
+    } catch (err) {
+      showError(err.message || 'Failed to lock roster.')
+    } finally {
+      setIsLockingRoster(false)
+    }
+  }
 
   // Sync selected tournament if initialTournamentId provided or none selected
   useEffect(() => {
@@ -1012,9 +1083,16 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                 <Users className="w-4 h-4 text-[#10b981]" />
                 <span>PLAYER CHECK-IN & READINESS</span>
               </h3>
-              <span className="font-mono text-xs font-bold text-[#10b981]">
-                {verificationRate}% VERIFIED
-              </span>
+              <div className="flex items-center gap-2">
+                {readinessData?.mismatch_count > 0 && (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/50 text-amber-400 border border-amber-500/40 animate-pulse">
+                    {readinessData.mismatch_count} MISMATCH
+                  </span>
+                )}
+                <span className="font-mono text-xs font-bold text-[#10b981]">
+                  {readinessData ? `${readinessData.readiness_percentage}%` : `${verificationRate}%`} VERIFIED
+                </span>
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3 pt-4">
@@ -1022,35 +1100,64 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                 <span className="text-[10px] text-[#849495] uppercase block font-headline font-bold">
                   TOTAL PLAYERS
                 </span>
-                <p className="font-headline font-extrabold text-white text-lg">{totalPlayersCount}</p>
+                <p className="font-headline font-extrabold text-white text-lg">
+                  {readinessData ? readinessData.total_registered * capInfo.teamSize : totalPlayersCount}
+                </p>
               </div>
               <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-center space-y-1">
                 <span className="text-[10px] text-[#849495] uppercase block font-headline font-bold">
-                  READY PLAYERS
+                  READY / CHECKED IN
                 </span>
-                <p className="font-headline font-extrabold text-[#10b981] text-lg">{readyPlayersCount}</p>
+                <p className="font-headline font-extrabold text-[#10b981] text-lg">
+                  {readinessData ? readinessData.total_checked_in * capInfo.teamSize : readyPlayersCount}
+                </p>
               </div>
               <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-center space-y-1">
                 <span className="text-[10px] text-[#849495] uppercase block font-headline font-bold">
                   VERIFICATION RATE
                 </span>
-                <p className="font-headline font-extrabold text-[#00f2ff] text-lg">{verificationRate}%</p>
+                <p className="font-headline font-extrabold text-[#00f2ff] text-lg">
+                  {readinessData ? `${readinessData.readiness_percentage}%` : `${verificationRate}%`}
+                </p>
               </div>
             </div>
 
-            <p className="text-xs text-[#849495] font-body mt-4 leading-relaxed">
+            {readinessData?.is_ready && (
+              <div className="mt-3 p-2.5 rounded bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span className="font-mono font-bold">Match Readiness Validated: All participants checked in with matching UIDs & valid slots.</span>
+              </div>
+            )}
+
+            <p className="text-xs text-[#849495] font-body mt-3 leading-relaxed">
               Squad rosters and in-game character UIDs are verified against active registrations.
             </p>
           </div>
 
-          <button
-            onClick={() => setShowRosterDrawer(true)}
-            className="w-full py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] rounded-lg text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-2 mt-4"
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>View Complete Roster Drawer ({registeredSquadsCount} Squads)</span>
-          </button>
+          <div className="space-y-2 mt-4">
+            {selectedTourney?.status === 'Check-in Open' && (
+              <button
+                onClick={handleAdminLockRoster}
+                disabled={isLockingRoster}
+                className="w-full py-2.5 bg-[#ff5e07]/20 hover:bg-[#ff5e07]/30 text-[#ff5e07] border border-[#ff5e07]/40 rounded-lg text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>{isLockingRoster ? 'Locking Roster...' : 'Lock Match Roster (Close Check-In)'}</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => setShowRosterDrawer(true)}
+              className="w-full py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] rounded-lg text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>
+                View Complete Roster Drawer ({tournamentCheckins.length > 0 ? tournamentCheckins.length : registeredSquadsCount} {tournamentCheckins.length > 0 ? 'Checked In' : 'Squads'})
+              </span>
+            </button>
+          </div>
         </div>
+
 
       </div>
 
@@ -1286,20 +1393,77 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               </div>
 
               <div className="space-y-2.5 max-h-[70vh] overflow-y-auto pr-1">
-                {rosterEntries.map((team, idx) => (
-                  <div key={`roster-item-${team.id || idx}`} className="p-3 bg-[#1c1b1c] rounded-lg border border-[#27272a] space-y-1 text-xs font-body">
-                    <div className="flex justify-between items-center">
-                      <span className="font-headline font-bold text-white text-sm">#{idx + 1} {team.name || team.teamName}</span>
-                      <span className="px-2 py-0.5 rounded text-[9px] font-headline font-bold bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 uppercase">
-                        Verified Ready
-                      </span>
+                {tournamentCheckins && tournamentCheckins.length > 0 ? (
+                  tournamentCheckins.map((chk) => (
+                    <div key={`chk-${chk.id}`} className="p-3 bg-[#1c1b1c] rounded-lg border border-[#27272a] space-y-2 text-xs font-body">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-xs font-black text-[#00f2ff] px-1.5 py-0.5 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30">
+                            {chk.lobby_slot ? `SLOT #${chk.lobby_slot}` : 'NO SLOT'}
+                          </span>
+                          <span className="font-headline font-bold text-white text-sm truncate max-w-[150px]">
+                            {chk.team_name}
+                          </span>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-headline font-bold uppercase border ${
+                          chk.uid_match_status === 'UID_MATCH' || chk.uid_match_status === 'ADMIN_VERIFIED'
+                            ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
+                            : chk.uid_match_status === 'UID_MISMATCH'
+                            ? 'bg-amber-950/40 text-amber-400 border-amber-500/40 animate-pulse'
+                            : 'bg-red-950/40 text-red-400 border-red-500/40'
+                        }`}>
+                          {chk.uid_match_status === 'UID_MATCH' ? 'UID MATCHED' : chk.uid_match_status === 'ADMIN_VERIFIED' ? 'ADMIN APPROVED' : chk.uid_match_status}
+                        </span>
+                      </div>
+
+                      <div className="text-[#849495] text-[11px] space-y-0.5">
+                        <div className="flex justify-between">
+                          <span>Captain: <strong className="text-white">{chk.captain_name}</strong></span>
+                          <span>Status: <strong className="text-[#00f2ff] font-mono">{chk.status}</strong></span>
+                        </div>
+                        <div className="flex justify-between font-mono text-[10px]">
+                          <span>Check-in UID: <strong className="text-[#00f2ff]">{chk.checkin_uid}</strong></span>
+                          <span>Registered UID: <strong className="text-slate-300">{chk.registered_uid}</strong></span>
+                        </div>
+                      </div>
+
+                      {chk.uid_match_status === 'UID_MISMATCH' && (
+                        <div className="pt-2 border-t border-[#27272a] flex items-center justify-between gap-2">
+                          <span className="text-[10px] text-amber-300">UID discrepancy detected:</span>
+                          <div className="flex gap-1.5">
+                            <button
+                              onClick={() => handleAdminVerifyUid(chk.id, 'APPROVE')}
+                              className="px-2 py-1 bg-[#10b981]/20 hover:bg-[#10b981]/30 text-[#10b981] border border-[#10b981]/40 rounded text-[10px] font-headline font-bold uppercase transition-colors cursor-pointer"
+                            >
+                              Approve UID
+                            </button>
+                            <button
+                              onClick={() => handleAdminVerifyUid(chk.id, 'REJECT')}
+                              className="px-2 py-1 bg-red-950/40 hover:bg-red-900/50 text-red-400 border border-red-800 rounded text-[10px] font-headline font-bold uppercase transition-colors cursor-pointer"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-[#849495] text-[11px] flex justify-between">
-                      <span>Captain: <strong className="text-white">{team.captain || team.captainName}</strong></span>
-                      <span>UID: <strong className="text-[#00f2ff] font-mono">{team.freeFireUid || team.captain_uid || 'N/A'}</strong></span>
+                  ))
+                ) : (
+                  rosterEntries.map((team, idx) => (
+                    <div key={`roster-item-${team.id || idx}`} className="p-3 bg-[#1c1b1c] rounded-lg border border-[#27272a] space-y-1 text-xs font-body">
+                      <div className="flex justify-between items-center">
+                        <span className="font-headline font-bold text-white text-sm">#{idx + 1} {team.name || team.teamName}</span>
+                        <span className="px-2 py-0.5 rounded text-[9px] font-headline font-bold bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 uppercase">
+                          Verified Ready
+                        </span>
+                      </div>
+                      <div className="text-[#849495] text-[11px] flex justify-between">
+                        <span>Captain: <strong className="text-white">{team.captain || team.captainName}</strong></span>
+                        <span>UID: <strong className="text-[#00f2ff] font-mono">{team.freeFireUid || team.captain_uid || 'N/A'}</strong></span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
