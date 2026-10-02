@@ -154,7 +154,6 @@ export default function EditProfilePage() {
     return profile?.tier === 'PRO' || profile?.tier === 'pro' || user?.user_metadata?.is_pro === true
   }, [profile?.tier, user?.user_metadata?.is_pro])
 
-  // Phase 2: Profile vs OCR Identity Consistency Evaluation
   const currentProfileUid = String(formData.freeFireUid || meta.freeFireUid || profile?.game_uid || '').trim()
 
   // Authoritative Free Fire IGN resolution:

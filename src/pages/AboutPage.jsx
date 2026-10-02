@@ -135,7 +135,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                   <strong className="text-white">Tournament & Squad Details:</strong> Team names, squad rosters, captain contact phone number (when provided during registration), check-in records, assigned custom room lobby slots, and match incident reports.
                 </li>
                 <li>
-                  <strong className="text-white">Match Evidence & Scorecards:</strong> Post-match screenshot proof uploads, reported kill counts, finish placements, and OCR text extraction data.
+                  <strong className="text-white">Match Evidence & Scorecards:</strong> Post-match screenshot proof uploads, reported kill counts, finish placements, and referee verification records.
                 </li>
                 <li>
                   <strong className="text-white">Financial & Wallet Records:</strong> Razorpay payment identifiers (Order ID, Payment ID, amount, status), in-app wallet balance, immutable transaction history (<code className="text-[#00f2ff]">wallet_ledger</code>), and user-provided withdrawal payout details (UPI ID or bank account number and IFSC code).
@@ -516,13 +516,13 @@ export default function AboutPage({ defaultTab = 'about' }) {
               </ul>
             </div>
 
-            {/* 11. OCR / Evidence */}
+            {/* 11. Match Evidence & Verification */}
             <div className="space-y-2">
               <h3 className="font-headline font-bold text-white uppercase text-sm sm:text-base">
-                11. OCR / Evidence
+                11. Match Evidence & Verification
               </h3>
               <p className="text-[#8e9dae]">
-                MJ ESPORTS incorporates in-memory Optical Character Recognition (OCR) technology to assist referees by extracting placement and kill data from submitted match result screenshots. OCR serves purely as an operational validation aid and does not override human referee review or administrative judgment. Players remain strictly responsible for providing clear, unedited, full-screen screenshot proof. Illegible, cropped, or blurred screenshots may be rejected.
+                MJ ESPORTS incorporates manual screenshot evidence verification to assist referees by validating placement and kill data from submitted match result screenshots. Manual evidence verification serves as an operational validation aid, and human referee review and administrative judgment are authoritative. Players remain strictly responsible for providing clear, unedited, full-screen screenshot proof. Illegible, cropped, or blurred screenshots may be rejected.
               </p>
             </div>
 
