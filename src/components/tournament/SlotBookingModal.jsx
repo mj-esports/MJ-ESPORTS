@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   X,
   Users,
@@ -35,6 +35,8 @@ import {
 import FormInput from '../common/FormInput'
 import AuthAlert from '../common/AuthAlert'
 import LoadingButton from '../common/LoadingButton'
+import TurnstileWidget from '../common/TurnstileWidget'
+import { isTurnstileEnabled, verifyTurnstileToken } from '../../services/turnstileService'
 import { OFFICIAL_MJ_RULES } from '../common/OfficialRulebook'
 import {
   toCanonicalIgn,
@@ -59,6 +61,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const { registerTeam, registerTeamWithWallet } = useTournaments()
   const { user } = useAuth()
   const { showSuccess, showError } = useToast()
+  const navigate = useNavigate()
 
   // Profile Proof Attachment State
   const [proofFile, setProofFile] = useState(null)
@@ -84,7 +87,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const [formData, setFormData] = useState({
     teamName: '',
     captainName: user?.user_metadata?.username || '',
-    email: user?.email || 'player@esports.gg',
+    email: user?.email || '',
     freeFireUid: user?.user_metadata?.freeFireUid || '',
     whatsappNumber: '',
     availabilityDate: tournament?.startDate || '2026-08-06',
@@ -99,6 +102,8 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submittingStep, setSubmittingStep] = useState('')
   const [copied, setCopied] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState(null)
+  const [turnstileKey, setTurnstileKey] = useState(0)
 
   const entryFeeStr = String(tournament?.entryFee || tournament?.entry_fee || 'Free').trim()
   const rawFeeDigits = entryFeeStr.replace(/[^0-9.]/g, '')
@@ -140,8 +145,10 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const walletShortfall = Math.max(0, numericEntryFee - userWalletBalance)
 
   const isFormValid = useMemo(() => {
+    if (!user?.id) return false
     if (!formData.acceptRules) return false
     if (!proofFile && !proofPreview) return false
+    if (isTurnstileEnabled() && !turnstileToken) return false
 
     const cleanTeamName = sanitizeString(formData.teamName)
     const cleanCaptainName = sanitizeString(formData.captainName)
@@ -169,7 +176,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     }
 
     return true
-  }, [formData, proofFile, proofPreview, mode])
+  }, [formData, proofFile, proofPreview, mode, turnstileToken, user?.id])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -239,6 +246,11 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
   const validateForm = () => {
     const newFieldErrors = {}
+
+    // SEC-05: Authenticated user required
+    if (!user?.id) {
+      return 'You must be logged in to register for a tournament.'
+    }
 
     if (tournament.status !== 'Registration Open') {
       return 'Registration for this tournament is currently closed.'
@@ -346,6 +358,15 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     e.preventDefault()
     setError(null)
 
+    // SEC-05: Guard authentication before registration submission proceeds
+    if (!user?.id) {
+      const authError = 'You must be logged in to register for a tournament.'
+      setError(authError)
+      showError(authError, 'Authentication Required')
+      navigate('/login')
+      return
+    }
+
     const validationError = validateForm()
     if (validationError) {
       setError(validationError)
@@ -353,7 +374,31 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       return
     }
 
-    setIsSubmitting(true)
+    // Turnstile bot protection check
+    if (isTurnstileEnabled()) {
+      if (!turnstileToken) {
+        const msg = 'Please complete the security check (Cloudflare Turnstile) before submitting.'
+        setError(msg)
+        showError(msg, 'Security Check Required')
+        return
+      }
+
+      setIsSubmitting(true)
+      setSubmittingStep('Verifying Security Challenge...')
+      const verifyRes = await verifyTurnstileToken(turnstileToken, { action: 'slot_booking' })
+      if (!verifyRes?.success) {
+        setIsSubmitting(false)
+        setTurnstileToken(null)
+        setTurnstileKey((k) => k + 1)
+        const errorMsg = verifyRes?.message || 'Security verification failed. Please try again.'
+        setError(errorMsg)
+        showError(errorMsg, 'Security Check Failed')
+        return
+      }
+    } else {
+      setIsSubmitting(true)
+    }
+
     const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
     const activeTeammates = formData.teammates
       .slice(0, requiredTeammatesCount)
@@ -392,7 +437,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
             mode,
             teammates: activeTeammates,
             teammateIgns: activeTeammateIgns,
-            userId: user?.id || `guest-${Date.now()}`,
+            userId: user.id,
             status: 'Approved',
             paymentStatus: 'Free',
           })
@@ -508,6 +553,10 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       }
     } catch (err) {
       console.error('[Registration Submission Error]:', err)
+      if (isTurnstileEnabled()) {
+        setTurnstileToken(null)
+        setTurnstileKey((k) => k + 1)
+      }
       const errorMsg = err?.message || 'Registration failed. Please check your inputs and try again.'
       setError(errorMsg)
       showError(errorMsg, 'Registration Failed')
@@ -522,6 +571,15 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     if (e) e.preventDefault()
     setError(null)
 
+    // SEC-05: Guard authentication before registration submission proceeds
+    if (!user?.id) {
+      const authError = 'You must be logged in to register for a tournament.'
+      setError(authError)
+      showError(authError, 'Authentication Required')
+      navigate('/login')
+      return
+    }
+
     const validationError = validateForm()
     if (validationError) {
       setError(validationError)
@@ -529,9 +587,29 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       return
     }
 
-    if (!user?.id) {
-      showError('You must be logged in to register for a paid tournament.', 'Authentication Required')
-      return
+    // Turnstile bot protection check
+    if (isTurnstileEnabled()) {
+      if (!turnstileToken) {
+        const msg = 'Please complete the security check (Cloudflare Turnstile) before submitting.'
+        setError(msg)
+        showError(msg, 'Security Check Required')
+        return
+      }
+
+      setIsSubmitting(true)
+      setSubmittingStep('Verifying Security Challenge...')
+      const verifyRes = await verifyTurnstileToken(turnstileToken, { action: 'slot_booking' })
+      if (!verifyRes?.success) {
+        setIsSubmitting(false)
+        setTurnstileToken(null)
+        setTurnstileKey((k) => k + 1)
+        const errorMsg = verifyRes?.message || 'Security verification failed. Please try again.'
+        setError(errorMsg)
+        showError(errorMsg, 'Security Check Failed')
+        return
+      }
+    } else {
+      setIsSubmitting(true)
     }
 
     // Preserve one UUID v4 per attempt across retries
@@ -541,7 +619,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       setWalletIdempotencyKey(currentKey)
     }
 
-    setIsSubmitting(true)
     setSubmittingStep('Debiting Wallet & Registering...')
 
     const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
@@ -612,6 +689,10 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       onClose()
     } catch (err) {
       console.error('[handleWalletPaymentSubmit error]:', err)
+      if (isTurnstileEnabled()) {
+        setTurnstileToken(null)
+        setTurnstileKey((k) => k + 1)
+      }
       setError(err.message || 'Failed to complete wallet registration.')
       showError(err.message || 'Failed to complete wallet registration.', 'Registration Failed')
     } finally {
@@ -667,6 +748,26 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         </div>
 
         {error && <AuthAlert type="error" message={error} />}
+
+        {/* SEC-05: Guest Authentication Notification Banner */}
+        {!user?.id && (
+          <div className="p-3.5 bg-[#00f2ff]/10 border border-[#00f2ff]/30 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-white">
+              <AlertTriangle className="w-4 h-4 text-[#00f2ff] shrink-0" />
+              <span>You must be logged in to register for a tournament.</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                onClose?.()
+                navigate('/login')
+              }}
+              className="btn-cyber-primary py-1.5 px-3 text-xs shrink-0 whitespace-nowrap cursor-pointer"
+            >
+              Sign In to Register
+            </button>
+          </div>
+        )}
 
         {/* SUCCESS CONFIRMATION DIALOG */}
         {registrationSummary ? (
@@ -1042,9 +1143,24 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               </div>
             )}
 
+            {/* Turnstile Bot Protection */}
+            {isTurnstileEnabled() && (
+              <TurnstileWidget
+                key={turnstileKey}
+                action="slot_booking"
+                onVerify={(tok) => setTurnstileToken(tok)}
+                onExpire={() => setTurnstileToken(null)}
+                onError={() => setTurnstileToken(null)}
+              />
+            )}
+
             {/* ACTION BUTTONS */}
             <div className="pt-1 space-y-1.5">
-              {!isFormValid && (
+              {!user?.id ? (
+                <p className="text-[11px] text-[#00f2ff] text-center font-sans">
+                  You must be logged in to register for this tournament.
+                </p>
+              ) : !isFormValid && (
                 <p className="text-[11px] text-[#8e9dae] text-center font-sans">
                   Please complete all required fields and agreements to continue.
                 </p>
@@ -1059,7 +1175,18 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   Cancel
                 </button>
 
-                {isFreeTournament ? (
+                {!user?.id ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose?.()
+                      navigate('/login')
+                    }}
+                    className="btn-cyber-primary flex-1 py-3 text-xs font-bold cursor-pointer justify-center"
+                  >
+                    Sign In to Register
+                  </button>
+                ) : isFreeTournament ? (
                   <LoadingButton
                     type="submit"
                     loading={isSubmitting}

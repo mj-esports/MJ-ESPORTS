@@ -8,6 +8,8 @@ import AuthAlert from '../components/common/AuthAlert'
 import LoadingButton from '../components/common/LoadingButton'
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 import { isValidEmail, sanitizeString } from '../utils/validationUtils'
+import TurnstileWidget from '../components/common/TurnstileWidget'
+import { isTurnstileEnabled, verifyTurnstileToken } from '../services/turnstileService'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -25,6 +27,8 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false)
   const [alert, setAlert] = useState(null)
+  const [turnstileToken, setTurnstileToken] = useState(null)
+  const [turnstileKey, setTurnstileKey] = useState(0)
   
   // Dynamic statistics from Supabase
   const [stats, setStats] = useState({
@@ -129,7 +133,31 @@ export default function LoginPage() {
 
     const cleanEmail = (formData.email || '').trim()
 
-    setIsSubmitting(true)
+    // Turnstile bot protection check
+    if (isTurnstileEnabled()) {
+      if (!turnstileToken) {
+        setAlert({
+          type: 'error',
+          message: 'Please complete the security check (Cloudflare Turnstile) before signing in.',
+        })
+        return
+      }
+
+      setIsSubmitting(true)
+      const verifyRes = await verifyTurnstileToken(turnstileToken, { action: 'login' })
+      if (!verifyRes?.success) {
+        setIsSubmitting(false)
+        setTurnstileToken(null)
+        setTurnstileKey((k) => k + 1)
+        const errorMsg = verifyRes?.message || 'Security verification failed. Please try again.'
+        setAlert({ type: 'error', message: errorMsg })
+        showError(errorMsg, 'Security Check Failed')
+        return
+      }
+    } else {
+      setIsSubmitting(true)
+    }
+
     try {
       await signIn(cleanEmail, formData.password)
       showSuccess('Signed in successfully! Accessing your arena dashboard...', 'Welcome Back')
@@ -139,6 +167,10 @@ export default function LoginPage() {
       }, 600)
     } catch (err) {
       console.error('Login Error:', err)
+      if (isTurnstileEnabled()) {
+        setTurnstileToken(null)
+        setTurnstileKey((k) => k + 1)
+      }
       const errorMsg = err.message || 'Invalid email or password. Please check your credentials and try again.'
       setAlert({ type: 'error', message: errorMsg })
       showError(err, 'Authentication Failed')
@@ -351,6 +383,17 @@ export default function LoginPage() {
                   autoComplete="current-password"
                 />
               </div>
+
+              {/* Turnstile Bot Protection */}
+              {isTurnstileEnabled() && (
+                <TurnstileWidget
+                  key={turnstileKey}
+                  action="login"
+                  onVerify={(tok) => setTurnstileToken(tok)}
+                  onExpire={() => setTurnstileToken(null)}
+                  onError={() => setTurnstileToken(null)}
+                />
+              )}
 
               {/* Primary Sign In Button (Cyan Gaming Glow) */}
               <LoadingButton

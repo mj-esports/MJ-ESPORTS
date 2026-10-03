@@ -634,21 +634,67 @@ export function TournamentProvider({ children }) {
       throw new Error('Room Password must contain numbers only (0-9).')
     }
 
-    const payload = {
-      roomId: cleanRoomId,
-      roomPassword: cleanPassword,
-      roomStatus: roomData.roomStatus,
-      roomLastUpdated: new Date().toISOString(),
-      roomPublishedBy: roomData.roomPublishedBy,
-    }
-    if (roomData.roomReleaseTime !== undefined || roomData.room_release_time !== undefined) {
-      payload.roomReleaseTime = roomData.roomReleaseTime ?? roomData.room_release_time
-    }
-    if (roomData.roomReleaseWindowMinutes !== undefined || roomData.room_release_window_minutes !== undefined) {
-      payload.roomReleaseWindowMinutes = roomData.roomReleaseWindowMinutes ?? roomData.room_release_window_minutes
+    const roomStatus = roomData.roomStatus || 'Published'
+    const roomReleaseTime = roomData.roomReleaseTime ?? roomData.room_release_time ?? null
+
+    if (!isSupabaseConfigured) {
+      // Mock / Dev fallback when Supabase is not configured
+      const updated = {
+        roomId: cleanRoomId,
+        roomPassword: cleanPassword,
+        roomStatus,
+        roomReleaseTime,
+        room_release_time: roomReleaseTime,
+        roomLastUpdated: new Date().toISOString(),
+        roomPublishedBy: roomData.roomPublishedBy || 'Admin',
+      }
+      setTournaments((prev) =>
+        prev.map((t) => (String(t.id) === String(tournamentId) ? { ...t, ...updated } : t))
+      )
+      return { success: true, message: 'Room credentials updated (dev mode).' }
     }
 
-    return updateTournament(tournamentId, payload)
+    const rpcPayload = {
+      p_tournament_id: String(tournamentId),
+      p_room_id: cleanRoomId || null,
+      p_room_password: cleanPassword || null,
+      p_room_status: roomStatus,
+      p_room_release_time: roomReleaseTime,
+    }
+
+    const { data, error } = await supabase.rpc('set_tournament_room_credentials', rpcPayload)
+
+    if (error) {
+      console.error('[set_tournament_room_credentials RPC Error]:', error)
+      const errorMsg = error.message || 'Failed to update room credentials via server RPC.'
+      throw new Error(errorMsg)
+    }
+
+    const payload = Array.isArray(data) ? data[0] : data
+    if (payload && payload.success === false) {
+      const err = new Error(payload.message || 'Room credential update was rejected by server.')
+      err.code = payload.error_code || 'RPC_REJECTED'
+      throw err
+    }
+
+    // Update in-memory tournaments state for immediate UI reactivity
+    setTournaments((prev) =>
+      prev.map((t) => {
+        if (String(t.id) !== String(tournamentId)) return t
+        return {
+          ...t,
+          roomId: cleanRoomId,
+          roomPassword: cleanPassword,
+          roomStatus,
+          roomReleaseTime,
+          room_release_time: roomReleaseTime,
+          roomLastUpdated: new Date().toISOString(),
+          roomPublishedBy: roomData.roomPublishedBy || t.roomPublishedBy || 'Admin',
+        }
+      })
+    )
+
+    return payload || { success: true, message: 'Room credentials updated successfully.' }
   }
 
   const getRoomCredentials = useCallback(async (tournamentId) => {

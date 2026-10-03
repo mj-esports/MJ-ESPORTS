@@ -7,6 +7,8 @@ import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'
 import LoadingButton from '../components/common/LoadingButton'
 import { isValidEmail, sanitizeString, isStrongPassword, evaluatePasswordStrength } from '../utils/validationUtils'
+import TurnstileWidget from '../components/common/TurnstileWidget'
+import { isTurnstileEnabled, verifyTurnstileToken } from '../services/turnstileService'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -22,6 +24,8 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [alert, setAlert] = useState(null)
+  const [turnstileToken, setTurnstileToken] = useState(null)
+  const [turnstileKey, setTurnstileKey] = useState(0)
 
   const pwdStrength = evaluatePasswordStrength(formData.password)
 
@@ -75,7 +79,31 @@ export default function RegisterPage() {
     const cleanUsername = sanitizeString(formData.username)
     const cleanEmail = (formData.email || '').trim()
 
-    setIsSubmitting(true)
+    // Turnstile bot protection check
+    if (isTurnstileEnabled()) {
+      if (!turnstileToken) {
+        setAlert({
+          type: 'error',
+          message: 'Please complete the security check (Cloudflare Turnstile) before creating an account.',
+        })
+        return
+      }
+
+      setIsSubmitting(true)
+      const verifyRes = await verifyTurnstileToken(turnstileToken, { action: 'register' })
+      if (!verifyRes?.success) {
+        setIsSubmitting(false)
+        setTurnstileToken(null)
+        setTurnstileKey((k) => k + 1)
+        const errorMsg = verifyRes?.message || 'Security verification failed. Please try again.'
+        setAlert({ type: 'error', message: errorMsg })
+        showError(errorMsg, 'Security Check Failed')
+        return
+      }
+    } else {
+      setIsSubmitting(true)
+    }
+
     try {
       // 1. Sign up user (creates Auth user, user_roles, and profiles automatically)
       const signUpResult = await signUp(cleanEmail, formData.password, {
@@ -102,6 +130,10 @@ export default function RegisterPage() {
       }, 600)
     } catch (err) {
       console.error('Registration Error:', err)
+      if (isTurnstileEnabled()) {
+        setTurnstileToken(null)
+        setTurnstileKey((k) => k + 1)
+      }
       showError(err, 'Registration Failed')
       setAlert({
         type: 'error',
@@ -279,6 +311,17 @@ export default function RegisterPage() {
                 error={errors.confirmPassword}
                 icon={Lock}
               />
+
+              {/* Turnstile Bot Protection */}
+              {isTurnstileEnabled() && (
+                <TurnstileWidget
+                  key={turnstileKey}
+                  action="register"
+                  onVerify={(tok) => setTurnstileToken(tok)}
+                  onExpire={() => setTurnstileToken(null)}
+                  onError={() => setTurnstileToken(null)}
+                />
+              )}
 
               <LoadingButton
                 type="submit"
