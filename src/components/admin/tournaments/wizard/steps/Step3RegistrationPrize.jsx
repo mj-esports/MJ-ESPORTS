@@ -632,7 +632,7 @@ export default function Step3RegistrationPrize({
           <div className="rounded-xl border border-[#27272a] bg-[#141416] overflow-hidden shadow-2xl">
             {/* Header & Game Banner */}
             <div className="relative bg-[#1b1b1d] p-5 border-b border-[#27272a] overflow-hidden">
-              <div className="absolute -right-8 -top-8 w-32 h-32 bg-[#00f2ff]/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute right-0 -top-8 w-32 h-32 bg-[#00f2ff]/10 rounded-full blur-2xl pointer-events-none" />
 
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
