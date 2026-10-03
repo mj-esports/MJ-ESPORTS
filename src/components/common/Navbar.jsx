@@ -16,17 +16,66 @@ import {
   Gamepad2,
   BarChart3,
   LogIn,
-  UserPlus
+  UserPlus,
+  Key,
+  AlertTriangle,
+  Info,
+  CheckCircle2,
+  AlertCircle,
+  CreditCard
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
-import { fetchUserNotifications, markNotificationAsRead } from '../../services/notificationService'
+import {
+  fetchUserNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  subscribeToUserNotifications,
+} from '../../services/notificationService'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
 import {
   fetchUserWallet,
   subscribeToWalletBalance,
   getAuthoritativeWalletBalance,
 } from '../../services/walletService'
+
+function formatRelativeTime(dateInput) {
+  if (!dateInput) return ''
+  const date = new Date(dateInput)
+  const now = new Date()
+  const diffMs = now - date
+  if (diffMs < 0 || isNaN(diffMs)) return 'Just now'
+  const diffSec = Math.floor(diffMs / 1000)
+  if (diffSec < 60) return 'Just now'
+  const diffMin = Math.floor(diffSec / 60)
+  if (diffMin < 60) return `${diffMin}m ago`
+  const diffHours = Math.floor(diffMin / 60)
+  if (diffHours < 24) return `${diffHours}h ago`
+  const diffDays = Math.floor(diffHours / 24)
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return `${diffDays}d ago`
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+}
+
+function getNotificationIcon(type) {
+  switch (type) {
+    case 'room':
+      return <Key className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+    case 'prize':
+      return <Trophy className="w-3.5 h-3.5 text-[#ffd700] shrink-0" />
+    case 'warning':
+      return <AlertTriangle className="w-3.5 h-3.5 text-[#fe6b00] shrink-0" />
+    case 'success':
+      return <CheckCircle2 className="w-3.5 h-3.5 text-[#00ff9d] shrink-0" />
+    case 'error':
+      return <AlertCircle className="w-3.5 h-3.5 text-[#ff3366] shrink-0" />
+    case 'payment':
+      return <CreditCard className="w-3.5 h-3.5 text-[#00ff9d] shrink-0" />
+    case 'info':
+    default:
+      return <Info className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+  }
+}
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -109,14 +158,39 @@ export default function Navbar() {
     }
   }, [isAuthenticated, user?.id])
 
-  // Fetch notifications
+  // Real-time Notification Subscription & Initial Bounded Fetch
   useEffect(() => {
-    if (isAuthenticated && user?.id) {
-      fetchUserNotifications(user.id)
-        .then((data) => setNotifications(data || []))
-        .catch((err) => console.warn('[Navbar notifications fetch warn]:', err))
+    if (!isAuthenticated || !user?.id) {
+      setNotifications([])
+      return
     }
-  }, [isAuthenticated, user?.id, location.pathname])
+
+    let isMounted = true
+
+    // 1. Initial fetch bounded to recent 30 items
+    fetchUserNotifications(user.id, { limit: 30 })
+      .then((data) => {
+        if (isMounted) {
+          setNotifications(data || [])
+        }
+      })
+      .catch((err) => console.warn('[Navbar notifications fetch warn]:', err))
+
+    // 2. Realtime listener for new incoming notifications
+    const unsubscribe = subscribeToUserNotifications(user.id, (newNotif) => {
+      if (isMounted && newNotif) {
+        setNotifications((prev) => {
+          if (prev.some((n) => n.id === newNotif.id)) return prev
+          return [newNotif, ...prev]
+        })
+      }
+    })
+
+    return () => {
+      isMounted = false
+      unsubscribe()
+    }
+  }, [isAuthenticated, user?.id])
 
   // Click outside listener for dropdowns
   useEffect(() => {
@@ -188,16 +262,54 @@ export default function Navbar() {
     }
   }
 
+  const handleNotificationClick = async (notif) => {
+    if (!notif) return
+
+    // 1. Mark as read optimistically if unread
+    if (!notif.is_read) {
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notif.id ? { ...n, is_read: true } : n))
+      )
+      markNotificationAsRead(notif.id).catch((err) =>
+        console.warn('[Navbar mark read error]:', err)
+      )
+    }
+
+    // 2. Close dropdowns/tray
+    setNotificationsOpen(false)
+    setMobileNotifOpen(false)
+    setMobileMenuOpen(false)
+
+    // 3. Navigate if link is provided and safe
+    if (notif.link && typeof notif.link === 'string') {
+      const isInternal =
+        notif.link.startsWith('/') ||
+        (typeof window !== 'undefined' && notif.link.startsWith(window.location.origin))
+
+      if (isInternal) {
+        const targetPath = notif.link.startsWith(window.location.origin)
+          ? notif.link.slice(window.location.origin.length)
+          : notif.link
+        navigate(targetPath)
+      }
+    }
+  }
+
   const handleMarkAllRead = async () => {
+    if (!user?.id) return
     const unread = notifications.filter((n) => !n.is_read)
     if (unread.length === 0) return
 
+    // Optimistic update
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
+
     try {
-      await Promise.all(unread.map((n) => markNotificationAsRead(n.id)))
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
-      showSuccess('All notifications marked as read.', 'Cleared')
+      const res = await markAllNotificationsAsRead(user.id)
+      if (res?.success) {
+        showSuccess('All notifications marked as read.', 'Cleared')
+      }
     } catch (err) {
-      console.warn('[Navbar mark read warn]:', err)
+      console.warn('[Navbar mark all read error]:', err)
     }
   }
 
@@ -311,27 +423,43 @@ export default function Navbar() {
                         )}
                       </div>
                       
-                      <div className="max-h-60 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+                      <div className="max-h-72 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
                         {notifications.length === 0 ? (
                           <div className="py-8 text-center text-[#b9cacb] font-sans">
                             No notifications on log.
                           </div>
                         ) : (
-                          notifications.slice(0, 5).map((n) => (
-                            <div
+                          notifications.slice(0, 8).map((n) => (
+                            <button
                               key={`notif-card-${n.id}`}
-                              className={`p-2.5 rounded border text-[11px] leading-relaxed transition-all ${
+                              type="button"
+                              onClick={() => handleNotificationClick(n)}
+                              className={`w-full text-left p-2.5 rounded border text-[11px] leading-relaxed transition-all cursor-pointer ${
                                 n.is_read
-                                  ? 'bg-[#1c1b1c]/40 border-[#27272a]/60 text-[#b9cacb]'
-                                  : 'bg-[#00f2ff]/5 border-[#00f2ff]/30 text-white'
+                                  ? 'bg-[#1c1b1c]/40 border-[#27272a]/60 text-[#b9cacb] hover:bg-[#201f20]'
+                                  : 'bg-[#00f2ff]/5 border-[#00f2ff]/30 text-white hover:bg-[#00f2ff]/10 shadow-[0_0_8px_rgba(0,242,255,0.1)]'
                               }`}
                             >
-                              <div className="flex justify-between items-start font-bold">
-                                <span className="truncate">{n.title}</span>
-                                {!n.is_read && <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0 mt-1"></span>}
+                              <div className="flex items-start gap-2">
+                                <div className="mt-0.5">
+                                  {getNotificationIcon(n.type)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex justify-between items-start font-bold gap-2">
+                                    <span className="truncate">{n.title}</span>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <span className="text-[9px] text-[#849495] font-normal">
+                                        {formatRelativeTime(n.created_at)}
+                                      </span>
+                                      {!n.is_read && (
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0"></span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <p className="text-[10px] text-[#b9cacb] mt-0.5 font-sans line-clamp-2">{n.message}</p>
+                                </div>
                               </div>
-                              <p className="text-[10px] text-[#b9cacb] mt-0.5 font-sans">{n.message}</p>
-                            </div>
+                            </button>
                           ))
                         )}
                       </div>
@@ -704,27 +832,43 @@ export default function Navbar() {
                             )}
                           </div>
 
-                          <div className="max-h-44 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+                          <div className="max-h-56 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
                             {notifications.length === 0 ? (
                               <div className="py-3 text-center text-[#849495] text-[11px] font-sans">
                                 No notifications on log.
                               </div>
                             ) : (
-                              notifications.slice(0, 5).map((n) => (
-                                <div
+                              notifications.slice(0, 8).map((n) => (
+                                <button
                                   key={`mobile-notif-${n.id}`}
-                                  className={`p-2 rounded border text-[11px] leading-relaxed transition-all ${
+                                  type="button"
+                                  onClick={() => handleNotificationClick(n)}
+                                  className={`w-full text-left p-2 rounded border text-[11px] leading-relaxed transition-all cursor-pointer ${
                                     n.is_read
-                                      ? 'bg-[#1c1b1c]/40 border-[#27272a]/60 text-[#b9cacb]'
-                                      : 'bg-[#00f2ff]/5 border-[#00f2ff]/30 text-white'
+                                      ? 'bg-[#1c1b1c]/40 border-[#27272a]/60 text-[#b9cacb] hover:bg-[#201f20]'
+                                      : 'bg-[#00f2ff]/5 border-[#00f2ff]/30 text-white hover:bg-[#00f2ff]/10'
                                   }`}
                                 >
-                                  <div className="flex justify-between items-start font-bold">
-                                    <span className="truncate">{n.title}</span>
-                                    {!n.is_read && <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0 mt-1"></span>}
+                                  <div className="flex items-start gap-2">
+                                    <div className="mt-0.5">
+                                      {getNotificationIcon(n.type)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex justify-between items-start font-bold gap-2">
+                                        <span className="truncate">{n.title}</span>
+                                        <div className="flex items-center gap-1.5 shrink-0">
+                                          <span className="text-[9px] text-[#849495] font-normal">
+                                            {formatRelativeTime(n.created_at)}
+                                          </span>
+                                          {!n.is_read && (
+                                            <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0"></span>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <p className="text-[10px] text-[#b9cacb] mt-0.5 font-sans line-clamp-2">{n.message}</p>
+                                    </div>
                                   </div>
-                                  <p className="text-[10px] text-[#b9cacb] mt-0.5 font-sans">{n.message}</p>
-                                </div>
+                                </button>
                               ))
                             )}
                           </div>
