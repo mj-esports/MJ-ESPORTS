@@ -26,6 +26,9 @@ import {
   AlertTriangle,
   ShieldCheck,
   Flag,
+  FileText,
+  Crosshair,
+  Shield,
 } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -341,46 +344,241 @@ export default function TournamentDetailPage() {
     },
   ]
 
+  const renderRegistrationSummaryCard = () => (
+    <div className="bg-[#141416] rounded-xl border border-[#27272a] hover:border-[#00f2ff]/40 p-4 sm:p-5 shadow-xl flex flex-col gap-3.5 sm:gap-4 relative transition-colors">
+      <div>
+        <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-[#27272a] mb-3">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#00f2ff]" />
+            <h3 className="text-xs sm:text-sm font-headline font-bold text-white uppercase tracking-wider">
+              Registration Summary
+            </h3>
+          </div>
+          <span className="text-[10px] font-mono font-bold text-[#00f2ff] px-2 py-0.5 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 uppercase">
+            {tournament.status || 'Instant Slot'}
+          </span>
+        </div>
+
+        {/* Key Metrics Grid (2x2) */}
+        <div className="grid grid-cols-2 gap-2 font-body text-xs mb-3">
+          <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+            <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">Entry Fee</span>
+            <span className="font-mono text-sm sm:text-base font-bold text-[#00f2ff]">
+              {tournament.entryFee || 'Free'} <span className="font-body text-[10px] text-[#849495] font-normal">/ {modeInfo.teamUnit || 'Squad'}</span>
+            </span>
+          </div>
+          <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+            <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">Platform</span>
+            <span className="font-semibold text-white">Mobile <span className="text-[9px] text-[#849495] font-normal">(No PC)</span></span>
+          </div>
+          <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+            <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">Format</span>
+            <span className="font-semibold text-white">{tournament.format || `${modeInfo.mode} Mode`}</span>
+          </div>
+          <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+            <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">Registration Ends</span>
+            <span className="font-semibold text-red-400 truncate block">{tournament.startDate || tournament.registrationEnd || 'Before Kickoff'}</span>
+          </div>
+        </div>
+
+        <div className="bg-[#1c1b1c] px-3 py-1.5 rounded-lg border border-[#27272a] flex items-center justify-between">
+          <span className="font-label text-[10px] text-[#849495] uppercase tracking-wider">Prize Pool Target</span>
+          <span className="font-mono text-xs font-bold text-[#ff5e07]">{formatTournamentPrize(tournament)} Total Purse</span>
+        </div>
+      </div>
+
+      <div className="pt-2 sm:pt-3 border-t border-[#27272a] space-y-3">
+        <div className="flex justify-between items-center mb-0.5">
+          <span className="font-bold text-xs sm:text-sm text-[#e5e2e3] uppercase tracking-wider font-label">Total Entry</span>
+          <span className="font-display font-black text-xl sm:text-2xl text-[#ff5e07]">
+            {tournament.entryFee || 'Free'}
+          </span>
+        </div>
+
+        {authLoading || (isAuthenticated && isCheckingRegistration && !isAlreadyRegistered) ? (
+          <button
+            disabled
+            className="w-full bg-[#1c1b1c] text-[#849495] border border-[#27272a] font-headline font-bold text-xs sm:text-base py-3 sm:py-3.5 rounded-lg flex items-center justify-center gap-2 cursor-wait animate-pulse min-h-[44px]"
+          >
+            <Clock className="w-4 h-4 text-[#ff5e07] animate-spin" />
+            <span>Verifying Registration...</span>
+          </button>
+        ) : isCancelled ? (
+          <div className="space-y-3">
+            <button
+              disabled
+              className="w-full bg-red-950/50 text-red-400 border border-red-500/40 font-headline font-bold text-xs sm:text-base py-3 sm:py-3.5 rounded-lg flex items-center justify-center gap-2 cursor-not-allowed select-none min-h-[44px]"
+            >
+              <Ban className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+              <span>Tournament Cancelled</span>
+            </button>
+            {isAlreadyRegistered && (
+              <div className="p-3 bg-[#0e0e0f] border border-emerald-500/30 rounded-lg space-y-2 text-xs font-mono">
+                <div className="flex justify-between items-center text-white">
+                  <span className="text-[#b9cacb]">Refund Status:</span>
+                  <span className="text-[#10b981] font-bold uppercase flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> 100% Refunded
+                  </span>
+                </div>
+                {userRegistration?.team_name && (
+                  <div className="flex justify-between items-center text-white">
+                    <span className="text-[#b9cacb]">Registered Entry:</span>
+                    <span className="font-bold text-[#00f2ff] truncate max-w-[160px]">
+                      {userRegistration.team_name}
+                    </span>
+                  </div>
+                )}
+                <p className="text-[11px] text-emerald-400/90 pt-1 border-t border-[#27272a] font-body leading-relaxed">
+                  Your entry fee has been credited directly back to your authoritative MJ ESPORTS wallet.
+                </p>
+              </div>
+            )}
+          </div>
+        ) : isAlreadyRegistered ? (
+          <div className="space-y-3">
+            <button
+              disabled
+              className="w-full bg-emerald-950/60 text-[#10b981] border border-[#10b981]/50 font-headline font-bold text-xs sm:text-base py-3 sm:py-3.5 rounded-lg shadow-[0_0_16px_rgba(16,185,129,0.2)] flex items-center justify-center gap-2 cursor-default select-none min-h-[44px]"
+            >
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#10b981]" />
+              <span>
+                {modeInfo.mode === 'Solo'
+                  ? 'Player Registered'
+                  : modeInfo.mode === 'Duo'
+                  ? 'Duo Registered'
+                  : 'Squad Registered'}
+              </span>
+            </button>
+
+            <div className="p-3 bg-[#0e0e0f] border border-[#10b981]/30 rounded-lg space-y-2 text-xs font-mono">
+              <div className="flex justify-between items-center text-white">
+                <span className="text-[#b9cacb]">Roster Status:</span>
+                <span className="text-[#10b981] font-bold uppercase flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Confirmed
+                </span>
+              </div>
+              {userRegistration?.team_name && (
+                <div className="flex justify-between items-center text-white">
+                  <span className="text-[#b9cacb]">Registered Entry:</span>
+                  <span className="font-bold text-[#00f2ff] truncate max-w-[160px]">
+                    {userRegistration.team_name}
+                  </span>
+                </div>
+              )}
+              {participantCheckin?.lobby_slot && (
+                <div className="flex justify-between items-center text-white">
+                  <span className="text-[#b9cacb]">Lobby Slot:</span>
+                  <span className="font-bold text-[#00f2ff] font-mono">
+                    Slot #{participantCheckin.lobby_slot}
+                  </span>
+                </div>
+              )}
+              <p className="text-[11px] text-[#b9cacb] pt-1.5 border-t border-[#27272a] font-body leading-relaxed">
+                Match room credentials will automatically appear in the credentials panel above when published.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={handleRegisterClick}
+            disabled={isRegistrationDisabled}
+            className="w-full bg-[#ff5e07] hover:bg-[#e05204] text-white font-headline font-bold text-xs sm:text-sm uppercase tracking-wider py-3 sm:py-3.5 rounded-lg shadow-[0_0_16px_rgba(255,94,7,0.35)] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 min-h-[44px]"
+          >
+            <Gamepad2 className="w-4 h-4" />
+            <span>
+              {!isAuthenticated
+                ? 'Sign In to Register'
+                : isFull
+                ? 'Registration Full'
+                : isClosed
+                ? 'Registration Closed'
+                : `Register ${modeInfo.mode} Now`}
+            </span>
+          </button>
+        )}
+
+        <p className="text-center text-[11px] text-[#849495] mt-1.5">
+          By registering, you agree to the official MJ tournament rules.
+        </p>
+      </div>
+
+      {/* Share & Save Actions */}
+      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#27272a]">
+        <button
+          onClick={() => handleCopy(window.location.href, 'Tournament Link')}
+          className="h-8 bg-[#1c1b1c] hover:bg-[#27272a] text-[#b9cacb] hover:text-white font-label text-[11px] uppercase rounded-lg border border-[#27272a] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <Share2 className="w-3.5 h-3.5 text-[#849495]" />
+          <span>Share Link</span>
+        </button>
+        <button
+          onClick={() => handleCopy(window.location.href, 'Tournament Bookmarked')}
+          className="h-8 bg-[#1c1b1c] hover:bg-[#27272a] text-[#b9cacb] hover:text-white font-label text-[11px] uppercase rounded-lg border border-[#27272a] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <Bookmark className="w-3.5 h-3.5 text-[#849495]" />
+          <span>Save Scrim</span>
+        </button>
+      </div>
+    </div>
+  )
+
   return (
-    <div className="w-full min-h-screen bg-[#0a0a0a] text-[#f5f5f5] font-body antialiased pb-24">
+    <div className="w-full min-h-screen bg-[#131314] text-[#e5e2e3] font-body antialiased pb-24 sm:pb-16 md:pb-12">
+      {/* 0. COMPACT MOBILE SUBHEADER / BREADCRUMB (Google Stitch Mobile Spec) */}
+      <div className="sm:hidden px-4 py-2.5 bg-[#0e0e0f]/95 backdrop-blur-md border-b border-[#27272a] flex items-center justify-between text-xs font-label">
+        <Link
+          to="/tournaments"
+          className="inline-flex items-center gap-1.5 text-[#b9cacb] hover:text-[#00f2ff] transition-colors group py-1"
+        >
+          <ArrowLeft className="w-4 h-4 text-[#00f2ff] transition-transform group-hover:-translate-x-0.5" />
+          <span className="font-bold uppercase tracking-wider text-[11px]">Tournaments</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${isCancelled ? 'bg-red-500' : 'bg-[#10b981] animate-pulse'}`}></span>
+          <span className="font-mono text-[11px] text-[#849495] uppercase font-bold">
+            {tournament.status || 'Live'}
+          </span>
+        </div>
+      </div>
+
       {/* 1. STITCH HERO BANNER HEADER */}
-      <div className="relative w-full h-[300px] xs:h-[360px] md:h-[512px] overflow-hidden">
+      <div className="relative w-full min-h-[190px] xs:min-h-[220px] sm:min-h-[300px] md:h-[480px] lg:h-[512px] overflow-hidden flex flex-col justify-end">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-60"
+          className="absolute inset-0 bg-cover bg-center opacity-50"
           style={{
             backgroundImage: `url(${getTournamentImage(tournament)})`
           }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 w-full p-4 sm:p-6 md:p-12 max-w-7xl mx-auto flex flex-col justify-end">
-          <div className="inline-flex items-center gap-2 bg-[#111111]/50 backdrop-blur-sm border border-[#333333] px-3 py-1 rounded-full w-max mb-3 sm:mb-4">
-            <span className={`w-2 h-2 rounded-full ${isCancelled ? 'bg-red-500' : 'bg-[#22c55e] animate-pulse'}`}></span>
-            <span className={`text-[10px] xs:text-xs font-label uppercase tracking-wider ${isCancelled ? 'text-red-400 font-bold' : 'text-[#a3a3a3]'}`}>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#131314] via-[#131314]/70 to-transparent"></div>
+        <div className="relative z-10 w-full pt-6 sm:pt-8 md:p-12 pb-3.5 sm:pb-6 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col justify-end">
+          <div className="inline-flex items-center gap-2 bg-[#141416]/80 backdrop-blur-md border border-[#27272a] px-3 py-1 rounded-full w-max mb-2 sm:mb-3">
+            <span className={`w-2 h-2 rounded-full ${isCancelled ? 'bg-red-500' : 'bg-[#10b981] animate-pulse'}`}></span>
+            <span className={`text-[10px] xs:text-xs font-label uppercase tracking-wider font-bold ${isCancelled ? 'text-red-400' : 'text-[#b9cacb]'}`}>
               {tournament.status || 'Registration Open'}
             </span>
           </div>
-          <h1 className="text-2xl xs:text-3xl md:text-6xl font-headline font-black text-white tracking-tight mb-2 uppercase drop-shadow-lg leading-tight">
+          <h1 className="text-xl xs:text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-headline font-black text-white tracking-tight mb-2 sm:mb-2.5 uppercase drop-shadow-lg leading-tight">
             {tournament.title}
           </h1>
-          <div className="flex flex-wrap gap-2.5 sm:gap-4 text-xs md:text-base font-label text-[#a3a3a3]">
-            <span className="flex items-center gap-1.5">
-              <Gamepad2 className="w-4 h-4 text-[#f97316]" />
-              {tournament.game}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs md:text-sm font-label text-[#b9cacb]">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#141416]/70 border border-[#27272a]">
+              <Gamepad2 className="w-3.5 h-3.5 text-[#ff5e07]" />
+              <span className="font-semibold text-[#e5e2e3]">{tournament.game}</span>
             </span>
-            <span className="flex items-center gap-1.5">
-              <Users className="w-4 h-4 text-[#f97316]" />
-              {tournament.format || 'Squad'} Mode
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#141416]/70 border border-[#27272a]">
+              <Users className="w-3.5 h-3.5 text-[#ff5e07]" />
+              <span className="font-semibold text-[#e5e2e3]">{tournament.format || 'Squad'} Mode</span>
             </span>
-            <span className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-[#f97316]" />
-              {tournament.map || 'Bermuda'}
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#141416]/70 border border-[#27272a]">
+              <MapPin className="w-3.5 h-3.5 text-[#ff5e07]" />
+              <span className="font-semibold text-[#e5e2e3]">{tournament.map || 'Bermuda'}</span>
             </span>
           </div>
         </div>
       </div>
 
       {/* 2. MAIN CONTENT AREA (2 COLS: OVERVIEW & STICKY SIDEBAR) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 sm:py-8 md:py-12">
         {isCancelled && (
           <div className="mb-6 p-4 sm:p-5 bg-red-950/40 border border-red-500/40 rounded-xl flex items-start gap-3.5">
             <Ban className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
@@ -403,11 +601,11 @@ export default function TournamentDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* LEFT COLUMN: DETAILS & TABS */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8 min-w-0 w-full">
             
             {/* Tabs Header */}
-            <div className="border-b border-[#333333] overflow-x-auto hide-scrollbar">
-              <nav aria-label="Tabs" className="flex gap-6 min-w-max">
+            <div className="border-b border-[#27272a] overflow-x-auto w-full max-w-full min-w-0 hide-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden touch-pan-x overscroll-x-contain">
+              <nav aria-label="Tabs" className="flex gap-2 sm:gap-6 min-w-max pb-0.5">
                 {[
                   { id: 'overview', label: 'Overview' },
                   { id: 'rules', label: 'Rules' },
@@ -418,10 +616,10 @@ export default function TournamentDetailPage() {
                   <button
                     key={`detail-tab-${tab.id}`}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`font-headline text-lg py-4 px-1 transition-colors ${
+                    className={`font-headline text-xs xs:text-sm sm:text-base md:text-lg py-2.5 sm:py-3.5 px-3 sm:px-2 transition-all shrink-0 whitespace-nowrap focus:outline-none focus-visible:ring-1 focus-visible:ring-[#00f2ff] rounded-t-lg ${
                       activeTab === tab.id
-                        ? 'font-bold text-[#f97316] border-b-2 border-[#f97316]'
-                        : 'font-medium text-[#a3a3a3] hover:text-white'
+                        ? 'font-bold text-[#ff5e07] border-b-2 border-[#ff5e07] bg-[#ff5e07]/5 sm:bg-transparent'
+                        : 'font-medium text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c]/40'
                     }`}
                   >
                     {tab.label}
@@ -432,36 +630,164 @@ export default function TournamentDetailPage() {
 
             {/* TAB 1: OVERVIEW */}
             {activeTab === 'overview' && (
-              <section className="space-y-6">
-                <h2 className="text-2xl font-headline font-bold text-white">Tournament Overview</h2>
-                <p className="text-[#a3a3a3] leading-relaxed font-body">
-                  {tournament.description ||
-                    'Welcome to the ultimate Free Fire MAX battleground. The Pro Championship brings together the top squads to compete for glory and a massive prize pool. Show your skills, coordinate with your team, and survive to become the champion.'}
-                </p>
-
-                {/* Info Bento Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-[#1a1a1a] rounded-xl p-6 border border-[#333333] hover:border-[#333333]/80 transition-colors">
-                    <div className="flex items-center gap-3 mb-2 text-[#f97316]">
-                      <Award className="w-5 h-5 text-[#f97316]" />
-                      <h3 className="font-headline font-semibold text-white">Prize Pool</h3>
+              <section className="space-y-4 sm:space-y-6">
+                {/* 1. TOURNAMENT OVERVIEW CARD (Desktop Only: Removed from Mobile Overview in Phase 2A) */}
+                <div className="hidden lg:block bg-[#141416] p-4 sm:p-5 rounded-xl border border-[#27272a] space-y-3 shadow-lg">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#27272a]/60">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-[#00f2ff]" />
+                      <h2 className="font-headline text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Tournament Overview</h2>
                     </div>
-                    <p className="text-3xl font-display font-black text-white">{formatTournamentPrize(tournament)}</p>
-                    <p className="text-sm text-[#a3a3a3] mt-1">Distributed among top 3 teams</p>
+                    <span className="font-mono text-[10px] text-[#849495] uppercase">
+                      {tournament.id ? `DOC-ID: #${String(tournament.id).slice(0, 8)}` : 'PROTOCOL ACTIVE'}
+                    </span>
                   </div>
+                  <p className="text-[#b9cacb] leading-relaxed font-body text-xs sm:text-sm">
+                    {tournament.description ||
+                      'Welcome to the ultimate Free Fire MAX battleground. The Pro Championship brings together the top squads to compete for glory and a massive prize pool. Show your skills, coordinate with your team, and survive to become the champion.'}
+                  </p>
 
-                  <div className="bg-[#1a1a1a] rounded-xl p-6 border border-[#333333] hover:border-[#333333]/80 transition-colors">
-                    <div className="flex items-center gap-3 mb-2 text-white">
-                      <Calendar className="w-5 h-5 text-[#f97316]" />
-                      <h3 className="font-headline font-semibold text-white">Date & Time</h3>
+                  {/* Quick Specs Grid (2x2) */}
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a] flex items-center justify-between">
+                      <div>
+                        <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">MAP TARGET</span>
+                        <span className="font-body text-xs font-semibold text-white">{tournament.map || 'Bermuda'}</span>
+                      </div>
+                      <MapPin className="w-4 h-4 text-[#849495]" />
                     </div>
-                    <p className="text-lg font-medium text-white">{tournament.startDate || 'Nov 25, 2024'}</p>
-                    <p className="text-sm text-[#a3a3a3] mt-1">Starts at {tournament.startTime || '6:00 PM IST'}</p>
+                    <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a] flex items-center justify-between">
+                      <div>
+                        <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">GUN ATTRIBUTES</span>
+                        <span className={`font-body text-xs font-semibold ${tournament.gunAttributes === 'Enabled' || tournament.gun_attributes ? 'text-amber-400' : 'text-emerald-400'}`}>
+                          {tournament.gunAttributes === 'Enabled' || tournament.gun_attributes ? 'ENABLED' : 'OFF (Pure Skill)'}
+                        </span>
+                      </div>
+                      <Crosshair className="w-4 h-4 text-[#849495]" />
+                    </div>
+                    <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a] flex items-center justify-between">
+                      <div>
+                        <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">CHAR. SKILLS</span>
+                        <span className={`font-body text-xs font-semibold ${tournament.characterSkills === 'Enabled' || tournament.character_skills ? 'text-amber-400' : 'text-emerald-400'}`}>
+                          {tournament.characterSkills === 'Enabled' || tournament.character_skills ? 'ENABLED' : 'OFF'}
+                        </span>
+                      </div>
+                      <Shield className="w-4 h-4 text-[#849495]" />
+                    </div>
+                    <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a] flex items-center justify-between">
+                      <div>
+                        <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">MATCH MODE</span>
+                        <span className="font-body text-xs font-semibold text-white">{tournament.format || tournament.mode || 'Classic BR'}</span>
+                      </div>
+                      <Gamepad2 className="w-4 h-4 text-[#849495]" />
+                    </div>
                   </div>
                 </div>
 
-                {/* PRIZE POOL BREAKDOWN & DISTRIBUTION CARD */}
-                <div className="mt-6">
+                {/* 2. PRIZE ALLOCATION (Priority 2) */}
+                <div className="bg-[#141416] p-4 sm:p-5 rounded-xl border border-[#ff5e07]/40 relative overflow-hidden space-y-3 shadow-lg">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#27272a]">
+                    <div className="flex items-center gap-2">
+                      <Award className="w-4 h-4 text-[#ff5e07]" />
+                      <h3 className="font-headline text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Prize Pool & Allocation</h3>
+                    </div>
+                    <span className="font-mono text-[10px] text-[#10b981] bg-[#10b981]/10 border border-[#10b981]/30 px-2 py-0.5 rounded font-bold uppercase">
+                      Escrow Secured
+                    </span>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <div>
+                      <span className="font-label text-[10px] text-[#849495] uppercase tracking-wider block">TOTAL PURSE</span>
+                      <span className="font-display text-2xl sm:text-3xl font-black text-[#ff5e07] tracking-tight">
+                        {formatTournamentPrize(tournament)} <span className="font-label text-xs text-[#b9cacb] font-normal">INR</span>
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-label text-[9px] text-[#849495] uppercase tracking-wider block">DISTRIBUTION</span>
+                      <span className="font-label text-[11px] text-[#00f2ff] font-bold uppercase">100% Disbursed</span>
+                    </div>
+                  </div>
+                  {/* Tier Breakdown Mini-Strip */}
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 py-2 px-1 bg-[#1c1b1c] rounded-lg border border-[#27272a] text-center font-mono">
+                    <div className="border-r border-[#27272a] pr-1">
+                      <span className="text-[9px] text-[#ff5e07] font-bold block uppercase">1ST PLACE</span>
+                      <span className="text-xs font-bold text-white">50%</span>
+                      <span className="text-[8px] text-[#849495] block">Booyah</span>
+                    </div>
+                    <div className="border-r border-[#27272a] px-1">
+                      <span className="text-[9px] text-[#b9cacb] block uppercase">2ND PLACE</span>
+                      <span className="text-xs font-bold text-white">30%</span>
+                      <span className="text-[8px] text-[#849495] block">Runner-up</span>
+                    </div>
+                    <div className="border-r sm:border-r border-[#27272a] px-1">
+                      <span className="text-[9px] text-[#b9cacb] block uppercase">3RD PLACE</span>
+                      <span className="text-xs font-bold text-white">20%</span>
+                      <span className="text-[8px] text-[#849495] block">Podium</span>
+                    </div>
+                    <div className="hidden sm:block pl-1">
+                      <span className="text-[9px] text-[#00f2ff] block uppercase">PER KILL</span>
+                      <span className="text-xs font-bold text-[#00f2ff]">MVP</span>
+                      <span className="text-[8px] text-[#849495] block">Bounty</span>
+                    </div>
+                  </div>
+                  {/* 4px Height Compact Gradient Progress Indicator */}
+                  <div className="w-full bg-[#201f20] h-1.5 rounded-full overflow-hidden flex border border-[#27272a]/50">
+                    <div className="h-full bg-[#ff5e07]" style={{ width: '50%' }}></div>
+                    <div className="h-full bg-[#ffb59a]" style={{ width: '30%' }}></div>
+                    <div className="h-full bg-[#849495]" style={{ width: '20%' }}></div>
+                  </div>
+                </div>
+
+                {/* 3. DATE & TIME SPECIFICATION (Priority 3) */}
+                <div className="bg-[#141416] p-4 sm:p-5 rounded-xl border border-[#27272a] space-y-3 shadow-lg">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#27272a]/60">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-[#00f2ff]" />
+                      <h3 className="font-headline text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Date & Time Specification</h3>
+                    </div>
+                    <span className="font-mono text-[10px] text-[#849495] px-1.5 py-0.5 rounded bg-[#1c1b1c] border border-[#27272a]">
+                      IST (UTC+05:30)
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-label text-[9px] text-[#849495] uppercase tracking-wider block">TOURNAMENT DATE</span>
+                      <h4 className="font-headline text-sm sm:text-base font-bold text-white uppercase">{tournament.startDate || 'Nov 25, 2024'}</h4>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-label text-[9px] text-[#849495] uppercase tracking-wider block">MATCH KICKOFF</span>
+                      <div className="flex items-center gap-1.5 justify-end">
+                        <Clock className="w-4 h-4 text-[#00f2ff]" />
+                        <span className="font-mono text-sm sm:text-base font-bold text-[#00f2ff]">{tournament.startTime || '06:00 PM IST'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Mini Timeline Pill */}
+                  <div className="bg-[#1c1b1c] p-2 rounded-lg border border-[#27272a] flex items-center justify-between font-mono text-[10px] text-[#b9cacb]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                      <span>Reg Closes: <strong className="text-white">{tournament.registrationEnd || tournament.startDate || '05:00 PM'}</strong></span>
+                    </div>
+                    <span className="text-[#849495]">•</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#ff5e07]"></span>
+                      <span>Check-in: <strong className="text-white">{tournament.checkInTime || '05:15 PM'}</strong></span>
+                    </div>
+                    <span className="text-[#849495]">•</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff]"></span>
+                      <span>Kickoff: <strong className="text-white">{tournament.startTime || '06:00 PM'}</strong></span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. MOBILE-PROMOTED REGISTRATION SUMMARY & CTA (Priority 1) */}
+                <div className="block lg:hidden">
+                  {renderRegistrationSummaryCard()}
+                </div>
+
+                {/* PRIZE POOL BREAKDOWN & DISTRIBUTION CARD (Desktop Only: Mobile uses promoted Registration Summary) */}
+                <div className="hidden lg:block mt-6">
                   <EntryPrizeSystem
                     entryFee={entryFeeStr}
                     paymentEnabled={isPaidTournament}
@@ -472,46 +798,63 @@ export default function TournamentDetailPage() {
                   />
                 </div>
 
-                {/* Slot Capacity Progress Bar Box */}
-                <div className="bg-[#1a1a1a] p-6 rounded-xl border border-[#333333] mt-6 space-y-3">
-                  <div className="flex justify-between items-end mb-2">
-                    <div>
-                      <h4 className="font-headline font-semibold text-white">Slot Capacity</h4>
-                      <p className="text-sm text-[#a3a3a3]">
-                        {filledPlayerSlots} / {totalPlayerSlots} Players registered
-                        {modeInfo.mode !== 'Solo' && (
-                          <span className="text-xs text-[#737373] ml-1.5 font-mono">
-                            ({regTeams} / {maxTeams} {modeInfo.teamUnit})
-                          </span>
-                        )}
-                      </p>
+                {/* 5. SLOT CAPACITY METRICS (Priority 4) */}
+                <div className="bg-[#141416] p-4 sm:p-5 rounded-xl border border-[#27272a] space-y-3 shadow-lg">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#27272a]/60">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-[#00f2ff]" />
+                      <h4 className="font-headline text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Slot Capacity Metrics</h4>
                     </div>
-                    <span className="text-[#f97316] font-bold">{fillPercentage}% Full</span>
+                    <span className="font-mono text-[10px] text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/30 px-2 py-0.5 rounded font-bold">
+                      {fillPercentage}% FILLED
+                    </span>
                   </div>
-                  <div className="w-full bg-[#262626] rounded-full h-2.5 overflow-hidden">
-                    <div
-                      className="bg-[#f97316] h-2.5 rounded-full transition-all duration-500"
-                      style={{ width: `${fillPercentage}%` }}
-                    ></div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+                      <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">REGISTERED SQUADS</span>
+                      <span className="font-mono text-sm font-bold text-white">
+                        {regTeams} / {maxTeams} <span className="text-[10px] text-[#849495]">{modeInfo.teamUnit || 'Squads'}</span>
+                      </span>
+                    </div>
+                    <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+                      <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">COMBATANTS LOGGED</span>
+                      <span className="font-mono text-sm font-bold text-white">
+                        {filledPlayerSlots} / {totalPlayerSlots} <span className="text-[10px] text-[#849495]">Players</span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5 pt-1">
+                    <div className="w-full bg-[#201f20] rounded-full h-2.5 overflow-hidden border border-[#27272a]/50">
+                      <div
+                        className="bg-gradient-to-r from-[#00f2ff] to-[#ff5e07] h-2.5 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(0,242,255,0.4)]"
+                        style={{ width: `${fillPercentage}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex items-center justify-between font-mono text-[10px] pt-0.5">
+                      <span className="text-[#849495]">SLOTS RESERVED: {regTeams}</span>
+                      <span className="text-[#ff5e07] font-bold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#ff5e07]"></span>
+                        {Math.max(0, maxTeams - regTeams)} {modeInfo.teamUnit || 'Squad'} Slots Remaining
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* MATCH CHECK-IN & ROSTER VERIFICATION PANEL */}
-                <div className="bg-[#111111] border border-[#262626] rounded-xl p-5 sm:p-6 space-y-4 shadow-xl">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#262626] pb-3">
+                {/* 6. MATCH CHECK-IN & ROSTER VERIFICATION (Desktop Only: Removed from Mobile Overview in Phase 2A) */}
+                <div className="hidden lg:block bg-[#141416] border border-[#27272a] rounded-xl p-4 sm:p-6 space-y-4 shadow-xl">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#27272a] pb-3">
                     <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-[#00FFFF]" />
-                      <h3 className="font-headline text-base sm:text-lg font-bold text-white uppercase tracking-wide">
+                      <ShieldCheck className="w-5 h-5 text-[#00f2ff]" />
+                      <h3 className="font-headline text-sm sm:text-base font-bold text-white uppercase tracking-wider">
                         Match Check-In & Slot Assignment
                       </h3>
                     </div>
-                    {/* Status Badge */}
-                    <span className={`px-3 py-1 rounded text-xs font-mono font-bold uppercase tracking-wider border ${
+                    <span className={`px-2.5 py-1 rounded text-[11px] font-mono font-bold uppercase tracking-wider border ${
                       tournament.status === 'Check-in Open'
                         ? 'bg-emerald-950/50 text-emerald-400 border-emerald-500/40 animate-pulse'
                         : tournament.status === 'Check-in Closed'
                         ? 'bg-slate-900 text-slate-400 border-slate-700'
-                        : 'bg-[#1a1a1a] text-[#a3a3a3] border-[#333333]'
+                        : 'bg-[#1c1b1c] text-[#849495] border-[#27272a]'
                     }`}>
                       {tournament.status === 'Check-in Open'
                         ? 'Check-In Window Open'
@@ -523,40 +866,38 @@ export default function TournamentDetailPage() {
 
                   {!isAuthenticated ? (
                     <div className="space-y-2">
-                      <p className="text-xs text-[#a3a3a3] font-body leading-relaxed">
+                      <p className="text-xs text-[#b9cacb] font-body leading-relaxed">
                         Sign in to verify your registration and check in for this tournament match.
                       </p>
                       <Link
                         to="/login"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-[#00FFFF]/10 border border-[#00FFFF]/40 text-[#00FFFF] font-label font-extrabold text-xs uppercase hover:bg-[#00FFFF]/20 transition-all"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/40 text-[#00f2ff] font-label font-extrabold text-xs uppercase hover:bg-[#00f2ff]/20 transition-all"
                       >
                         Sign In
                       </Link>
                     </div>
                   ) : !isAlreadyRegistered && !isAdmin ? (
-                    <p className="text-xs text-[#a3a3a3] font-body leading-relaxed">
-                      Check-in is reserved for confirmed participants. Register your entry using the sidebar to receive match slot assignments.
+                    <p className="text-xs text-[#849495] font-body leading-relaxed">
+                      Check-in is reserved for confirmed participants. Register your entry using the summary card to receive match slot assignments.
                     </p>
                   ) : participantCheckin ? (
                     /* ALREADY CHECKED IN VIEW */
                     <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {/* LOBBY SLOT ASSIGNMENT */}
-                        <div className="p-4 bg-[#171717] rounded-lg border border-[#00FFFF]/30 flex flex-col justify-between">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-[#a3a3a3] font-label">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div className="p-3.5 bg-[#1c1b1c] rounded-lg border border-[#00f2ff]/30 flex flex-col justify-between">
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-[#849495] font-label">
                             Assigned Lobby Slot
                           </span>
-                          <p className="text-2xl font-mono font-black text-[#00FFFF] mt-1">
+                          <p className="text-xl sm:text-2xl font-mono font-black text-[#00f2ff] mt-1">
                             {participantCheckin.lobby_slot ? `SLOT #${participantCheckin.lobby_slot}` : 'PENDING'}
                           </p>
-                          <span className="text-[10px] text-[#737373] mt-1">
-                            Join this exact slot number in the custom room
+                          <span className="text-[10px] text-[#849495] mt-1">
+                            Join this exact slot number in the room
                           </span>
                         </div>
 
-                        {/* CHECK-IN STATUS */}
-                        <div className="p-4 bg-[#171717] rounded-lg border border-[#333333] flex flex-col justify-between">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-[#a3a3a3] font-label">
+                        <div className="p-3.5 bg-[#1c1b1c] rounded-lg border border-[#27272a] flex flex-col justify-between">
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-[#849495] font-label">
                             Check-In Status
                           </span>
                           <div className="flex items-center gap-1.5 mt-1">
@@ -565,14 +906,13 @@ export default function TournamentDetailPage() {
                               {participantCheckin.status}
                             </span>
                           </div>
-                          <span className="text-[10px] text-[#737373] mt-1">
+                          <span className="text-[10px] text-[#849495] mt-1">
                             {participantCheckin.status === 'LOCKED' ? 'Roster finalized by admin' : 'Check-in recorded'}
                           </span>
                         </div>
 
-                        {/* UID VERIFICATION STATUS */}
-                        <div className="p-4 bg-[#171717] rounded-lg border border-[#333333] flex flex-col justify-between">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-[#a3a3a3] font-label">
+                        <div className="p-3.5 bg-[#1c1b1c] rounded-lg border border-[#27272a] flex flex-col justify-between">
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-[#849495] font-label">
                             UID Verification
                           </span>
                           <div className="mt-1">
@@ -592,7 +932,7 @@ export default function TournamentDetailPage() {
                               </span>
                             )}
                           </div>
-                          <span className="text-[10px] text-[#737373] mt-1 font-mono">
+                          <span className="text-[10px] text-[#849495] mt-1 font-mono">
                             UID: {participantCheckin.checkin_uid}
                           </span>
                         </div>
@@ -607,15 +947,14 @@ export default function TournamentDetailPage() {
                         </div>
                       )}
 
-                      {/* Action to report incident */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#262626]">
-                        <span className="text-xs text-[#a3a3a3]">
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#27272a]">
+                        <span className="text-xs text-[#849495]">
                           Experiencing an in-game issue, disconnect, or room conflict?
                         </span>
                         <button
                           type="button"
                           onClick={() => setShowIncidentModal(true)}
-                          className="px-3 py-1.5 rounded bg-[#1f1f1f] hover:bg-[#2a2a2a] text-amber-400 border border-amber-500/30 text-xs font-bold font-label uppercase flex items-center gap-1.5 transition-all cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg bg-[#1c1b1c] hover:bg-[#27272a] text-amber-400 border border-amber-500/30 text-xs font-bold font-label uppercase flex items-center gap-1.5 transition-all cursor-pointer"
                         >
                           <Flag className="w-3.5 h-3.5" />
                           <span>Report Match Incident</span>
@@ -625,13 +964,13 @@ export default function TournamentDetailPage() {
                   ) : tournament.status === 'Check-in Open' ? (
                     /* CHECK-IN OPEN FORM VIEW */
                     <form onSubmit={handleCheckinSubmit} className="space-y-4">
-                      <p className="text-xs text-[#a3a3a3] font-body leading-relaxed">
+                      <p className="text-xs text-[#b9cacb] font-body leading-relaxed">
                         The check-in window is open! Submit your Free Fire MAX in-game character UID to confirm readiness and automatically receive your official custom room lobby slot.
                       </p>
 
-                      <div className="p-3.5 bg-[#171717] rounded-lg border border-[#262626] space-y-2">
+                      <div className="p-3 bg-[#1c1b1c] rounded-lg border border-[#27272a] space-y-1.5">
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-[#a3a3a3] font-label uppercase font-bold">Registered UID:</span>
+                          <span className="text-[#849495] font-label uppercase font-bold">Registered UID:</span>
                           <span className="font-mono font-bold text-white">
                             {userRegistration?.captain_uid || 'Not recorded'}
                           </span>
@@ -639,7 +978,7 @@ export default function TournamentDetailPage() {
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-[#f5f5f5] font-label uppercase tracking-wider block">
+                        <label className="text-xs font-bold text-[#e5e2e3] font-label uppercase tracking-wider block">
                           Free Fire In-Game UID *
                         </label>
                         <div className="flex flex-col sm:flex-row gap-2">
@@ -648,13 +987,13 @@ export default function TournamentDetailPage() {
                             value={checkinInputUid}
                             onChange={(e) => setCheckinInputUid(e.target.value)}
                             placeholder="Enter 8-10 digit Free Fire UID"
-                            className="flex-1 px-4 py-2.5 bg-[#171717] border border-[#333333] focus:border-[#00FFFF] rounded-lg text-white font-mono text-sm placeholder:text-[#525252] outline-none transition-colors"
+                            className="flex-1 px-4 py-2.5 bg-[#1c1b1c] border border-[#27272a] focus:border-[#00f2ff] rounded-lg text-white font-mono text-sm placeholder:text-[#525252] outline-none transition-colors"
                             required
                           />
                           <button
                             type="submit"
                             disabled={checkinSubmitting}
-                            className="px-6 py-2.5 rounded-lg bg-[#00FFFF] hover:bg-[#00FFFF]/90 text-black font-headline font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(0,255,255,0.25)] min-h-[42px]"
+                            className="px-6 py-2.5 rounded-lg bg-[#00f2ff] hover:bg-[#00dbe7] text-black font-headline font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(0,242,255,0.25)] min-h-[42px]"
                           >
                             {checkinSubmitting ? (
                               <>
@@ -689,85 +1028,85 @@ export default function TournamentDetailPage() {
                       </p>
                     </div>
                   ) : (
-                    <div className="p-4 bg-[#171717] border border-[#262626] rounded-lg space-y-1 text-xs">
-                      <div className="font-bold text-[#a3a3a3] flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-[#00FFFF]" />
+                    <div className="p-4 bg-[#1c1b1c] border border-[#27272a] rounded-lg space-y-1 text-xs">
+                      <div className="font-bold text-[#b9cacb] flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-[#00f2ff]" />
                         <span>Check-In Window Not Yet Open</span>
                       </div>
-                      <p className="text-[#737373]">
+                      <p className="text-[#849495]">
                         Check-in will open at {tournament.checkInTime || 'the scheduled check-in time'}. Prepare your Free Fire UID in advance.
                       </p>
                     </div>
                   )}
                 </div>
 
-                {/* Custom Match Room Credentials Panel */}
+                {/* 7. CUSTOM MATCH ROOM CREDENTIALS (Priority 6) */}
                 {tournament.roomStatus === 'Published' ? (
                   !isAuthenticated ? (
-                    <div className="bg-[#111111] border border-[#333333] rounded-xl p-5 sm:p-6 space-y-3">
-                      <div className="flex items-center gap-2 text-[#00FFFF] font-headline font-bold text-sm uppercase">
-                        <Lock className="w-4 h-4 text-[#A0A0A0]" />
+                    <div className="bg-[#141416] border border-[#27272a] rounded-xl p-4 sm:p-6 space-y-3 shadow-lg">
+                      <div className="flex items-center gap-2 text-[#00f2ff] font-headline font-bold text-sm uppercase">
+                        <Lock className="w-4 h-4 text-[#849495]" />
                         <span>Match Room Credentials</span>
                       </div>
-                      <p className="text-xs text-[#A0A0A0] font-label leading-relaxed">
+                      <p className="text-xs text-[#849495] font-body leading-relaxed">
                         Sign in and register for this tournament to view custom room credentials.
                       </p>
                       <Link
                         to="/login"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-[#00FFFF]/10 border border-[#00FFFF]/40 text-[#00FFFF] font-label font-extrabold text-xs uppercase hover:bg-[#00FFFF]/20 transition-all"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/40 text-[#00f2ff] font-label font-extrabold text-xs uppercase hover:bg-[#00f2ff]/20 transition-all"
                       >
                         Sign In to View
                       </Link>
                     </div>
                   ) : (isAlreadyRegistered || isAdmin) ? (
                     secureRoomDetails?.roomId ? (
-                      <div className="bg-[#111111] border border-[#00FFFF]/50 rounded-xl p-5 sm:p-6 space-y-4 shadow-[0_0_20px_rgba(0,255,255,0.15)] relative overflow-hidden">
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#262626] pb-3">
+                      <div className="bg-[#141416] border border-[#00f2ff]/50 rounded-xl p-4 sm:p-6 space-y-4 shadow-[0_0_20px_rgba(0,255,255,0.15)] relative overflow-hidden">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#27272a] pb-3">
                           <div className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#FF0055] animate-pulse"></span>
-                            <h3 className="font-headline text-base sm:text-lg font-bold text-white flex items-center gap-2 uppercase tracking-wide">
-                              <Key className="w-5 h-5 text-[#00FFFF]" />
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#ff5e07] animate-pulse"></span>
+                            <h3 className="font-headline text-sm sm:text-base font-bold text-white flex items-center gap-2 uppercase tracking-wider">
+                              <Key className="w-4 h-4 text-[#00f2ff]" />
                               <span>MATCH ROOM LIVE</span>
                             </h3>
                           </div>
-                          <span className="px-3 py-1 rounded bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/30 text-xs font-mono font-bold uppercase tracking-wider">
+                          <span className="px-2.5 py-1 rounded bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-xs font-mono font-bold uppercase tracking-wider">
                             Room Status: Published
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {/* ROOM ID CARD */}
-                          <div className="bg-[#1A1A1A] p-4 rounded-lg border border-[#333333] space-y-2">
+                          <div className="bg-[#1c1b1c] p-3.5 sm:p-4 rounded-lg border border-[#27272a] space-y-2">
                             <div className="flex justify-between items-center">
-                              <span className="text-[11px] font-extrabold text-[#A0A0A0] uppercase font-label tracking-wider">ROOM ID</span>
+                              <span className="text-[10px] font-extrabold text-[#849495] uppercase font-label tracking-wider">ROOM ID</span>
                               <button
                                 onClick={() => handleCopy(secureRoomDetails.roomId, 'Room ID')}
-                                className="px-2.5 py-1 rounded bg-[#252525] hover:bg-[#00FFFF]/20 border border-[#333333] hover:border-[#00FFFF]/50 text-[#00FFFF] text-xs font-bold font-label flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer min-h-[32px]"
+                                className="px-2.5 py-1 rounded bg-[#201f20] hover:bg-[#00f2ff]/20 border border-[#27272a] hover:border-[#00f2ff]/50 text-[#00f2ff] text-xs font-bold font-label flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer min-h-[32px]"
                               >
                                 <Copy className="w-3.5 h-3.5" />
                                 <span>COPY ID</span>
                               </button>
                             </div>
-                            <div className="font-mono text-xl font-black text-[#00FFFF] tracking-wider select-all">
+                            <div className="font-mono text-xl font-black text-[#00f2ff] tracking-wider select-all">
                               {secureRoomDetails.roomId}
                             </div>
                           </div>
 
                           {/* ROOM PASSWORD CARD */}
-                          <div className="bg-[#1A1A1A] p-4 rounded-lg border border-[#333333] space-y-2">
+                          <div className="bg-[#1c1b1c] p-3.5 sm:p-4 rounded-lg border border-[#27272a] space-y-2">
                             <div className="flex justify-between items-center gap-2">
-                              <span className="text-[11px] font-extrabold text-[#A0A0A0] uppercase font-label tracking-wider">PASSWORD</span>
+                              <span className="text-[10px] font-extrabold text-[#849495] uppercase font-label tracking-wider">PASSWORD</span>
                               <div className="flex items-center gap-1.5">
                                 <button
                                   onClick={() => setShowPassword((prev) => !prev)}
-                                  className="p-1.5 rounded hover:bg-[#252525] text-[#A0A0A0] hover:text-white transition-colors"
+                                  className="p-1.5 rounded hover:bg-[#201f20] text-[#849495] hover:text-white transition-colors"
                                   title={showPassword ? 'Hide Password' : 'Show Password'}
                                 >
-                                  {showPassword ? <EyeOff className="w-4 h-4 text-[#00FFFF]" /> : <Eye className="w-4 h-4" />}
+                                  {showPassword ? <EyeOff className="w-4 h-4 text-[#00f2ff]" /> : <Eye className="w-4 h-4" />}
                                 </button>
                                 <button
                                   onClick={() => handleCopy(secureRoomDetails.roomPassword, 'Password')}
-                                  className="px-2.5 py-1 rounded bg-[#252525] hover:bg-[#00FFFF]/20 border border-[#333333] hover:border-[#00FFFF]/50 text-white hover:text-[#00FFFF] text-xs font-bold font-label flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer min-h-[32px]"
+                                  className="px-2.5 py-1 rounded bg-[#201f20] hover:bg-[#00f2ff]/20 border border-[#27272a] hover:border-[#00f2ff]/50 text-white hover:text-[#00f2ff] text-xs font-bold font-label flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer min-h-[32px]"
                                 >
                                   <Copy className="w-3.5 h-3.5" />
                                   <span>COPY PASSWORD</span>
@@ -781,73 +1120,75 @@ export default function TournamentDetailPage() {
                         </div>
 
                         {/* COMBINED COPY CREDENTIALS BUTTON */}
-                        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#262626]">
+                        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#27272a]">
                           <button
                             onClick={() => handleCopyCredentials(tournament?.title, secureRoomDetails.roomId, secureRoomDetails.roomPassword)}
-                            className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-[#00FFFF] text-black font-label font-extrabold text-xs uppercase tracking-wider hover:bg-[#00FFFF]/90 transition-all flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(0,255,255,0.25)] active:scale-98 cursor-pointer min-h-[40px]"
+                            className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-[#00f2ff] text-black font-headline font-black text-xs uppercase tracking-wider hover:bg-[#00dbe7] transition-all flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(0,242,255,0.25)] active:scale-98 cursor-pointer min-h-[40px]"
                           >
                             <Copy className="w-4 h-4" />
                             <span>COPY CREDENTIALS</span>
                           </button>
-                          <span className="text-xs font-label text-[#22c55e] flex items-center gap-1">
+                          <span className="text-xs font-label text-[#10b981] flex items-center gap-1">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>Match room is ready.</span>
                           </span>
                         </div>
                       </div>
                     ) : roomLoading ? (
-                      <div className="bg-[#111111] border border-[#00FFFF]/30 rounded-xl p-5 sm:p-6 space-y-2 animate-pulse">
-                        <div className="flex items-center gap-2 text-[#00FFFF] font-headline font-bold text-sm uppercase">
-                          <Key className="w-4 h-4 text-[#00FFFF]" />
+                      <div className="bg-[#141416] border border-[#00f2ff]/30 rounded-xl p-4 sm:p-6 space-y-2 animate-pulse">
+                        <div className="flex items-center gap-2 text-[#00f2ff] font-headline font-bold text-sm uppercase">
+                          <Key className="w-4 h-4 text-[#00f2ff]" />
                           <span>Verifying Match Room Credentials...</span>
                         </div>
-                        <p className="text-xs text-[#A0A0A0] font-label">
+                        <p className="text-xs text-[#849495] font-label">
                           Loading secure room credentials for registered participants...
                         </p>
                       </div>
                     ) : (
-                      <div className="bg-[#111111] border border-[#00FFFF]/40 rounded-xl p-5 sm:p-6 space-y-2">
-                        <div className="flex items-center gap-2 text-[#00FFFF] font-headline font-bold text-sm uppercase">
-                          <Key className="w-4 h-4 text-[#00FFFF]" />
+                      <div className="bg-[#141416] border border-[#00f2ff]/40 rounded-xl p-4 sm:p-6 space-y-2">
+                        <div className="flex items-center gap-2 text-[#00f2ff] font-headline font-bold text-sm uppercase">
+                          <Key className="w-4 h-4 text-[#00f2ff]" />
                           <span>Match Room Credentials</span>
                         </div>
-                        <p className="text-xs text-[#A0A0A0] font-label leading-relaxed">
+                        <p className="text-xs text-[#849495] font-body leading-relaxed">
                           {roomErrorMessage || 'Match room credentials have been published. Re-verifying participant session details...'}
                         </p>
                       </div>
                     )
                   ) : (
-                    <div className="bg-[#111111] border border-[#333333] rounded-xl p-5 sm:p-6 space-y-2">
-                      <div className="flex items-center gap-2 text-[#00FFFF] font-headline font-bold text-sm uppercase">
-                        <Lock className="w-4 h-4 text-[#A0A0A0]" />
+                    <div className="bg-[#141416] border border-[#27272a] rounded-xl p-4 sm:p-6 space-y-2">
+                      <div className="flex items-center gap-2 text-[#00f2ff] font-headline font-bold text-sm uppercase">
+                        <Lock className="w-4 h-4 text-[#849495]" />
                         <span>Match Room Credentials</span>
                       </div>
-                      <p className="text-xs text-[#A0A0A0] font-label leading-relaxed">
+                      <p className="text-xs text-[#849495] font-body leading-relaxed">
                         Room credentials are available only to registered participants.
                       </p>
                     </div>
                   )
                 ) : (
-                  <div className="bg-[#111111] border border-[#333333] rounded-xl p-5 sm:p-6 space-y-2">
-                    <div className="flex items-center gap-2 text-[#00FFFF] font-headline font-bold text-sm uppercase">
-                      <Key className="w-4 h-4 text-[#A0A0A0]" />
+                  <div className="bg-[#141416] border border-[#27272a] rounded-xl p-4 sm:p-6 space-y-2">
+                    <div className="flex items-center gap-2 text-[#00f2ff] font-headline font-bold text-sm uppercase">
+                      <Key className="w-4 h-4 text-[#849495]" />
                       <span>Match Room Credentials</span>
                     </div>
-                    <p className="text-xs text-[#A0A0A0] font-label leading-relaxed">
+                    <p className="text-xs text-[#849495] font-body leading-relaxed">
                       Room credentials will appear here when the admin publishes the room.
                     </p>
                   </div>
                 )}
 
-                {/* Tactical Map Banner */}
-                <div className="mt-8 rounded-xl overflow-hidden border border-[#333333] shadow-lg">
-                  <div
-                    className="bg-cover bg-center w-full h-48 sm:h-64"
-                    style={{
-                      backgroundImage: `url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80')`
-                    }}
-                  ></div>
-                </div>
+                {/* Tactical Map Banner (Render only when map image content exists) */}
+                {(tournament.mapImage || tournament.map_image) && (
+                  <div className="mt-8 rounded-xl overflow-hidden border border-[#27272a] shadow-lg">
+                    <div
+                      className="bg-cover bg-center w-full h-48 sm:h-64"
+                      style={{
+                        backgroundImage: `url(${tournament.mapImage || tournament.map_image})`
+                      }}
+                    ></div>
+                  </div>
+                )}
               </section>
             )}
 
@@ -860,11 +1201,11 @@ export default function TournamentDetailPage() {
 
             {/* TAB 3: SCHEDULE */}
             {activeTab === 'schedule' && (
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 <PlayerMatchSchedule tournamentId={id} tournament={tournament} />
-                <div className="pt-2">
-                  <div className="mb-4">
-                    <h3 className="font-headline text-base sm:text-lg font-bold text-white uppercase tracking-wider">
+                <div className="pt-1 sm:pt-2">
+                  <div className="mb-3 sm:mb-4">
+                    <h3 className="font-headline text-sm sm:text-base font-bold text-white uppercase tracking-wider">
                       Tournament Timeline & Window Details
                     </h3>
                     <p className="text-xs text-[#849495] mt-0.5">
@@ -885,204 +1226,277 @@ export default function TournamentDetailPage() {
             )}
 
             {/* TAB 4: REGISTERED SQUADS */}
-            {activeTab === 'teams' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {tournament.teamsList && tournament.teamsList.length > 0 ? (
-                  tournament.teamsList.map((t, idx) => (
-                    <div key={`squad-${idx}`} className="p-4 bg-[#1a1a1a] border border-[#333333] rounded-xl space-y-2">
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-bold text-[#f5f5f5] text-sm">{t.name}</h4>
-                        <span className="text-xs text-[#22c55e] font-bold">Confirmed</span>
-                      </div>
-                      <p className="text-xs text-[#a3a3a3]">Captain: <strong className="text-[#f5f5f5]">{t.captain}</strong></p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-span-full p-8 text-center bg-[#1a1a1a] border border-[#333333] rounded-xl text-[#a3a3a3] text-xs">
-                    No teams registered yet. Be the first squad to book a slot!
-                  </div>
-                )}
-              </div>
-            )}
+            {activeTab === 'teams' && (() => {
+              const registeredSquads = Array.isArray(tournament?.teamsList) && tournament.teamsList.length > 0
+                ? tournament.teamsList
+                : (Array.isArray(tournament?.teams_list) ? tournament.teams_list : [])
 
-            {/* TAB 5: FAQS */}
-            {activeTab === 'faqs' && (
-              <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 space-y-4">
-                <h3 className="text-xl font-headline font-bold text-white">Frequently Asked Questions</h3>
-                <div className="space-y-3">
-                  {faqs.map((faq, idx) => (
-                    <div key={`faq-${idx}`} className="bg-[#111111] border border-[#333333] rounded-lg overflow-hidden">
-                      <button
-                        onClick={() => setOpenFaqIndex(openFaqIndex === idx ? -1 : idx)}
-                        className="w-full p-4 text-left text-xs font-bold text-white uppercase flex justify-between items-center hover:text-[#f97316]"
-                      >
-                        <span>{faq.q}</span>
-                        {openFaqIndex === idx ? <ChevronUp className="w-4 h-4 text-[#f97316]" /> : <ChevronDown className="w-4 h-4 text-[#a3a3a3]" />}
-                      </button>
-                      {openFaqIndex === idx && (
-                        <div className="p-4 pt-0 text-xs text-[#a3a3a3] leading-relaxed border-t border-[#333333]">
-                          {faq.a}
-                        </div>
-                      )}
+              return (
+                <div className="space-y-4">
+                  {/* Header Bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 border-b border-[#27272a] pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
+                        <Users className="w-4 h-4 text-[#00f2ff]" />
+                      </div>
+                      <div>
+                        <h3 className="font-headline text-sm sm:text-base font-bold text-white uppercase tracking-wider">
+                          Registered Squads
+                        </h3>
+                        <span className="font-mono text-[10px] sm:text-[11px] text-[#849495] block">
+                          Confirmed Battle Roster
+                        </span>
+                      </div>
+                      <span className="text-[10px] sm:text-[11px] font-mono font-bold px-2.5 py-0.5 rounded bg-[#1c1b1c] text-[#00f2ff] border border-[#00f2ff]/30 uppercase tracking-wider shrink-0">
+                        {registeredSquads.length} / {maxTeams} {modeInfo.teamUnit || 'Squads'}
+                      </span>
                     </div>
-                  ))}
+
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold uppercase tracking-wider">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        <span>Roster Verified</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Empty State vs Squad Cards Grid */}
+                  {registeredSquads.length === 0 ? (
+                    <div
+                      data-testid="squads-empty-state"
+                      className="bg-[#141416] border border-[#27272a] rounded-xl p-6 sm:p-8 text-center space-y-3.5 shadow-md max-w-full"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-[#1c1b1c] border border-[#27272a] flex items-center justify-center mx-auto text-[#00f2ff]">
+                        <Users className="w-6 h-6 text-[#00f2ff]/70" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm sm:text-base font-headline font-bold text-white uppercase tracking-wide">
+                          No squads registered yet.
+                        </p>
+                        <p className="text-xs text-[#849495] max-w-sm mx-auto leading-relaxed">
+                          Be the first combat unit to claim an official slot in this tournament bracket.
+                        </p>
+                      </div>
+                      <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
+                        {!isRegistrationDisabled && (
+                          <button
+                            type="button"
+                            onClick={handleRegisterClick}
+                            className="px-5 py-2.5 bg-[#ff5e07] hover:bg-[#e05206] text-white font-headline font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_0_15px_rgba(255,94,7,0.3)] active:scale-98 cursor-pointer min-h-[44px] flex items-center gap-2"
+                          >
+                            <Trophy className="w-4 h-4" />
+                            <span>Claim First Slot</span>
+                          </button>
+                        )}
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1c1b1c] border border-[#27272a] text-[10px] sm:text-[11px] font-mono text-[#00f2ff]">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          <span>{maxTeams} {modeInfo.teamUnit || 'Squad'} Slots Vacant</span>
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      data-testid="registered-squads-grid"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"
+                    >
+                      {registeredSquads.map((t, idx) => {
+                        const teamName = t.name || t.team_name || `Squad ${idx + 1}`
+                        const captainName = t.captain || t.captain_name || t.captain_uid || 'Squad Leader'
+                        const status = t.status || 'Confirmed'
+                        const isConfirmed = status.toLowerCase() === 'confirmed'
+
+                        return (
+                          <div
+                            key={`squad-${idx}`}
+                            data-testid={`squad-card-${idx}`}
+                            className="p-3.5 sm:p-4 bg-[#141416] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-xl space-y-3 transition-colors shadow-sm relative flex flex-col justify-between"
+                          >
+                            {/* Top Row: Slot Number, Team Name & Status */}
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="px-2 py-0.5 rounded bg-[#1c1b1c] border border-[#27272a] text-[10px] sm:text-[11px] font-mono font-bold text-[#00f2ff] shrink-0">
+                                  SLOT #{String(idx + 1).padStart(2, '0')}
+                                </span>
+                                <h4 className="font-headline font-bold text-white text-xs sm:text-sm tracking-wide truncate">
+                                  {teamName}
+                                </h4>
+                              </div>
+                              <span className={`px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 border ${
+                                isConfirmed
+                                  ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40'
+                                  : 'bg-amber-950/60 text-amber-400 border-amber-500/40'
+                              }`}>
+                                {status}
+                              </span>
+                            </div>
+
+                            {/* Details Bento Box */}
+                            <div className="p-2.5 bg-[#1c1b1c] rounded-lg border border-[#27272a] space-y-1.5 text-xs font-mono">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-[10px] text-[#849495] uppercase font-bold tracking-wider">CAPTAIN</span>
+                                <span className="text-white font-semibold truncate max-w-[160px] text-[11px] sm:text-xs">
+                                  {captainName}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between pt-1 border-t border-[#27272a]/60 text-[10px] text-[#849495]">
+                                <span>VERIFICATION</span>
+                                <span className="text-emerald-400 font-bold flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                                  <span>ROSTER LOCKED</span>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Promoted Mobile Registration Prompt if slots remain */}
+                  {registeredSquads.length > 0 && !isRegistrationDisabled && (
+                    <div className="p-3.5 sm:p-4 bg-[#141416] border border-[#27272a] rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <span className="font-headline text-xs sm:text-sm font-bold text-white uppercase tracking-wider block">
+                          Slots Remaining: {Math.max(0, maxTeams - registeredSquads.length)} {modeInfo.teamUnit || 'Squads'}
+                        </span>
+                        <span className="text-xs text-[#849495] block">
+                          Registration is open for verified squads. Book your entry before cutoff.
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRegisterClick}
+                        className="px-5 py-2.5 bg-[#ff5e07] hover:bg-[#e05206] text-white font-headline font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_0_12px_rgba(255,94,7,0.3)] active:scale-98 cursor-pointer min-h-[44px]"
+                      >
+                        Claim Slot
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )
+            })()}
+
+            {/* TAB 5: FAQS (Phase 6 Approved Stitch Redesign) */}
+            {activeTab === 'faqs' && (
+              <section className="space-y-3.5 sm:space-y-4 max-w-full">
+                {/* Header & Category Banner */}
+                <div className="bg-[#141416] p-4 sm:p-5 rounded-xl border border-[#27272a] shadow-lg space-y-2">
+                  <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#27272a]/60">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <HelpCircle className="w-4 h-4 text-[#00f2ff] shrink-0" />
+                      <h2 className="font-headline text-xs sm:text-sm font-bold text-white uppercase tracking-wider truncate">
+                        Frequently Asked Questions
+                      </h2>
+                    </div>
+                    <span className="font-mono text-[10px] text-[#00f2ff] px-2 py-0.5 rounded bg-[#1c1b1c] border border-[#00f2ff]/30 uppercase tracking-wider shrink-0">
+                      Arbiter Guide
+                    </span>
+                  </div>
+                  <p className="text-[#849495] font-body text-xs leading-relaxed">
+                    Official protocols covering custom room access, escrow settlements, match disconnects, and esports scoring.
+                  </p>
+                </div>
+
+                {/* Compact Accordion */}
+                <div data-testid="faq-accordion" className="space-y-2 sm:space-y-2.5">
+                  {faqs.map((faq, idx) => {
+                    const isOpen = openFaqIndex === idx
+                    return (
+                      <div
+                        key={`faq-${idx}`}
+                        data-testid={`faq-item-${idx}`}
+                        className={`rounded-xl border transition-all duration-200 overflow-hidden ${
+                          isOpen
+                            ? 'bg-[#1c1b1c] border-[#00f2ff]/40 shadow-[0_0_12px_rgba(0,242,255,0.06)]'
+                            : 'bg-[#141416] border-[#27272a] hover:border-[#27272a]/90 hover:bg-[#1a191a]'
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          id={`faq-btn-${idx}`}
+                          aria-expanded={isOpen}
+                          aria-controls={`faq-panel-${idx}`}
+                          onClick={() => setOpenFaqIndex(isOpen ? -1 : idx)}
+                          className="w-full p-3.5 sm:p-4 text-left flex items-center justify-between gap-3 cursor-pointer select-none transition-colors min-h-[44px] group"
+                        >
+                          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold shrink-0 border transition-colors ${
+                              isOpen
+                                ? 'bg-[#ff5e07]/10 text-[#ff5e07] border-[#ff5e07]/30'
+                                : 'bg-[#1c1b1c] text-[#849495] border-[#27272a] group-hover:text-[#00f2ff]'
+                            }`}>
+                              0{idx + 1}
+                            </span>
+                            <span className={`font-headline font-bold text-xs sm:text-sm tracking-wide transition-colors ${
+                              isOpen ? 'text-[#ff5e07]' : 'text-white group-hover:text-[#00f2ff]'
+                            }`}>
+                              {faq.q}
+                            </span>
+                          </div>
+                          <div className={`w-6 h-6 rounded-md flex items-center justify-center border transition-all shrink-0 ${
+                            isOpen
+                              ? 'bg-[#ff5e07]/15 border-[#ff5e07]/40 text-[#ff5e07]'
+                              : 'bg-[#1c1b1c] border-[#27272a] text-[#849495] group-hover:text-white'
+                          }`}>
+                            {isOpen ? (
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            ) : (
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            )}
+                          </div>
+                        </button>
+
+                        {isOpen && (
+                          <div
+                            id={`faq-panel-${idx}`}
+                            role="region"
+                            aria-labelledby={`faq-btn-${idx}`}
+                            data-testid={`faq-answer-${idx}`}
+                            className="px-3.5 pb-3.5 sm:px-4 sm:pb-4 pt-0"
+                          >
+                            <div className="p-3 rounded-lg bg-[#141416] border border-[#27272a]/70 text-xs text-[#b9cacb] font-body leading-relaxed space-y-1.5">
+                              <p>{faq.a}</p>
+                              <div className="pt-1 border-t border-[#27272a]/50 flex items-center justify-between text-[10px] font-mono text-[#849495]">
+                                <span>STANDARD PROCEDURE</span>
+                                <span className="text-emerald-400 font-bold flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                                  <span>ENFORCED</span>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Arbitration & Support Contact Notice */}
+                <div className="p-3.5 sm:p-4 bg-[#141416] border border-[#27272a] rounded-xl flex items-center justify-between gap-3 text-xs">
+                  <div className="space-y-0.5">
+                    <span className="font-headline font-bold text-white uppercase tracking-wider block text-xs">
+                      Need Immediate Match Support?
+                    </span>
+                    <span className="text-[#849495] text-[11px] block">
+                      Arbiters are active on official discord 30 minutes prior to room launch.
+                    </span>
+                  </div>
+                  <Link
+                    to="/about"
+                    className="px-3.5 py-2 rounded-lg bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 text-[#00f2ff] font-mono text-[11px] font-bold uppercase tracking-wider transition-colors shrink-0 min-h-[36px] flex items-center"
+                  >
+                    Support Desk
+                  </Link>
+                </div>
+              </section>
             )}
 
           </div>
 
           {/* RIGHT COLUMN: STICKY SIDEBAR (Stitch Exact Layout) */}
-          <div className="relative">
-            <div className="sticky top-24 bg-[#1a1a1a] rounded-xl border border-[#333333] p-6 shadow-xl backdrop-blur-md bg-opacity-90 flex flex-col gap-6">
-              <div>
-                <h3 className="text-xl font-headline font-bold text-white border-b border-[#333333] pb-4 mb-4">
-                  Registration Summary
-                </h3>
-                <ul className="space-y-4 font-body text-sm">
-                  <li className="flex justify-between items-center">
-                    <span className="text-[#a3a3a3]">Entry Fee</span>
-                    <span className="font-semibold text-white">{tournament.entryFee || 'Free'} / Squad</span>
-                  </li>
-                  <li className="flex justify-between items-center">
-                    <span className="text-[#a3a3a3]">Platform</span>
-                    <span className="font-semibold text-white">Mobile</span>
-                  </li>
-                  <li className="flex justify-between items-center">
-                    <span className="text-[#a3a3a3]">Format</span>
-                    <span className="font-semibold text-white">{tournament.format || 'Custom Room'}</span>
-                  </li>
-                  <li className="flex justify-between items-center">
-                    <span className="text-[#a3a3a3]">Registration Ends</span>
-                    <span className="font-semibold text-white">{tournament.startDate || 'Nov 24, 11:59 PM'}</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="pt-4 border-t border-[#333333] space-y-3">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-bold text-lg text-white">Total</span>
-                  <span className="font-display font-black text-2xl text-[#f97316]">
-                    {tournament.entryFee || 'Free'}
-                  </span>
-                </div>
-
-                {authLoading || (isAuthenticated && isCheckingRegistration && !isAlreadyRegistered) ? (
-                  <button
-                    disabled
-                    className="w-full bg-[#1e1e1e] text-[#a3a3a3] border border-[#333333] font-headline font-bold text-sm sm:text-base py-4 rounded-xl flex items-center justify-center gap-2 cursor-wait animate-pulse"
-                  >
-                    <Clock className="w-4 h-4 text-[#f97316] animate-spin" />
-                    <span>Verifying Registration...</span>
-                  </button>
-                ) : isCancelled ? (
-                  <div className="space-y-3">
-                    <button
-                      disabled
-                      className="w-full bg-red-950/50 text-red-400 border border-red-500/40 font-headline font-bold text-base py-4 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed select-none"
-                    >
-                      <Ban className="w-5 h-5 text-red-400" />
-                      <span>Tournament Cancelled</span>
-                    </button>
-                    {isAlreadyRegistered && (
-                      <div className="p-3.5 bg-[#111111] border border-emerald-500/30 rounded-xl space-y-2 text-xs font-mono">
-                        <div className="flex justify-between items-center text-white">
-                          <span className="text-[#a3a3a3]">Refund Status:</span>
-                          <span className="text-[#22c55e] font-bold uppercase flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> 100% Refunded
-                          </span>
-                        </div>
-                        {userRegistration?.team_name && (
-                          <div className="flex justify-between items-center text-white">
-                            <span className="text-[#a3a3a3]">Registered Entry:</span>
-                            <span className="font-bold text-[#00FFFF] truncate max-w-[160px]">
-                              {userRegistration.team_name}
-                            </span>
-                          </div>
-                        )}
-                        <p className="text-[11px] text-emerald-400/90 pt-1 border-t border-[#262626] font-body leading-relaxed">
-                          Your entry fee has been credited directly back to your authoritative MJ ESPORTS wallet.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ) : isAlreadyRegistered ? (
-                  <div className="space-y-3">
-                    <button
-                      disabled
-                      className="w-full bg-emerald-950/60 text-[#22c55e] border border-[#22c55e]/50 font-headline font-bold text-base py-4 rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center gap-2 cursor-default select-none"
-                    >
-                      <CheckCircle2 className="w-5 h-5 text-[#22c55e]" />
-                      <span>
-                        {modeInfo.mode === 'Solo'
-                          ? 'Player Registered'
-                          : modeInfo.mode === 'Duo'
-                          ? 'Duo Registered'
-                          : 'Squad Registered'}
-                      </span>
-                    </button>
-
-                    <div className="p-3.5 bg-[#111111] border border-[#22c55e]/30 rounded-xl space-y-2 text-xs font-mono">
-                      <div className="flex justify-between items-center text-white">
-                        <span className="text-[#a3a3a3]">Roster Status:</span>
-                        <span className="text-[#22c55e] font-bold uppercase flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Confirmed
-                        </span>
-                      </div>
-                      {userRegistration?.team_name && (
-                        <div className="flex justify-between items-center text-white">
-                          <span className="text-[#a3a3a3]">Registered Entry:</span>
-                          <span className="font-bold text-[#00FFFF] truncate max-w-[160px]">
-                            {userRegistration.team_name}
-                          </span>
-                        </div>
-                      )}
-                      {participantCheckin?.lobby_slot && (
-                        <div className="flex justify-between items-center text-white">
-                          <span className="text-[#a3a3a3]">Lobby Slot:</span>
-                          <span className="font-bold text-[#00FFFF] font-mono">
-                            Slot #{participantCheckin.lobby_slot}
-                          </span>
-                        </div>
-                      )}
-                      <p className="text-[11px] text-[#a3a3a3] pt-1.5 border-t border-[#262626] font-body leading-relaxed">
-                        Match room credentials will automatically appear in the credentials panel above when published.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleRegisterClick}
-                    disabled={isRegistrationDisabled}
-                    className="w-full bg-[#f97316] text-white font-headline font-bold text-lg py-4 rounded-xl hover:bg-orange-600 transition-colors shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    {!isAuthenticated
-                      ? 'Sign In to Register'
-                      : isFull
-                      ? 'Registration Full'
-                      : isClosed
-                      ? 'Registration Closed'
-                      : `Register ${modeInfo.mode} Now`}
-                  </button>
-                )}
-
-                <p className="text-center text-xs text-[#a3a3a3] mt-2">
-                  By registering, you agree to the official MJ tournament rules.
-                </p>
-              </div>
-
-              {/* Share & Save Actions */}
-              <div className="flex justify-center gap-6 pt-4 border-t border-[#333333]">
-                <button
-                  onClick={() => handleCopy(window.location.href, 'Tournament Link')}
-                  className="text-[#a3a3a3] hover:text-[#f97316] transition-colors p-2 flex flex-col items-center gap-1 text-xs"
-                >
-                  <Share2 className="w-4 h-4" /> Share
-                </button>
-                <button className="text-[#a3a3a3] hover:text-[#f97316] transition-colors p-2 flex flex-col items-center gap-1 text-xs">
-                  <Bookmark className="w-4 h-4" /> Save
-                </button>
-              </div>
+          <div className={`relative ${activeTab === 'overview' ? 'hidden lg:block' : 'block'}`}>
+            <div className="sticky top-24">
+              {renderRegistrationSummaryCard()}
             </div>
           </div>
 
