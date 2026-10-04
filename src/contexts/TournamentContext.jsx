@@ -49,7 +49,7 @@ export function TournamentProvider({ children }) {
       try {
         const { data, error } = await supabase
           .from('tournaments')
-          .select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, room_status, room_last_updated, room_published_by, room_release_time, room_release_window_minutes, winner_team, winner_captain, created_at, updated_at')
+          .select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, room_status, room_last_updated, room_published_by, winner_team, winner_captain, created_at, updated_at')
           .order('created_at', { ascending: false })
 
         if (error) {
