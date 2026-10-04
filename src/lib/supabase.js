@@ -22,12 +22,7 @@ export const isSupabaseConfigured =
   !rawSupabaseAnonKey.includes('placeholder') &&
   !rawSupabaseAnonKey.includes('your-supabase')
 
-if (isSupabaseConfigured) {
-  console.log('[Supabase Client Initialized]: Connection configured successfully.', {
-    url: rawSupabaseUrl,
-    keyFormat: rawSupabaseAnonKey.startsWith('eyJ') ? 'JWT' : rawSupabaseAnonKey.startsWith('sb_') ? 'Publishable' : 'Standard'
-  })
-} else {
+if (!isSupabaseConfigured) {
   console.error(
     '[Supabase Startup Configuration Error]: VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is missing or invalid in your environment (.env).\n' +
     'Please verify that VITE_SUPABASE_URL starts with "https://" and VITE_SUPABASE_ANON_KEY contains your valid Supabase project key.'

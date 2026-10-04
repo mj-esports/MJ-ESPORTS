@@ -205,6 +205,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
 
   const [isSaving, setIsSaving] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  const [isStatusUpdating, setIsStatusUpdating] = useState(false)
 
   // Phase 6 Match Readiness & Check-in State
   const [readinessData, setReadinessData] = useState(null)
@@ -500,7 +501,8 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
   }
 
   const handleOpenLobby = async () => {
-    if (!selectedTourney) return
+    if (!selectedTourney || isStatusUpdating) return
+    setIsStatusUpdating(true)
     try {
       if (selectedMatch?.id) {
         const res = await rpcUpdateMatchStatus(selectedMatch.id, 'Check-in Open')
@@ -528,11 +530,15 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       }
     } catch (err) {
       showError(err?.message || 'Failed to open lobby', 'Lobby Error')
+    } finally {
+      setIsStatusUpdating(false)
     }
   }
 
   // Match Lifecycle Handlers
   const handleStartMatch = async () => {
+    if (isStatusUpdating) return
+    setIsStatusUpdating(true)
     try {
       if (selectedMatch?.id) {
         const res = await rpcUpdateMatchStatus(selectedMatch.id, 'Live')
@@ -560,6 +566,8 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       }
     } catch (err) {
       showError(err?.message || 'Failed to start match', 'Match Error')
+    } finally {
+      setIsStatusUpdating(false)
     }
   }
 
@@ -573,6 +581,8 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
   }
 
   const handleResumeMatch = async () => {
+    if (isStatusUpdating) return
+    setIsStatusUpdating(true)
     try {
       if (selectedMatch?.id) {
         await rpcUpdateMatchStatus(selectedMatch.id, 'Live')
@@ -590,10 +600,14 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       }
     } catch (err) {
       showError(err?.message || 'Failed to resume match', 'Resume Error')
+    } finally {
+      setIsStatusUpdating(false)
     }
   }
 
   const handleConfirmEndMatch = async () => {
+    if (isStatusUpdating) return
+    setIsStatusUpdating(true)
     try {
       if (selectedMatch?.id) {
         const res = await rpcUpdateMatchStatus(selectedMatch.id, 'Completed')
@@ -622,6 +636,8 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       }
     } catch (err) {
       showError(err?.message || 'Failed to end match', 'Error')
+    } finally {
+      setIsStatusUpdating(false)
     }
   }
 
@@ -1309,13 +1325,15 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               <>
                 <button
                   onClick={handleOpenLobby}
-                  className="px-4 py-2.5 bg-[#141416] hover:bg-[#27272a] text-white border border-[#27272a] rounded-lg text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+                  disabled={isStatusUpdating}
+                  className="px-4 py-2.5 bg-[#141416] hover:bg-[#27272a] text-white border border-[#27272a] rounded-lg text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
                 >
                   Refresh Lobby
                 </button>
                 <button
                   onClick={handleStartMatch}
-                  className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded-lg text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center gap-2 cursor-pointer"
+                  disabled={isStatusUpdating}
+                  className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded-lg text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <Play className="w-4 h-4 text-[#00363a] fill-current" />
                   <span>Start Match</span>
@@ -1327,14 +1345,16 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               <>
                 <button
                   onClick={handlePauseMatch}
-                  className="px-4 py-2.5 bg-[#ff5e07]/20 hover:bg-[#ff5e07]/30 text-[#ff5e07] border border-[#ff5e07]/40 rounded-lg text-xs font-headline font-bold uppercase transition-colors flex items-center gap-1.5 cursor-pointer"
+                  disabled={isStatusUpdating}
+                  className="px-4 py-2.5 bg-[#ff5e07]/20 hover:bg-[#ff5e07]/30 text-[#ff5e07] border border-[#ff5e07]/40 rounded-lg text-xs font-headline font-bold uppercase transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <Pause className="w-3.5 h-3.5" />
                   <span>Pause Match</span>
                 </button>
                 <button
                   onClick={() => setShowEndMatchModal(true)}
-                  className="px-4 py-2.5 bg-red-950/50 hover:bg-red-900/60 text-red-400 border border-red-800/60 rounded-lg text-xs font-headline font-bold uppercase transition-colors flex items-center gap-1.5 cursor-pointer"
+                  disabled={isStatusUpdating}
+                  className="px-4 py-2.5 bg-red-950/50 hover:bg-red-900/60 text-red-400 border border-red-800/60 rounded-lg text-xs font-headline font-bold uppercase transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <Square className="w-3.5 h-3.5" />
                   <span>End Match</span>
@@ -1346,14 +1366,16 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               <>
                 <button
                   onClick={handleResumeMatch}
-                  className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded-lg text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center gap-1.5 cursor-pointer"
+                  disabled={isStatusUpdating}
+                  className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded-lg text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <RotateCcw className="w-4 h-4 text-[#00363a]" />
                   <span>Resume Match</span>
                 </button>
                 <button
                   onClick={() => setShowEndMatchModal(true)}
-                  className="px-4 py-2.5 bg-red-950/50 hover:bg-red-900/60 text-red-400 border border-red-800/60 rounded-lg text-xs font-headline font-bold uppercase transition-colors flex items-center gap-1.5 cursor-pointer"
+                  disabled={isStatusUpdating}
+                  className="px-4 py-2.5 bg-red-950/50 hover:bg-red-900/60 text-red-400 border border-red-800/60 rounded-lg text-xs font-headline font-bold uppercase transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <Square className="w-3.5 h-3.5" />
                   <span>End Match</span>
@@ -1771,15 +1793,24 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setShowEndMatchModal(false)}
-                className="flex-1 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-lg text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+                disabled={isStatusUpdating}
+                className="flex-1 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-lg text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmEndMatch}
-                className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-headline font-bold uppercase transition-colors cursor-pointer shadow-lg shadow-red-600/30"
+                disabled={isStatusUpdating}
+                className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-headline font-bold uppercase transition-colors cursor-pointer shadow-lg shadow-red-600/30 disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                Confirm End Match
+                {isStatusUpdating ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Ending Match...</span>
+                  </>
+                ) : (
+                  <span>Confirm End Match</span>
+                )}
               </button>
             </div>
           </div>

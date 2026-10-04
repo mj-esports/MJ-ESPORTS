@@ -9,15 +9,6 @@ export default function AdminRoute() {
   // Only show the blocking authorization screen while authentication or role verification is settling.
   const isInitialAuthCheck = loading || roleLoading
 
-  console.log('[ADMIN ROUTE EVALUATION]', {
-    url: typeof window !== 'undefined' ? window.location.href : '',
-    pathname: location.pathname,
-    isAuthenticated,
-    isAdmin,
-    userEmail: user?.email,
-    isInitialAuthCheck,
-  })
-
   if (isInitialAuthCheck) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-6 text-slate-400">
@@ -34,13 +25,11 @@ export default function AdminRoute() {
 
   // 1. Anonymous Visitors -> Redirect to Login
   if (!isAuthenticated || !user) {
-    console.log('[ADMIN ROUTE REDIRECT] User unauthenticated, redirecting to /login from:', location.pathname)
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   // 2. Authenticated Non-Admin Users -> Redirect to 403 Access Denied
   if (!isAdmin) {
-    console.log('[ADMIN ROUTE ACCESS DENIED] User is not an authorized administrator, redirecting to /403 from:', location.pathname)
     return <Navigate to="/403" replace />
   }
 

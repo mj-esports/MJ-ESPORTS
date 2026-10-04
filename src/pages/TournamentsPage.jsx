@@ -83,20 +83,6 @@ export default function TournamentsPage() {
     })
 
     const deduped = Array.from(new Map(filtered.map((item) => [item.id, item])).values())
-
-    console.log('[Player Tournaments Page - Visibility Audit Log]:', {
-      totalTournamentsInState: tournaments.length,
-      queryResultCount: deduped.length,
-      filters: { searchQuery, selectedGame, selectedStatus },
-      visibleTournaments: deduped.map((t) => ({
-        tournamentId: t.id,
-        status: t.status,
-        published: t.published !== undefined ? t.published : (t.status !== 'Draft'),
-        title: t.title,
-        game: t.game
-      }))
-    })
-
     return deduped
   }, [tournaments, searchQuery, selectedGame, selectedStatus, debouncedSearchQuery])
 

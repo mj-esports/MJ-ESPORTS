@@ -143,7 +143,6 @@ export function TournamentProvider({ children }) {
 
     try {
       const payload = mapTournamentToDb(tournamentData)
-      console.log('Complete tournament payload immediately before insert():', payload)
 
       const result = await supabase
         .from('tournaments')
@@ -176,7 +175,6 @@ export function TournamentProvider({ children }) {
     }
 
     const payload = mapPartialTournamentToDb(updatedFields)
-    console.log('Partial tournament payload immediately before update():', payload)
 
     const result = await supabase
       .from('tournaments')
@@ -328,36 +326,8 @@ export function TournamentProvider({ children }) {
           p_substitute_igns: teamInfo.substituteIgns || [],
         }
 
-        console.log('[RPC Diagnostic]: Session Status ->', {
-          hasSession,
-          sessionUserId,
-          isSupabaseConfigured,
-        })
-
-        console.log('[RPC Diagnostic]: Invoking register_tournament_team with payload ->', {
-          p_tournament_id: rpcPayload.p_tournament_id,
-          p_team_name: rpcPayload.p_team_name,
-          p_captain_name: rpcPayload.p_captain_name,
-          p_captain_uid: rpcPayload.p_captain_uid,
-          p_payment_id: rpcPayload.p_payment_id,
-          p_razorpay_payment_id: rpcPayload.p_razorpay_payment_id,
-          p_mode: rpcPayload.p_mode,
-          p_ref_id: rpcPayload.p_ref_id,
-        })
-
         // Authoritative Path: Call Atomic Supabase PostgreSQL RPC
         const { data, error } = await supabase.rpc('register_tournament_team', rpcPayload)
-
-        console.log('[RPC Diagnostic]: Response ->', {
-          data,
-          error: error ? {
-            message: error.message,
-            code: error.code,
-            details: error.details,
-            hint: error.hint,
-            status: error.status,
-          } : null,
-        })
 
         if (error) {
           console.error('[RPC register_tournament_team error]:', error)
@@ -365,7 +335,7 @@ export function TournamentProvider({ children }) {
         }
 
         if (data && data.success === false) {
-          console.warn('[RPC Diagnostic]: RPC returned unsuccessful response ->', data.error_code, data.message)
+          console.warn('[Registration Notice]: RPC returned unsuccessful response ->', data.error_code, data.message)
           // Map structured RPC error codes to clear, user-friendly UI messages
           switch (data.error_code) {
             case 'PAYMENT_REQUIRED':
@@ -395,7 +365,6 @@ export function TournamentProvider({ children }) {
           }
         }
 
-        console.log('[RPC Diagnostic]: RPC Registration Success! Synchronizing tournaments state...')
         await fetchTournaments()
         return data.teamRecord || { ...teamInfo, id: refId, refId, status: regStatus }
       }
@@ -488,16 +457,6 @@ export function TournamentProvider({ children }) {
         p_substitute_igns: teamInfo.substituteIgns || [],
       }
 
-      console.log('[RPC Diagnostic]: Invoking register_tournament_team_with_wallet with payload ->', {
-        p_tournament_id: rpcPayload.p_tournament_id,
-        p_team_name: rpcPayload.p_team_name,
-        p_captain_name: rpcPayload.p_captain_name,
-        p_captain_uid: rpcPayload.p_captain_uid,
-        p_idempotency_key: rpcPayload.p_idempotency_key,
-        p_mode: rpcPayload.p_mode,
-        p_ref_id: rpcPayload.p_ref_id,
-      })
-
       const { data, error } = await supabase.rpc('register_tournament_team_with_wallet', rpcPayload)
 
       if (error) {
@@ -506,7 +465,7 @@ export function TournamentProvider({ children }) {
       }
 
       if (data && data.success === false) {
-        console.warn('[RPC Diagnostic]: RPC returned unsuccessful response ->', data.error_code, data.message)
+        console.warn('[Registration Notice]: RPC returned unsuccessful response ->', data.error_code, data.message)
         switch (data.error_code) {
           case 'INSUFFICIENT_FUNDS':
             throw new Error(data.message || 'Insufficient wallet balance for this tournament entry fee.')
@@ -537,7 +496,6 @@ export function TournamentProvider({ children }) {
         }
       }
 
-      console.log('[RPC Diagnostic]: Wallet Registration Success! Synchronizing tournaments state...')
       if (data?.balance_after !== undefined) {
         notifyWalletBalanceUpdated(Number(data.balance_after))
       }
