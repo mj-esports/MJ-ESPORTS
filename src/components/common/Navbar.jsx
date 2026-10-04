@@ -7,6 +7,7 @@ import {
   LogOut,
   Shield,
   Settings,
+  Users,
   Wallet,
   Bell,
   ChevronDown,
@@ -509,6 +510,15 @@ export default function Navbar() {
                       </Link>
 
                       <Link
+                        to="/profile/team"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded text-[#b9cacb] hover:text-[#00f2ff] hover:bg-[#201f20] transition-colors uppercase tracking-wider"
+                      >
+                        <Users className="w-4 h-4 text-[#00f2ff]" />
+                        <span>My Team</span>
+                      </Link>
+
+                      <Link
                         to="/wallet"
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center gap-2.5 px-3 py-2 rounded text-[#b9cacb] hover:text-[#10b981] hover:bg-[#201f20] transition-colors uppercase tracking-wider"
@@ -789,6 +799,20 @@ export default function Navbar() {
                     >
                       <User className="w-4.5 h-4.5 text-[#00f2ff]" />
                       <span>Profile</span>
+                    </Link>
+
+                    {/* My Team */}
+                    <Link
+                      to="/profile/team"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                        isActive('/profile/team')
+                          ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
+                          : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                      }`}
+                    >
+                      <Users className="w-4.5 h-4.5 text-[#00f2ff]" />
+                      <span>My Team</span>
                     </Link>
 
                     {/* 8. Notifications Tray */}

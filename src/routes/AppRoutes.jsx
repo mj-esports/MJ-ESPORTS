@@ -20,6 +20,7 @@ const AboutPage = lazy(() => import('../pages/AboutPage'))
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'))
 const DashboardPage = lazy(() => import('../pages/DashboardPage'))
 const ProfilePage = lazy(() => import('../pages/ProfilePage'))
+const PlayerTeamPortalPage = lazy(() => import('../pages/PlayerTeamPortalPage'))
 const EditProfilePage = lazy(() => import('../pages/EditProfilePage'))
 const StatisticsPage = lazy(() => import('../pages/StatisticsPage'))
 const TournamentHistoryPage = lazy(() => import('../pages/TournamentHistoryPage'))
@@ -69,6 +70,7 @@ export default function AppRoutes() {
           <Route element={<ProtectedRoute redirectTo="/login" />}>
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="profile/team" element={<PlayerTeamPortalPage />} />
             <Route path="profile/edit" element={<EditProfilePage />} />
             <Route path="profile/statistics" element={<StatisticsPage />} />
             <Route path="profile/history" element={<TournamentHistoryPage />} />

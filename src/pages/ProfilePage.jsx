@@ -25,7 +25,8 @@ import {
   Flame,
   Crosshair,
   ShieldCheck,
-  Gamepad2
+  Gamepad2,
+  Users
 } from 'lucide-react'
 
 export default function ProfilePage() {
@@ -548,6 +549,32 @@ export default function ProfilePage() {
               <div className="flex items-center gap-2.5">
                 <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#9ba3b8]">
                   {kdRatio} K/D
+                </span>
+                <ChevronRight className="w-4 h-4 text-[#525866] group-hover:text-[#00f2ff] group-hover:translate-x-0.5 transition-all" />
+              </div>
+            </Link>
+
+            {/* TEAM MANAGEMENT */}
+            <Link
+              to="/profile/team"
+              className="flex items-center justify-between p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-[#0d0e15] to-[#0a0b10] border border-[#1f2230] hover:border-[#00f2ff]/40 hover:from-[#10121c] hover:to-[#0d0f16] transition-all duration-200 group cursor-pointer"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-[#00f2ff]/10 border border-[#00f2ff]/20 flex items-center justify-center text-[#00f2ff] group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(0,242,255,0.3)] transition-all">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#00f2ff] transition-colors">
+                    Team Management
+                  </h3>
+                  <p className="text-[11px] text-[#717a8e] font-sans">
+                    Squad roster & invitations
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#9ba3b8]">
+                  Squad
                 </span>
                 <ChevronRight className="w-4 h-4 text-[#525866] group-hover:text-[#00f2ff] group-hover:translate-x-0.5 transition-all" />
               </div>
