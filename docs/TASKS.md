@@ -67,7 +67,7 @@ The following major systems, database migrations, security controls, and user in
 ## 2. CURRENT / NEXT TASKS
 
 - [x] **Documentation System Setup:** Establishing permanent, authoritative, and synchronized repository documentation (`docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/RULES.md`, `docs/DESIGN.md`, `docs/TASKS.md`, `docs/MEMORY.md`).
-- [ ] **Phase 16 — Production Operations Hardening (NEXT):** Dedicated launch operations hardening (audit logging, failure resilience, admin safety checks, and match lifecycle guards) queued for execution/review.
+- [x] **Phase 16 — Production Operations Hardening:** Dedicated launch operations hardening (audit logging, failure resilience, admin safety checks, match lifecycle guards, error boundary security sanitization, post-deployment chunk recovery, and operations runbook in `docs/OPERATIONS.md`).
 - [ ] **Development Workflow Integration:** Enforcing the permanent rule that every future code modification must update the corresponding documentation files.
 
 ---

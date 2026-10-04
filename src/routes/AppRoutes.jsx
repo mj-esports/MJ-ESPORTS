@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { Suspense, lazy as reactLazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import MainLayout from '../layouts/MainLayout'
 import AdminLayout from '../layouts/AdminLayout'
@@ -13,7 +13,44 @@ import LoginPage from '../pages/LoginPage'
 import RegisterPage from '../pages/RegisterPage'
 import AccessDeniedPage from '../pages/AccessDeniedPage'
 
-// Lazy-Loaded Feature Pages for Performance Code-Splitting
+/**
+ * Resilient dynamic import wrapper for production SPA deployment stability.
+ * When a new release invalidates older chunk hashes, this intercepts chunk 404s,
+ * triggers a single clean reload to fetch the new asset manifest, and avoids infinite reload loops.
+ */
+function lazy(componentImport) {
+  return reactLazy(async () => {
+    const hasForceRefreshed =
+      typeof window !== 'undefined' &&
+      window.sessionStorage.getItem('mj_chunk_force_reload') === 'true'
+
+    try {
+      const component = await componentImport()
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.removeItem('mj_chunk_force_reload')
+      }
+      return component
+    } catch (error) {
+      const errorMsg = (error?.message || String(error)).toLowerCase()
+      const isChunkLoadFailed =
+        errorMsg.includes('failed to fetch dynamically imported module') ||
+        errorMsg.includes('loading chunk') ||
+        errorMsg.includes('error loading dynamically imported module') ||
+        errorMsg.includes('importing a module script failed')
+
+      if (isChunkLoadFailed && !hasForceRefreshed && typeof window !== 'undefined') {
+        console.warn('[AppRoutes] New deployment detected (chunk hash mismatch). Auto-reloading client...')
+        window.sessionStorage.setItem('mj_chunk_force_reload', 'true')
+        window.location.reload()
+        return new Promise(() => {}) // Block render while browser reloads
+      }
+
+      throw error
+    }
+  })
+}
+
+// Lazy-Loaded Feature Pages with Post-Deployment Chunk Resiliency
 const TournamentDetailPage = lazy(() => import('../pages/TournamentDetailPage'))
 const LeaderboardPage = lazy(() => import('../pages/LeaderboardPage'))
 const AboutPage = lazy(() => import('../pages/AboutPage'))

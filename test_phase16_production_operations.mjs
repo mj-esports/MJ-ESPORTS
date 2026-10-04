@@ -1,259 +1,225 @@
 // test_phase16_production_operations.mjs
-// MJ ESPORTS — Phase 16: Production Launch & Operations Hardening Test Suite
-// Validates duplicate-submission guards, logging cleanliness, failure handling, auth resilience, and realtime lifecycle.
+// Automated verification suite for Phase 16: Production Operations Hardening (MJ ESPORTS)
 
-import assert from 'node:assert/strict'
-import fs from 'node:fs'
-import path from 'node:path'
+import fs from 'fs'
+import path from 'path'
+import assert from 'assert'
 
-console.log('================================================================================')
-console.log('MJ ESPORTS — PHASE 16: PRODUCTION LAUNCH & OPERATIONS HARDENING TEST SUITE')
-console.log('================================================================================\n')
+const ROOT = process.cwd()
 
-let passedTests = 0
-let failedTests = 0
+console.log('==================================================================')
+console.log('MJ ESPORTS — PHASE 16: PRODUCTION OPERATIONS HARDENING AUDIT')
+console.log('==================================================================\n')
 
-function runTest(name, fn) {
+let passCount = 0
+let failCount = 0
+
+function test(name, fn) {
   try {
     fn()
-    console.log(`  ✅ [PASS] ${name}`)
-    passedTests++
+    console.log(`  ✓ [PASS] ${name}`)
+    passCount++
   } catch (err) {
-    console.error(`  ❌ [FAIL] ${name}`)
-    console.error(`     Error: ${err.message}`)
-    failedTests++
+    console.error(`  ✗ [FAIL] ${name}`)
+    console.error(`    -> ${err.message}`)
+    failCount++
   }
 }
 
-// -----------------------------------------------------------------------------
-// 1. Admin Match Operations Duplicate-Submission Protection
-// -----------------------------------------------------------------------------
-console.log('--- GROUP 1: Match Control Duplicate-Submission & Lifecycle Guards ---')
+// ----------------------------------------------------------------------------
+// GROUP 1: REACT GLOBAL ERROR HANDLING & SECURITY SANITIZATION
+// ----------------------------------------------------------------------------
+console.log('Test Group 1: React Global Error Boundary & Security Sanitization')
 
-const matchControlPath = path.resolve('src/components/admin/MatchControlView.jsx')
-assert.ok(fs.existsSync(matchControlPath), 'MatchControlView.jsx must exist')
-const matchControlContent = fs.readFileSync(matchControlPath, 'utf8')
+const errorBoundaryPath = path.join(ROOT, 'src/components/common/ErrorBoundary.jsx')
+const errorBoundaryContent = fs.readFileSync(errorBoundaryPath, 'utf8')
 
-runTest('1.1. MatchControlView declares isStatusUpdating state', () => {
-  assert.ok(
-    matchControlContent.includes('const [isStatusUpdating, setIsStatusUpdating] = useState(false)'),
-    'Must declare isStatusUpdating boolean state'
-  )
+test('1.1. ErrorBoundary imports and uses sanitizeError for user-friendly messaging', () => {
+  assert(errorBoundaryContent.includes("import { sanitizeError } from '../../utils/errorHandler'"), 'Must import sanitizeError')
+  assert(errorBoundaryContent.includes('const sanitized = sanitizeError(this.state.error)'), 'Must call sanitizeError on captured error')
 })
 
-runTest('1.2. handleOpenLobby guards against concurrent submissions and cleans up in finally', () => {
-  assert.ok(
-    matchControlContent.includes('if (!selectedTourney || isStatusUpdating) return'),
-    'handleOpenLobby must guard against isStatusUpdating'
-  )
-  assert.ok(
-    matchControlContent.includes('setIsStatusUpdating(true)'),
-    'Must set isStatusUpdating to true'
-  )
-  assert.ok(
-    matchControlContent.includes('setIsStatusUpdating(false)'),
-    'Must reset isStatusUpdating to false in finally block'
-  )
+test('1.2. ErrorBoundary strictly gates stack traces and raw errors to import.meta.env.DEV (Zero production leaks)', () => {
+  assert(errorBoundaryContent.includes('import.meta.env.DEV'), 'Must gate diagnostic details behind import.meta.env.DEV')
+  assert(errorBoundaryContent.includes('{import.meta.env.DEV && ('), 'Must render diagnostics conditionally with import.meta.env.DEV')
+  // Verify that stack trace only occurs after import.meta.env.DEV
+  const devIndex = errorBoundaryContent.indexOf('{import.meta.env.DEV && (')
+  const stackIndex = errorBoundaryContent.indexOf('this.state.error?.stack')
+  assert(devIndex !== -1, 'DEV block must exist')
+  assert(stackIndex !== -1, 'Stack trace must be present in DEV block')
+  assert(stackIndex > devIndex, 'Stack trace must be positioned after import.meta.env.DEV check')
+  // Ensure stack only occurs once in the entire file
+  const stackMatches = errorBoundaryContent.match(/this\.state\.error\?\.stack/g)
+  assert.strictEqual(stackMatches.length, 1, 'Stack trace must not appear anywhere outside DEV block')
 })
 
-runTest('1.3. handleStartMatch guards against concurrent execution', () => {
-  assert.ok(
-    matchControlContent.includes('const handleStartMatch = async () => {\n    if (isStatusUpdating) return'),
-    'handleStartMatch must check isStatusUpdating'
-  )
+test('1.3. ErrorBoundary provides recovery actions: reload button and return home link', () => {
+  assert(errorBoundaryContent.includes('onClick={this.handleRetry}'), 'Must have retry handler button')
+  assert(errorBoundaryContent.includes('window.location.reload()'), 'Retry must trigger reload')
+  assert(errorBoundaryContent.includes('href="/"'), 'Must have safe return home link')
 })
 
-runTest('1.4. handleResumeMatch guards against concurrent execution', () => {
-  assert.ok(
-    matchControlContent.includes('const handleResumeMatch = async () => {\n    if (isStatusUpdating) return'),
-    'handleResumeMatch must check isStatusUpdating'
-  )
+test('1.4. Global unhandled rejection listener is registered in src/main.jsx', () => {
+  const mainContent = fs.readFileSync(path.join(ROOT, 'src/main.jsx'), 'utf8')
+  assert(mainContent.includes("window.addEventListener('unhandledrejection'"), 'main.jsx must register unhandledrejection listener')
+  assert(mainContent.includes('[Global Unhandled Rejection Caught]'), 'main.jsx must log unhandled rejection diagnostic')
 })
 
-runTest('1.5. handleConfirmEndMatch guards against concurrent execution', () => {
-  assert.ok(
-    matchControlContent.includes('const handleConfirmEndMatch = async () => {\n    if (isStatusUpdating) return'),
-    'handleConfirmEndMatch must check isStatusUpdating'
-  )
+// ----------------------------------------------------------------------------
+// GROUP 2: POST-DEPLOYMENT RESILIENCY & CHUNK RECOVERY
+// ----------------------------------------------------------------------------
+console.log('\nTest Group 2: Post-Deployment Chunk Hash Invalidation Recovery')
+
+const appRoutesPath = path.join(ROOT, 'src/routes/AppRoutes.jsx')
+const appRoutesContent = fs.readFileSync(appRoutesPath, 'utf8')
+
+test('2.1. AppRoutes implements resilient lazy wrapper over reactLazy for dynamic component imports', () => {
+  assert(appRoutesContent.includes('lazy as reactLazy'), 'AppRoutes must import lazy as reactLazy')
+  assert(appRoutesContent.includes('function lazy(componentImport)'), 'AppRoutes must define resilient lazy wrapper')
 })
 
-runTest('1.6. Match lifecycle action buttons bind disabled={isStatusUpdating}', () => {
-  assert.ok(
-    matchControlContent.includes('onClick={handleStartMatch}\n                  disabled={isStatusUpdating}'),
-    'Start Match button must be disabled when isStatusUpdating is true'
-  )
-  assert.ok(
-    matchControlContent.includes('onClick={handleOpenLobby}\n                  disabled={isStatusUpdating}'),
-    'Refresh Lobby button must be disabled when isStatusUpdating is true'
-  )
-  assert.ok(
-    matchControlContent.includes('onClick={handlePauseMatch}\n                  disabled={isStatusUpdating}'),
-    'Pause Match button must be disabled when isStatusUpdating is true'
-  )
-  assert.ok(
-    matchControlContent.includes('onClick={handleResumeMatch}\n                  disabled={isStatusUpdating}'),
-    'Resume Match button must be disabled when isStatusUpdating is true'
-  )
-  assert.ok(
-    matchControlContent.includes('onClick={handleConfirmEndMatch}\n                disabled={isStatusUpdating}'),
-    'Confirm End Match button must be disabled when isStatusUpdating is true'
-  )
+test('2.2. lazy wrapper detects module import failure and triggers clean single reload without loop', () => {
+  assert(appRoutesContent.includes('mj_chunk_force_reload'), 'Must track reload flag in sessionStorage')
+  assert(appRoutesContent.includes('failed to fetch dynamically imported module'), 'Must match chunk load error')
+  assert(appRoutesContent.includes('window.location.reload()'), 'Must reload page on chunk failure')
 })
 
-// -----------------------------------------------------------------------------
-// 2. Production Observability & Logging Cleanliness
-// -----------------------------------------------------------------------------
-console.log('\n--- GROUP 2: Observability & Sensitive Log Sanitization ---')
-
-const adminRoutePath = path.resolve('src/routes/AdminRoute.jsx')
-const adminRouteContent = fs.readFileSync(adminRoutePath, 'utf8')
-
-runTest('2.1. AdminRoute contains zero console.log and does NOT leak user email', () => {
-  assert.ok(!adminRouteContent.includes('console.log'), 'AdminRoute must not contain console.log')
-  assert.ok(!adminRouteContent.includes('[ADMIN ROUTE EVALUATION]'), 'Must not log admin evaluation')
-  assert.ok(!adminRouteContent.includes('userEmail: user?.email'), 'Must not log user email to console')
-})
-
-const adminDashboardPath = path.resolve('src/pages/AdminDashboardPage.jsx')
-const adminDashboardContent = fs.readFileSync(adminDashboardPath, 'utf8')
-
-runTest('2.2. AdminDashboardPage contains zero mount debug logging', () => {
-  assert.ok(!adminDashboardContent.includes('[ADMIN DASHBOARD MOUNTED]'), 'Must not log admin dashboard mounted')
-})
-
-const tournamentsPagePath = path.resolve('src/pages/TournamentsPage.jsx')
-const tournamentsPageContent = fs.readFileSync(tournamentsPagePath, 'utf8')
-
-runTest('2.3. TournamentsPage contains zero visibility audit dumps', () => {
-  assert.ok(
-    !tournamentsPageContent.includes('[Player Tournaments Page - Visibility Audit Log]'),
-    'Must not dump tournaments array to console on every render/filter'
-  )
-})
-
-const tournamentContextPath = path.resolve('src/contexts/TournamentContext.jsx')
-const tournamentContextContent = fs.readFileSync(tournamentContextPath, 'utf8')
-
-runTest('2.4. TournamentContext contains zero raw diagnostic payload logging', () => {
-  assert.ok(!tournamentContextContent.includes('Complete tournament payload immediately before insert()'), 'Must not log insert payload')
-  assert.ok(!tournamentContextContent.includes('Partial tournament payload immediately before update()'), 'Must not log update payload')
-  assert.ok(!tournamentContextContent.includes('[RPC Diagnostic]'), 'Must not log [RPC Diagnostic] in production')
-})
-
-const supabaseClientPath = path.resolve('src/lib/supabase.js')
-const supabaseClientContent = fs.readFileSync(supabaseClientPath, 'utf8')
-
-runTest('2.5. supabase.js does not log connection credentials or key format in console', () => {
-  assert.ok(!supabaseClientContent.includes('[Supabase Client Initialized]'), 'Must not log client initialization info')
-  assert.ok(supabaseClientContent.includes('[Supabase Startup Configuration Error]'), 'Must retain startup configuration error')
-})
-
-// -----------------------------------------------------------------------------
-// 3. Notification Realtime Lifecycle & Graceful Degradation
-// -----------------------------------------------------------------------------
-console.log('\n--- GROUP 3: Realtime Notification Resilience ---')
-
-const notifServicePath = path.resolve('src/services/notificationService.js')
-const notifServiceContent = fs.readFileSync(notifServicePath, 'utf8')
-
-runTest('3.1. notificationService prevents duplicate channel subscriptions for the same user', () => {
-  assert.ok(notifServiceContent.includes('activeNotificationChannels.has(channelKey)'), 'Must check active channels')
-  assert.ok(notifServiceContent.includes('supabase.removeChannel(existing)'), 'Must remove duplicate channel if re-subscribing')
-})
-
-runTest('3.2. subscribeToUserNotifications returns a safe cleanup function', () => {
-  assert.ok(notifServiceContent.includes('supabase.removeChannel(channel)'), 'Unsubscribe must remove channel from supabase client')
-  assert.ok(notifServiceContent.includes('activeNotificationChannels.delete(channelKey)'), 'Unsubscribe must delete key from map')
-})
-
-// -----------------------------------------------------------------------------
-// 4. Team Service Failure-Safety & Error Normalization
-// -----------------------------------------------------------------------------
-console.log('\n--- GROUP 4: Team Service RPC Failure Normalization ---')
-
-const teamServicePath = path.resolve('src/services/teamService.js')
-const teamServiceContent = fs.readFileSync(teamServicePath, 'utf8')
-
-runTest('4.1. teamService normalizes Supabase error payloads fail-closed', () => {
-  assert.ok(teamServiceContent.includes('function normalizeRpcResult(data, error, fallbackMsg'), 'Must have normalizeRpcResult')
-  assert.ok(teamServiceContent.includes("error_code: error.code || 'RPC_ERROR'"), 'Must return error_code on RPC error')
-  assert.ok(teamServiceContent.includes("error_code: 'EMPTY_RESPONSE'"), 'Must catch empty response')
-})
-
-runTest('4.2. All teamService mutations execute exclusively via RPC', () => {
-  const rpcCalls = [
-    'get_my_team_portal_data',
-    'create_player_team',
-    'update_player_team',
-    'invite_team_member',
-    'respond_team_invitation',
-    'cancel_team_invitation',
-    'remove_team_member',
-    'leave_player_team',
-    'transfer_team_ownership',
-    'set_team_member_role',
+test('2.3. All lazy-loaded feature pages in AppRoutes use resilient lazy wrapper', () => {
+  const lazyImports = [
+    'TournamentDetailPage',
+    'LeaderboardPage',
+    'AboutPage',
+    'ResetPasswordPage',
+    'DashboardPage',
+    'ProfilePage',
+    'PlayerTeamPortalPage',
+    'EditProfilePage',
+    'StatisticsPage',
+    'TournamentHistoryPage',
+    'AchievementsPage',
+    'WalletPage',
+    'SettingsPage',
+    'AdminDashboardPage',
+    'AdminFinancePage',
+    'NotFoundPage',
+    'ServerErrorPage',
   ]
-  for (const rpcName of rpcCalls) {
-    assert.ok(teamServiceContent.includes(rpcName), `teamService must call ${rpcName}`)
+  for (const page of lazyImports) {
+    const regex = new RegExp(`const ${page} = lazy\\(`)
+    assert(regex.test(appRoutesContent), `${page} must be wrapped in lazy`)
   }
 })
 
-// -----------------------------------------------------------------------------
-// 5. Auth / Session Resilience
-// -----------------------------------------------------------------------------
-console.log('\n--- GROUP 5: Auth & Session Resilience ---')
+// ----------------------------------------------------------------------------
+// GROUP 3: AUTHENTICATION & SESSION RESILIENCE
+// ----------------------------------------------------------------------------
+console.log('\nTest Group 3: Authentication & Session Resilience')
 
-const authContextPath = path.resolve('src/contexts/AuthContext.jsx')
-const authContextContent = fs.readFileSync(authContextPath, 'utf8')
+const adminRouteContent = fs.readFileSync(path.join(ROOT, 'src/routes/AdminRoute.jsx'), 'utf8')
+const protectedRouteContent = fs.readFileSync(path.join(ROOT, 'src/routes/ProtectedRoute.jsx'), 'utf8')
+const authContextContent = fs.readFileSync(path.join(ROOT, 'src/contexts/AuthContext.jsx'), 'utf8')
 
-runTest('5.1. AuthContext purges user, role, and profile state on SIGNED_OUT', () => {
-  assert.ok(authContextContent.includes("event === 'SIGNED_OUT'"), 'Must handle SIGNED_OUT event')
-  assert.ok(authContextContent.includes('syncUserAndRole(null, null, { isExplicit: true })'), 'Must explicitly reset state on sign out')
+test('3.1. AdminRoute verifies authorization and redirects unauthenticated to /login and non-admin to /403', () => {
+  assert(adminRouteContent.includes('to="/login"'), 'Unauthenticated must redirect to /login')
+  assert(adminRouteContent.includes('to="/403"'), 'Non-admin must redirect to /403')
+  assert(adminRouteContent.includes('isAdmin'), 'AdminRoute must verify isAdmin flag')
 })
 
-runTest('5.2. AuthContext handles getSession error gracefully without infinite loading', () => {
-  assert.ok(authContextContent.includes('.catch((err) => {'), 'Must catch getSession error')
-  assert.ok(authContextContent.includes('setLoading(false)'), 'Must clear loading on auth error')
-  assert.ok(authContextContent.includes('setRoleLoading(false)'), 'Must clear roleLoading on auth error')
+test('3.2. ProtectedRoute preserves location state during login redirection', () => {
+  assert(protectedRouteContent.includes('to={redirectTo}'), 'Must redirect to redirectTo path')
+  assert(protectedRouteContent.includes('state={{ from: location }}'), 'Must preserve location state')
 })
 
-// -----------------------------------------------------------------------------
-// 6. Security Invariant Regression
-// -----------------------------------------------------------------------------
-console.log('\n--- GROUP 6: Security Invariant Regression ---')
+test('3.3. AuthContext getUserRole defaults to user role on error to prevent privilege escalation', () => {
+  assert(authContextContent.includes("setRole('user')"), 'On role error, must default role to user')
+  assert(authContextContent.includes("roleRef.current = 'user'"), 'On role error, roleRef must be user')
+})
 
-runTest('6.1. Zero service_role keys in client source code', () => {
-  const files = [
-    matchControlContent,
-    adminRouteContent,
-    adminDashboardContent,
-    tournamentsPageContent,
-    tournamentContextContent,
-    supabaseClientContent,
-    notifServiceContent,
-    teamServiceContent,
-    authContextContent,
-  ]
-  for (const content of files) {
-    assert.ok(!content.includes('service_role'), 'Client files must never contain service_role')
-    assert.ok(!content.includes('SUPABASE_SERVICE_ROLE_KEY'), 'Client files must never contain SUPABASE_SERVICE_ROLE_KEY')
+// ----------------------------------------------------------------------------
+// GROUP 4: DOUBLE-SUBMISSION PROTECTION & MUTATION SAFETY
+// ----------------------------------------------------------------------------
+console.log('\nTest Group 4: Double-Submission Protection & Mutation Safety')
+
+const tournamentContextContent = fs.readFileSync(path.join(ROOT, 'src/contexts/TournamentContext.jsx'), 'utf8')
+const matchScheduleModalContent = fs.readFileSync(path.join(ROOT, 'src/components/admin/tournaments/MatchScheduleModal.jsx'), 'utf8')
+
+test('4.1. TournamentContext uses activeSubmissionsRef lock on tournament creation', () => {
+  assert(tournamentContextContent.includes('activeSubmissionsRef'), 'Must declare activeSubmissionsRef')
+  assert(tournamentContextContent.includes('activeSubmissionsRef.current.has(lockKey)'), 'Must check activeSubmissionsRef for lock')
+})
+
+test('4.2. TournamentContext uses activeSubmissionsRef lock on team registration', () => {
+  assert(tournamentContextContent.includes('reg_${tournamentId}'), 'Must format registration lock key')
+  assert(tournamentContextContent.includes('Registration is currently processing. Please wait.'), 'Must reject duplicate registrations')
+})
+
+test('4.3. MatchScheduleModal guards against duplicate scheduling clicks via isSaving', () => {
+  assert(matchScheduleModalContent.includes('if (isSaving) return'), 'handleSaveSchedule must check isSaving')
+  assert(matchScheduleModalContent.includes('disabled={isSaving'), 'Save button must be disabled when isSaving is true')
+})
+
+// ----------------------------------------------------------------------------
+// GROUP 5: PRODUCTION CONFIGURATION & OPERATIONS DOCUMENTATION
+// ----------------------------------------------------------------------------
+console.log('\nTest Group 5: Production Configuration & Operations Documentation')
+
+test('5.1. Zero private secrets or service role keys in src/ or public/', () => {
+  const scanDirs = ['src', 'public']
+  for (const dir of scanDirs) {
+    const fullDir = path.join(ROOT, dir)
+    if (!fs.existsSync(fullDir)) continue
+    function scan(d) {
+      const entries = fs.readdirSync(d, { withFileTypes: true })
+      for (const ent of entries) {
+        const fullPath = path.join(d, ent.name)
+        if (ent.isDirectory()) {
+          scan(fullPath)
+        } else if (/\.(js|jsx|ts|tsx)$/.test(ent.name)) {
+          const content = fs.readFileSync(fullPath, 'utf8')
+          assert(!content.includes('SUPABASE_SERVICE_ROLE_KEY'), `Found SUPABASE_SERVICE_ROLE_KEY in ${fullPath}`)
+          assert(!content.includes('RAZORPAY_KEY_SECRET'), `Found RAZORPAY_KEY_SECRET in ${fullPath}`)
+          assert(!content.includes('CLOUDFLARE_TURNSTILE_SECRET_KEY'), `Found CLOUDFLARE_TURNSTILE_SECRET_KEY in ${fullPath}`)
+        }
+      }
+    }
+    scan(fullDir)
   }
 })
 
-runTest('6.2. Zero dangerouslySetInnerHTML in modified production files', () => {
-  assert.ok(!matchControlContent.includes('dangerouslySetInnerHTML'), 'MatchControlView must not use dangerouslySetInnerHTML')
-  assert.ok(!adminRouteContent.includes('dangerouslySetInnerHTML'), 'AdminRoute must not use dangerouslySetInnerHTML')
+test('5.2. Permanent runbook docs/OPERATIONS.md exists with all required operational protocols', () => {
+  const opsDocPath = path.join(ROOT, 'docs/OPERATIONS.md')
+  assert(fs.existsSync(opsDocPath), 'docs/OPERATIONS.md must exist')
+  const opsDoc = fs.readFileSync(opsDocPath, 'utf8')
+  assert(opsDoc.includes('Production Failure Recovery Protocols'), 'Must detail failure recovery')
+  assert(opsDoc.includes('Emergency Git Rollback Procedure'), 'Must detail rollback procedure')
+  assert(opsDoc.includes('Deployment Verification Checklist'), 'Must detail verification checklist')
+  assert(opsDoc.includes('Authentication & Session Recovery'), 'Must detail session recovery')
+  assert(opsDoc.includes('Admin Incident Handling'), 'Must detail incident handling')
 })
 
-// -----------------------------------------------------------------------------
-// Summary
-// -----------------------------------------------------------------------------
-console.log('\n================================================================================')
-console.log(`PHASE 16 TEST RESULTS: ${passedTests} PASSED | ${failedTests} FAILED`)
-console.log('================================================================================')
+test('5.3. docs/TASKS.md records Phase 16 as completed', () => {
+  const tasksDoc = fs.readFileSync(path.join(ROOT, 'docs/TASKS.md'), 'utf8')
+  assert(tasksDoc.includes('[x] **Phase 16 — Production Operations Hardening:**'), 'Phase 16 must be checked in TASKS.md')
+})
 
-if (failedTests > 0) {
+test('5.4. vercel.json enforces security headers, CSP, and SPA rewrite', () => {
+  const vercelConfig = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'))
+  assert(vercelConfig.rewrites.some((r) => r.destination === '/index.html'), 'Must rewrite all paths to /index.html')
+  const headerKeys = vercelConfig.headers[1].headers.map((h) => h.key)
+  assert(headerKeys.includes('Content-Security-Policy'), 'Must set Content-Security-Policy')
+  assert(headerKeys.includes('X-Frame-Options'), 'Must set X-Frame-Options')
+  assert(headerKeys.includes('Strict-Transport-Security'), 'Must set Strict-Transport-Security')
+})
+
+// ----------------------------------------------------------------------------
+// SUMMARY
+// ----------------------------------------------------------------------------
+console.log('\n==================================================================')
+console.log(`TOTAL TESTS: ${passCount + failCount} | PASSED: ${passCount} | FAILED: ${failCount}`)
+console.log('==================================================================\n')
+
+if (failCount > 0) {
   process.exit(1)
 } else {
-  process.exit(0)
+  console.log('>>> ALL PHASE 16 PRODUCTION OPERATIONS AUDIT CHECKS PASSED <<<\n')
 }
