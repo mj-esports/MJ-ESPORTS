@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import {
   Gamepad2,
   Key,
@@ -29,7 +29,12 @@ import {
   Layers,
   Activity,
   Check,
-  Sparkles
+  Sparkles,
+  Swords,
+  MapPin,
+  Calendar,
+  Plus,
+  Loader2,
 } from 'lucide-react'
 import { useToast } from '../../contexts/ToastContext'
 import { useTournaments } from '../../contexts/TournamentContext'
@@ -52,6 +57,29 @@ import {
   adminLockMatchRoster,
   subscribeToTournamentCheckins,
 } from '../../services/matchCheckinService'
+import {
+  fetchTournamentMatches,
+  updateMatchStatus as rpcUpdateMatchStatus,
+  setMatchRoomDetails as rpcSetMatchRoomDetails,
+} from '../../services/matchSchedulingService'
+import MatchScheduleModal from './tournaments/MatchScheduleModal'
+
+/**
+ * Formats an ISO datetime string into human-readable compact date & time.
+ * e.g., '10 Oct • 6:45 PM'
+ */
+function formatMatchDateTime(isoString) {
+  if (!isoString) return 'TBD'
+  try {
+    const d = new Date(isoString)
+    if (isNaN(d.getTime())) return 'TBD'
+    const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    const timeStr = d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })
+    return `${dateStr} • ${timeStr}`
+  } catch {
+    return 'TBD'
+  }
+}
 
 export default function MatchControlView({ tournaments = [], setActiveTab, initialTournamentId }) {
   const { showSuccess, showError } = useToast()
@@ -62,8 +90,86 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
   const [selectedTourneyId, setSelectedTourneyId] = useState(tournaments[0]?.id || '')
   const selectedTourney = tournaments.find((t) => String(t.id) === String(selectedTourneyId)) || tournaments[0]
 
-  const [selectedMatchId, setSelectedMatchId] = useState('MATCH_001')
+  // Scheduled Matches State (N2.5 Multi-Round Architecture)
+  const [matches, setMatches] = useState([])
+  const [isMatchesLoading, setIsMatchesLoading] = useState(false)
+  const [matchesError, setMatchesError] = useState(null)
+  const [selectedMatchId, setSelectedMatchId] = useState(null)
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [statusFilter, setStatusFilter] = useState('ALL') // 'ALL' | 'UPCOMING' | 'LIVE' | 'COMPLETED'
+
+  // Authoritative selected match context derived from matches list
+  const selectedMatch = useMemo(() => {
+    if (!matches || matches.length === 0) return null
+    if (selectedMatchId) {
+      const found = matches.find((m) => String(m.id) === String(selectedMatchId))
+      if (found) return found
+    }
+    return matches[0] || null
+  }, [matches, selectedMatchId])
+
+  // Fetch tournament matches using matchSchedulingService client abstraction
+  const loadMatches = useCallback(async (tourneyId) => {
+    if (!tourneyId) {
+      setMatches([])
+      setSelectedMatchId(null)
+      return
+    }
+    setIsMatchesLoading(true)
+    setMatchesError(null)
+    try {
+      const matchData = await fetchTournamentMatches(tourneyId)
+      const list = Array.isArray(matchData) ? matchData : []
+      setMatches(list)
+      setSelectedMatchId((prevSelectedId) => {
+        if (prevSelectedId && list.some((m) => String(m.id) === String(prevSelectedId))) {
+          return prevSelectedId
+        }
+        return list.length > 0 ? list[0].id : null
+      })
+    } catch (err) {
+      console.warn('[MatchControlView] loadMatches error:', err)
+      setMatchesError('Failed to load scheduled tournament matches.')
+      setMatches([])
+      setSelectedMatchId(null)
+    } finally {
+      setIsMatchesLoading(false)
+    }
+  }, [])
+
+  // Auto-fetch matches whenever tournament context changes
+  useEffect(() => {
+    if (selectedTourneyId) {
+      loadMatches(selectedTourneyId)
+    }
+  }, [selectedTourneyId, loadMatches])
+
+  // Sync selected match state into room and match status controls
+  useEffect(() => {
+    if (selectedMatch) {
+      if (selectedMatch.room_id) {
+        setRoomIdInput(selectedMatch.room_id)
+      } else {
+        setRoomIdInput('')
+      }
+      // room_password is excluded from query for security; clear to prevent stale passwords
+      setRoomPasswordInput('')
+
+      const isPub = selectedMatch.room_published || selectedMatch.status === 'Room Ready'
+      setRoomStatus(isPub ? 'Published' : 'Draft')
+
+      const s = (selectedMatch.status || '').toLowerCase()
+      if (s === 'live') {
+        setMatchStatus('Match Live')
+      } else if (s === 'completed') {
+        setMatchStatus('Ended')
+      } else if (s === 'check-in open') {
+        setMatchStatus('Lobby Waiting')
+      } else {
+        setMatchStatus(selectedMatch.status || 'Scheduled')
+      }
+    }
+  }, [selectedMatch])
 
   // Room Credentials State
   const [roomIdInput, setRoomIdInput] = useState('')
@@ -174,36 +280,38 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
     }
   }, [tournaments, selectedTourneyId, initialTournamentId])
 
-  // Fetch room credentials securely when selected tournament changes
+  // Fetch room credentials securely when selected tournament changes (fallback when no multi-match matches exist)
   useEffect(() => {
     let isMounted = true
     if (selectedTourney) {
-      setRoomStatus(selectedTourney.roomStatus || selectedTourney.room_status || 'Draft')
       setIsLocked(selectedTourney.status === 'Bracket Locked' || selectedTourney.status === 'Completed')
 
-      // Sync match status from tournament status
-      const normStatus = (selectedTourney.status || '').toLowerCase()
-      if (normStatus.includes('live')) {
-        setMatchStatus('Match Live')
-      } else if (normStatus.includes('ended') || normStatus.includes('completed') || normStatus.includes('result') || normStatus.includes('pending')) {
-        setMatchStatus('Ended')
-      } else {
-        setMatchStatus('Lobby Waiting')
-      }
+      // If no matches have been scheduled or loaded yet, fall back to tournament-level credentials & status
+      if (!selectedMatch) {
+        setRoomStatus(selectedTourney.roomStatus || selectedTourney.room_status || 'Draft')
+        const normStatus = (selectedTourney.status || '').toLowerCase()
+        if (normStatus.includes('live')) {
+          setMatchStatus('Match Live')
+        } else if (normStatus.includes('ended') || normStatus.includes('completed') || normStatus.includes('result') || normStatus.includes('pending')) {
+          setMatchStatus('Ended')
+        } else {
+          setMatchStatus('Lobby Waiting')
+        }
 
-      if (getRoomCredentials) {
-        getRoomCredentials(selectedTourney.id).then((res) => {
-          if (isMounted) {
-            if (res && res.success) {
-              setRoomIdInput(res.room_id || '')
-              setRoomPasswordInput(res.room_password || '')
-              if (res.room_status) setRoomStatus(res.room_status)
-            } else {
-              setRoomIdInput('')
-              setRoomPasswordInput('')
+        if (getRoomCredentials) {
+          getRoomCredentials(selectedTourney.id).then((res) => {
+            if (isMounted) {
+              if (res && res.success) {
+                setRoomIdInput(res.room_id || '')
+                setRoomPasswordInput(res.room_password || '')
+                if (res.room_status) setRoomStatus(res.room_status)
+              } else {
+                setRoomIdInput('')
+                setRoomPasswordInput('')
+              }
             }
-          }
-        })
+          })
+        }
       }
 
       // Load host notes for this tournament
@@ -217,7 +325,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       }
     }
     return () => { isMounted = false }
-  }, [selectedTourneyId, selectedTourney, getRoomCredentials])
+  }, [selectedTourneyId, selectedTourney, getRoomCredentials, selectedMatch])
 
   // Save host notes
   const handleHostNotesChange = (e) => {
@@ -273,6 +381,18 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
 
     setIsSaving(true)
     try {
+      if (selectedMatch?.id) {
+        const res = await rpcSetMatchRoomDetails(selectedMatch.id, {
+          roomId: cleanRoomId,
+          roomPassword: cleanPassword,
+          roomStatus: 'Draft',
+        })
+        if (!res.success) {
+          showError(res.error || 'Failed to update match room credentials.', 'Match Room Error')
+          return
+        }
+      }
+
       if (updateRoomDetails) {
         await updateRoomDetails(selectedTourney.id, {
           roomId: cleanRoomId,
@@ -282,8 +402,18 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
         })
       }
       setRoomStatus('Draft')
-      showSuccess('Room credentials saved as Draft (visible only to Admins).', 'Draft Saved')
-      addIncidentEvent(`Room details saved as Draft by ${adminName}`)
+      showSuccess(
+        selectedMatch
+          ? `Match ${selectedMatch.match_number} room credentials saved as Draft (Admins only).`
+          : 'Room credentials saved as Draft (visible only to Admins).',
+        'Draft Saved'
+      )
+      addIncidentEvent(
+        `Room details saved as Draft by ${adminName}${selectedMatch ? ` (Match ${selectedMatch.match_number})` : ''}`
+      )
+      if (selectedTourney) {
+        await loadMatches(selectedTourney.id)
+      }
     } catch (err) {
       showError(err?.message || 'Failed to save room details', 'Save Error')
     } finally {
@@ -312,6 +442,18 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
 
     setIsPublishing(true)
     try {
+      if (selectedMatch?.id) {
+        const res = await rpcSetMatchRoomDetails(selectedMatch.id, {
+          roomId: cleanRoomId,
+          roomPassword: cleanPassword,
+          roomStatus: 'Published',
+        })
+        if (!res.success) {
+          showError(res.error || 'Failed to publish match room credentials.', 'Match Room Error')
+          return
+        }
+      }
+
       if (updateRoomDetails) {
         await updateRoomDetails(selectedTourney.id, {
           roomId: cleanRoomId,
@@ -321,8 +463,18 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
         })
       }
       setRoomStatus('Published')
-      showSuccess(`Custom Room ID ${cleanRoomId} published live to players!`, 'Room Published')
-      addIncidentEvent(`Custom Room ID ${cleanRoomId} published live to players`)
+      showSuccess(
+        selectedMatch
+          ? `Match ${selectedMatch.match_number} Custom Room ID ${cleanRoomId} published live to players!`
+          : `Custom Room ID ${cleanRoomId} published live to players!`,
+        'Room Published'
+      )
+      addIncidentEvent(
+        `Custom Room ID ${cleanRoomId} published live to players${selectedMatch ? ` for Match ${selectedMatch.match_number}` : ''}`
+      )
+      if (selectedTourney) {
+        await loadMatches(selectedTourney.id)
+      }
     } catch (err) {
       showError(err?.message || 'Failed to publish room details', 'Publish Error')
     } finally {
@@ -350,12 +502,30 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
   const handleOpenLobby = async () => {
     if (!selectedTourney) return
     try {
+      if (selectedMatch?.id) {
+        const res = await rpcUpdateMatchStatus(selectedMatch.id, 'Check-in Open')
+        if (!res.success) {
+          showError(res.error || 'Failed to update match status to Check-in Open.')
+          return
+        }
+      }
+
       if (updateTournamentStatus) {
         await updateTournamentStatus(selectedTourney.id, 'Live Now')
       }
       setMatchStatus('Lobby Waiting')
-      showSuccess(`Match lobby opened for "${selectedTourney.title}"!`, 'Lobby Opened')
-      addIncidentEvent('Match lobby opened for player check-in')
+      showSuccess(
+        selectedMatch
+          ? `Match ${selectedMatch.match_number} (${selectedMatch.round_name}) lobby opened!`
+          : `Match lobby opened for "${selectedTourney.title}"!`,
+        'Lobby Opened'
+      )
+      addIncidentEvent(
+        `Match lobby opened for player check-in${selectedMatch ? ` (Match ${selectedMatch.match_number})` : ''}`
+      )
+      if (selectedTourney) {
+        await loadMatches(selectedTourney.id)
+      }
     } catch (err) {
       showError(err?.message || 'Failed to open lobby', 'Lobby Error')
     }
@@ -364,12 +534,30 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
   // Match Lifecycle Handlers
   const handleStartMatch = async () => {
     try {
+      if (selectedMatch?.id) {
+        const res = await rpcUpdateMatchStatus(selectedMatch.id, 'Live')
+        if (!res.success) {
+          showError(res.error || 'Failed to update match status to Live.')
+          return
+        }
+      }
+
       if (updateTournamentStatus && selectedTourney) {
         await updateTournamentStatus(selectedTourney.id, 'Live Now')
       }
       setMatchStatus('Match Live')
-      showSuccess('Tournament match started live!', 'Match Live')
-      addIncidentEvent('Match officially started live')
+      showSuccess(
+        selectedMatch
+          ? `Match ${selectedMatch.match_number} (${selectedMatch.round_name}) started live!`
+          : 'Tournament match started live!',
+        'Match Live'
+      )
+      addIncidentEvent(
+        `Match officially started live${selectedMatch ? ` (Match ${selectedMatch.match_number}: ${selectedMatch.round_name})` : ''}`
+      )
+      if (selectedTourney) {
+        await loadMatches(selectedTourney.id)
+      }
     } catch (err) {
       showError(err?.message || 'Failed to start match', 'Match Error')
     }
@@ -378,24 +566,60 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
   const handlePauseMatch = () => {
     setMatchStatus('Paused')
     showSuccess('Match paused by host.', 'Match Paused')
-    addIncidentEvent('Match playback paused by host', 'warning')
+    addIncidentEvent(
+      `Match playback paused by host${selectedMatch ? ` (Match ${selectedMatch.match_number})` : ''}`,
+      'warning'
+    )
   }
 
-  const handleResumeMatch = () => {
-    setMatchStatus('Match Live')
-    showSuccess('Match resumed live!', 'Match Resumed')
-    addIncidentEvent('Match resumed live')
+  const handleResumeMatch = async () => {
+    try {
+      if (selectedMatch?.id) {
+        await rpcUpdateMatchStatus(selectedMatch.id, 'Live')
+      }
+      setMatchStatus('Match Live')
+      showSuccess(
+        selectedMatch ? `Match ${selectedMatch.match_number} resumed live!` : 'Match resumed live!',
+        'Match Resumed'
+      )
+      addIncidentEvent(
+        `Match resumed live${selectedMatch ? ` (Match ${selectedMatch.match_number})` : ''}`
+      )
+      if (selectedTourney) {
+        await loadMatches(selectedTourney.id)
+      }
+    } catch (err) {
+      showError(err?.message || 'Failed to resume match', 'Resume Error')
+    }
   }
 
   const handleConfirmEndMatch = async () => {
     try {
+      if (selectedMatch?.id) {
+        const res = await rpcUpdateMatchStatus(selectedMatch.id, 'Completed')
+        if (!res.success) {
+          showError(res.error || 'Failed to update match status to Completed.')
+          return
+        }
+      }
+
       if (updateTournamentStatus && selectedTourney) {
         await updateTournamentStatus(selectedTourney.id, 'Results Pending')
       }
       setMatchStatus('Ended')
-      showSuccess('Match ended! Tournament status is now "Results Pending". Post-match scoring is ready in the Results Console.', 'Match Concluded')
-      addIncidentEvent('Match concluded. Transitioned tournament status to Results Pending.')
+      showSuccess(
+        selectedMatch
+          ? `Match ${selectedMatch.match_number} (${selectedMatch.round_name}) ended! Ready for post-match scoring in Results Console.`
+          : 'Match ended! Tournament status is now "Results Pending". Post-match scoring is ready in the Results Console.',
+        'Match Concluded'
+      )
+      addIncidentEvent(
+        `Match concluded${selectedMatch ? ` (Match ${selectedMatch.match_number}: ${selectedMatch.round_name})` : ''}. Transitioned status to Results Pending.`
+      )
       setShowEndMatchModal(false)
+      if (selectedTourney) {
+        await loadMatches(selectedTourney.id)
+      }
     } catch (err) {
       showError(err?.message || 'Failed to end match', 'Error')
     }
@@ -762,12 +986,244 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       {/* 4. ACTIVE MATCH OPERATIONS & MATCH COMMAND */}
       <div className="bg-[#141416] border border-[#27272a] rounded-lg p-5 sm:p-6 shadow-xl space-y-5">
         
+        {/* 4A. MULTI-ROUND MATCH SELECTOR & ROUND NAVIGATOR (N2.5) */}
+        <div className="space-y-3 border-b border-[#27272a] pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2">
+              <Swords className="w-4 h-4 text-[#00f2ff]" />
+              <span className="text-xs font-headline font-extrabold text-white uppercase tracking-wider">
+                MATCH SELECTOR & ROUND NAVIGATOR
+              </span>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#1c1b1c] text-[#00f2ff] border border-[#27272a]">
+                {matches.length} {matches.length === 1 ? 'ROUND' : 'ROUNDS'}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => loadMatches(selectedTourneyId)}
+                disabled={isMatchesLoading}
+                className="px-2.5 py-1.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-lg text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                title="Refresh match rounds"
+              >
+                <RefreshCw className={`w-3 h-3 ${isMatchesLoading ? 'animate-spin text-[#00f2ff]' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowScheduleModal(true)}
+                className="px-3 py-1.5 bg-[#00f2ff]/15 hover:bg-[#00f2ff]/25 text-[#00f2ff] border border-[#00f2ff]/40 rounded-lg text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_10px_rgba(0,242,255,0.15)] flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{matches.length > 0 ? 'Edit Schedule' : 'Schedule Matches'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Loading state for match list */}
+          {isMatchesLoading && (
+            <div className="p-4 bg-[#1c1b1c] rounded-lg border border-[#27272a] flex items-center justify-center gap-2 text-xs text-[#849495] font-body">
+              <Loader2 className="w-4 h-4 text-[#00f2ff] animate-spin" />
+              <span>Loading scheduled tournament matches...</span>
+            </div>
+          )}
+
+          {/* Error state */}
+          {!isMatchesLoading && matchesError && (
+            <div className="p-3 bg-red-950/30 border border-red-800/50 rounded-lg text-xs text-red-400 flex items-center justify-between">
+              <span>{matchesError}</span>
+              <button
+                onClick={() => loadMatches(selectedTourneyId)}
+                className="text-[11px] underline font-bold uppercase hover:text-white"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* Empty state: No matches scheduled yet */}
+          {!isMatchesLoading && !matchesError && matches.length === 0 && (
+            <div className="p-6 bg-[#1c1b1c] border border-dashed border-[#27272a] rounded-lg text-center space-y-3">
+              <Swords className="w-8 h-8 text-[#849495] mx-auto opacity-50" />
+              <div className="space-y-1">
+                <h4 className="font-headline font-bold text-sm text-white uppercase">
+                  No matches scheduled yet
+                </h4>
+                <p className="text-xs text-[#849495] max-w-md mx-auto font-body">
+                  This tournament does not have multi-round matches scheduled. Configure match rounds, maps, and start times using the scheduler.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowScheduleModal(true)}
+                className="px-4 py-2 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold text-xs uppercase rounded-lg transition-all shadow-[0_0_12px_rgba(0,242,255,0.3)] inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-[#00363a]" />
+                <span>Schedule Matches</span>
+              </button>
+            </div>
+          )}
+
+          {/* Match Selector Ribbon / Pills */}
+          {!isMatchesLoading && matches.length > 0 && (
+            <div className="space-y-3">
+              <div
+                role="tablist"
+                aria-label="Tournament match rounds"
+                className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full max-w-full min-w-0 pb-1 pt-1"
+              >
+                {matches.map((m) => {
+                  const isSelected = String(m.id) === String(selectedMatch?.id)
+                  return (
+                    <button
+                      key={m.id}
+                      role="tab"
+                      id={`match-tab-${m.id}`}
+                      aria-selected={isSelected}
+                      aria-controls={`match-panel-${m.id}`}
+                      aria-label={`Match ${m.match_number}: ${m.round_name}, status ${m.status}`}
+                      onClick={() => {
+                        setSelectedMatchId(m.id)
+                        showSuccess(`Switched context to Match ${m.match_number} (${m.round_name}).`, 'Match Selected')
+                      }}
+                      className={`group shrink-0 px-3.5 py-2.5 rounded-lg text-left transition-all border cursor-pointer min-h-[44px] flex items-center gap-2.5 ${
+                        isSelected
+                          ? 'bg-[#00f2ff]/15 border-[#00f2ff] text-white shadow-[0_0_15px_rgba(0,242,255,0.25)]'
+                          : 'bg-[#1c1b1c] border-[#27272a] text-[#849495] hover:text-white hover:border-[#3f3f46]'
+                      }`}
+                    >
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold uppercase border ${
+                        isSelected
+                          ? 'bg-[#00f2ff] text-[#00363a] border-[#00f2ff]'
+                          : 'bg-[#141416] text-[#849495] border-[#27272a] group-hover:text-white'
+                      }`}>
+                        M{m.match_number}
+                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-headline font-bold text-white tracking-wide truncate max-w-[120px] sm:max-w-[150px]">
+                          {m.round_name || `Round ${m.match_number}`}
+                        </span>
+                        <span className="text-[10px] text-[#849495] font-mono flex items-center gap-1">
+                          <span>{m.map_name || 'Bermuda'}</span>
+                          <span>&bull;</span>
+                          <span className={
+                            m.status === 'Live' ? 'text-[#10b981] font-bold' :
+                            m.status === 'Completed' ? 'text-slate-400' :
+                            m.status === 'Room Ready' ? 'text-[#00f2ff]' :
+                            m.status === 'Check-in Open' ? 'text-[#fed83a]' :
+                            m.status === 'Cancelled' ? 'text-red-400' : 'text-[#849495]'
+                          }>
+                            {m.status || 'Scheduled'}
+                          </span>
+                        </span>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Selected Match Compact Summary Card (Section 12) */}
+              {selectedMatch && (
+                <div
+                  id={`match-panel-${selectedMatch.id}`}
+                  role="tabpanel"
+                  aria-labelledby={`match-tab-${selectedMatch.id}`}
+                  className="p-3.5 sm:p-4 bg-[#1c1b1c] border border-[#27272a] rounded-lg grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
+                >
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                      MATCH & ROUND
+                    </span>
+                    <p className="text-xs font-headline font-extrabold text-white">
+                      Match {String(selectedMatch.match_number).padStart(2, '0')}
+                    </p>
+                    <span className="text-[11px] font-medium text-[#00f2ff] block truncate">
+                      {selectedMatch.round_name || `Round ${selectedMatch.round_number}`}
+                    </span>
+                  </div>
+
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                      MAP
+                    </span>
+                    <p className="text-xs font-headline font-bold text-white flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-[#00f2ff]" />
+                      <span>{selectedMatch.map_name || 'Bermuda'}</span>
+                    </p>
+                    <span className="text-[10px] text-[#849495] block">Official Map</span>
+                  </div>
+
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                      MATCH TYPE
+                    </span>
+                    <p className="text-xs font-headline font-bold text-white flex items-center gap-1">
+                      <Swords className="w-3 h-3 text-[#fed83a]" />
+                      <span>{selectedMatch.match_type || 'Battle Royale'}</span>
+                    </p>
+                    <span className="text-[10px] text-[#849495] block">
+                      {selectedTourney?.format || 'Squad'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                      SCHEDULED TIME
+                    </span>
+                    <p className="text-xs font-mono font-bold text-white flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-[#00f2ff]" />
+                      <span>{formatMatchDateTime(selectedMatch.scheduled_time)}</span>
+                    </p>
+                    <span className="text-[10px] text-[#849495] block">Round Start</span>
+                  </div>
+
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                      ROOM RELEASE
+                    </span>
+                    <p className="text-xs font-mono font-bold text-[#00f2ff] flex items-center gap-1">
+                      <Radio className="w-3 h-3 text-[#00f2ff]" />
+                      <span>{selectedMatch.room_release_time ? formatMatchDateTime(selectedMatch.room_release_time) : 'At Check-in'}</span>
+                    </p>
+                    <span className="text-[10px] text-[#849495] block">
+                      {selectedMatch.room_published ? 'Dispatched' : 'Pending'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                      STATUS
+                    </span>
+                    <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-headline font-extrabold uppercase border mt-0.5 ${
+                      selectedMatch.status === 'Live'
+                        ? 'bg-[#10b981]/20 text-[#10b981] border-[#10b981]/50 animate-pulse'
+                        : selectedMatch.status === 'Completed'
+                        ? 'bg-slate-800 text-slate-300 border-slate-700'
+                        : selectedMatch.status === 'Room Ready'
+                        ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff]/50'
+                        : selectedMatch.status === 'Check-in Open'
+                        ? 'bg-[#fed83a]/20 text-[#fed83a] border-[#fed83a]/50'
+                        : selectedMatch.status === 'Cancelled'
+                        ? 'bg-red-950/40 text-red-400 border-red-800'
+                        : 'bg-[#1c1b1c] text-[#849495] border-[#27272a]'
+                    }`}>
+                      {selectedMatch.status || 'Scheduled'}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Active Header Row with Semantic Badges */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#27272a] pb-4">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
               <span className="px-2.5 py-0.5 bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 rounded text-[10px] font-headline font-bold uppercase">
-                {selectedMatchId}
+                {selectedMatch ? `M${selectedMatch.match_number} • ${selectedMatch.round_name}` : (selectedMatchId || 'NO ROUND')}
               </span>
               <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-white border border-[#27272a] rounded text-[10px] font-headline font-bold uppercase">
                 {selectedTourney?.game || 'Free Fire MAX'}
@@ -1309,7 +1765,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
             </div>
 
             <p className="text-xs text-[#b9cacb] font-body leading-relaxed">
-              Are you sure you want to end match <span className="font-bold text-white font-headline">"{selectedMatchId}"</span> for <span className="font-bold text-white">{selectedTourney?.title}</span>? This will close live room operations and transition tournament status to <span className="text-[#00f2ff] font-bold">"Results Pending"</span> for score entry and verification.
+              Are you sure you want to end match <span className="font-bold text-white font-headline">"{selectedMatch ? `Match ${selectedMatch.match_number} (${selectedMatch.round_name})` : selectedMatchId}"</span> for <span className="font-bold text-white">{selectedTourney?.title}</span>? This will close live room operations and transition tournament status to <span className="text-[#00f2ff] font-bold">"Results Pending"</span> for score entry and verification.
             </p>
 
             <div className="flex items-center gap-3 pt-2">
@@ -1476,6 +1932,19 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
           </div>
         </div>
       )}
+
+      {/* MODAL 3: MATCH SCHEDULE MODAL (N2.5) */}
+      <MatchScheduleModal
+        isOpen={showScheduleModal}
+        onClose={() => setShowScheduleModal(false)}
+        tournament={selectedTourney}
+        onScheduleSaved={async () => {
+          if (selectedTourneyId) {
+            await loadMatches(selectedTourneyId)
+          }
+          showSuccess('Match schedule updated and reloaded!', 'Schedule Saved')
+        }}
+      />
 
     </div>
   )

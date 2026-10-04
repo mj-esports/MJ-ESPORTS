@@ -43,6 +43,7 @@ import {
   getTournamentMode,
 } from '../utils/tournamentUtils'
 import TournamentScheduleForm from '../components/common/TournamentScheduleForm'
+import PlayerMatchSchedule from '../components/tournament/PlayerMatchSchedule'
 import EntryPrizeSystem from '../components/common/EntryPrizeSystem'
 import OfficialRulebook, { OFFICIAL_MJ_RULES } from '../components/common/OfficialRulebook'
 import {
@@ -859,15 +860,28 @@ export default function TournamentDetailPage() {
 
             {/* TAB 3: SCHEDULE */}
             {activeTab === 'schedule' && (
-              <TournamentScheduleForm
-                startDate={tournament.startDate || ''}
-                startTime={tournament.startTime || '06:00 PM IST'}
-                registrationStart={tournament.registrationStart || ''}
-                registrationEnd={tournament.registrationEnd || ''}
-                checkInTime={tournament.checkInTime || '05:15 PM IST'}
-                roomPublishTime={tournament.roomPublishTime || '05:45 PM IST'}
-                readOnly={true}
-              />
+              <div className="space-y-8">
+                <PlayerMatchSchedule tournamentId={id} tournament={tournament} />
+                <div className="pt-2">
+                  <div className="mb-4">
+                    <h3 className="font-headline text-base sm:text-lg font-bold text-white uppercase tracking-wider">
+                      Tournament Timeline & Window Details
+                    </h3>
+                    <p className="text-xs text-[#849495] mt-0.5">
+                      Authoritative schedule windows for player registration, check-in, and match kickoff.
+                    </p>
+                  </div>
+                  <TournamentScheduleForm
+                    startDate={tournament.startDate || ''}
+                    startTime={tournament.startTime || '06:00 PM IST'}
+                    registrationStart={tournament.registrationStart || ''}
+                    registrationEnd={tournament.registrationEnd || ''}
+                    checkInTime={tournament.checkInTime || '05:15 PM IST'}
+                    roomPublishTime={tournament.roomPublishTime || '05:45 PM IST'}
+                    readOnly={true}
+                  />
+                </div>
+              </div>
             )}
 
             {/* TAB 4: REGISTERED SQUADS */}
