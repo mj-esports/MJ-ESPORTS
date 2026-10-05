@@ -218,12 +218,10 @@ test('5.4. Overview renders Priority 4: Slot Capacity Metrics with 2x2 grid and 
   )
 })
 
-test('5.5. Overview renders Priority 5: Check-in Protocol with UID verification', () => {
+test('5.5. Match Check-In & Slot Assignment is completely absent from Tournament Detail Overview', () => {
   assert(
-    detailContent.includes('Match Check-In & Slot Assignment') &&
-    detailContent.includes('checkinInputUid') &&
-    detailContent.includes('handleCheckinSubmit'),
-    'Overview must preserve check-in protocol'
+    !detailContent.includes('Match Check-In & Slot Assignment'),
+    'Match Check-In & Slot Assignment must not render on Tournament Detail Overview'
   )
 })
 

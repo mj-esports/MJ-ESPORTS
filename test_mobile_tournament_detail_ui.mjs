@@ -122,42 +122,31 @@ assert(
   '4.5. Priority 4: Slot Capacity Metrics features 2x2 squad/combatant grid and remaining slots counter'
 )
 
-// Priority 5: Check-in / Check-In Protocol
-assert(
-  content.includes('Match Check-In & Slot Assignment') &&
-  content.includes('handleCheckinSubmit') &&
-  content.includes('checkinInputUid') &&
-  content.includes('Report Match Incident'),
-  '4.6. Priority 5: Check-In Protocol preserves form submission, UID verification, and incident report modal trigger'
-)
-
-// Priority 6: Room Credentials / Custom Room Credentials
+// Priority 5: Room Credentials / Custom Room Credentials
 assert(
   content.includes('<span>Match Room Credentials</span>') &&
   content.includes('ROOM ID') &&
   content.includes('PASSWORD') &&
   content.includes('COPY CREDENTIALS'),
-  '4.7. Priority 6: Room Credentials preserves Room ID, Password visibility toggle, and Copy Credentials'
+  '4.6. Priority 5: Room Credentials preserves Room ID, Password visibility toggle, and Copy Credentials'
 )
 
 // Mobile visual sequence verification (Strict Priority & Document Order)
 const dtIdx = content.indexOf('Date & Time')
 const regSummIdx = content.indexOf('{renderRegistrationSummaryCard()}')
-const entryPrizeIdx = content.indexOf('<EntryPrizeSystem')
 const slotCapIdx = content.indexOf('Slot Capacity')
-const checkinIdx = content.indexOf('Match Check-In & Slot Assignment')
 const credsIdx = content.indexOf('<span>Match Room Credentials</span>')
 
 assert(
-  dtIdx !== -1 && regSummIdx !== -1 && slotCapIdx !== -1 && checkinIdx !== -1 && credsIdx !== -1 &&
-  dtIdx < regSummIdx && regSummIdx < entryPrizeIdx && entryPrizeIdx < slotCapIdx && slotCapIdx < checkinIdx && checkinIdx < credsIdx,
-  '4.8. Mobile Overview order strictly follows Date & Time -> Registration Summary -> Slot Capacity -> Check-in -> Room Credentials'
+  dtIdx !== -1 && regSummIdx !== -1 && slotCapIdx !== -1 && credsIdx !== -1 &&
+  dtIdx < regSummIdx && regSummIdx < slotCapIdx && slotCapIdx < credsIdx,
+  '4.7. Mobile Overview order strictly follows Date & Time -> Registration Summary -> Slot Capacity -> Room Credentials'
 )
 
 console.log('\n--- GROUP 5: Visual Duplication Removal ---')
 assert(
-  content.includes('hidden lg:block') && content.includes('<EntryPrizeSystem'),
-  '5.1. EntryPrizeSystem is hidden on mobile (hidden lg:block) eliminating duplicate registration card'
+  content.includes('hidden') && content.includes('<EntryPrizeSystem'),
+  '5.1. EntryPrizeSystem is hidden eliminating duplicate registration card'
 )
 assert(
   content.includes("activeTab === 'overview' ? 'hidden lg:block' : 'block'"),
@@ -513,49 +502,44 @@ assert(
   '12.7. FAQ section uses compact vertical margins (space-y-2) and provides an inline match support banner'
 )
 
-console.log('\n--- GROUP 13: Phase 2A Mobile Content Reduction (Approved Stitch Spec) ---')
+console.log('\n--- GROUP 13: UI Section Removal Verification (Complete Absence) ---')
 const phase2aContent = fs.readFileSync(detailPagePath, 'utf8')
 
-// 1. "TOURNAMENT OVERVIEW" detail card is not rendered in the mobile presentation
+// 1. "TOURNAMENT OVERVIEW" detail card is completely removed
 assert(
-  phase2aContent.includes('hidden lg:block bg-[#141416] p-4 sm:p-5 rounded-xl border border-[#27272a] space-y-3 shadow-lg') &&
-  phase2aContent.includes('Tournament Overview'),
-  '13.1. "TOURNAMENT OVERVIEW" detail card is hidden on mobile (hidden lg:block)'
+  !phase2aContent.includes('Tournament Overview') &&
+  !phase2aContent.includes('DOC-ID: #'),
+  '13.1. "TOURNAMENT OVERVIEW" detail card is completely absent from the UI'
 )
 
-// 2. Map Target section is not rendered in the mobile presentation
+// 2. Map Target section is absent from the UI
 assert(
-  phase2aContent.indexOf('MAP TARGET') > phase2aContent.indexOf('hidden lg:block') &&
-  phase2aContent.indexOf('MAP TARGET') < phase2aContent.indexOf('Prize Pool & Allocation'),
-  '13.2. Map Target section is enclosed inside desktop-only hidden lg:block container'
+  !phase2aContent.includes('MAP TARGET'),
+  '13.2. Map Target section is completely absent from the Tournament Detail UI'
 )
 
-// 3. Gun Attributes section is not rendered in the mobile presentation
+// 3. Gun Attributes section is absent from the UI
 assert(
-  phase2aContent.indexOf('GUN ATTRIBUTES') > phase2aContent.indexOf('hidden lg:block') &&
-  phase2aContent.indexOf('GUN ATTRIBUTES') < phase2aContent.indexOf('Prize Pool & Allocation'),
-  '13.3. Gun Attributes section is enclosed inside desktop-only hidden lg:block container'
+  !phase2aContent.includes('GUN ATTRIBUTES'),
+  '13.3. Gun Attributes section is completely absent from the Tournament Detail UI'
 )
 
-// 4. Character Skills section is not rendered in the mobile presentation
+// 4. Character Skills section is absent from the UI
 assert(
-  phase2aContent.indexOf('CHAR. SKILLS') > phase2aContent.indexOf('hidden lg:block') &&
-  phase2aContent.indexOf('CHAR. SKILLS') < phase2aContent.indexOf('Prize Pool & Allocation'),
-  '13.4. Character Skills section is enclosed inside desktop-only hidden lg:block container'
+  !phase2aContent.includes('CHAR. SKILLS'),
+  '13.4. Character Skills section is completely absent from the Tournament Detail UI'
 )
 
-// 5. Match Mode detail section is not rendered in the mobile presentation
+// 5. Match Mode detail section is absent from the UI
 assert(
-  phase2aContent.indexOf('MATCH MODE') > phase2aContent.indexOf('hidden lg:block') &&
-  phase2aContent.indexOf('MATCH MODE') < phase2aContent.indexOf('Prize Pool & Allocation'),
-  '13.5. Match Mode detail section is enclosed inside desktop-only hidden lg:block container'
+  !phase2aContent.includes('MATCH MODE'),
+  '13.5. Match Mode detail section is completely absent from the Tournament Detail UI'
 )
 
-// 6. "MATCH CHECK-IN & SLOT ASSIGNMENT" is not rendered in the mobile presentation
+// 6. "MATCH CHECK-IN & SLOT ASSIGNMENT" is completely absent from the UI
 assert(
-  phase2aContent.includes('hidden lg:block bg-[#141416] border border-[#27272a] rounded-xl p-4 sm:p-6 space-y-4 shadow-xl') &&
-  phase2aContent.includes('Match Check-In & Slot Assignment'),
-  '13.6. "MATCH CHECK-IN & SLOT ASSIGNMENT" is hidden on mobile (hidden lg:block)'
+  !phase2aContent.includes('Match Check-In & Slot Assignment'),
+  '13.6. "MATCH CHECK-IN & SLOT ASSIGNMENT" is completely absent from the Tournament Detail Overview'
 )
 
 // 7. "MATCH ROOM CREDENTIALS" remains present
