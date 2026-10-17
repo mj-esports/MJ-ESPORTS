@@ -83,11 +83,48 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   }, [])
 
   const modeConfig = getTournamentMode(tournament)
-  const mode = modeConfig.mode
+
+  // Authoritative Mode Resolution:
+  // Normalizes tournament.format, tournament.mode, tournament.match_format, tournament.matchFormat,
+  // team_size, and modeConfig to guarantee robust format detection across all data representations.
+  const rawModeString = (
+    tournament?.mode ||
+    tournament?.format ||
+    tournament?.match_format ||
+    tournament?.matchFormat ||
+    modeConfig?.mode ||
+    ''
+  ).toLowerCase().trim()
+
+  const rawTeamSize = Number(tournament?.team_size ?? tournament?.teamSize ?? 0)
+
+  let registrationMode = 'SQUAD'
+  if (
+    rawModeString.includes('solo') ||
+    rawModeString.includes('(1p)') ||
+    rawTeamSize === 1 ||
+    modeConfig?.mode === 'Solo'
+  ) {
+    registrationMode = 'SOLO'
+  } else if (
+    rawModeString.includes('duo') ||
+    rawModeString.includes('(2p)') ||
+    rawTeamSize === 2 ||
+    modeConfig?.mode === 'Duo'
+  ) {
+    registrationMode = 'DUO'
+  }
+
+  const isSolo = registrationMode === 'SOLO'
+  const isDuo = registrationMode === 'DUO'
+  const isSquad = registrationMode === 'SQUAD'
+
+  const mode = isSolo ? 'Solo' : isDuo ? 'Duo' : 'Squad'
 
   const [formData, setFormData] = useState({
     teamName: '',
-    captainName: user?.user_metadata?.username || '',
+    playerIgn: user?.user_metadata?.username || '',
+    captainName: user?.user_metadata?.fullName || user?.user_metadata?.username || '',
     email: user?.email || '',
     freeFireUid: user?.user_metadata?.freeFireUid || '',
     whatsappNumber: '',
@@ -291,8 +328,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     }
   }
 
-
-
   const entryFeeStr = String(tournament?.entryFee || tournament?.entry_fee || 'Free').trim()
   const rawFeeDigits = entryFeeStr.replace(/[^0-9.]/g, '')
   const numericEntryFee = entryFeeStr.toLowerCase() === 'free' || !rawFeeDigits ? 0 : parseFloat(rawFeeDigits)
@@ -344,13 +379,18 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     const cleanCaptainUid = sanitizeString(formData.freeFireUid)
     const cleanPhone = sanitizeString(formData.whatsappNumber)
 
-    if (!cleanTeamName || !isValidTeamName(cleanTeamName)) return false
+    if (isSolo) {
+      const cleanIgn = sanitizeString(formData.playerIgn || formData.teamName)
+      if (!cleanIgn || !isValidIgn(cleanIgn)) return false
+    } else {
+      if (!cleanTeamName || !isValidTeamName(cleanTeamName)) return false
+    }
     if (!cleanCaptainName) return false
     if (!cleanEmail || !isValidEmail(cleanEmail)) return false
     if (!cleanCaptainUid || !isValidGameUid(cleanCaptainUid)) return false
     if (!cleanPhone || !isValidPhoneNumber(cleanPhone)) return false
 
-    const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
+    const requiredTeammatesCount = isDuo ? 1 : isSquad ? 3 : 0
     for (let i = 0; i < requiredTeammatesCount; i++) {
       const uid = sanitizeString(formData.teammates[i])
       const ign = sanitizeString(formData.teammateIgns[i])
@@ -364,7 +404,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     }
 
     return true
-  }, [formData, proofFile, proofPreview, mode, turnstileToken, user?.id])
+  }, [formData, proofFile, proofPreview, isSolo, isDuo, isSquad, turnstileToken, user?.id])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -374,10 +414,16 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       newValue = sanitizeDigitsOnly(value, 10)
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }))
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: newValue,
+      }
+      if (name === 'playerIgn') {
+        updated.teamName = newValue
+      }
+      return updated
+    })
     if (fieldErrors[name]) {
       setFieldErrors((prev) => ({ ...prev, [name]: null }))
     }
@@ -454,16 +500,32 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     const cleanCaptainUid = sanitizeString(formData.freeFireUid)
     const cleanPhone = sanitizeString(formData.whatsappNumber)
 
-    // Team / Player IGN Validation
-    if (!cleanTeamName) {
-      newFieldErrors.teamName = mode === 'Solo' ? 'Player IGN / Display Name is required' : 'Team Name is required'
-    } else if (!isValidTeamName(cleanTeamName)) {
-      newFieldErrors.teamName = 'Name must be between 3 and 30 characters'
-    }
+    // Identity Validation (Solo vs Duo/Squad)
+    if (isSolo) {
+      const cleanIgn = sanitizeString(formData.playerIgn || formData.teamName)
+      if (!cleanIgn) {
+        newFieldErrors.playerIgn = 'Player IGN / Display Name is required'
+      } else if (!isValidIgn(cleanIgn)) {
+        newFieldErrors.playerIgn = 'Player IGN must be between 1 and 30 characters'
+      }
 
-    // Captain Name Validation
-    if (!cleanCaptainName) {
-      newFieldErrors.captainName = mode === 'Solo' ? 'Player Full Name is required' : 'Captain Name is required'
+      if (!cleanCaptainName) {
+        newFieldErrors.captainName = 'Player Full Name is required'
+      }
+    } else {
+      // Team Name Validation (Duo & Squad only)
+      if (!isSolo) {
+        if (!cleanTeamName) {
+          newFieldErrors.teamName = 'Team Name is required'
+        } else if (!isValidTeamName(cleanTeamName)) {
+          newFieldErrors.teamName = 'Name must be between 3 and 30 characters'
+        }
+      }
+
+      // Captain Name Validation
+      if (!cleanCaptainName) {
+        newFieldErrors.captainName = 'Captain Full Name is required'
+      }
     }
 
     // Email Validation
@@ -488,7 +550,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     }
 
     // Dynamic Teammate UIDs & IGNs Validation
-    const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
+    const requiredTeammatesCount = isDuo ? 1 : isSquad ? 3 : 0
     for (let i = 0; i < requiredTeammatesCount; i++) {
       const uid = sanitizeString(formData.teammates[i])
       const ign = sanitizeString(formData.teammateIgns[i])
@@ -587,7 +649,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       setIsSubmitting(true)
     }
 
-    const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
+    const requiredTeammatesCount = isDuo ? 1 : isSquad ? 3 : 0
     const activeTeammates = formData.teammates
       .slice(0, requiredTeammatesCount)
       .map((t) => sanitizeString(t))
@@ -617,7 +679,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         if (registerTeam) {
           registeredRecord = await registerTeam(tournament.id, {
             refId,
-            name: sanitizeString(formData.teamName),
+            name: isSolo ? (toCanonicalIgn(formData.teamName || formData.captainName) || 'Solo Player') : sanitizeString(formData.teamName),
             captain: toCanonicalIgn(formData.captainName),
             email: sanitizeString(formData.email),
             freeFireUid: sanitizeString(formData.freeFireUid),
@@ -639,7 +701,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
         setRegistrationSummary({
           refId,
-          teamName: sanitizeString(formData.teamName),
+          teamName: isSolo ? '' : sanitizeString(formData.teamName),
           captain: toCanonicalIgn(formData.captainName),
           mode,
           freeFireUid: sanitizeString(formData.freeFireUid),
@@ -657,7 +719,18 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         }
 
         setSubmittingStep('Creating Payment Order...')
-        const orderRes = await createTournamentOrder(tournament.id)
+        const registrationPayload = {
+          refId,
+          name: isSolo ? (toCanonicalIgn(formData.teamName || formData.captainName) || 'Solo Player') : sanitizeString(formData.teamName),
+          captain: toCanonicalIgn(formData.captainName),
+          email: sanitizeString(formData.email),
+          freeFireUid: sanitizeString(formData.freeFireUid),
+          whatsappNumber: sanitizeString(formData.whatsappNumber),
+          mode,
+          teammates: activeTeammates,
+          teammateIgns: activeTeammateIgns,
+        }
+        const orderRes = await createTournamentOrder(tournament.id, registrationPayload)
         if (!orderRes?.order_id) {
           throw new Error(orderRes?.error || 'Failed to create payment order with server.')
         }
@@ -686,23 +759,38 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   throw new Error(verifyRes?.error || 'Server signature verification failed.')
                 }
 
-                setSubmittingStep('Confirming Registration...')
-                const registeredRecord = await registerTeam(tournament.id, {
-                  refId,
-                  name: sanitizeString(formData.teamName),
-                  captain: toCanonicalIgn(formData.captainName),
-                  email: sanitizeString(formData.email),
-                  freeFireUid: sanitizeString(formData.freeFireUid),
-                  whatsappNumber: sanitizeString(formData.whatsappNumber),
-                  mode,
-                  teammates: activeTeammates,
-                  teammateIgns: activeTeammateIgns,
-                  userId: user.id,
-                  paymentId: verifyRes.payment_id,
-                  razorpayPaymentId: verifyRes.razorpay_payment_id || payResponse.paymentId,
-                  status: 'Approved',
-                  paymentStatus: 'Paid',
-                })
+                let registeredRecord = null
+                if (verifyRes.already_consumed) {
+                  console.info('[SlotBookingModal] Payment was already processed by webhook background recovery.')
+                  registeredRecord = {
+                    id: verifyRes.registration_id,
+                    team_name: sanitizeString(formData.teamName),
+                    captain_ign: toCanonicalIgn(formData.captainName),
+                    captain_uid: sanitizeString(formData.freeFireUid),
+                    captain_phone: sanitizeString(formData.whatsappNumber),
+                    email: sanitizeString(formData.email),
+                    mode,
+                    registration_ref: refId,
+                  }
+                } else {
+                  setSubmittingStep('Confirming Registration...')
+                  registeredRecord = await registerTeam(tournament.id, {
+                    refId,
+                    name: sanitizeString(formData.teamName),
+                    captain: toCanonicalIgn(formData.captainName),
+                    email: sanitizeString(formData.email),
+                    freeFireUid: sanitizeString(formData.freeFireUid),
+                    whatsappNumber: sanitizeString(formData.whatsappNumber),
+                    mode,
+                    teammates: activeTeammates,
+                    teammateIgns: activeTeammateIgns,
+                    userId: user.id,
+                    paymentId: verifyRes.payment_id,
+                    razorpayPaymentId: verifyRes.razorpay_payment_id || payResponse.paymentId,
+                    status: 'Approved',
+                    paymentStatus: 'Paid',
+                  })
+                }
 
                 showSuccess('Payment & Registration Confirmed', `Slot Confirmed • ID: ${payResponse.paymentId}`)
 
@@ -712,7 +800,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
                 setRegistrationSummary({
                   refId,
-                  teamName: sanitizeString(formData.teamName),
+                  teamName: isSolo ? '' : sanitizeString(formData.teamName),
                   captain: toCanonicalIgn(formData.captainName),
                   mode,
                   freeFireUid: sanitizeString(formData.freeFireUid),
@@ -809,7 +897,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
     setSubmittingStep('Debiting Wallet & Registering...')
 
-    const requiredTeammatesCount = mode === 'Duo' ? 1 : mode === 'Squad' ? 3 : 0
+    const requiredTeammatesCount = isDuo ? 1 : isSquad ? 3 : 0
     const activeTeammates = formData.teammates
       .slice(0, requiredTeammatesCount)
       .map((t) => sanitizeString(t))
@@ -836,7 +924,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         tournament.id,
         {
           refId,
-          name: sanitizeString(formData.teamName),
+          name: isSolo ? (toCanonicalIgn(formData.teamName || formData.captainName) || 'Solo Player') : sanitizeString(formData.teamName),
           captain: toCanonicalIgn(formData.captainName),
           email: sanitizeString(formData.email),
           freeFireUid: sanitizeString(formData.freeFireUid),
@@ -864,7 +952,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       if (onRegistered) {
         onRegistered(res.teamRecord || {
           refId: res.refId || refId,
-          name: sanitizeString(formData.teamName),
+          name: isSolo ? (toCanonicalIgn(formData.teamName || formData.captainName) || 'Solo Player') : sanitizeString(formData.teamName),
           captain: toCanonicalIgn(formData.captainName),
           mode,
           freeFireUid: sanitizeString(formData.freeFireUid),
@@ -900,312 +988,360 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fadeIn"
       role="dialog"
       aria-modal="true"
       aria-labelledby="slot-booking-modal-title"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#151a21] border border-[#3a494b] rounded-2xl max-w-2xl w-full p-4 sm:p-5 space-y-3.5 shadow-[0_0_50px_rgba(0,242,255,0.15)] relative max-h-[90vh] overflow-y-auto"
+        className="bg-[#131315] border border-[#2A2A30] rounded-lg max-w-[620px] w-full shadow-2xl relative max-h-[90vh] flex flex-col my-auto overflow-hidden text-white"
       >
-
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-xl bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] hover:border-[#00f2ff]/50 transition-all cursor-pointer"
-          aria-label="Close Registration Modal"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
-        {/* Modal Header & Branding */}
-        <div className="space-y-0.5 border-b border-[#3a494b]/50 pb-2.5">
-          <div className="flex items-center gap-1.5">
-            <Shield className="w-3.5 h-3.5 text-[#00f2ff]" />
-            <span className="font-label-caps text-[10px] font-extrabold text-[#00f2ff] uppercase tracking-widest block">
-              MJ ESPORTS OFFICIAL REGISTRATION
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2A2A30] bg-[#0E0E10] shrink-0">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] tracking-wider font-mono uppercase text-[#00f2ff] font-bold leading-none">
+              {tournament.game || 'Free Fire MAX'}
             </span>
+            <h2 id="slot-booking-modal-title" className="text-base font-bold tracking-tight text-white leading-tight">
+              {tournament.game || 'Free Fire MAX'} • {mode || modeConfig.mode}
+            </h2>
           </div>
-          <h2 id="slot-booking-modal-title" className="font-display-lg text-base sm:text-lg font-extrabold text-white uppercase tracking-tight italic">
-            {tournament.title}
-          </h2>
-          <p className="text-xs text-[#8e9dae] font-medium">
-            {tournament.game || 'Free Fire MAX'} • {modeConfig.mode}
-          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded flex items-center justify-center text-[#8E8E98] hover:text-white hover:bg-[#18181B] transition-colors cursor-pointer"
+            aria-label="Close Registration Modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        {error && <AuthAlert type="error" message={error} />}
-
-        {/* SEC-05: Guest Authentication Notification Banner */}
-        {!user?.id && (
-          <div className="p-3.5 bg-[#00f2ff]/10 border border-[#00f2ff]/30 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-white">
-              <AlertTriangle className="w-4 h-4 text-[#00f2ff] shrink-0" />
-              <span>You must be logged in to register for a tournament.</span>
+        {/* Modal Body Container with vertical scroll */}
+        <div className="overflow-y-auto max-h-[82vh]">
+          {error && (
+            <div className="px-5 pt-4">
+              <AuthAlert type="error" message={error} />
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                onClose?.()
-                navigate('/login')
-              }}
-              className="btn-cyber-primary py-1.5 px-3 text-xs shrink-0 whitespace-nowrap cursor-pointer"
-            >
-              Sign In to Register
-            </button>
-          </div>
-        )}
+          )}
 
-        {/* SUCCESS CONFIRMATION DIALOG */}
-        {registrationSummary ? (
-          <div className="space-y-4 pt-1">
-            <div className="p-4 bg-[#07090c] border border-[#00ff9d]/40 rounded-2xl space-y-3 text-center">
-              <div className="w-10 h-10 rounded-full bg-[#00ff9d]/20 border border-[#00ff9d] flex items-center justify-center mx-auto text-[#00ff9d] shadow-[0_0_15px_rgba(0,255,157,0.3)]">
-                <CheckCircle2 className="w-5 h-5" />
+          {/* SEC-05: Guest Authentication Notification Banner */}
+          {!user?.id && (
+            <div className="m-5 p-3.5 bg-[#00f2ff]/10 border border-[#00f2ff]/30 rounded flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-white">
+                <AlertTriangle className="w-4 h-4 text-[#00f2ff] shrink-0" />
+                <span>You must be logged in to register for a tournament.</span>
               </div>
-              <div>
-                <h3 className="font-display-lg text-base font-bold text-white uppercase tracking-wide">Slot Registration Confirmed!</h3>
-                <p className="text-xs text-[#8e9dae] mt-0.5">Your registration has been securely recorded.</p>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose?.()
+                  navigate('/login')
+                }}
+                className="h-8 px-4 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white rounded transition-colors shrink-0 whitespace-nowrap cursor-pointer"
+              >
+                Sign In to Register
+              </button>
+            </div>
+          )}
+
+          {/* SUCCESS CONFIRMATION DIALOG */}
+          {registrationSummary ? (
+            <div className="p-6 space-y-6">
+              {/* Headline with subtle status icon */}
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-5 h-5 text-[#10B981] shrink-0" />
+                <h3 className="text-sm font-bold tracking-wider uppercase text-white font-mono">
+                  Registration Confirmed
+                </h3>
               </div>
 
-              {/* Reference Ticket Card */}
-              <div className="p-3.5 bg-[#151a21] rounded-xl border border-[#3a494b]/60 text-left space-y-2 text-xs font-mono">
-                <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2">
-                  <span className="text-[#8e9dae] font-semibold">Reference ID</span>
-                  <div className="flex items-center gap-1.5 text-[#00f2ff] font-bold">
+              {/* Essential Info Grid */}
+              <div className="p-4 bg-[#0E0E10] border border-[#2A2A30] rounded space-y-3 font-mono text-xs text-left">
+                <div className="flex items-center justify-between py-1 border-b border-[#222228]">
+                  <span className="text-[#8E8E98] font-sans text-xs">Reference ID</span>
+                  <div className="flex items-center gap-1.5 text-white font-bold tracking-wide">
                     <span>{registrationSummary.refId}</span>
                     <button
+                      type="button"
                       onClick={handleCopyRef}
-                      className="p-1 rounded hover:bg-[#1d232c] text-[#8e9dae] hover:text-white transition-colors"
+                      className="p-1 rounded hover:bg-[#18181B] text-[#8E8E98] hover:text-[#00f2ff] transition-colors cursor-pointer"
                       title="Copy Reference ID"
                     >
                       <Copy className="w-3.5 h-3.5" />
                     </button>
-                    {copied && <span className="text-[10px] text-[#00ff9d] font-sans font-bold">Copied!</span>}
+                    {copied && <span className="text-[10px] text-[#10B981] font-sans font-bold">Copied!</span>}
                   </div>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
-                  <span className="text-[#8e9dae]">{mode === 'Solo' ? 'Player IGN' : 'Team Name'}</span>
-                  <span className="font-extrabold text-white">{registrationSummary.teamName}</span>
-                </div>
-
-                <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
-                  <span className="text-[#8e9dae]">Format Mode</span>
-                  <span className="font-bold text-[#00f2ff]">{modeConfig.formatTitle} ({registrationSummary.mode})</span>
-                </div>
-
-                <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
-                  <span className="text-[#8e9dae]">{mode === 'Solo' ? 'Player UID' : 'Captain UID'}</span>
-                  <span className="font-bold text-[#00f2ff]">{registrationSummary.freeFireUid}</span>
-                </div>
-
-                {registrationSummary.paymentId && (
-                  <div className="flex justify-between py-1 border-b border-[#3a494b]/60">
-                    <span className="text-[#8e9dae]">Payment ID</span>
-                    <span className="font-mono text-[11px] text-[#00ff9d]">{registrationSummary.paymentId}</span>
+                {!isSolo && registrationSummary.teamName && (
+                  <div className="flex items-center justify-between py-1 border-b border-[#222228]">
+                    <span className="text-[#8E8E98] font-sans text-xs">Team Name</span>
+                    <span className="text-white font-bold">{registrationSummary.teamName}</span>
                   </div>
                 )}
 
-                <div className="flex justify-between pt-1">
-                  <span className="text-[#8e9dae]">Status</span>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase">
-                    {registrationSummary.status}
+                <div className="flex items-center justify-between py-1 border-b border-[#222228]">
+                  <span className="text-[#8E8E98] font-sans text-xs">Format</span>
+                  <span className="text-[#00f2ff] font-bold uppercase">{mode.toUpperCase()}</span>
+                </div>
+
+                <div className="flex items-center justify-between py-1 border-b border-[#222228]">
+                  <span className="text-[#8E8E98] font-sans text-xs">{isSolo ? 'Player UID' : 'Captain UID'}</span>
+                  <span className="text-white">{registrationSummary.freeFireUid}</span>
+                </div>
+
+                {registrationSummary.paymentId && (
+                  <div className="flex items-center justify-between py-1 border-b border-[#222228]">
+                    <span className="text-[#8E8E98] font-sans text-xs">Payment ID</span>
+                    <span className="font-mono text-[11px] text-[#10B981]">{registrationSummary.paymentId}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-[#8E8E98] font-sans text-xs">Status</span>
+                  <span className="inline-flex items-center gap-1.5 text-[#10B981] font-bold uppercase tracking-wider text-[11px] bg-[#10B981]/10 px-2 py-0.5 rounded border border-[#10B981]/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+                    {registrationSummary.status || 'APPROVED'}
                   </span>
                 </div>
               </div>
-            </div>
 
-            <button
-              onClick={onClose}
-              className="btn-cyber-primary w-full justify-center py-3 min-h-[44px] cursor-pointer"
-            >
-              Done & Return
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} noValidate className="space-y-3">
-
-            {/* N3.5: SQUAD AUTO-FILL ACTION */}
-            {user?.id && (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl bg-gradient-to-r from-[#00f2ff]/10 via-[#07090c] to-[#00f2ff]/5 border border-[#00f2ff]/30">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/15 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
-                    <Users className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-headline text-xs font-bold text-white uppercase tracking-wider">
-                        Squad Roster Auto-Fill
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-[#00f2ff]/20 text-[#00f2ff] border border-[#00f2ff]/40 uppercase font-bold">
-                        {mode} Mode
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-[#8e9dae] font-sans">
-                      Pre-populate registration form with your active team roster
-                    </p>
-                  </div>
-                </div>
-
+              {/* Action */}
+              <div className="pt-2">
                 <button
                   type="button"
-                  onClick={handleUseMyTeamClick}
-                  disabled={isTeamLoading}
-                  className="px-3.5 py-2 rounded-lg bg-[#00f2ff] hover:bg-[#00d0dd] text-black font-headline font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-[0_0_12px_rgba(0,242,255,0.25)] hover:shadow-[0_0_16px_rgba(0,242,255,0.4)] disabled:opacity-50 cursor-pointer shrink-0"
+                  onClick={onClose}
+                  className="w-full h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded shadow-sm flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{isTeamLoading ? 'Loading Squad...' : 'Use My Team'}</span>
+                  Done & Return
                 </button>
               </div>
-            )}
-
-            {/* N3.5: POPULATED ROSTER REVIEW CARD */}
-            {populatedTeamInfo && (
-              <div className="p-3 bg-[#07090c] border border-[#00ff9d]/40 rounded-xl space-y-2">
-                <div className="flex items-center justify-between border-b border-[#3a494b]/40 pb-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-bold text-[#00ff9d] bg-[#00ff9d]/10 px-2 py-0.5 rounded border border-[#00ff9d]/30 uppercase tracking-wider">
-                      YOUR TEAM
-                    </span>
-                    <span className="font-bold text-white text-xs">{populatedTeamInfo.name}</span>
-                    {populatedTeamInfo.tag && (
-                      <span className="text-[10px] font-mono text-[#8e9dae]">[{populatedTeamInfo.tag}]</span>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setPopulatedTeamInfo(null)}
-                    className="text-[10px] text-[#8e9dae] hover:text-white uppercase transition-colors cursor-pointer"
-                  >
-                    Dismiss Review
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
-                  <div className="p-2 rounded bg-[#151a21] border border-[#3a494b]/40 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-[#fed83a] block font-bold uppercase">Captain</span>
-                      <span className="text-white font-bold">{populatedTeamInfo.captain}</span>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} noValidate className="p-5 sm:p-6 space-y-4">
+              {/* N3.5: POPULATED ROSTER REVIEW CARD (Duo/Squad only) */}
+              {populatedTeamInfo && !isSolo && (
+                <div className="p-3 bg-[#0E0E10] border border-[#10B981]/40 rounded space-y-2">
+                  <div className="flex items-center justify-between border-b border-[#2A2A30] pb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded border border-[#10B981]/30 uppercase tracking-wider">
+                        YOUR TEAM
+                      </span>
+                      <span className="font-bold text-white text-xs">{populatedTeamInfo.name}</span>
+                      {populatedTeamInfo.tag && (
+                        <span className="text-[10px] font-mono text-[#8E8E98]">[{populatedTeamInfo.tag}]</span>
+                      )}
                     </div>
-                    <span className="text-[#8e9dae] text-[11px]">UID: {populatedTeamInfo.captainUid || 'N/A'}</span>
+                    <button
+                      type="button"
+                      onClick={() => setPopulatedTeamInfo(null)}
+                      className="text-[10px] text-[#8E8E98] hover:text-white uppercase transition-colors cursor-pointer"
+                    >
+                      Dismiss Review
+                    </button>
                   </div>
-                  {populatedTeamInfo.members.map((m, idx) => (
-                    <div key={`pop-member-${idx}`} className="p-2 rounded bg-[#151a21] border border-[#3a494b]/40 flex items-center justify-between">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                    <div className="p-2 rounded bg-[#18181B] border border-[#2A2A30] flex items-center justify-between">
                       <div>
-                        <span className="text-[10px] text-[#00f2ff] block font-bold uppercase">{m.role || 'Member'}</span>
-                        <span className="text-white font-bold">{m.name}</span>
+                        <span className="text-[10px] text-[#fed83a] block font-bold uppercase">Captain</span>
+                        <span className="text-white font-bold">{populatedTeamInfo.captain}</span>
                       </div>
-                      <span className="text-[#8e9dae] text-[11px]">UID: {m.uid || 'N/A'}</span>
+                      <span className="text-[#8E8E98] text-[11px]">UID: {populatedTeamInfo.captainUid || 'N/A'}</span>
                     </div>
-                  ))}
+                    {populatedTeamInfo.members.map((m, idx) => (
+                      <div key={`pop-member-${idx}`} className="p-2 rounded bg-[#18181B] border border-[#2A2A30] flex items-center justify-between">
+                        <div>
+                          <span className="text-[10px] text-[#00f2ff] block font-bold uppercase">{m.role || 'Member'}</span>
+                          <span className="text-white font-bold">{m.name}</span>
+                        </div>
+                        <span className="text-[#8E8E98] text-[11px]">UID: {m.uid || 'N/A'}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* RESPONSIVE LAYOUT GRID: SECTION 1 - PRIMARY CREDENTIALS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <FormInput
-                label={mode === 'Solo' ? 'Player IGN / Display Name' : 'Team Name'}
-                name="teamName"
-                value={formData.teamName}
-                onChange={handleChange}
-                placeholder={mode === 'Solo' ? 'e.g. Phoenix_99' : 'e.g. Phoenix Squad'}
-                required
-                error={fieldErrors.teamName}
-                icon={Users}
-              />
+              {/* SOLO FIELDS */}
+              {isSolo ? (
+                <>
+                  <FormInput
+                    label="Player IGN / Display Name"
+                    name="playerIgn"
+                    value={formData.playerIgn || formData.teamName || ''}
+                    onChange={handleChange}
+                    placeholder="e.g. ShadowNinja"
+                    required
+                    error={fieldErrors.playerIgn}
+                    icon={User}
+                  />
 
-              <FormInput
-                label={mode === 'Solo' ? 'Player Full Name' : 'Captain Full Name'}
-                name="captainName"
-                value={formData.captainName}
-                onChange={handleChange}
-                placeholder="e.g. Rahul Sharma"
-                required
-                error={fieldErrors.captainName}
-                icon={User}
-              />
+                  <FormInput
+                    label="Player Full Name"
+                    name="captainName"
+                    value={formData.captainName}
+                    onChange={handleChange}
+                    placeholder="e.g. Rahul Sharma"
+                    required
+                    error={fieldErrors.captainName}
+                    icon={User}
+                  />
 
-              <FormInput
-                label="Email Address"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="user@example.com"
-                required
-                error={fieldErrors.email}
-                icon={Mail}
-              />
+                  <FormInput
+                    label="Email Address"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="user@example.com"
+                    required
+                    error={fieldErrors.email}
+                    icon={Mail}
+                  />
 
-              <FormInput
-                label="WhatsApp Contact Number"
-                name="whatsappNumber"
-                type="tel"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={10}
-                showCount
-                prefix="+91"
-                value={formData.whatsappNumber}
-                onChange={handleChange}
-                placeholder="9876543210"
-                required
-                error={fieldErrors.whatsappNumber}
-                icon={Phone}
-              />
+                  <FormInput
+                    label="WhatsApp Contact Number"
+                    name="whatsappNumber"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={10}
+                    showCount
+                    prefix="+91"
+                    value={formData.whatsappNumber}
+                    onChange={handleChange}
+                    placeholder="9876543210"
+                    required
+                    error={fieldErrors.whatsappNumber}
+                    icon={Phone}
+                  />
 
-              <div className="sm:col-span-2">
-                <FormInput
-                  label={mode === 'Solo' ? 'Game Character UID' : 'Captain Game Character UID'}
-                  name="freeFireUid"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={10}
-                  showCount
-                  value={formData.freeFireUid}
-                  onChange={handleChange}
-                  placeholder="0123456789"
-                  required
-                  error={fieldErrors.freeFireUid}
-                  icon={ShieldCheck}
-                />
-              </div>
+                  <FormInput
+                    label="Game Character UID"
+                    name="freeFireUid"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={10}
+                    showCount
+                    value={formData.freeFireUid}
+                    onChange={handleChange}
+                    placeholder="0123456789"
+                    required
+                    error={fieldErrors.freeFireUid}
+                    icon={ShieldCheck}
+                  />
+                </>
+              ) : (
+                /* DUO & SQUAD FIELDS */
+                <>
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-semibold text-white/90 font-sans">
+                        Team Name <span className="text-[#00f2ff]">*</span>
+                      </label>
+                      {user?.id && (
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={handleUseMyTeamClick}
+                            disabled={isTeamLoading}
+                            className="text-[11px] font-mono uppercase font-bold text-[#00f2ff] hover:text-white bg-[#18181B] border border-[#2A2A30] hover:border-[#00f2ff] px-2.5 py-1 rounded transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                          >
+                            <Sparkles className="w-3 h-3" />
+                            <span>{isTeamLoading ? 'Loading Squad...' : 'Use My Team'}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <FormInput
+                      name="teamName"
+                      value={formData.teamName}
+                      onChange={handleChange}
+                      placeholder={isDuo ? 'e.g. Phoenix Duo' : 'e.g. Phoenix Squad'}
+                      required
+                      error={fieldErrors.teamName}
+                      icon={Users}
+                    />
+                  </div>
 
-              {/* FREE FIRE PROFILE SCREENSHOT — REQUIRED COMPACT CARD */}
-              <div className={`sm:col-span-2 p-3 bg-[#07090c] border rounded-xl space-y-2 ${
-                fieldErrors.proofFile ? 'border-[#ff4655]' : proofFile || proofPreview ? 'border-[#10b981]/40 bg-[#10b981]/5' : 'border-[#3a494b]/60'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-1.5 font-label-caps text-[11px] font-bold text-[#8e9dae] uppercase">
-                    <FileImage className="w-3.5 h-3.5 text-[#00f2ff]" />
-                    <span>FREE FIRE PROFILE SCREENSHOT</span>
-                    <span className="text-[#ff4655]">*</span>
-                  </label>
-                  <span className="text-[#00f2ff] text-[10px] font-bold uppercase font-label-caps">
-                    Required
-                  </span>
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput
+                      label="Captain Full Name"
+                      name="captainName"
+                      value={formData.captainName}
+                      onChange={handleChange}
+                      placeholder="e.g. Rahul Sharma"
+                      required
+                      error={fieldErrors.captainName}
+                      icon={User}
+                    />
 
-                <div className="flex items-center gap-3 flex-wrap">
-                  <label className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-2 border ${
-                    proofFile || proofPreview
-                      ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40 hover:bg-[#10b981]/25'
-                      : 'bg-[#151a21] hover:bg-[#1d232c] text-[#00f2ff] border-[#3a494b] hover:border-[#00f2ff]/50'
-                  }`}>
-                    {proofFile || proofPreview ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#10b981]" />
-                        <span>✓ PROFILE SCREENSHOT ATTACHED</span>
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>ATTACH PROFILE SCREENSHOT</span>
-                      </>
-                    )}
+                    <FormInput
+                      label="Email Address"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="user@example.com"
+                      required
+                      error={fieldErrors.email}
+                      icon={Mail}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput
+                      label="WhatsApp Contact Number"
+                      name="whatsappNumber"
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={10}
+                      showCount
+                      prefix="+91"
+                      value={formData.whatsappNumber}
+                      onChange={handleChange}
+                      placeholder="9876543210"
+                      required
+                      error={fieldErrors.whatsappNumber}
+                      icon={Phone}
+                    />
+
+                    <FormInput
+                      label="Captain Game Character UID"
+                      name="freeFireUid"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={10}
+                      showCount
+                      value={formData.freeFireUid}
+                      onChange={handleChange}
+                      placeholder="0123456789"
+                      required
+                      error={fieldErrors.freeFireUid}
+                      icon={ShieldCheck}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Profile Screenshot Upload */}
+              <div>
+                <label className="block text-xs font-semibold text-white/90 mb-1.5 font-sans">
+                  FREE FIRE PROFILE SCREENSHOT <span className="text-[#00f2ff]">*</span>
+                </label>
+                <div className={`flex items-center gap-3 p-3 bg-[#1F1F23] border border-dashed rounded transition-colors ${
+                  fieldErrors.proofFile
+                    ? 'border-[#ef4444]'
+                    : proofFile || proofPreview
+                    ? 'border-[#10B981]/60'
+                    : 'border-[#2A2A30] hover:border-[#00f2ff]/60'
+                }`}>
+                  <label className="h-9 px-4 text-xs font-semibold uppercase tracking-wider bg-[#18181B] border border-[#2A2A30] rounded text-[#00f2ff] hover:bg-[#00f2ff] hover:text-black hover:border-[#00f2ff] transition-all flex items-center gap-2 cursor-pointer shrink-0">
+                    <Upload className="w-4 h-4" />
+                    <span>ATTACH PROFILE SCREENSHOT</span>
                     <input
                       type="file"
                       accept="image/png,image/jpeg,image/jpg,image/webp"
@@ -1213,13 +1349,26 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       className="hidden"
                     />
                   </label>
-
-                  {proofFile && (
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-white font-mono text-[11px] max-w-[180px] truncate">{proofFile.name}</span>
+                  <div className="flex-1 min-w-0">
+                    {proofFile ? (
+                      <span className="text-xs text-[#8E8E98] font-mono truncate block">
+                        {proofFile.name}
+                      </span>
+                    ) : proofPreview ? (
+                      <span className="text-xs text-[#8E8E98] font-mono truncate block">
+                        screenshot_attached.png
+                      </span>
+                    ) : null}
+                  </div>
+                  {(proofFile || proofPreview) && (
+                    <div className="flex items-center gap-2 shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
                       <button
                         type="button"
-                        onClick={() => { setProofFile(null); setProofPreview(''); }}
+                        onClick={() => {
+                          setProofFile(null)
+                          setProofPreview('')
+                        }}
                         className="text-[11px] text-red-400 hover:text-red-300 font-bold uppercase cursor-pointer"
                       >
                         Remove
@@ -1227,78 +1376,81 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     </div>
                   )}
                 </div>
-
                 {fieldErrors.proofFile && (
-                  <p className="text-[11px] text-[#ff4655] font-medium" role="alert">
+                  <p className="text-[11px] text-[#ef4444] font-medium mt-1" role="alert">
                     {fieldErrors.proofFile}
                   </p>
                 )}
-
-                <p className="text-[10px] text-[#8e9dae] font-sans">
-                  Upload your in-game profile showing UID + IGN.
-                </p>
               </div>
-            </div>
 
-            {/* DYNAMIC TEAMMATE UID & IGN FIELDS BASED ON TOURNAMENT FORMAT MODE */}
-            {mode === 'Duo' && (
-              <div className="p-3 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
-                    Duo Teammate Details (1 Required Teammate)
-                  </span>
-                  <span className="text-[10px] text-[#8e9dae] font-mono">UID + Canonical IGN</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <FormInput
-                    label="Teammate 1 Game UID"
-                    name="teammate_0"
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={10}
-                    showCount
-                    value={formData.teammates[0]}
-                    onChange={(e) => handleTeammateChange(0, 'uid', e.target.value)}
-                    placeholder="0123456789"
-                    required
-                    error={fieldErrors.teammate_0}
-                    icon={ShieldCheck}
-                  />
-                  <FormInput
-                    label="Teammate 1 In-Game Name (IGN)"
-                    name="teammate_ign_0"
-                    value={formData.teammateIgns[0]}
-                    onChange={(e) => handleTeammateChange(0, 'ign', e.target.value)}
-                    placeholder="e.g. 亗 Ꭲ ɪ ᴛ ᴀ ɴ 亗"
-                    required
-                    error={fieldErrors.teammate_ign_0}
-                    icon={User}
-                  />
-                </div>
-              </div>
-            )}
+              {/* Duo: Exactly 1 Teammate */}
+              {isDuo && (
+                <div className="pt-3 border-t border-[#2A2A30] space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#00f2ff] font-sans">
+                      TEAMMATE
+                    </span>
+                    <span className="text-[11px] font-mono text-[#8E8E98]">2/2</span>
+                  </div>
 
-            {mode === 'Squad' && (
-              <div className="p-3 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-2.5">
-                <div className="flex items-center justify-between border-b border-[#3a494b]/40 pb-1.5">
-                  <span className="font-label-caps text-xs font-bold text-[#00f2ff] uppercase tracking-wider block">
-                    Squad Teammates Details (3 Required Teammates)
-                  </span>
-                  <span className="text-[10px] text-[#8e9dae] font-mono">All Roster Members</span>
+                  <div className="p-3 bg-[#0E0E10] border border-[#2A2A30] rounded space-y-2">
+                    <div className="text-[11px] font-bold text-white/80 uppercase font-mono">
+                      TEAMMATE #1
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <FormInput
+                        label="Game UID"
+                        name="teammate_0"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={10}
+                        showCount
+                        value={formData.teammates[0]}
+                        onChange={(e) => handleTeammateChange(0, 'uid', e.target.value)}
+                        placeholder="Teammate UID"
+                        required
+                        error={fieldErrors.teammate_0}
+                        icon={ShieldCheck}
+                      />
+                      <FormInput
+                        label="IGN"
+                        name="teammate_ign_0"
+                        value={formData.teammateIgns[0]}
+                        onChange={(e) => handleTeammateChange(0, 'ign', e.target.value)}
+                        placeholder="In-Game Name"
+                        required
+                        error={fieldErrors.teammate_ign_0}
+                        icon={User}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2.5">
+              )}
+
+              {/* Squad: Exactly 3 Teammates */}
+              {isSquad && (
+                <div className="pt-3 border-t border-[#2A2A30] space-y-3">
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#00f2ff] font-sans">
+                    TEAMMATES
+                  </div>
+
                   {[0, 1, 2].map((idx) => (
-                    <div key={`squad-member-input-${idx}`} className="p-2.5 bg-[#151a21]/60 rounded-lg border border-[#3a494b]/40 space-y-2">
+                    <div
+                      key={`squad-teammate-${idx}`}
+                      className="p-3 bg-[#0E0E10] border border-[#2A2A30] rounded space-y-2"
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-[#00f2ff]/80 uppercase tracking-wide">
-                          Teammate #{idx + 1}
+                        <span className="text-[11px] font-bold text-white/80 uppercase font-mono">
+                          TEAMMATE #{idx + 1}
                         </span>
-                        <span className="text-[10px] text-[#8e9dae]">Active Player {idx + 2}/4</span>
+                        <span className="text-[11px] font-mono text-[#8E8E98] font-medium">
+                          {idx + 2}/4
+                        </span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <FormInput
-                          label={`Teammate ${idx + 1} Game UID`}
+                          label="Game UID"
                           name={`teammate_${idx}`}
                           type="text"
                           inputMode="numeric"
@@ -1307,13 +1459,13 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                           showCount
                           value={formData.teammates[idx]}
                           onChange={(e) => handleTeammateChange(idx, 'uid', e.target.value)}
-                          placeholder="0123456789"
+                          placeholder="Game UID"
                           required
                           error={fieldErrors[`teammate_${idx}`]}
                           icon={ShieldCheck}
                         />
                         <FormInput
-                          label={`Teammate ${idx + 1} In-Game Name (IGN)`}
+                          label="IGN"
                           name={`teammate_ign_${idx}`}
                           value={formData.teammateIgns[idx]}
                           onChange={(e) => handleTeammateChange(idx, 'ign', e.target.value)}
@@ -1326,115 +1478,105 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* TOURNAMENT RULES & CODE OF CONDUCT AGREEMENT */}
-            <div className="p-3 bg-[#07090c] border border-[#3a494b]/60 rounded-xl">
-              <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  name="acceptRules"
-                  id="acceptRules"
-                  checked={formData.acceptRules}
-                  onChange={handleChange}
-                  className="mt-0.5 w-4 h-4 rounded bg-[#151a21] border border-[#3a494b] text-[#00f2ff] focus:ring-1 focus:ring-[#00f2ff] focus:outline-none cursor-pointer accent-[#00f2ff]"
-                />
-                <span className="text-xs font-bold text-white uppercase tracking-wider leading-snug">
-                  I agree to the{' '}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setShowRulebook(true)
-                    }}
-                    className="text-[#00f2ff] hover:text-[#00ff9d] underline underline-offset-2 decoration-[#00f2ff]/60 hover:decoration-[#00ff9d] transition-colors cursor-pointer font-bold inline"
-                  >
-                    Tournament Rules & Code of Conduct
-                  </button>{' '}
-                  <span className="text-[#ff4655]">*</span>
-                </span>
-              </label>
-              {fieldErrors.acceptRules && (
-                <p className="text-[11px] text-[#ff4655] font-medium pl-6 pt-1" role="alert">
-                  {fieldErrors.acceptRules}
-                </p>
               )}
-            </div>
 
-            {/* PHASE 9.3: WALLET ENTRY FEE & BALANCE CARD FOR PAID TOURNAMENTS */}
-            {!isFreeTournament && (
-              <div className="p-3 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Wallet className="w-4 h-4 text-[#00f2ff]" />
-                    <span className="font-label-caps text-xs font-bold text-white uppercase tracking-wider">
-                      Tournament Entry Fee & Payment
-                    </span>
-                  </div>
-                  <span className="font-mono text-xs font-extrabold text-[#00ff9d]">
-                    Fee: ₹{numericEntryFee.toFixed(2)}
+              {/* Agreement */}
+              <div className="pt-2">
+                <label className="flex items-start gap-2.5 cursor-pointer group select-none">
+                  <input
+                    type="checkbox"
+                    name="acceptRules"
+                    id="acceptRules"
+                    checked={formData.acceptRules}
+                    onChange={handleChange}
+                    required
+                    className="mt-0.5 w-4 h-4 rounded border-[#2A2A30] bg-[#1F1F23] text-[#00F2FF] focus:ring-0 focus:outline-none accent-[#00F2FF] cursor-pointer"
+                  />
+                  <span className="text-xs text-[#8E8E98] group-hover:text-white transition-colors leading-snug">
+                    I agree to the{' '}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setShowRulebook(true)
+                      }}
+                      className="text-[#00F2FF] hover:underline font-medium inline cursor-pointer"
+                    >
+                      Tournament Rules & Code of Conduct
+                    </button>{' '}
+                    <span className="text-[#00F2FF]">*</span>
                   </span>
-                </div>
-
-                <div className="flex items-center justify-between p-2.5 bg-[#151a21] rounded-lg border border-[#3a494b]/40">
-                  <span className="text-xs text-[#8e9dae] font-medium">Available MJ Wallet Balance:</span>
-                  <span className="font-mono text-xs font-bold text-white">
-                    {walletLoading ? 'Checking...' : `₹${userWalletBalance.toFixed(2)}`}
-                  </span>
-                </div>
-
-                {hasSufficientWalletBalance ? (
-                  <div className="flex items-center gap-2 p-2 bg-[#00ff9d]/10 border border-[#00ff9d]/30 rounded-lg text-[11px] text-[#00ff9d]">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    <span>Wallet balance is sufficient. You can pay directly from your wallet with zero gateway charges.</span>
-                  </div>
-                ) : (
-                  <div className="space-y-1.5 p-2 bg-[#ff4655]/10 border border-[#ff4655]/30 rounded-lg">
-                    <div className="flex items-center justify-between text-[11px] text-[#ff4655] font-semibold">
-                      <div className="flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                        <span>Wallet Shortfall:</span>
-                      </div>
-                      <span className="font-mono font-bold">₹{walletShortfall.toFixed(2)}</span>
-                    </div>
-                    <p className="text-[10px] text-[#8e9dae]">
-                      Your wallet has ₹{userWalletBalance.toFixed(2)}. Pay ₹{numericEntryFee.toFixed(2)} via Razorpay (UPI, Cards, NetBanking) or top up your wallet.
-                    </p>
-                  </div>
+                </label>
+                {fieldErrors.acceptRules && (
+                  <p className="text-[11px] text-[#ef4444] font-medium pl-6 pt-1" role="alert">
+                    {fieldErrors.acceptRules}
+                  </p>
                 )}
               </div>
-            )}
 
-            {/* Turnstile Bot Protection */}
-            {isTurnstileEnabled() && (
-              <TurnstileWidget
-                key={turnstileKey}
-                action="slot_booking"
-                onVerify={(tok) => setTurnstileToken(tok)}
-                onExpire={() => setTurnstileToken(null)}
-                onError={() => setTurnstileToken(null)}
-              />
-            )}
+              {/* Phase 9.3: Wallet Entry Fee & Balance Card for Paid Tournaments */}
+              {!isFreeTournament && (
+                <div className="p-3 bg-[#0E0E10] rounded border border-[#2A2A30] space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="w-4 h-4 text-[#00f2ff]" />
+                      <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                        Tournament Entry Fee & Payment
+                      </span>
+                    </div>
+                    <span className="font-mono text-xs font-extrabold text-[#10B981]">
+                      Fee: ₹{numericEntryFee.toFixed(2)}
+                    </span>
+                  </div>
 
-            {/* ACTION BUTTONS */}
-            <div className="pt-1 space-y-1.5">
-              {!user?.id ? (
-                <p className="text-[11px] text-[#00f2ff] text-center font-sans">
-                  You must be logged in to register for this tournament.
-                </p>
-              ) : !isFormValid && (
-                <p className="text-[11px] text-[#8e9dae] text-center font-sans">
-                  Please complete all required fields and agreements to continue.
-                </p>
+                  <div className="flex items-center justify-between p-2.5 bg-[#18181B] rounded border border-[#2A2A30]">
+                    <span className="text-xs text-[#8E8E98] font-medium">Available MJ Wallet Balance:</span>
+                    <span className="font-mono text-xs font-bold text-white">
+                      {walletLoading ? 'Checking...' : `₹${userWalletBalance.toFixed(2)}`}
+                    </span>
+                  </div>
+
+                  {hasSufficientWalletBalance ? (
+                    <div className="flex items-center gap-2 p-2 bg-[#10B981]/10 border border-[#10B981]/30 rounded text-[11px] text-[#10B981]">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>Wallet balance is sufficient. You can pay directly from your wallet with zero gateway charges.</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5 p-2 bg-[#ef4444]/10 border border-[#ef4444]/30 rounded">
+                      <div className="flex items-center justify-between text-[11px] text-[#ef4444] font-semibold">
+                        <div className="flex items-center gap-1.5">
+                          <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                          <span>Wallet Shortfall:</span>
+                        </div>
+                        <span className="font-mono font-bold">₹{walletShortfall.toFixed(2)}</span>
+                      </div>
+                      <p className="text-[10px] text-[#8E8E98]">
+                        Your wallet has ₹{userWalletBalance.toFixed(2)}. Pay ₹{numericEntryFee.toFixed(2)} via Razorpay (UPI, Cards, NetBanking) or top up your wallet.
+                      </p>
+                    </div>
+                  )}
+                </div>
               )}
-              <div className="flex flex-col sm:flex-row gap-2.5">
+
+              {/* Turnstile Bot Protection */}
+              {isTurnstileEnabled() && (
+                <TurnstileWidget
+                  key={turnstileKey}
+                  action="slot_booking"
+                  onVerify={(tok) => setTurnstileToken(tok)}
+                  onExpire={() => setTurnstileToken(null)}
+                  onError={() => setTurnstileToken(null)}
+                />
+              )}
+
+              {/* Bottom Actions */}
+              <div className="pt-4 border-t border-[#2A2A30] flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={onClose}
                   disabled={isSubmitting}
-                  className="sm:w-28 py-3 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] rounded-xl hover:bg-[#1d232c] transition-colors min-h-[44px] disabled:opacity-50 uppercase cursor-pointer"
+                  className="h-10 px-5 text-xs font-bold uppercase tracking-wider text-[#8E8E98] bg-transparent hover:text-white hover:bg-[#18181B] border border-[#2A2A30] rounded transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1446,7 +1588,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       onClose?.()
                       navigate('/login')
                     }}
-                    className="btn-cyber-primary flex-1 py-3 text-xs font-bold cursor-pointer justify-center"
+                    className="h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded shadow-sm flex items-center gap-2 cursor-pointer"
                   >
                     Sign In to Register
                   </button>
@@ -1456,9 +1598,9 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     loading={isSubmitting}
                     loadingText={submittingStep || 'Registering...'}
                     disabled={!isFormValid || isSubmitting}
-                    className="flex-1 py-3"
+                    className="h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded shadow-sm flex items-center gap-2 cursor-pointer"
                   >
-                    {isFormValid ? 'Register' : 'Complete Required Items'}
+                    Complete Registration
                   </LoadingButton>
                 ) : hasSufficientWalletBalance ? (
                   <>
@@ -1468,9 +1610,9 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       loading={isSubmitting && submittingStep.includes('Wallet')}
                       loadingText={submittingStep || 'Debiting Wallet...'}
                       disabled={!isFormValid || isSubmitting}
-                      className="flex-1 py-3 bg-[#00f2ff] hover:bg-[#00d0dd] text-black font-extrabold shadow-[0_0_15px_rgba(0,242,255,0.3)] cursor-pointer"
+                      className="h-10 px-5 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded shadow-sm flex items-center gap-2 cursor-pointer"
                     >
-                      {isFormValid ? `Pay ₹${numericEntryFee.toFixed(2)} from Wallet` : 'Complete Required Items'}
+                      {`Pay ₹${numericEntryFee.toFixed(2)} from Wallet`}
                     </LoadingButton>
 
                     <LoadingButton
@@ -1478,7 +1620,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       loading={isSubmitting && !submittingStep.includes('Wallet')}
                       loadingText={submittingStep || 'Opening Razorpay...'}
                       disabled={!isFormValid || isSubmitting}
-                      className="sm:w-44 py-3 bg-[#07090c] hover:bg-[#1d232c] text-[#8e9dae] hover:text-white border border-[#3a494b] font-bold text-xs cursor-pointer"
+                      className="h-10 px-4 text-xs font-bold uppercase tracking-wider text-[#8E8E98] hover:text-white bg-transparent hover:bg-[#18181B] border border-[#2A2A30] rounded transition-colors cursor-pointer"
                     >
                       Pay via Razorpay
                     </LoadingButton>
@@ -1489,16 +1631,15 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     loading={isSubmitting}
                     loadingText={submittingStep || 'Processing Payment...'}
                     disabled={!isFormValid || isSubmitting}
-                    className="flex-1 py-3"
+                    className="h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded shadow-sm flex items-center gap-2 cursor-pointer"
                   >
-                    {isFormValid ? `Pay ₹${numericEntryFee.toFixed(2)} via Razorpay` : 'Complete Required Items'}
+                    {`Pay ₹${numericEntryFee.toFixed(2)} via Razorpay`}
                   </LoadingButton>
                 )}
               </div>
-            </div>
-          </form>
-        )}
-
+            </form>
+          )}
+        </div>
       </div>
 
       {/* N3.5: NO ACTIVE TEAM DIALOG */}
