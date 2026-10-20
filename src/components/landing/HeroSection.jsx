@@ -12,8 +12,8 @@ export default function HeroSection() {
         <div className="text-center max-w-4xl mx-auto space-y-6">
           
           {/* Live Status Pill */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-orange-500/40 text-orange-400 text-xs font-bold shadow-[0_0_15px_rgba(255,107,0,0.3)]">
-            <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-none bg-slate-900/90 border border-orange-500/40 text-orange-400 text-xs font-bold shadow-[0_0_15px_rgba(255,107,0,0.3)]">
+            <span className="w-2 h-2 rounded-none bg-orange-500 animate-ping"></span>
             <Flame className="w-4 h-4 text-orange-500" />
             <span>FREE FIRE MAX SEASON 2026 LIVE NOW</span>
           </div>
@@ -33,11 +33,11 @@ export default function HeroSection() {
 
           {/* Featured Game Tags */}
           <div className="flex justify-center items-center gap-3 pt-1">
-            <span className="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-cyan-500/40 text-cyan-400 text-xs font-extrabold flex items-center gap-2 shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+            <span className="px-3.5 py-1.5 rounded-none bg-slate-900 border border-cyan-500/40 text-cyan-400 text-xs font-extrabold flex items-center gap-2 shadow-[0_0_10px_rgba(0,240,255,0.2)]">
               <Gamepad2 className="w-4 h-4 text-cyan-400" />
               Free Fire MAX
             </span>
-            <span className="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-amber-500/40 text-amber-400 text-xs font-extrabold flex items-center gap-2 shadow-[0_0_10px_rgba(255,107,0,0.2)]">
+            <span className="px-3.5 py-1.5 rounded-none bg-slate-900 border border-amber-500/40 text-amber-400 text-xs font-extrabold flex items-center gap-2 shadow-[0_0_10px_rgba(255,107,0,0.2)]">
               <Flame className="w-4 h-4 text-amber-400" />
               Battle Royale & Clash Squad
             </span>
@@ -47,7 +47,7 @@ export default function HeroSection() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
               to="/tournaments"
-              className="w-full sm:w-auto px-8 py-4 text-xs sm:text-sm font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 rounded-xl hover:brightness-110 shadow-[0_0_20px_rgba(255,107,0,0.4)] flex items-center justify-center gap-2 min-h-[44px] uppercase tracking-wider transition-all"
+              className="w-full sm:w-auto px-8 py-4 text-xs sm:text-sm font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 rounded-none hover:brightness-110 shadow-[0_0_20px_rgba(255,107,0,0.4)] flex items-center justify-center gap-2 min-h-[44px] uppercase tracking-wider transition-all"
             >
               <Trophy className="w-4 h-4 text-slate-950" />
               <span>Join Free Fire MAX Matches</span>
@@ -56,7 +56,7 @@ export default function HeroSection() {
             
             <Link
               to="/live"
-              className="w-full sm:w-auto px-8 py-4 text-xs sm:text-sm font-bold text-cyan-400 bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/40 rounded-xl transition-all shadow-[0_0_15px_rgba(0,240,255,0.2)] flex items-center justify-center gap-2 min-h-[44px]"
+              className="w-full sm:w-auto px-8 py-4 text-xs sm:text-sm font-bold text-cyan-400 bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/40 rounded-none transition-all shadow-[0_0_15px_rgba(0,240,255,0.2)] flex items-center justify-center gap-2 min-h-[44px]"
             >
               <Radio className="w-4 h-4 text-red-500 animate-pulse" />
               <span>Watch Live Streams</span>
@@ -69,12 +69,12 @@ export default function HeroSection() {
               <Zap className="w-4 h-4 text-amber-400" />
               <span>Instant Slot Booking</span>
             </div>
-            <div className="w-1.5 h-1.5 rounded-full bg-cyan-500/40 hidden sm:block"></div>
+            <div className="w-1.5 h-1.5 rounded-none bg-cyan-500/40 hidden sm:block"></div>
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-cyan-400" />
               <span>Anti-Cheat Protected</span>
             </div>
-            <div className="w-1.5 h-1.5 rounded-full bg-cyan-500/40 hidden sm:block"></div>
+            <div className="w-1.5 h-1.5 rounded-none bg-cyan-500/40 hidden sm:block"></div>
             <div className="flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber-400" />
               <span>Guaranteed Prize Pool Payouts</span>

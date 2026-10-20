@@ -3,7 +3,7 @@ import { Trophy, Flame, Shield } from 'lucide-react'
 export default function PointsTable({ teams = [] }) {
   if (!teams || teams.length === 0) {
     return (
-      <div className="p-8 text-center bg-slate-900 border border-slate-800 rounded-2xl text-slate-500 text-xs">
+      <div className="p-8 text-center bg-slate-900 border border-slate-800 rounded-none text-slate-500 text-xs">
         No team rankings registered yet for this tournament.
       </div>
     )
@@ -13,7 +13,7 @@ export default function PointsTable({ teams = [] }) {
   const sortedTeams = [...teams].sort((a, b) => (b.points || 0) - (a.points || 0))
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+    <div className="bg-slate-900 border border-slate-800 rounded-none overflow-hidden shadow-xl">
       <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-400">
           <Trophy className="w-4 h-4" />
@@ -49,7 +49,7 @@ export default function PointsTable({ teams = [] }) {
                 >
                   <td className="p-3.5 pl-6 font-extrabold">
                     <span
-                      className={`inline-flex items-center justify-center w-6 h-6 rounded-lg text-xs ${
+                      className={`inline-flex items-center justify-center w-6 h-6 rounded-none text-xs ${
                         rank === 1
                           ? 'bg-amber-400 text-slate-950 shadow-md'
                           : rank === 2
@@ -91,7 +91,7 @@ export default function PointsTable({ teams = [] }) {
           return (
             <div
               key={`points-mobile-${idx}`}
-              className={`p-3.5 rounded-xl border flex items-center justify-between text-xs shadow-md ${
+              className={`p-3.5 rounded-none border flex items-center justify-between text-xs shadow-md ${
                 isTop3
                   ? 'bg-purple-950/40 border-purple-800'
                   : 'bg-slate-950 border-slate-800'
@@ -99,7 +99,7 @@ export default function PointsTable({ teams = [] }) {
             >
               <div className="flex items-center gap-3">
                 <span
-                  className={`inline-flex items-center justify-center w-6 h-6 rounded-lg text-xs font-extrabold shrink-0 ${
+                  className={`inline-flex items-center justify-center w-6 h-6 rounded-none text-xs font-extrabold shrink-0 ${
                     rank === 1
                       ? 'bg-amber-400 text-slate-950'
                       : rank === 2

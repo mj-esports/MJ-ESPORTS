@@ -34,7 +34,7 @@ export default function TeamOverviewCard({
   return (
     <section
       aria-label="Squad Overview"
-      className="relative rounded-2xl bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] p-4 sm:p-6 shadow-[0_4px_30px_rgba(0,0,0,0.6)] overflow-hidden"
+      className="relative rounded-none bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] p-4 sm:p-6 shadow-[0_4px_30px_rgba(0,0,0,0.6)] overflow-hidden"
     >
       {/* Background Cyber Grid Accent */}
       <div
@@ -44,7 +44,7 @@ export default function TeamOverviewCard({
           backgroundSize: '24px 24px',
         }}
       />
-      <div className="absolute top-0 right-0 w-72 h-36 bg-[#00f2ff]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-72 h-36 bg-[#00f2ff]/5 rounded-none blur-3xl pointer-events-none" />
 
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
         {/* Left: Squad Identity & Badges */}
@@ -55,7 +55,7 @@ export default function TeamOverviewCard({
               <img
                 src={logoUrl}
                 alt={`${team.name} emblem`}
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-[#00f2ff]/40 shadow-[0_0_20px_rgba(0,242,255,0.2)] bg-[#141416]"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-none object-cover border-2 border-[#00f2ff]/40 shadow-[0_0_20px_rgba(0,242,255,0.2)] bg-[#141416]"
                 onError={(e) => {
                   e.target.style.display = 'none'
                   e.target.nextSibling.style.display = 'flex'
@@ -64,13 +64,13 @@ export default function TeamOverviewCard({
             ) : null}
             <div
               style={{ display: logoUrl ? 'none' : 'flex' }}
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#00f2ff]/20 via-[#0e1017] to-[#141416] border-2 border-[#00f2ff]/40 shadow-[0_0_20px_rgba(0,242,255,0.2)] items-center justify-center text-[#00f2ff] font-headline font-black text-xl sm:text-2xl tracking-wider uppercase"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-none bg-gradient-to-br from-[#00f2ff]/20 via-[#0e1017] to-[#141416] border-2 border-[#00f2ff]/40 shadow-[0_0_20px_rgba(0,242,255,0.2)] items-center justify-center text-[#00f2ff] font-headline font-black text-xl sm:text-2xl tracking-wider uppercase"
             >
               {tag.slice(0, 3)}
             </div>
             {/* Online/Verified Node */}
             <div
-              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#0e1017] border-2 border-[#00f2ff] flex items-center justify-center text-[#00f2ff]"
+              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-none bg-[#0e1017] border-2 border-[#00f2ff] flex items-center justify-center text-[#00f2ff]"
               title="Verified Free Fire MAX Squad"
             >
               <Shield className="w-2.5 h-2.5" />
@@ -83,7 +83,7 @@ export default function TeamOverviewCard({
               <h1 className="text-xl sm:text-2xl md:text-3xl font-headline font-black text-white tracking-wide truncate">
                 {team.name}
               </h1>
-              <span className="px-2 py-0.5 rounded-md bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] font-mono text-xs sm:text-sm font-bold uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] font-mono text-xs sm:text-sm font-bold uppercase tracking-wider">
                 [{tag}]
               </span>
             </div>
@@ -117,12 +117,12 @@ export default function TeamOverviewCard({
               {/* Recruitment Status */}
               <div>
                 {isRecruiting && !isFull ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 text-[11px] font-headline font-bold uppercase tracking-wider">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 text-[11px] font-headline font-bold uppercase tracking-wider">
                     <Radio className="w-2.5 h-2.5 animate-pulse text-[#10b981]" />
                     <span>Recruiting Open</span>
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-800/60 text-[#849495] border border-zinc-700/50 text-[11px] font-headline font-bold uppercase tracking-wider">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none bg-zinc-800/60 text-[#849495] border border-zinc-700/50 text-[11px] font-headline font-bold uppercase tracking-wider">
                     <span>{isFull ? 'Roster Full' : 'Recruiting Closed'}</span>
                   </span>
                 )}
@@ -138,7 +138,7 @@ export default function TeamOverviewCard({
               <button
                 type="button"
                 onClick={onOpenSettings}
-                className="flex-1 sm:flex-none min-h-[44px] px-4 py-2 rounded-xl bg-[#141416] border border-[#27272a] text-[#e5e2e3] hover:text-white hover:border-[#00f2ff]/40 text-xs font-headline font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+                className="flex-1 sm:flex-none min-h-[44px] px-4 py-2 rounded-none bg-[#141416] border border-[#27272a] text-[#e5e2e3] hover:text-white hover:border-[#00f2ff]/40 text-xs font-headline font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
               >
                 <Settings className="w-4 h-4 text-[#00f2ff]" />
                 <span>Squad Settings</span>
@@ -149,7 +149,7 @@ export default function TeamOverviewCard({
                 onClick={onOpenInvite}
                 disabled={isFull}
                 title={isFull ? 'Squad roster has reached maximum capacity (6/6)' : 'Invite player'}
-                className="flex-1 sm:flex-none min-h-[44px] px-5 py-2 rounded-xl bg-[#00f2ff] text-[#00363a] hover:bg-[#74f5ff] text-xs font-headline font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(0,242,255,0.25)] active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none"
+                className="flex-1 sm:flex-none min-h-[44px] px-5 py-2 rounded-none bg-[#00f2ff] text-[#00363a] hover:bg-[#74f5ff] text-xs font-headline font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(0,242,255,0.25)] active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>Invite Player</span>
@@ -159,7 +159,7 @@ export default function TeamOverviewCard({
             <button
               type="button"
               onClick={onLeaveTeam}
-              className="w-full sm:w-auto min-h-[44px] px-4 py-2 rounded-xl bg-red-950/20 border border-red-500/30 text-red-300 hover:bg-red-950/40 hover:text-white text-xs font-headline font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+              className="w-full sm:w-auto min-h-[44px] px-4 py-2 rounded-none bg-red-950/20 border border-red-500/30 text-red-300 hover:bg-red-950/40 hover:text-white text-xs font-headline font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
             >
               <LogOut className="w-4 h-4 text-red-400" />
               <span>Leave Squad</span>

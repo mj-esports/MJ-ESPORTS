@@ -157,10 +157,10 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
   return (
     <div className="space-y-3 sm:space-y-4 font-mono text-xs w-full max-w-full">
       {/* 1. RULEBOOK HEADER & METADATA BAR */}
-      <section className="p-3.5 sm:p-4 bg-[#141416] rounded-xl border border-[#27272a] flex flex-col gap-2.5 relative shadow-md">
+      <section className="p-3.5 sm:p-4 bg-[#141416] rounded-none border border-[#27272a] flex flex-col gap-2.5 relative shadow-md">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
+            <div className="w-8 h-8 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
               <ShieldAlert className="w-4 h-4 text-[#00f2ff]" />
             </div>
             <div className="min-w-0">
@@ -172,19 +172,19 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
               </span>
             </div>
           </div>
-          <span className="px-2 py-0.5 rounded bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shrink-0">
+          <span className="px-2 py-0.5 rounded-none bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shrink-0">
             Standard Policy
           </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-2 border-t border-[#27272a]/60">
-          <span className="px-2 py-0.5 rounded bg-[#1c1b1c] border border-[#27272a] font-mono text-[9px] text-[#00dbe7] uppercase tracking-wider font-semibold">
+          <span className="px-2 py-0.5 rounded-none bg-[#1c1b1c] border border-[#27272a] font-mono text-[9px] text-[#00dbe7] uppercase tracking-wider font-semibold">
             VERSION 4.2 // READ-ONLY
           </span>
-          <span className="px-2 py-0.5 rounded bg-[#1c1b1c] border border-[#27272a] font-mono text-[9px] text-[#ff5e07] font-semibold uppercase tracking-wider">
+          <span className="px-2 py-0.5 rounded-none bg-[#1c1b1c] border border-[#27272a] font-mono text-[9px] text-[#ff5e07] font-semibold uppercase tracking-wider">
             ARBITER ENFORCED
           </span>
-          <span className="px-2 py-0.5 rounded bg-[#1c1b1c] border border-[#27272a] font-mono text-[9px] text-[#10b981] font-semibold uppercase tracking-wider flex items-center gap-1">
+          <span className="px-2 py-0.5 rounded-none bg-[#1c1b1c] border border-[#27272a] font-mono text-[9px] text-[#10b981] font-semibold uppercase tracking-wider flex items-center gap-1">
             <CheckCircle2 className="w-2.5 h-2.5 text-[#10b981]" />
             ZERO TOLERANCE
           </span>
@@ -192,7 +192,7 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
       </section>
 
       {/* 2. INTRO BRIEFING */}
-      <section className="px-3.5 py-3 bg-[#0e0e10] rounded-xl border-l-2 border-[#00f2ff] border-y border-r border-[#27272a]">
+      <section className="px-3.5 py-3 bg-[#0e0e10] rounded-none border-l-2 border-[#00f2ff] border-y border-r border-[#27272a]">
         <p className="font-body text-xs text-[#b9cacb] leading-relaxed">
           All registered combatants and squad captains must adhere to the standardized Free Fire MAX competitive arbiter protocol. Infractions result in immediate disqualification and competitive suspension.
         </p>
@@ -205,10 +205,10 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
           return (
             <article
               key={`rule-card-${idx}`}
-              className="bg-[#141416] rounded-xl border border-[#27272a] p-3 sm:p-3.5 transition-colors hover:border-[#00f2ff]/40 shadow-sm"
+              className="bg-[#141416] rounded-none border border-[#27272a] p-3 sm:p-3.5 transition-colors hover:border-[#00f2ff]/40 shadow-sm"
             >
               <div className="flex items-start gap-3">
-                <span className="px-2 py-1 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] font-mono text-[12px] sm:text-[13px] font-bold tracking-tight shrink-0">
+                <span className="px-2 py-1 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] font-mono text-[12px] sm:text-[13px] font-bold tracking-tight shrink-0">
                   {String(item.id).padStart(2, '0')}
                 </span>
                 <div className="flex-1 min-w-0">
@@ -216,7 +216,7 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
                     <h4 className="font-headline text-xs sm:text-sm text-white font-bold leading-tight">
                       {item.title}
                     </h4>
-                    <span className={`px-1.5 py-0.5 rounded font-mono text-[9px] font-bold uppercase tracking-wider border ${getTagBadgeClass(item.tagType)}`}>
+                    <span className={`px-1.5 py-0.5 rounded-none font-mono text-[9px] font-bold uppercase tracking-wider border ${getTagBadgeClass(item.tagType)}`}>
                       {item.tag}
                     </span>
                   </div>
@@ -231,7 +231,7 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
       </div>
 
       {/* 4. BOTTOM RULEBOOK ACTION & FOOTER ENFORCEMENT CARD */}
-      <section className="bg-[#1c1b1c] border border-[#27272a] rounded-xl p-3.5 sm:p-4 flex flex-col gap-3 shadow-md">
+      <section className="bg-[#1c1b1c] border border-[#27272a] rounded-none p-3.5 sm:p-4 flex flex-col gap-3 shadow-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-[#10b981]" />
@@ -239,20 +239,20 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
               {displayRules.length} Official Guidelines Enforced
             </span>
           </div>
-          <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
+          <span className="w-2 h-2 rounded-none bg-[#10b981] animate-pulse" />
         </div>
 
         <button
           type="button"
           onClick={() => setShowModal(true)}
-          className="w-full h-11 bg-[#00f2ff] hover:bg-[#00dbe7] text-black font-headline text-xs sm:text-[13px] font-extrabold uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 active:scale-98 transition-all duration-100 shadow-[0_0_15px_rgba(0,242,255,0.25)] cursor-pointer min-h-[44px]"
+          className="w-full h-11 bg-[#00f2ff] hover:bg-[#00dbe7] text-black font-headline text-xs sm:text-[13px] font-extrabold uppercase tracking-wider rounded-none flex items-center justify-center gap-2 active:scale-98 transition-all duration-100 shadow-[0_0_15px_rgba(0,242,255,0.25)] cursor-pointer min-h-[44px]"
         >
           <BookOpen className="w-4 h-4 text-black" />
           <span>View Full Rulebook</span>
           <ExternalLink className="w-3.5 h-3.5 text-black/70" />
         </button>
 
-        <div className="p-2.5 bg-[#0e0e10] rounded-lg border border-[#27272a] flex items-start gap-2">
+        <div className="p-2.5 bg-[#0e0e10] rounded-none border border-[#27272a] flex items-start gap-2">
           <ShieldAlert className="w-4 h-4 text-[#849495] shrink-0 mt-0.5" />
           <p className="font-mono text-[11px] text-[#849495] leading-tight">
             Dispute arbitration tickets must be logged within 15 minutes of match conclusion with POV evidence.
@@ -268,13 +268,13 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
           aria-labelledby="rulebook-modal-title"
           className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
         >
-          <div className="bg-[#141416] border border-[#27272a] rounded-2xl max-w-xl w-full p-4 sm:p-6 space-y-4 shadow-[0_0_50px_rgba(0,242,255,0.15)] relative max-h-[88vh] overflow-y-auto">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none max-w-xl w-full p-4 sm:p-6 space-y-4 shadow-[0_0_50px_rgba(0,242,255,0.15)] relative max-h-[88vh] overflow-y-auto">
             
             {/* Modal Close Button */}
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 p-2 rounded-xl bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-[#00f2ff] hover:border-[#00f2ff]/40 cursor-pointer transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+              className="absolute top-4 right-4 p-2 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-[#00f2ff] hover:border-[#00f2ff]/40 cursor-pointer transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
               title="Close rulebook"
             >
               <X className="w-4 h-4" />
@@ -300,9 +300,9 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
                 return (
                   <div
                     key={`modal-rule-${idx}`}
-                    className="flex items-start gap-3 p-3 bg-[#1c1b1c] border border-[#27272a] rounded-xl hover:border-[#00f2ff]/30 transition-colors"
+                    className="flex items-start gap-3 p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none hover:border-[#00f2ff]/30 transition-colors"
                   >
-                    <span className="w-6 h-6 rounded-lg bg-[#201f20] border border-[#00f2ff]/40 flex items-center justify-center font-mono font-black text-xs text-[#00f2ff] shrink-0 mt-0.5 shadow-[0_0_8px_rgba(0,242,255,0.1)]">
+                    <span className="w-6 h-6 rounded-none bg-[#201f20] border border-[#00f2ff]/40 flex items-center justify-center font-mono font-black text-xs text-[#00f2ff] shrink-0 mt-0.5 shadow-[0_0_8px_rgba(0,242,255,0.1)]">
                       {idx + 1}
                     </span>
                     <div className="flex-1 min-w-0">
@@ -310,7 +310,7 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
                         <h5 className="font-headline text-xs sm:text-sm text-white font-bold leading-tight">
                           {item.title}
                         </h5>
-                        <span className={`px-1.5 py-0.5 rounded font-mono text-[9px] font-bold uppercase tracking-wider border ${getTagBadgeClass(item.tagType)}`}>
+                        <span className={`px-1.5 py-0.5 rounded-none font-mono text-[9px] font-bold uppercase tracking-wider border ${getTagBadgeClass(item.tagType)}`}>
                           {item.tag}
                         </span>
                       </div>
@@ -332,7 +332,7 @@ export default function OfficialRulebook({ rules = OFFICIAL_MJ_RULES }) {
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#00dbe7] text-black font-headline font-extrabold text-xs uppercase rounded-xl transition-all cursor-pointer min-h-[38px] shadow-sm"
+                className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#00dbe7] text-black font-headline font-extrabold text-xs uppercase rounded-none transition-all cursor-pointer min-h-[38px] shadow-sm"
               >
                 Close Rulebook
               </button>

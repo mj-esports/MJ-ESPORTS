@@ -16,7 +16,7 @@ export default function TournamentOverview({ tournaments = [], loading, onManage
   }
 
   return (
-    <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-5 space-y-4 shadow-xl">
+    <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-5 space-y-4 shadow-xl">
       <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
         <div className="flex items-center gap-2">
           <Trophy className="w-4 h-4 text-[#00f2ff]" />
@@ -36,11 +36,11 @@ export default function TournamentOverview({ tournaments = [], loading, onManage
 
       {loading ? (
         <div className="py-8 text-center text-[#a1a1aa] text-xs space-y-2">
-          <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-none animate-spin mx-auto"></div>
           <span className="font-mono">Loading tournaments...</span>
         </div>
       ) : tournaments.length === 0 ? (
-        <div className="py-8 text-center bg-[#09090b] border border-[#27272a] rounded-xl space-y-2 p-4">
+        <div className="py-8 text-center bg-[#09090b] border border-[#27272a] rounded-none space-y-2 p-4">
           <Gamepad2 className="w-8 h-8 text-[#a1a1aa] mx-auto" />
           <p className="text-xs font-bold text-white uppercase">No Created Matches</p>
           <p className="text-[10px] text-[#a1a1aa] font-mono">Create an esports tournament to populate active lobby stream.</p>
@@ -50,12 +50,12 @@ export default function TournamentOverview({ tournaments = [], loading, onManage
           {tournaments.map((t) => (
             <div
               key={`dash-tourn-${t.id}`}
-              className="p-3.5 bg-[#09090b] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-xl text-xs flex items-center justify-between gap-3 shadow-md transition-all font-mono"
+              className="p-3.5 bg-[#09090b] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-none text-xs flex items-center justify-between gap-3 shadow-md transition-all font-mono"
             >
               <div className="space-y-1 overflow-hidden">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h4 className="font-headline font-black text-white text-sm truncate">{t.title}</h4>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
+                  <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
                     {t.game}
                   </span>
                 </div>
@@ -64,7 +64,7 @@ export default function TournamentOverview({ tournaments = [], loading, onManage
                   <span>Capacity: <strong className="text-[#00f2ff]">{getCapacityLabel(t)}</strong></span>
                 </div>
               </div>
-              <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase border shrink-0 ${getStatusStyle(t.status)}`}>
+              <span className={`px-2 py-0.5 rounded-none text-[9px] font-bold uppercase border shrink-0 ${getStatusStyle(t.status)}`}>
                 {t.status}
               </span>
             </div>

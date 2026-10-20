@@ -219,7 +219,7 @@ export default function PlayerDirectoryView({ tournaments = [] }) {
       {/* 1. MODULE HEADER & SYNC */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
             <Users className="w-3.5 h-3.5" />
             <span>MJ ESPORTS V2</span>
           </div>
@@ -230,7 +230,7 @@ export default function PlayerDirectoryView({ tournaments = [] }) {
 
         <button
           onClick={fetchUsersAndHistory}
-          className="px-4 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] hover:border-[#00f2ff] text-[#00f2ff] rounded-xl text-xs font-bold transition-all flex items-center gap-2 uppercase shrink-0"
+          className="px-4 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] hover:border-[#00f2ff] text-[#00f2ff] rounded-none text-xs font-bold transition-all flex items-center gap-2 uppercase shrink-0"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>Sync Database</span>
@@ -240,7 +240,7 @@ export default function PlayerDirectoryView({ tournaments = [] }) {
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
       {/* 2. PLAYER IA NAVIGATION TABS */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 shadow-xl flex items-center gap-2 overflow-x-auto text-xs font-bold">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-3 shadow-xl flex items-center gap-2 overflow-x-auto text-xs font-bold">
         {[
           { id: 'DIRECTORY', label: 'PLAYER DIRECTORY' },
           { id: 'VERIFICATION_QUEUE', label: 'IDENTITY VERIFICATION QUEUE' },
@@ -251,7 +251,7 @@ export default function PlayerDirectoryView({ tournaments = [] }) {
           <button
             key={tab.id}
             onClick={() => setActivePlayerTab(tab.id)}
-            className={`px-3.5 py-2 rounded-lg transition-all whitespace-nowrap ${
+            className={`px-3.5 py-2 rounded-none transition-all whitespace-nowrap ${
               activePlayerTab === tab.id
                 ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                 : 'bg-[#07090c] text-[#8e9dae] hover:text-white border border-[#3a494b]/60'
@@ -291,7 +291,7 @@ export default function PlayerDirectoryView({ tournaments = [] }) {
       )}
 
       {activePlayerTab === 'PLAYER_HISTORY' && (
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl font-mono text-xs">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-4 shadow-xl font-mono text-xs">
           <h3 className="font-headline text-xs font-bold text-white uppercase border-b border-[#3a494b]/60 pb-2">
             MASTER PLAYER PARTICIPATION HISTORY
           </h3>
@@ -300,12 +300,12 @@ export default function PlayerDirectoryView({ tournaments = [] }) {
               <p className="text-[#8e9dae] text-center p-4">No historical tournament registrations recorded.</p>
             ) : (
               allRegistrations.slice(0, 15).map((reg) => (
-                <div key={reg.id} className="p-3 bg-[#07090c] border border-[#3a494b] rounded-lg flex items-center justify-between">
+                <div key={reg.id} className="p-3 bg-[#07090c] border border-[#3a494b] rounded-none flex items-center justify-between">
                   <div>
                     <span className="font-bold text-white block">{reg.captain_name || reg.team_name || 'Player'}</span>
                     <span className="text-[10px] text-[#8e9dae]">{reg.tournament_title || 'Tournament'} • UID: {reg.free_fire_uid || 'N/A'}</span>
                   </div>
-                  <span className="px-2 py-0.5 bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 text-[10px] rounded uppercase font-bold">
+                  <span className="px-2 py-0.5 bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 text-[10px] rounded-none uppercase font-bold">
                     {reg.status || 'Approved'}
                   </span>
                 </div>
@@ -318,16 +318,16 @@ export default function PlayerDirectoryView({ tournaments = [] }) {
       {/* 4. PLAYER PROFILE INSPECTOR DIALOG */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-xl w-full p-6 space-y-5 shadow-2xl relative font-mono text-xs">
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-none max-w-xl w-full p-6 space-y-5 shadow-2xl relative font-mono text-xs">
             <button
               onClick={() => setSelectedUser(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
+              className="absolute top-4 right-4 p-1.5 rounded-none bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="flex items-center gap-3 border-b border-[#3a494b]/60 pb-3">
-              <div className="w-12 h-12 rounded-xl bg-[#07090c] border border-[#00f2ff] flex items-center justify-center text-lg font-bold text-[#00f2ff]">
+              <div className="w-12 h-12 rounded-none bg-[#07090c] border border-[#00f2ff] flex items-center justify-center text-lg font-bold text-[#00f2ff]">
                 {(selectedUser.username || 'P')[0].toUpperCase()}
               </div>
               <div>
@@ -337,11 +337,11 @@ export default function PlayerDirectoryView({ tournaments = [] }) {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-[#07090c] border border-[#3a494b] rounded-lg space-y-1">
+              <div className="p-3 bg-[#07090c] border border-[#3a494b] rounded-none space-y-1">
                 <span className="text-[9px] text-[#8e9dae] uppercase block">VERIFIED GAME UID</span>
                 <span className="font-bold text-[#00ff9d] text-sm">{selectedUser.gameUid || 'N/A'}</span>
               </div>
-              <div className="p-3 bg-[#07090c] border border-[#3a494b] rounded-lg space-y-1">
+              <div className="p-3 bg-[#07090c] border border-[#3a494b] rounded-none space-y-1">
                 <span className="text-[9px] text-[#8e9dae] uppercase block">VERIFICATION STATUS</span>
                 <span className="font-bold text-[#00f2ff] text-sm">{selectedUser.verificationStatus}</span>
               </div>
@@ -349,7 +349,7 @@ export default function PlayerDirectoryView({ tournaments = [] }) {
 
             <button
               onClick={() => setSelectedUser(null)}
-              className="w-full py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-white rounded-lg text-xs font-bold uppercase transition-colors"
+              className="w-full py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-white rounded-none text-xs font-bold uppercase transition-colors"
             >
               CLOSE INSPECTOR
             </button>

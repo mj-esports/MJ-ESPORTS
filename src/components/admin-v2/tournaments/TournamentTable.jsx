@@ -3,7 +3,7 @@ import { formatTournamentPrize } from '../../../utils/tournamentPrizeUtils'
 
 export default function TournamentTable({ tournaments = [] }) {
   return (
-    <div className="rounded-2xl bg-slate-900/60 border border-slate-800/80 overflow-hidden shadow-xl">
+    <div className="rounded-none bg-slate-900/60 border border-slate-800/80 overflow-hidden shadow-xl">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-950/90 text-slate-400 font-semibold border-b border-slate-800/80 uppercase text-[10px] tracking-wider">
@@ -77,7 +77,7 @@ export default function TournamentTable({ tournaments = [] }) {
                 {/* Status */}
                 <td className="px-5 py-4">
                   <span
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                    className={`px-2.5 py-1 rounded-none text-[10px] font-bold border ${
                       t.status === 'Registration Open'
                         ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                         : t.status === 'Live Now' || t.status === 'Live'

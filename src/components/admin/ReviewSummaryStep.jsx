@@ -36,7 +36,7 @@ export default function ReviewSummaryStep({ form }) {
     <div className="space-y-6 text-white font-mono text-xs">
       
       {/* HEADER BANNER NOTICE */}
-      <div className="p-4 bg-[#00f2ff]/10 border border-[#00f2ff]/30 rounded-2xl flex items-center justify-between shadow-[0_0_20px_rgba(0,242,255,0.08)]">
+      <div className="p-4 bg-[#00f2ff]/10 border border-[#00f2ff]/30 rounded-none flex items-center justify-between shadow-[0_0_20px_rgba(0,242,255,0.08)]">
         <div className="flex items-center gap-3">
           <Sparkles className="w-5 h-5 text-[#00f2ff] animate-pulse" />
           <div>
@@ -48,13 +48,13 @@ export default function ReviewSummaryStep({ form }) {
             </p>
           </div>
         </div>
-        <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase tracking-widest hidden sm:inline-block">
+        <span className="px-3 py-1 rounded-none text-[10px] font-extrabold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 uppercase tracking-widest hidden sm:inline-block">
           Audit Verified
         </span>
       </div>
 
       {/* SECTION 1: TITLE & VISUAL BANNER CARD */}
-      <div className="bg-[#07090c] border border-[#3a494b]/60 rounded-2xl overflow-hidden shadow-2xl">
+      <div className="bg-[#07090c] border border-[#3a494b]/60 rounded-none overflow-hidden shadow-2xl">
         
         {/* Banner Image Preview Header */}
         <div className="relative h-40 sm:h-48 bg-[#151a21] overflow-hidden flex items-center justify-center border-b border-[#3a494b]/60">
@@ -66,16 +66,16 @@ export default function ReviewSummaryStep({ form }) {
 
           {/* Floating Badges */}
           <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-10">
-            <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-black/80 text-[#00f2ff] border border-[#00f2ff]/50 uppercase backdrop-blur-md">
+            <span className="px-3 py-1 rounded-none text-[10px] font-extrabold bg-black/80 text-[#00f2ff] border border-[#00f2ff]/50 uppercase backdrop-blur-md">
               {form.game}
             </span>
-            <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-black/80 text-[#00ff9d] border border-[#00ff9d]/50 uppercase backdrop-blur-md">
+            <span className="px-3 py-1 rounded-none text-[10px] font-extrabold bg-black/80 text-[#00ff9d] border border-[#00ff9d]/50 uppercase backdrop-blur-md">
               {form.mode.toUpperCase()} MODE
             </span>
           </div>
 
           <div className="absolute bottom-4 right-4 z-10">
-            <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-black/80 text-[#fe6b00] border border-[#fe6b00]/50 uppercase backdrop-blur-md">
+            <span className="px-3 py-1 rounded-none text-[10px] font-extrabold bg-black/80 text-[#fe6b00] border border-[#fe6b00]/50 uppercase backdrop-blur-md">
               Status: {form.status || 'Registration Open'}
             </span>
           </div>
@@ -99,7 +99,7 @@ export default function ReviewSummaryStep({ form }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         {/* BENTO CARD 1: GAME & TACTICAL PARAMETERS */}
-        <div className="p-5 bg-[#07090c] border border-[#3a494b]/60 rounded-2xl space-y-3.5 shadow-xl">
+        <div className="p-5 bg-[#07090c] border border-[#3a494b]/60 rounded-none space-y-3.5 shadow-xl">
           <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2.5">
             <span className="font-headline text-xs font-black uppercase text-[#00f2ff] flex items-center gap-2">
               <Shield className="w-4 h-4 text-[#00f2ff]" />
@@ -133,7 +133,7 @@ export default function ReviewSummaryStep({ form }) {
         </div>
 
         {/* BENTO CARD 2: SCHEDULE & TIMELINE SUMMARY */}
-        <div className="p-5 bg-[#07090c] border border-[#3a494b]/60 rounded-2xl space-y-3.5 shadow-xl">
+        <div className="p-5 bg-[#07090c] border border-[#3a494b]/60 rounded-none space-y-3.5 shadow-xl">
           <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2.5">
             <span className="font-headline text-xs font-black uppercase text-[#fe6b00] flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#fe6b00]" />
@@ -176,7 +176,7 @@ export default function ReviewSummaryStep({ form }) {
         </div>
 
         {/* BENTO CARD 3: FINANCIALS & SLOT CAPACITY */}
-        <div className="p-5 bg-[#07090c] border border-[#3a494b]/60 rounded-2xl space-y-3.5 shadow-xl">
+        <div className="p-5 bg-[#07090c] border border-[#3a494b]/60 rounded-none space-y-3.5 shadow-xl">
           <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2.5">
             <span className="font-headline text-xs font-black uppercase text-[#00ff9d] flex items-center gap-2">
               <Trophy className="w-4 h-4 text-[#ffd700]" />
@@ -225,7 +225,7 @@ export default function ReviewSummaryStep({ form }) {
         </div>
 
         {/* BENTO CARD 4: RULEBOOK SUMMARY */}
-        <div className="p-5 bg-[#07090c] border border-[#3a494b]/60 rounded-2xl space-y-3.5 shadow-xl">
+        <div className="p-5 bg-[#07090c] border border-[#3a494b]/60 rounded-none space-y-3.5 shadow-xl">
           <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2.5">
             <span className="font-headline text-xs font-black uppercase text-[#a855f7] flex items-center gap-2">
               <FileText className="w-4 h-4 text-[#a855f7]" />
@@ -247,7 +247,7 @@ export default function ReviewSummaryStep({ form }) {
       </div>
 
       {/* CONFIRMATION LAUNCH SUMMARY BOX */}
-      <div className="p-4 bg-[#07090c] border border-[#00ff9d]/40 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-4 bg-[#07090c] border border-[#00ff9d]/40 rounded-none flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <CheckCircle2 className="w-6 h-6 text-[#00ff9d] shrink-0 shadow-[0_0_10px_#00ff9d]" />
           <div>
@@ -260,7 +260,7 @@ export default function ReviewSummaryStep({ form }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 font-mono text-[10px] text-[#00ff9d] font-bold uppercase bg-[#00ff9d]/10 px-3 py-1.5 rounded-lg border border-[#00ff9d]/30 shrink-0">
+        <div className="flex items-center gap-2 font-mono text-[10px] text-[#00ff9d] font-bold uppercase bg-[#00ff9d]/10 px-3 py-1.5 rounded-none border border-[#00ff9d]/30 shrink-0">
           <span>0 Errors &bull; Validated</span>
         </div>
       </div>

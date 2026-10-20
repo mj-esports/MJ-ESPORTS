@@ -59,7 +59,7 @@ export default function TeamInvitationsTray({
       <section aria-labelledby="incoming-invites-heading" className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+            <div className="w-8 h-8 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
               <Inbox className="w-4 h-4" />
             </div>
             <div>
@@ -71,7 +71,7 @@ export default function TeamInvitationsTray({
           </div>
 
           {hasIncoming && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
+            <span className="px-2 py-0.5 rounded-none text-xs font-mono font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
               {incomingInvitations.length} Pending
             </span>
           )}
@@ -86,7 +86,7 @@ export default function TeamInvitationsTray({
               return (
                 <div
                   key={invite.id}
-                  className="p-4 rounded-xl bg-[#141416] border border-[#27272a] hover:border-[#00f2ff]/40 shadow-sm flex flex-col justify-between gap-3 transition-all"
+                  className="p-4 rounded-none bg-[#141416] border border-[#27272a] hover:border-[#00f2ff]/40 shadow-sm flex flex-col justify-between gap-3 transition-all"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1 min-w-0">
@@ -95,7 +95,7 @@ export default function TeamInvitationsTray({
                           {invite.team_name}
                         </span>
                         {invite.team_tag && (
-                          <span className="px-1.5 py-0.5 rounded bg-[#00f2ff]/10 text-[#00f2ff] font-mono text-[11px] font-bold">
+                          <span className="px-1.5 py-0.5 rounded-none bg-[#00f2ff]/10 text-[#00f2ff] font-mono text-[11px] font-bold">
                             [{invite.team_tag}]
                           </span>
                         )}
@@ -106,7 +106,7 @@ export default function TeamInvitationsTray({
                     </div>
 
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-headline font-bold uppercase shrink-0 ${
+                      className={`px-2 py-0.5 rounded-none text-[10px] font-headline font-bold uppercase shrink-0 ${
                         invite.role === 'Substitute'
                           ? 'bg-amber-400/10 text-amber-300 border border-amber-400/30'
                           : 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30'
@@ -127,7 +127,7 @@ export default function TeamInvitationsTray({
                         type="button"
                         disabled={isOperating}
                         onClick={() => onRespond(invite.id, 'REJECT')}
-                        className="min-h-[44px] px-3.5 py-1.5 rounded-xl border border-red-500/30 bg-red-950/20 text-red-300 hover:text-white hover:bg-red-950/40 text-xs font-headline font-semibold transition-colors disabled:opacity-50"
+                        className="min-h-[44px] px-3.5 py-1.5 rounded-none border border-red-500/30 bg-red-950/20 text-red-300 hover:text-white hover:bg-red-950/40 text-xs font-headline font-semibold transition-colors disabled:opacity-50"
                       >
                         Decline
                       </button>
@@ -136,7 +136,7 @@ export default function TeamInvitationsTray({
                         type="button"
                         disabled={isOperating}
                         onClick={() => onRespond(invite.id, 'ACCEPT')}
-                        className="min-h-[44px] px-4 py-1.5 rounded-xl bg-[#00f2ff] text-[#00363a] hover:bg-[#74f5ff] text-xs font-headline font-bold uppercase transition-all shadow-[0_0_12px_rgba(0,242,255,0.2)] flex items-center gap-1.5 disabled:opacity-50"
+                        className="min-h-[44px] px-4 py-1.5 rounded-none bg-[#00f2ff] text-[#00363a] hover:bg-[#74f5ff] text-xs font-headline font-bold uppercase transition-all shadow-[0_0_12px_rgba(0,242,255,0.2)] flex items-center gap-1.5 disabled:opacity-50"
                       >
                         {isOperating ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -152,7 +152,7 @@ export default function TeamInvitationsTray({
             })}
           </div>
         ) : (
-          <div className="p-6 rounded-xl border border-dashed border-[#27272a] bg-[#141416]/40 text-center space-y-1">
+          <div className="p-6 rounded-none border border-dashed border-[#27272a] bg-[#141416]/40 text-center space-y-1">
             <Mail className="w-6 h-6 text-[#849495] mx-auto opacity-40" />
             <p className="text-xs text-[#849495]">No pending squad invitations at this time.</p>
           </div>
@@ -166,7 +166,7 @@ export default function TeamInvitationsTray({
         <section aria-labelledby="outgoing-invites-heading" className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+              <div className="w-8 h-8 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
                 <Send className="w-4 h-4" />
               </div>
               <div>
@@ -178,7 +178,7 @@ export default function TeamInvitationsTray({
             </div>
 
             {outgoingInvitations.length > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-[#141416] text-[#b9cacb] border border-[#27272a]">
+              <span className="px-2 py-0.5 rounded-none text-xs font-mono font-bold bg-[#141416] text-[#b9cacb] border border-[#27272a]">
                 {outgoingInvitations.length} Active
               </span>
             )}
@@ -193,7 +193,7 @@ export default function TeamInvitationsTray({
                 return (
                   <div
                     key={invite.id}
-                    className="p-3.5 sm:p-4 rounded-xl bg-[#141416] border border-[#27272a] flex items-center justify-between gap-3 transition-all"
+                    className="p-3.5 sm:p-4 rounded-none bg-[#141416] border border-[#27272a] flex items-center justify-between gap-3 transition-all"
                   >
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -201,7 +201,7 @@ export default function TeamInvitationsTray({
                           {invite.invitee_name || 'Player'}
                         </span>
                         <span
-                          className={`px-1.5 py-0.2 rounded text-[10px] font-headline uppercase ${
+                          className={`px-1.5 py-0.2 rounded-none text-[10px] font-headline uppercase ${
                             invite.role === 'Substitute'
                               ? 'bg-amber-400/10 text-amber-300'
                               : 'bg-[#00f2ff]/10 text-[#00f2ff]'
@@ -221,7 +221,7 @@ export default function TeamInvitationsTray({
                       type="button"
                       disabled={isOperating}
                       onClick={() => onCancel(invite.id)}
-                      className="min-h-[44px] px-3.5 py-1.5 rounded-xl border border-red-500/30 bg-red-950/20 text-red-300 hover:text-white hover:bg-red-950/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 shrink-0"
+                      className="min-h-[44px] px-3.5 py-1.5 rounded-none border border-red-500/30 bg-red-950/20 text-red-300 hover:text-white hover:bg-red-950/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 shrink-0"
                     >
                       {isOperating ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -235,7 +235,7 @@ export default function TeamInvitationsTray({
               })}
             </div>
           ) : (
-            <div className="p-4 rounded-xl border border-dashed border-[#27272a] bg-[#141416]/40 text-center">
+            <div className="p-4 rounded-none border border-dashed border-[#27272a] bg-[#141416]/40 text-center">
               <p className="text-xs text-[#849495]">No pending outgoing invitations.</p>
             </div>
           )}

@@ -47,7 +47,7 @@ export const StatsSection = ({ stats }) => {
         return (
           <div
             key={`stat-card-${idx}`}
-            className={`bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3 sm:p-3.5 space-y-1 shadow-md border-l-4 ${item.borderColor} flex flex-col justify-center min-h-[76px] sm:min-h-[84px]`}
+            className={`bg-[#151a21] border border-[#3a494b]/60 rounded-none p-3 sm:p-3.5 space-y-1 shadow-md border-l-4 ${item.borderColor} flex flex-col justify-center min-h-[76px] sm:min-h-[84px]`}
           >
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono text-[9px] sm:text-[10px] text-[#8e9dae] uppercase tracking-wider font-bold truncate">

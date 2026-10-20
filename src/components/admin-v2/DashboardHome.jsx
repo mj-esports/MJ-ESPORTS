@@ -86,11 +86,11 @@ export default function DashboardHome() {
   return (
     <div className="space-y-6">
       {/* Banner / Welcome Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-cyan-950/40 to-slate-900 p-6 border border-cyan-500/20 shadow-xl">
+      <div className="relative overflow-hidden rounded-none bg-gradient-to-r from-slate-900 via-cyan-950/40 to-slate-900 p-6 border border-cyan-500/20 shadow-xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+              <span className="px-2.5 py-0.5 rounded-none text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                 PROD ENVIRONMENT
               </span>
               <span className="text-xs text-slate-400 font-mono">v2.0.0-beta</span>
@@ -104,7 +104,7 @@ export default function DashboardHome() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2">
+            <button className="px-4 py-2 rounded-none bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2">
               <Zap className="w-4 h-4" />
               Quick Action
             </button>
@@ -119,11 +119,11 @@ export default function DashboardHome() {
           return (
             <div
               key={index}
-              className={`p-5 rounded-2xl bg-slate-900/60 backdrop-blur-sm border ${stat.borderColor} relative overflow-hidden group hover:border-slate-700 transition-all`}
+              className={`p-5 rounded-none bg-slate-900/60 backdrop-blur-sm border ${stat.borderColor} relative overflow-hidden group hover:border-slate-700 transition-all`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-400">{stat.title}</span>
-                <div className={`p-2 rounded-xl bg-slate-800/80 ${stat.textColor}`}>
+                <div className={`p-2 rounded-none bg-slate-800/80 ${stat.textColor}`}>
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
@@ -143,7 +143,7 @@ export default function DashboardHome() {
       {/* Recent Activity & System Health Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Activity Feed */}
-        <div className="lg:col-span-2 p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-4">
+        <div className="lg:col-span-2 p-6 rounded-none bg-slate-900/60 border border-slate-800/80 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Clock className="w-4 h-4 text-cyan-400" />
@@ -160,10 +160,10 @@ export default function DashboardHome() {
               return (
                 <div
                   key={act.id}
-                  className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/60 hover:border-slate-700 transition-colors"
+                  className="flex items-center justify-between p-3.5 rounded-none bg-slate-950/60 border border-slate-800/60 hover:border-slate-700 transition-colors"
                 >
                   <div className="flex items-center gap-3.5">
-                    <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    <div className="p-2.5 rounded-none bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                       <Icon className="w-4 h-4" />
                     </div>
                     <div>
@@ -179,30 +179,30 @@ export default function DashboardHome() {
         </div>
 
         {/* Quick Diagnostics Widget */}
-        <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-4">
+        <div className="p-6 rounded-none bg-slate-900/60 border border-slate-800/80 space-y-4">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <Activity className="w-4 h-4 text-purple-400" />
             Infrastructure V2 Status
           </h3>
 
           <div className="space-y-3">
-            <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/60 space-y-1.5">
+            <div className="p-3 rounded-none bg-slate-950/60 border border-slate-800/60 space-y-1.5">
               <div className="flex justify-between text-xs">
                 <span className="text-slate-400">Database Connection</span>
                 <span className="text-emerald-400 font-semibold">100% Operational</span>
               </div>
-              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                <div className="w-full h-full bg-emerald-400 rounded-full" />
+              <div className="w-full h-1.5 rounded-none bg-slate-800 overflow-hidden">
+                <div className="w-full h-full bg-emerald-400 rounded-none" />
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/60 space-y-1.5">
+            <div className="p-3 rounded-none bg-slate-950/60 border border-slate-800/60 space-y-1.5">
               <div className="flex justify-between text-xs">
                 <span className="text-slate-400">API Latency</span>
                 <span className="text-cyan-400 font-semibold">24ms</span>
               </div>
-              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                <div className="w-4/5 h-full bg-cyan-400 rounded-full" />
+              <div className="w-full h-1.5 rounded-none bg-slate-800 overflow-hidden">
+                <div className="w-4/5 h-full bg-cyan-400 rounded-none" />
               </div>
             </div>
           </div>

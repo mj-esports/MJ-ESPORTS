@@ -69,12 +69,12 @@ export default function AdminStatusBadge({ status, size = 'sm', className = '' }
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-bold uppercase rounded border select-none ${
+      className={`inline-flex items-center gap-1.5 font-bold uppercase rounded-none border select-none ${
         sizeStyles[size] || sizeStyles.sm
       } ${stylesByVariant[variant] || stylesByVariant.default} ${className}`}
     >
-      {isLive && <span className="w-1.5 h-1.5 rounded-full bg-[#ff5e07] animate-pulse" />}
-      {isPending && <span className="w-1.5 h-1.5 rounded-full bg-[#ff5e07] animate-ping" />}
+      {isLive && <span className="w-1.5 h-1.5 rounded-none bg-[#ff5e07] animate-pulse" />}
+      {isPending && <span className="w-1.5 h-1.5 rounded-none bg-[#ff5e07] animate-ping" />}
       <span>{label}</span>
     </span>
   )

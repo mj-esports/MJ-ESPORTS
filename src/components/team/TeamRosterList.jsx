@@ -49,7 +49,7 @@ export default function TeamRosterList({
     <section aria-labelledby="roster-heading" className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+          <div className="w-8 h-8 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
             <Users className="w-4 h-4" />
           </div>
           <div>
@@ -60,7 +60,7 @@ export default function TeamRosterList({
           </div>
         </div>
 
-        <span className="text-xs font-mono font-bold text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/20 px-2.5 py-1 rounded-lg">
+        <span className="text-xs font-mono font-bold text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/20 px-2.5 py-1 rounded-none">
           {totalFilled} / 6 SLOTS
         </span>
       </div>
@@ -69,7 +69,7 @@ export default function TeamRosterList({
       <div className="space-y-3">
         {/* 1. CAPTAIN */}
         {captain && (
-          <div className="p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-[#141416] via-[#121318] to-[#141416] border border-[#fed83a]/40 shadow-[0_2px_15px_rgba(254,216,58,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all">
+          <div className="p-3.5 sm:p-4 rounded-none bg-gradient-to-r from-[#141416] via-[#121318] to-[#141416] border border-[#fed83a]/40 shadow-[0_2px_15px_rgba(254,216,58,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all">
             <div className="flex items-center gap-3 min-w-0">
               {/* Avatar */}
               <div className="relative shrink-0">
@@ -77,15 +77,15 @@ export default function TeamRosterList({
                   <img
                     src={captain.avatar_url}
                     alt={captain.player_name}
-                    className="w-11 h-11 rounded-xl object-cover border border-[#fed83a]/50"
+                    className="w-11 h-11 rounded-none object-cover border border-[#fed83a]/50"
                   />
                 ) : (
-                  <div className="w-11 h-11 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 font-headline font-bold text-sm">
+                  <div className="w-11 h-11 rounded-none bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 font-headline font-bold text-sm">
                     {captain.player_name?.slice(0, 2).toUpperCase() || 'CP'}
                   </div>
                 )}
                 <div
-                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#fed83a] text-[#3b2f00] flex items-center justify-center shadow-sm"
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-none bg-[#fed83a] text-[#3b2f00] flex items-center justify-center shadow-sm"
                   title="Team Captain"
                 >
                   <Crown className="w-2.5 h-2.5" />
@@ -99,11 +99,11 @@ export default function TeamRosterList({
                     {captain.player_name}
                   </span>
                   {currentUserId === captain.user_id && (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 font-headline font-bold uppercase">
+                    <span className="px-1.5 py-0.5 rounded-none text-[10px] bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 font-headline font-bold uppercase">
                       YOU
                     </span>
                   )}
-                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-400/15 text-amber-300 border border-amber-400/30 font-headline font-bold uppercase flex items-center gap-1">
+                  <span className="px-2 py-0.5 rounded-none text-[10px] bg-amber-400/15 text-amber-300 border border-amber-400/30 font-headline font-bold uppercase flex items-center gap-1">
                     <Crown className="w-2.5 h-2.5" />
                     <span>Captain</span>
                   </span>
@@ -146,15 +146,15 @@ export default function TeamRosterList({
           return (
             <div
               key={member.id || member.user_id}
-              className="p-3.5 sm:p-4 rounded-xl bg-[#141416] border border-[#27272a] hover:border-[#3a494b] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all"
+              className="p-3.5 sm:p-4 rounded-none bg-[#141416] border border-[#27272a] hover:border-[#3a494b] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-11 h-11 rounded-xl bg-[#00f2ff]/10 border border-[#00f2ff]/20 flex items-center justify-center text-[#00f2ff] font-headline font-bold text-sm shrink-0">
+                <div className="w-11 h-11 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/20 flex items-center justify-center text-[#00f2ff] font-headline font-bold text-sm shrink-0">
                   {member.avatar_url ? (
                     <img
                       src={member.avatar_url}
                       alt={member.player_name}
-                      className="w-11 h-11 rounded-xl object-cover"
+                      className="w-11 h-11 rounded-none object-cover"
                     />
                   ) : (
                     member.player_name?.slice(0, 2).toUpperCase() || 'MB'
@@ -167,11 +167,11 @@ export default function TeamRosterList({
                       {member.player_name}
                     </span>
                     {isCaller && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 font-headline font-bold uppercase">
+                      <span className="px-1.5 py-0.5 rounded-none text-[10px] bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 font-headline font-bold uppercase">
                         YOU
                       </span>
                     )}
-                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 font-headline font-bold uppercase">
+                    <span className="px-2 py-0.5 rounded-none text-[10px] bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 font-headline font-bold uppercase">
                       Member
                     </span>
                   </div>
@@ -207,7 +207,7 @@ export default function TeamRosterList({
                     type="button"
                     disabled={isOperating}
                     onClick={() => onRoleChange(member.user_id, 'Substitute')}
-                    className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-[#0e1017] border border-[#27272a] text-[#b9cacb] hover:text-white hover:border-[#00f2ff]/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="min-h-[38px] px-2.5 py-1.5 rounded-none bg-[#0e1017] border border-[#27272a] text-[#b9cacb] hover:text-white hover:border-[#00f2ff]/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                     title="Change role to Substitute"
                   >
                     <ArrowRightLeft className="w-3.5 h-3.5 text-[#00f2ff]" />
@@ -219,7 +219,7 @@ export default function TeamRosterList({
                     type="button"
                     disabled={isOperating}
                     onClick={() => onRequestTransfer(member)}
-                    className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-[#0e1017] border border-[#27272a] text-[#b9cacb] hover:text-[#fed83a] hover:border-amber-400/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="min-h-[38px] px-2.5 py-1.5 rounded-none bg-[#0e1017] border border-[#27272a] text-[#b9cacb] hover:text-[#fed83a] hover:border-amber-400/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                     title="Make Captain"
                   >
                     <Crown className="w-3.5 h-3.5 text-[#fed83a]" />
@@ -231,7 +231,7 @@ export default function TeamRosterList({
                     type="button"
                     disabled={isOperating}
                     onClick={() => onRequestRemove(member)}
-                    className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-red-950/20 border border-red-500/30 text-red-300 hover:text-white hover:bg-red-950/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="min-h-[38px] px-2.5 py-1.5 rounded-none bg-red-950/20 border border-red-500/30 text-red-300 hover:text-white hover:bg-red-950/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                     title="Remove member from squad"
                   >
                     <UserMinus className="w-3.5 h-3.5 text-red-400" />
@@ -251,15 +251,15 @@ export default function TeamRosterList({
           return (
             <div
               key={member.id || member.user_id}
-              className="p-3.5 sm:p-4 rounded-xl bg-[#141416]/90 border border-dashed border-[#27272a] hover:border-[#3a494b] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all"
+              className="p-3.5 sm:p-4 rounded-none bg-[#141416]/90 border border-dashed border-[#27272a] hover:border-[#3a494b] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-11 h-11 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-300 font-headline font-bold text-sm shrink-0">
+                <div className="w-11 h-11 rounded-none bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-300 font-headline font-bold text-sm shrink-0">
                   {member.avatar_url ? (
                     <img
                       src={member.avatar_url}
                       alt={member.player_name}
-                      className="w-11 h-11 rounded-xl object-cover"
+                      className="w-11 h-11 rounded-none object-cover"
                     />
                   ) : (
                     member.player_name?.slice(0, 2).toUpperCase() || 'SB'
@@ -272,11 +272,11 @@ export default function TeamRosterList({
                       {member.player_name}
                     </span>
                     {isCaller && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 font-headline font-bold uppercase">
+                      <span className="px-1.5 py-0.5 rounded-none text-[10px] bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 font-headline font-bold uppercase">
                         YOU
                       </span>
                     )}
-                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-400/15 text-amber-300 border border-amber-400/30 font-headline font-bold uppercase">
+                    <span className="px-2 py-0.5 rounded-none text-[10px] bg-amber-400/15 text-amber-300 border border-amber-400/30 font-headline font-bold uppercase">
                       Substitute
                     </span>
                   </div>
@@ -312,7 +312,7 @@ export default function TeamRosterList({
                     type="button"
                     disabled={isOperating}
                     onClick={() => onRoleChange(member.user_id, 'Member')}
-                    className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-[#0e1017] border border-[#27272a] text-[#b9cacb] hover:text-white hover:border-[#00f2ff]/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="min-h-[38px] px-2.5 py-1.5 rounded-none bg-[#0e1017] border border-[#27272a] text-[#b9cacb] hover:text-white hover:border-[#00f2ff]/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                     title="Promote to Active Member"
                   >
                     <ArrowRightLeft className="w-3.5 h-3.5 text-[#00f2ff]" />
@@ -324,7 +324,7 @@ export default function TeamRosterList({
                     type="button"
                     disabled={isOperating}
                     onClick={() => onRequestTransfer(member)}
-                    className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-[#0e1017] border border-[#27272a] text-[#b9cacb] hover:text-[#fed83a] hover:border-amber-400/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="min-h-[38px] px-2.5 py-1.5 rounded-none bg-[#0e1017] border border-[#27272a] text-[#b9cacb] hover:text-[#fed83a] hover:border-amber-400/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                     title="Make Captain"
                   >
                     <Crown className="w-3.5 h-3.5 text-[#fed83a]" />
@@ -336,7 +336,7 @@ export default function TeamRosterList({
                     type="button"
                     disabled={isOperating}
                     onClick={() => onRequestRemove(member)}
-                    className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-red-950/20 border border-red-500/30 text-red-300 hover:text-white hover:bg-red-950/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="min-h-[38px] px-2.5 py-1.5 rounded-none bg-red-950/20 border border-red-500/30 text-red-300 hover:text-white hover:bg-red-950/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                     title="Remove member from squad"
                   >
                     <UserMinus className="w-3.5 h-3.5 text-red-400" />
@@ -352,10 +352,10 @@ export default function TeamRosterList({
         {[...Array(emptySlotsCount)].map((_, idx) => (
           <div
             key={`empty-slot-${idx}`}
-            className="p-3.5 rounded-xl border border-dashed border-[#27272a]/60 bg-[#0e1017]/40 flex items-center justify-between text-xs text-[#849495]"
+            className="p-3.5 rounded-none border border-dashed border-[#27272a]/60 bg-[#0e1017]/40 flex items-center justify-between text-xs text-[#849495]"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg border border-dashed border-[#27272a] flex items-center justify-center text-[#3a494b]">
+              <div className="w-9 h-9 rounded-none border border-dashed border-[#27272a] flex items-center justify-center text-[#3a494b]">
                 <Users className="w-4 h-4" />
               </div>
               <span className="font-headline font-semibold text-[#849495]/80">

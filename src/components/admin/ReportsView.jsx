@@ -234,7 +234,7 @@ export default function ReportsView({ tournaments = [] }) {
       {/* 1. MODULE HEADER & CSV EXPORT TOOLBAR */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-xs font-mono font-bold uppercase">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-xs font-mono font-bold uppercase">
             <FileText className="w-3.5 h-3.5" />
             <span>BUSINESS & OPERATIONAL REPORTS ENGINE</span>
           </div>
@@ -245,7 +245,7 @@ export default function ReportsView({ tournaments = [] }) {
 
         <button
           onClick={handleExportCSV}
-          className="px-4 py-2.5 bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] font-extrabold text-xs uppercase tracking-wider rounded-lg shadow-[0_0_15px_rgba(0,242,255,0.4)] transition-all flex items-center gap-2 shrink-0 min-h-[40px]"
+          className="px-4 py-2.5 bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] font-extrabold text-xs uppercase tracking-wider rounded-none shadow-[0_0_15px_rgba(0,242,255,0.4)] transition-all flex items-center gap-2 shrink-0 min-h-[40px]"
         >
           <Download className="w-4 h-4" />
           <span>Export {activeCategory} Report (CSV)</span>
@@ -283,10 +283,10 @@ export default function ReportsView({ tournaments = [] }) {
       </div>
 
       {/* 3. REPORT DATASET TABLE / EXACT REQUIRED EMPTY STATE */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl overflow-hidden shadow-2xl">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none overflow-hidden shadow-2xl">
         {loading ? (
           <div className="p-12 text-center text-[#8e9dae] space-y-2">
-            <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+            <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-none animate-spin mx-auto mb-2"></div>
             <span>Compiling operational reports from database...</span>
           </div>
         ) : activeDatasetCount === 0 ? (
@@ -325,7 +325,7 @@ export default function ReportsView({ tournaments = [] }) {
                       <td className="p-3.5 text-center font-mono font-bold text-white">{t.registeredTeams} Squads / {t.registeredPlayers} Players</td>
                       <td className="p-3.5 text-center font-bold text-[#00ff9d]">{t.winner}</td>
                       <td className="p-3.5 text-right pr-4">
-                        <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-extrabold uppercase border bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40">
+                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40">
                           {t.status}
                         </span>
                       </td>
@@ -359,7 +359,7 @@ export default function ReportsView({ tournaments = [] }) {
                       <td className="p-3.5 text-center font-mono font-bold text-[#00ff9d]">{p.wins}</td>
                       <td className="p-3.5 text-center font-mono font-bold text-[#fe6b00]">{p.kills}</td>
                       <td className="p-3.5 text-right pr-4">
-                        <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-extrabold uppercase border bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40">
+                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40">
                           {p.status}
                         </span>
                       </td>
@@ -391,7 +391,7 @@ export default function ReportsView({ tournaments = [] }) {
                       <td className="p-3.5 text-center font-mono text-white">{tm.matchesPlayed}</td>
                       <td className="p-3.5 text-center font-mono font-bold text-[#00ff9d]">{tm.wins}</td>
                       <td className="p-3.5 text-right pr-4">
-                        <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-extrabold uppercase border bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40">
+                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40">
                           {tm.status}
                         </span>
                       </td>
@@ -423,7 +423,7 @@ export default function ReportsView({ tournaments = [] }) {
                       <td className="p-3.5 text-center font-mono font-bold text-[#00ff9d]">{mr.roomPublished}</td>
                       <td className="p-3.5 text-center font-bold text-[#fe6b00]">{mr.winner}</td>
                       <td className="p-3.5 text-right pr-4">
-                        <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-extrabold uppercase border bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40">
+                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40">
                           {mr.status}
                         </span>
                       </td>

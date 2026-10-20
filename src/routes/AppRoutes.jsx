@@ -71,10 +71,10 @@ const ServerErrorPage = lazy(() => import('../pages/ServerErrorPage'))
 
 function PageFallback() {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center p-8 bg-[#07090c]">
+    <div className="min-h-[60vh] flex items-center justify-center p-8 bg-[#000000]">
       <div className="flex flex-col items-center gap-3 text-center">
-        <div className="w-9 h-9 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin"></div>
-        <span className="font-label-caps text-xs text-[#8e9dae] uppercase tracking-widest">Loading MJ ESPORTS...</span>
+        <div className="w-9 h-9 border-2 border-[#FFB900] border-t-transparent rounded-none animate-spin"></div>
+        <span className="font-label-caps text-xs text-[#A3A3A3] uppercase tracking-widest">Loading MJ ESPORTS...</span>
       </div>
     </div>
   )

@@ -371,7 +371,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
     <div className="space-y-5 font-body antialiased">
       
       {/* 1. QUEUE HEADER & ROSTER EXPORT */}
-      <div className="bg-[#141416] border border-[#27272a] rounded p-4 sm:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 sm:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="font-headline text-lg sm:text-xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
             <ClipboardList className="w-5 h-5 text-[#00f2ff]" />
@@ -386,7 +386,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
           <button
             onClick={fetchRegistrations}
             disabled={loading}
-            className="p-2 bg-[#1c1b1c] hover:bg-[#27272a] border border-[#27272a] text-[#849495] hover:text-[#00f2ff] rounded transition-all cursor-pointer disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center"
+            className="p-2 bg-[#1c1b1c] hover:bg-[#27272a] border border-[#27272a] text-[#849495] hover:text-[#00f2ff] rounded-none transition-all cursor-pointer disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center"
             title="Sync Queue"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -395,7 +395,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
           <button
             onClick={exportCSV}
             disabled={liveRegistrations.length === 0}
-            className="px-3.5 py-2 bg-[#1c1b1c] hover:bg-[#27272a] border border-[#27272a] hover:border-[#00f2ff]/40 text-white rounded text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
+            className="px-3.5 py-2 bg-[#1c1b1c] hover:bg-[#27272a] border border-[#27272a] hover:border-[#00f2ff]/40 text-white rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
           >
             <Download className="w-3.5 h-3.5 text-[#00f2ff]" />
             <span>Export CSV</span>
@@ -417,14 +417,14 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             <button
               key={`q-tab-${tab.id}`}
               onClick={() => setActiveQueueTab(tab.id)}
-              className={`px-3.5 py-2 rounded text-xs uppercase transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+              className={`px-3.5 py-2 rounded-none text-xs uppercase transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
                 activeQueueTab === tab.id
                   ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-sm'
                   : 'text-[#849495] hover:text-white bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a]'
               }`}
             >
               <span>{tab.label}</span>
-              <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
+              <span className={`px-1.5 py-0.2 rounded-none text-[10px] font-mono ${
                 activeQueueTab === tab.id ? 'bg-[#00363a]/20 text-[#00363a]' : 'bg-[#1c1b1c] text-white'
               }`}>
                 {tab.count}
@@ -434,7 +434,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
         </div>
 
         {/* Search & Tournament Selector Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#141416] border border-[#27272a] rounded p-3 shadow-xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#141416] border border-[#27272a] rounded-none p-3 shadow-xl">
           <div className="relative">
             <Search className="w-4 h-4 text-[#849495] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
@@ -442,7 +442,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search team name, captain, UID, or email..."
-              className="w-full pl-9 pr-3 py-2 bg-[#1c1b1c] border border-[#27272a] rounded text-xs text-white placeholder-[#849495] focus:outline-none focus:border-[#00f2ff]"
+              className="w-full pl-9 pr-3 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white placeholder-[#849495] focus:outline-none focus:border-[#00f2ff]"
             />
           </div>
 
@@ -450,7 +450,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             <select
               value={selectedTournamentFilter}
               onChange={(e) => setSelectedTournamentFilter(e.target.value)}
-              className="w-full p-2 bg-[#1c1b1c] border border-[#27272a] rounded text-xs text-white focus:outline-none focus:border-[#00f2ff] font-headline font-bold cursor-pointer"
+              className="w-full p-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white focus:outline-none focus:border-[#00f2ff] font-headline font-bold cursor-pointer"
             >
               <option value="ALL">All Tournaments</option>
               {tournaments.map((t) => (
@@ -462,10 +462,10 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
       </div>
 
       {/* 3. REGISTRATIONS TABLE (DESKTOP >= 1024px) */}
-      <div className="bg-[#141416] border border-[#27272a] rounded overflow-hidden shadow-xl">
+      <div className="bg-[#141416] border border-[#27272a] rounded-none overflow-hidden shadow-xl">
         {loading ? (
           <div className="p-12 text-center text-[#849495] space-y-2">
-            <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-none animate-spin mx-auto"></div>
             <span className="text-xs">Synchronizing queue...</span>
           </div>
         ) : filteredRegistrations.length === 0 ? (
@@ -509,7 +509,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                         </td>
                         <td className="py-3 px-4 font-mono text-[#00f2ff] font-bold">{r.freeFireUid}</td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase border inline-flex items-center gap-1 ${
+                          <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-bold uppercase border inline-flex items-center gap-1 ${
                             r.identityStatus === 'VERIFIED'
                               ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
                               : r.identityStatus === 'REJECTED'
@@ -521,7 +521,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`px-2.5 py-0.5 rounded text-[9px] font-headline font-bold uppercase border ${
+                          <span className={`px-2.5 py-0.5 rounded-none text-[9px] font-headline font-bold uppercase border ${
                             isApproved
                               ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
                               : isPending
@@ -535,7 +535,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => setSelectedDetail(r)}
-                              className="px-3 py-1 bg-[#1c1b1c] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] hover:border-[#00f2ff]/40 rounded text-[10px] font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1"
+                              className="px-3 py-1 bg-[#1c1b1c] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-none text-[10px] font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1"
                               title="Inspect Registration Details & Identity Proof"
                             >
                               <Eye className="w-3 h-3" />
@@ -561,7 +561,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[#00f2ff] font-bold">{r.referenceId}</span>
                       <div className="flex items-center gap-1.5">
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase border ${
+                        <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-bold uppercase border ${
                           r.identityStatus === 'VERIFIED'
                             ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
                             : r.identityStatus === 'REJECTED'
@@ -570,7 +570,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                         }`}>
                           ID: {r.identityStatus === 'VERIFIED' ? 'VERIFIED' : r.identityStatus === 'REJECTED' ? 'REJECTED' : 'RECORDED'}
                         </span>
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-headline font-bold uppercase border ${
+                        <span className={`px-2 py-0.5 rounded-none text-[9px] font-headline font-bold uppercase border ${
                           isApproved
                             ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
                             : isPending
@@ -587,7 +587,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                       <p className="text-[10px] text-[#849495]">{r.tournamentTitle} &bull; {r.teamName}</p>
                     </div>
 
-                    <div className="bg-[#1c1b1c] p-2.5 rounded border border-[#27272a] space-y-1 font-body text-[11px]">
+                    <div className="bg-[#1c1b1c] p-2.5 rounded-none border border-[#27272a] space-y-1 font-body text-[11px]">
                       <p>Free Fire UID: <span className="text-[#00f2ff] font-mono font-bold">{r.freeFireUid}</span></p>
                       <p>WhatsApp: <span className="text-[#10b981] font-mono">{r.whatsappNumber}</span></p>
                     </div>
@@ -595,7 +595,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                     <div className="flex items-center gap-2 pt-1">
                       <button
                         onClick={() => setSelectedDetail(r)}
-                        className="flex-1 py-1.5 bg-[#00f2ff]/10 hover:bg-[#00f2ff]/20 text-[#00f2ff] border border-[#00f2ff]/40 rounded font-headline font-bold uppercase text-[10px] cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 py-1.5 bg-[#00f2ff]/10 hover:bg-[#00f2ff]/20 text-[#00f2ff] border border-[#00f2ff]/40 rounded-none font-headline font-bold uppercase text-[10px] cursor-pointer flex items-center justify-center gap-1"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>Inspect Proof & Details</span>
@@ -633,7 +633,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               </div>
               <button
                 onClick={() => setSelectedDetail(null)}
-                className="p-1.5 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
+                className="p-1.5 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
                 title="Close Drawer"
               >
                 <X className="w-4 h-4" />
@@ -641,7 +641,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             </div>
 
             {/* SECTION: PLAYER DETAILS (COMPACT LABEL/VALUE LAYOUT) */}
-            <div className="p-3 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1.5 text-xs font-body">
+            <div className="p-3 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1.5 text-xs font-body">
               <div className="flex justify-between items-center py-0.5">
                 <span className="text-[#849495]">Tournament</span>
                 <span className="font-bold text-white font-headline text-right truncate max-w-[200px]" title={selectedDetail.tournamentTitle}>
@@ -686,7 +686,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                   </span>
                   <div className="grid grid-cols-2 gap-1 font-mono text-[11px]">
                     {selectedDetail.teammateUids.map((uid, idx) => (
-                      <div key={`tm-uid-${idx}`} className="p-1 bg-[#141416] rounded border border-[#27272a] text-[#00f2ff] truncate">
+                      <div key={`tm-uid-${idx}`} className="p-1 bg-[#141416] rounded-none border border-[#27272a] text-[#00f2ff] truncate">
                         <span className="text-[#849495] text-[9px] mr-1">P{idx + 2}:</span>
                         {uid}
                       </div>
@@ -697,7 +697,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             </div>
 
             {/* SECTION: IDENTITY VERIFICATION (STREAMLINED MANUAL WORKFLOW) */}
-            <div className="p-3 bg-[#1c1b1c] rounded border border-[#27272a] space-y-2">
+            <div className="p-3 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-2">
               
               {/* Header & Status */}
               <div className="flex items-center justify-between">
@@ -705,7 +705,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                   <ShieldCheck className="w-3.5 h-3.5 text-[#00f2ff]" />
                   <span>Identity Verification</span>
                 </span>
-                <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase border ${
+                <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-bold uppercase border ${
                   (proofEvidence?.status || selectedDetail.identityStatus) === 'VERIFIED'
                     ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
                     : (proofEvidence?.status || selectedDetail.identityStatus) === 'REJECTED'
@@ -722,11 +722,11 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                   Identity Proof
                 </span>
                 <div className="grid grid-cols-2 gap-1.5 text-xs font-mono">
-                  <div className="p-1.5 bg-[#141416] rounded border border-[#27272a]">
+                  <div className="p-1.5 bg-[#141416] rounded-none border border-[#27272a]">
                     <span className="text-[9px] text-[#849495] uppercase block">Registered UID</span>
                     <span className="text-[#00f2ff] font-bold truncate block">{selectedDetail.freeFireUid}</span>
                   </div>
-                  <div className="p-1.5 bg-[#141416] rounded border border-[#27272a]">
+                  <div className="p-1.5 bg-[#141416] rounded-none border border-[#27272a]">
                     <span className="text-[9px] text-[#849495] uppercase block">Registered IGN</span>
                     <span className="text-white font-bold truncate block">{selectedDetail.captainName}</span>
                   </div>
@@ -737,7 +737,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               {proofEvidence?.signedUrl && (
                 <div
                   onClick={() => setIsScreenshotModalOpen(true)}
-                  className="relative h-24 sm:h-28 rounded overflow-hidden border border-[#27272a] hover:border-[#00f2ff]/60 transition-colors cursor-pointer group bg-[#0a0f18]"
+                  className="relative h-24 sm:h-28 rounded-none overflow-hidden border border-[#27272a] hover:border-[#00f2ff]/60 transition-colors cursor-pointer group bg-[#0a0f18]"
                 >
                   <img
                     src={proofEvidence.signedUrl}
@@ -756,7 +756,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               {/* Action: View Profile Screenshot */}
               <button
                 onClick={() => setIsScreenshotModalOpen(true)}
-                className="w-full py-1.5 bg-[#141416] hover:bg-[#27272a] text-[#00f2ff] border border-[#00f2ff]/40 rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-1.5 bg-[#141416] hover:bg-[#27272a] text-[#00f2ff] border border-[#00f2ff]/40 rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>View Profile Screenshot</span>
@@ -768,13 +768,13 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                   <button
                     onClick={handleVerifyIdentity}
                     disabled={isSubmittingReview}
-                    className="flex-1 py-2 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_12px_rgba(16,185,129,0.25)] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    className="flex-1 py-2 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_12px_rgba(16,185,129,0.25)] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span>{isSubmittingReview ? 'Verifying...' : '✓ Verify Identity'}</span>
                   </button>
                 ) : (
-                  <div className="flex-1 py-2 bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 rounded text-xs font-headline font-bold uppercase text-center flex items-center justify-center gap-1.5">
+                  <div className="flex-1 py-2 bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 rounded-none text-xs font-headline font-bold uppercase text-center flex items-center justify-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>✓ Verified</span>
                   </div>
@@ -784,7 +784,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                   <button
                     onClick={() => setRejectTarget(selectedDetail)}
                     disabled={isSubmittingReview}
-                    className="px-3.5 py-2 bg-red-950/50 hover:bg-red-900/60 text-red-400 border border-red-800/60 rounded text-xs font-headline font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
+                    className="px-3.5 py-2 bg-red-950/50 hover:bg-red-900/60 text-red-400 border border-red-800/60 rounded-none text-xs font-headline font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
                   >
                     Reject
                   </button>
@@ -795,7 +795,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
 
             {/* PAID TOURNAMENTS ONLY: PAYMENT STATUS (Completely omitted for free tournaments) */}
             {!isFreeTournament && (
-              <div className="p-2.5 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1 text-xs font-body">
+              <div className="p-2.5 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1 text-xs font-body">
                 <div className="flex justify-between items-center">
                   <span className="text-[#849495]">Entry Fee</span>
                   <span className="text-white font-mono font-bold">{selectedDetail.entryFee}</span>
@@ -819,7 +819,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             <div className="pt-1">
               <button
                 onClick={() => setSelectedDetail(null)}
-                className="w-full py-2 text-xs font-headline font-bold bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded uppercase cursor-pointer transition-colors"
+                className="w-full py-2 text-xs font-headline font-bold bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none uppercase cursor-pointer transition-colors"
               >
                 Close Drawer
               </button>
@@ -837,7 +837,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
           onClick={() => setIsScreenshotModalOpen(false)}
         >
           <div
-            className="bg-[#141416] border border-[#27272a] rounded max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl"
+            className="bg-[#141416] border border-[#27272a] rounded-none max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Top Bar */}
@@ -855,7 +855,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               </div>
               <button
                 onClick={() => setIsScreenshotModalOpen(false)}
-                className="p-1.5 rounded bg-[#141416] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
+                className="p-1.5 rounded-none bg-[#141416] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -863,11 +863,11 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
 
             {/* Comparison Bar */}
             <div className="p-2.5 bg-[#0d1219] border-b border-[#27272a] grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
-              <div className="flex items-center justify-between p-2 bg-[#141416] rounded border border-[#27272a]">
+              <div className="flex items-center justify-between p-2 bg-[#141416] rounded-none border border-[#27272a]">
                 <span className="text-[#849495]">Submitted Free Fire UID:</span>
                 <span className="text-[#00f2ff] font-bold text-sm">{selectedDetail.freeFireUid}</span>
               </div>
-              <div className="flex items-center justify-between p-2 bg-[#141416] rounded border border-[#27272a]">
+              <div className="flex items-center justify-between p-2 bg-[#141416] rounded-none border border-[#27272a]">
                 <span className="text-[#849495]">Submitted IGN:</span>
                 <span className="text-white font-bold text-sm">{selectedDetail.captainName}</span>
               </div>
@@ -877,14 +877,14 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-[#080c14] min-h-[260px]">
               {loadingProof ? (
                 <div className="p-8 text-center text-[#849495] space-y-2">
-                  <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-none animate-spin mx-auto"></div>
                   <p className="text-xs">Generating secure signed preview URL...</p>
                 </div>
               ) : proofEvidence?.signedUrl ? (
                 <img
                   src={proofEvidence.signedUrl}
                   alt="Free Fire Profile Proof Screenshot"
-                  className="max-h-[55vh] w-auto max-w-full object-contain rounded border border-[#27272a] shadow-xl"
+                  className="max-h-[55vh] w-auto max-w-full object-contain rounded-none border border-[#27272a] shadow-xl"
                 />
               ) : (
                 <div className="p-8 text-center text-[#849495]">
@@ -904,7 +904,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => setIsScreenshotModalOpen(false)}
-                  className="flex-1 sm:flex-initial px-4 py-1.5 bg-[#141416] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded text-xs font-headline font-bold uppercase cursor-pointer"
+                  className="flex-1 sm:flex-initial px-4 py-1.5 bg-[#141416] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase cursor-pointer"
                 >
                   Close
                 </button>
@@ -913,7 +913,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                     setIsScreenshotModalOpen(false)
                     setRejectTarget(selectedDetail)
                   }}
-                  className="flex-1 sm:flex-initial px-4 py-1.5 bg-red-950/50 hover:bg-red-900/60 text-red-400 border border-red-800/60 rounded text-xs font-headline font-bold uppercase cursor-pointer"
+                  className="flex-1 sm:flex-initial px-4 py-1.5 bg-red-950/50 hover:bg-red-900/60 text-red-400 border border-red-800/60 rounded-none text-xs font-headline font-bold uppercase cursor-pointer"
                 >
                   Reject
                 </button>
@@ -923,7 +923,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                     handleVerifyIdentity()
                   }}
                   disabled={isSubmittingReview || (proofEvidence?.status || selectedDetail.identityStatus) === 'VERIFIED'}
-                  className="flex-1 sm:flex-initial px-5 py-1.5 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded text-xs font-headline font-extrabold uppercase shadow-[0_0_12px_rgba(16,185,129,0.3)] cursor-pointer disabled:opacity-50"
+                  className="flex-1 sm:flex-initial px-5 py-1.5 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase shadow-[0_0_12px_rgba(16,185,129,0.3)] cursor-pointer disabled:opacity-50"
                 >
                   {isSubmittingReview ? 'Verifying...' : '✓ Verify Identity'}
                 </button>
@@ -938,9 +938,9 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
       {/* ======================================================================= */}
       {rejectTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded p-5 max-w-md w-full space-y-3.5 shadow-2xl">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 max-w-md w-full space-y-3.5 shadow-2xl">
             <div className="flex items-center gap-3 text-red-400">
-              <div className="w-9 h-9 rounded bg-red-950/60 border border-red-500/30 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-none bg-red-950/60 border border-red-500/30 flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-5 h-5 text-red-400" />
               </div>
               <div>
@@ -965,7 +965,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                   <button
                     key={`reason-btn-${idx}`}
                     onClick={() => setRejectionReason(r)}
-                    className={`w-full text-left p-2 rounded text-xs font-body transition-colors border ${
+                    className={`w-full text-left p-2 rounded-none text-xs font-body transition-colors border ${
                       rejectionReason === r
                         ? 'bg-red-950/40 text-white border-red-500'
                         : 'bg-[#1c1b1c] text-[#849495] hover:text-white border-[#27272a]'
@@ -987,7 +987,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                 onChange={(e) => setRejectionReason(e.target.value)}
                 placeholder="Enter specific rejection reason for the player..."
                 rows={2}
-                className="w-full p-2 bg-[#1c1b1c] border border-[#27272a] rounded text-xs text-white placeholder-[#849495] focus:outline-none focus:border-red-500 font-body"
+                className="w-full p-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white placeholder-[#849495] focus:outline-none focus:border-red-500 font-body"
               />
             </div>
 
@@ -997,14 +997,14 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                   setRejectTarget(null)
                   setRejectionReason('')
                 }}
-                className="flex-1 py-2 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+                className="flex-1 py-2 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleConfirmRejection(rejectionReason)}
                 disabled={isSubmittingReview || !rejectionReason.trim()}
-                className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-headline font-bold uppercase transition-colors cursor-pointer shadow-lg shadow-red-600/30 disabled:opacity-50"
+                className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer shadow-lg shadow-red-600/30 disabled:opacity-50"
               >
                 {isSubmittingReview ? 'Rejecting...' : 'Confirm Rejection'}
               </button>

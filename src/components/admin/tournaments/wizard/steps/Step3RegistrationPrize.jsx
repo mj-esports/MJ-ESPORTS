@@ -141,7 +141,7 @@ export default function Step3RegistrationPrize({
       {/* 1. SECTION HEADER */}
       <div className="border-b border-[#27272a] pb-4 sm:pb-5">
         <div className="flex items-center gap-2 mb-1">
-          <span className="w-2 h-2 rounded-full bg-[#00f2ff]" />
+          <span className="w-2 h-2 rounded-none bg-[#00f2ff]" />
           <h1 className="font-headline text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight">
             03. REGISTRATION & PRIZES
           </h1>
@@ -156,7 +156,7 @@ export default function Step3RegistrationPrize({
         {/* Left Column (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
           {/* SECTION 1: REGISTRATION & CAPACITY */}
-          <div className="bg-[#141416] rounded-xl border border-[#27272a] p-5 sm:p-6 space-y-5 shadow-lg">
+          <div className="bg-[#141416] rounded-none border border-[#27272a] p-5 sm:p-6 space-y-5 shadow-lg">
             <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
               <div className="flex items-center gap-2 text-[#00f2ff]">
                 <Users className="w-4 h-4" />
@@ -164,7 +164,7 @@ export default function Step3RegistrationPrize({
                   1. Registration & Capacity
                 </h2>
               </div>
-              <span className="text-[10px] font-mono text-[#10b981] px-2 py-0.5 rounded bg-[#10b981]/10 border border-[#10b981]/30 uppercase">
+              <span className="text-[10px] font-mono text-[#10b981] px-2 py-0.5 rounded-none bg-[#10b981]/10 border border-[#10b981]/30 uppercase">
                 LOBBY SPECS
               </span>
             </div>
@@ -185,7 +185,7 @@ export default function Step3RegistrationPrize({
                     value={entryFeeNum || ''}
                     onChange={handleEntryFeeChange}
                     placeholder="0.00"
-                    className="w-full h-11 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-lg pl-8 pr-16 sm:pr-20 text-white font-mono text-xs focus:outline-none transition-colors"
+                    className="w-full h-11 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-none pl-8 pr-16 sm:pr-20 text-white font-mono text-xs focus:outline-none transition-colors"
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-[10px] sm:text-xs font-mono text-[#849495] uppercase">
                     / {form.mode || 'squad'}
@@ -214,7 +214,7 @@ export default function Step3RegistrationPrize({
                   max="100"
                   value={form.maxTeams || currentTeams}
                   onChange={handleSlotsChange}
-                  className="w-full h-11 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-lg px-3.5 text-white font-mono text-xs focus:outline-none transition-colors"
+                  className="w-full h-11 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-none px-3.5 text-white font-mono text-xs focus:outline-none transition-colors"
                 />
                 {formErrors.maxTeams && (
                   <p className="text-[10px] text-[#ef4444] font-body flex items-center gap-1 mt-0.5">
@@ -229,26 +229,26 @@ export default function Step3RegistrationPrize({
             </div>
 
             {/* Capacity Matrix Allocation Strip */}
-            <div className="p-3.5 rounded-lg bg-[#1b1b1d] border border-[#27272a] space-y-2.5">
+            <div className="p-3.5 rounded-none bg-[#1b1b1d] border border-[#27272a] space-y-2.5">
               <span className="font-headline text-[10px] font-bold text-[#849495] uppercase tracking-wider block">
                 Capacity Matrix Allocation
               </span>
               <div className="flex flex-wrap items-center gap-2.5 text-xs font-mono">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#141416] border border-[#27272a] text-white">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#141416] border border-[#27272a] text-white">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
                   <span className="font-bold">{currentTeams} SQUADS</span>
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#141416] border border-[#27272a] text-white">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#141416] border border-[#27272a] text-white">
                   <Users className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
                   <span className="font-bold">{currentPlayers} / {roomCap} PLAYERS</span>
                 </div>
-                <div className="text-[10px] text-[#849495] px-2.5 py-1.5 bg-[#201f21] rounded border border-[#27272a]">
+                <div className="text-[10px] text-[#849495] px-2.5 py-1.5 bg-[#201f21] rounded-none border border-[#27272a]">
                   2 OBSERVER SLOTS RESERVED (ADMIN / CASTER)
                 </div>
               </div>
 
               {/* Progress bar */}
-              <div className="w-full bg-[#201f21] h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-[#201f21] h-1.5 rounded-none overflow-hidden">
                 <div
                   className="bg-[#00f2ff] h-full transition-all duration-300"
                   style={{ width: `${occupancyPercent}%` }}
@@ -263,11 +263,11 @@ export default function Step3RegistrationPrize({
                 <label className="block font-headline text-xs font-bold tracking-wider text-[#849495] uppercase">
                   Registration Approval
                 </label>
-                <div className="grid grid-cols-2 p-1 bg-[#1b1b1d] border border-[#27272a] rounded-lg">
+                <div className="grid grid-cols-2 p-1 bg-[#1b1b1d] border border-[#27272a] rounded-none">
                   <button
                     type="button"
                     onClick={() => handleApprovalChange('Automatic')}
-                    className={`min-h-[46px] py-1.5 px-2 text-xs font-headline font-bold rounded transition-all cursor-pointer flex flex-col items-center justify-center ${
+                    className={`min-h-[46px] py-1.5 px-2 text-xs font-headline font-bold rounded-none transition-all cursor-pointer flex flex-col items-center justify-center ${
                       approvalMode === 'Automatic'
                         ? 'bg-[#00f2ff]/15 border border-[#00f2ff] text-[#00f2ff] shadow-sm'
                         : 'text-[#849495] hover:text-white bg-transparent border border-transparent'
@@ -279,7 +279,7 @@ export default function Step3RegistrationPrize({
                   <button
                     type="button"
                     onClick={() => handleApprovalChange('Manual')}
-                    className={`min-h-[46px] py-1.5 px-2 text-xs font-headline font-bold rounded transition-all cursor-pointer flex flex-col items-center justify-center ${
+                    className={`min-h-[46px] py-1.5 px-2 text-xs font-headline font-bold rounded-none transition-all cursor-pointer flex flex-col items-center justify-center ${
                       approvalMode === 'Manual'
                         ? 'bg-[#00f2ff]/15 border border-[#00f2ff] text-[#00f2ff] shadow-sm'
                         : 'text-[#849495] hover:text-white bg-transparent border border-transparent'
@@ -296,11 +296,11 @@ export default function Step3RegistrationPrize({
                 <label className="block font-headline text-xs font-bold tracking-wider text-[#849495] uppercase">
                   Waitlist Queue
                 </label>
-                <div className="grid grid-cols-2 p-1 bg-[#1b1b1d] border border-[#27272a] rounded-lg">
+                <div className="grid grid-cols-2 p-1 bg-[#1b1b1d] border border-[#27272a] rounded-none">
                   <button
                     type="button"
                     onClick={() => handleWaitlistChange(true)}
-                    className={`min-h-[46px] py-1.5 px-2 text-xs font-headline font-bold rounded transition-all cursor-pointer flex flex-col items-center justify-center ${
+                    className={`min-h-[46px] py-1.5 px-2 text-xs font-headline font-bold rounded-none transition-all cursor-pointer flex flex-col items-center justify-center ${
                       allowWaitlist
                         ? 'bg-[#00f2ff]/15 border border-[#00f2ff] text-[#00f2ff] shadow-sm'
                         : 'text-[#849495] hover:text-white bg-transparent border border-transparent'
@@ -312,7 +312,7 @@ export default function Step3RegistrationPrize({
                   <button
                     type="button"
                     onClick={() => handleWaitlistChange(false)}
-                    className={`min-h-[46px] py-1.5 px-2 text-xs font-headline font-bold rounded transition-all cursor-pointer flex flex-col items-center justify-center ${
+                    className={`min-h-[46px] py-1.5 px-2 text-xs font-headline font-bold rounded-none transition-all cursor-pointer flex flex-col items-center justify-center ${
                       !allowWaitlist
                         ? 'bg-[#00f2ff]/15 border border-[#00f2ff] text-[#00f2ff] shadow-sm'
                         : 'text-[#849495] hover:text-white bg-transparent border border-transparent'
@@ -327,10 +327,10 @@ export default function Step3RegistrationPrize({
           </div>
 
           {/* SECTION 2: PAYMENT (DEFERRED STATUS - MANDATORY REQUIREMENT) */}
-          <div className="bg-[#1b1b1d] rounded-xl border border-dashed border-[#3a494b] p-5 sm:p-6 space-y-4 opacity-90 relative overflow-hidden select-none cursor-not-allowed">
+          <div className="bg-[#1b1b1d] rounded-none border border-dashed border-[#3a494b] p-5 sm:p-6 space-y-4 opacity-90 relative overflow-hidden select-none cursor-not-allowed">
             <div className="flex items-start justify-between gap-3">
               <div className="flex gap-3.5">
-                <div className="w-10 h-10 rounded-lg bg-[#141416] border border-[#27272a] flex items-center justify-center text-[#849495] shrink-0">
+                <div className="w-10 h-10 rounded-none bg-[#141416] border border-[#27272a] flex items-center justify-center text-[#849495] shrink-0">
                   <Lock className="w-5 h-5 text-[#849495] shrink-0" />
                 </div>
                 <div className="space-y-1">
@@ -338,7 +338,7 @@ export default function Step3RegistrationPrize({
                     <h3 className="font-headline text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
                       PAYMENT COLLECTION • CURRENTLY UNAVAILABLE
                     </h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#201f21] text-[#849495] border border-[#27272a] uppercase">
+                    <span className="px-2 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#201f21] text-[#849495] border border-[#27272a] uppercase">
                       DEFERRED STATUS
                     </span>
                   </div>
@@ -358,14 +358,14 @@ export default function Step3RegistrationPrize({
                 <ShieldCheck className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
                 <span>Simulation mode active: Team slots reserve automatically without transaction hold.</span>
               </span>
-              <span className="font-mono text-[10px] text-[#849495] px-2 py-0.5 rounded bg-[#141416] border border-[#27272a] uppercase shrink-0">
+              <span className="font-mono text-[10px] text-[#849495] px-2 py-0.5 rounded-none bg-[#141416] border border-[#27272a] uppercase shrink-0">
                 GATEWAY: OFFLINE
               </span>
             </div>
           </div>
 
           {/* SECTION 3: PRIZE TYPE SELECTION */}
-          <div className="bg-[#141416] rounded-xl border border-[#27272a] p-5 sm:p-6 space-y-4 shadow-lg">
+          <div className="bg-[#141416] rounded-none border border-[#27272a] p-5 sm:p-6 space-y-4 shadow-lg">
             <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
               <div className="flex items-center gap-2 text-[#00f2ff]">
                 <Award className="w-4 h-4" />
@@ -383,7 +383,7 @@ export default function Step3RegistrationPrize({
                   <div
                     key={pt.id}
                     onClick={() => handlePrizeTypeChange(pt.id)}
-                    className={`p-3.5 rounded-lg border transition-all cursor-pointer ${
+                    className={`p-3.5 rounded-none border transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-[#201f21] border-2 border-[#00f2ff] shadow-sm'
                         : 'bg-[#1b1b1d] border-[#27272a] hover:border-[#3a494b]'
@@ -399,13 +399,13 @@ export default function Step3RegistrationPrize({
                           {pt.label}
                         </span>
                         {isSelected && (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#00f2ff] text-[#00363a]">
+                          <span className="px-1.5 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#00f2ff] text-[#00363a]">
                             SELECTED
                           </span>
                         )}
                       </div>
                       <div
-                        className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
+                        className={`w-4 h-4 rounded-none flex items-center justify-center shrink-0 ${
                           isSelected ? 'bg-[#00f2ff] text-[#00363a]' : 'border border-[#27272a]'
                         }`}
                       >
@@ -422,7 +422,7 @@ export default function Step3RegistrationPrize({
           </div>
 
           {/* SECTION 4: PRIZE CONFIGURATION & BREAKDOWN */}
-          <div className="bg-[#141416] rounded-xl border border-[#27272a] p-5 sm:p-6 space-y-5 shadow-lg">
+          <div className="bg-[#141416] rounded-none border border-[#27272a] p-5 sm:p-6 space-y-5 shadow-lg">
             <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
               <div className="flex items-center gap-2 text-[#f1cc2d]">
                 <Coins className="w-4 h-4 shrink-0" />
@@ -455,7 +455,7 @@ export default function Step3RegistrationPrize({
                     value={prizes.winnerPrize || ''}
                     onChange={(e) => handlePrizeFieldChange('winnerPrize', e.target.value)}
                     placeholder="1500"
-                    className="w-full h-11 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-lg pl-8 pr-4 text-white font-mono text-xs focus:outline-none transition-colors"
+                    className="w-full h-11 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-none pl-8 pr-4 text-white font-mono text-xs focus:outline-none transition-colors"
                   />
                 </div>
                 {formErrors.winnerPrize && (
@@ -486,7 +486,7 @@ export default function Step3RegistrationPrize({
                             value={prizes.firstPrize || ''}
                             onChange={(e) => handlePrizeFieldChange('firstPrize', e.target.value)}
                             placeholder="1000"
-                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-lg pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
+                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-none pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
                           />
                         </div>
                         {formErrors.firstPrize && (
@@ -510,7 +510,7 @@ export default function Step3RegistrationPrize({
                             value={prizes.secondPrize || ''}
                             onChange={(e) => handlePrizeFieldChange('secondPrize', e.target.value)}
                             placeholder="500"
-                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-lg pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
+                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-none pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
                           />
                         </div>
                       </div>
@@ -528,7 +528,7 @@ export default function Step3RegistrationPrize({
                             value={prizes.thirdPrize || ''}
                             onChange={(e) => handlePrizeFieldChange('thirdPrize', e.target.value)}
                             placeholder="250"
-                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-lg pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
+                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-none pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
                           />
                         </div>
                       </div>
@@ -546,7 +546,7 @@ export default function Step3RegistrationPrize({
                             value={prizes.fourthPrize || ''}
                             onChange={(e) => handlePrizeFieldChange('fourthPrize', e.target.value)}
                             placeholder="0"
-                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-lg pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
+                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-none pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
                           />
                         </div>
                       </div>
@@ -564,7 +564,7 @@ export default function Step3RegistrationPrize({
                             value={prizes.fifthPrize || ''}
                             onChange={(e) => handlePrizeFieldChange('fifthPrize', e.target.value)}
                             placeholder="0"
-                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-lg pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
+                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-none pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
                           />
                         </div>
                       </div>
@@ -582,7 +582,7 @@ export default function Step3RegistrationPrize({
                             value={prizes.mvpBonus || ''}
                             onChange={(e) => handlePrizeFieldChange('mvpBonus', e.target.value)}
                             placeholder="0"
-                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-lg pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
+                            className="w-full h-10 bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] rounded-none pl-6 pr-2.5 text-white font-mono text-xs focus:outline-none transition-colors"
                           />
                         </div>
                       </div>
@@ -591,7 +591,7 @@ export default function Step3RegistrationPrize({
                 )}
 
                 {(prizeType === 'per_kill' || prizeType === 'placement_kill') && (
-                  <div className="p-3.5 rounded-lg bg-[#1b1b1d] border border-[#27272a] space-y-2">
+                  <div className="p-3.5 rounded-none bg-[#1b1b1d] border border-[#27272a] space-y-2">
                     <label className="block font-headline text-xs font-bold text-[#00f2ff] uppercase">
                       Kill Bounty Reward (Per Verified Frag) *
                     </label>
@@ -604,7 +604,7 @@ export default function Step3RegistrationPrize({
                         value={perKillReward || ''}
                         onChange={handlePerKillChange}
                         placeholder="30"
-                        className="w-full h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-lg pl-8 pr-16 sm:pr-24 text-white font-mono text-xs focus:outline-none transition-colors"
+                        className="w-full h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-none pl-8 pr-16 sm:pr-24 text-white font-mono text-xs focus:outline-none transition-colors"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-[10px] font-mono text-[#849495] uppercase">
                         <span className="hidden sm:inline">/ verified kill</span>
@@ -629,19 +629,19 @@ export default function Step3RegistrationPrize({
 
         {/* Right Column: LIVE TOURNAMENT SPECIFICATION (5 cols) */}
         <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-4">
-          <div className="rounded-xl border border-[#27272a] bg-[#141416] overflow-hidden shadow-2xl">
+          <div className="rounded-none border border-[#27272a] bg-[#141416] overflow-hidden shadow-2xl">
             {/* Header & Game Banner */}
             <div className="relative bg-[#1b1b1d] p-5 border-b border-[#27272a] overflow-hidden">
-              <div className="absolute right-0 -top-8 w-32 h-32 bg-[#00f2ff]/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute right-0 -top-8 w-32 h-32 bg-[#00f2ff]/10 rounded-none blur-2xl pointer-events-none" />
 
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse" />
+                  <span className="w-2.5 h-2.5 rounded-none bg-[#10b981] animate-pulse" />
                   <span className="font-headline text-[10px] font-bold text-[#00f2ff] uppercase tracking-wider">
                     LIVE TOURNAMENT SPECIFICATION
                   </span>
                 </div>
-                <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
+                <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-none bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
                   READY TO PUBLISH
                 </span>
               </div>
@@ -651,7 +651,7 @@ export default function Step3RegistrationPrize({
               </h3>
 
               <div className="flex items-center gap-2 mt-2">
-                <span className="px-2 py-0.5 rounded bg-[#141416] border border-[#27272a] text-[10px] font-headline font-bold text-white uppercase">
+                <span className="px-2 py-0.5 rounded-none bg-[#141416] border border-[#27272a] text-[10px] font-headline font-bold text-white uppercase">
                   Free Fire MAX
                 </span>
                 <span className="text-[10px] text-[#849495] font-mono">
@@ -664,7 +664,7 @@ export default function Step3RegistrationPrize({
             <div className="p-4 sm:p-5 space-y-4">
               {/* Match Meta Grid */}
               <div className="grid grid-cols-2 gap-2.5 text-xs">
-                <div className="p-3 rounded-lg bg-[#1b1b1d] border border-[#27272a]">
+                <div className="p-3 rounded-none bg-[#1b1b1d] border border-[#27272a]">
                   <span className="font-headline text-[10px] font-bold text-[#849495] uppercase block mb-1">
                     MODE & FORMAT
                   </span>
@@ -676,7 +676,7 @@ export default function Step3RegistrationPrize({
                   </span>
                 </div>
 
-                <div className="p-3 rounded-lg bg-[#1b1b1d] border border-[#27272a]">
+                <div className="p-3 rounded-none bg-[#1b1b1d] border border-[#27272a]">
                   <span className="font-headline text-[10px] font-bold text-[#849495] uppercase block mb-1">
                     SCHEDULE / TIMELINE
                   </span>
@@ -690,28 +690,28 @@ export default function Step3RegistrationPrize({
               </div>
 
               {/* Map & Rules Strip */}
-              <div className="p-3 rounded-lg bg-[#1b1b1d] border border-[#27272a]">
+              <div className="p-3 rounded-none bg-[#1b1b1d] border border-[#27272a]">
                 <span className="font-headline text-[10px] font-bold text-[#849495] uppercase block mb-1.5">
                   MAP & CUSTOM RULES
                 </span>
                 <div className="flex flex-wrap gap-1.5">
-                  <span className="px-2 py-0.5 bg-[#141416] rounded text-[10px] font-mono text-white border border-[#27272a]">
+                  <span className="px-2 py-0.5 bg-[#141416] rounded-none text-[10px] font-mono text-white border border-[#27272a]">
                     {form.ffMap || 'Bermuda'}
                   </span>
-                  <span className="px-2 py-0.5 bg-[#141416] rounded text-[10px] font-mono text-white border border-[#27272a]">
+                  <span className="px-2 py-0.5 bg-[#141416] rounded-none text-[10px] font-mono text-white border border-[#27272a]">
                     {form.matchType || 'Battle Royale'}
                   </span>
-                  <span className="px-2 py-0.5 bg-[#141416] rounded text-[10px] font-mono text-[#00f2ff] border border-[#27272a]">
+                  <span className="px-2 py-0.5 bg-[#141416] rounded-none text-[10px] font-mono text-[#00f2ff] border border-[#27272a]">
                     Guns: {form.ffGunAttributes || form.gunAttributes || 'Disabled'}
                   </span>
-                  <span className="px-2 py-0.5 bg-[#141416] rounded text-[10px] font-mono text-[#00f2ff] border border-[#27272a]">
+                  <span className="px-2 py-0.5 bg-[#141416] rounded-none text-[10px] font-mono text-[#00f2ff] border border-[#27272a]">
                     Skills: {form.ffCharacterSkills || form.characterSkills || 'Disabled'}
                   </span>
                 </div>
               </div>
 
               {/* Financial & Prize Matrix */}
-              <div className="p-4 rounded-lg bg-[#1b1b1d] border border-[#27272a] space-y-2.5 text-xs font-body">
+              <div className="p-4 rounded-none bg-[#1b1b1d] border border-[#27272a] space-y-2.5 text-xs font-body">
                 <div className="flex justify-between items-center">
                   <span className="text-[#849495]">Slot Entry Fee:</span>
                   <span className="font-mono font-bold text-white">
@@ -732,7 +732,7 @@ export default function Step3RegistrationPrize({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-[#849495]">Payment Gateway:</span>
-                  <span className="font-mono text-[10px] text-[#849495] bg-[#141416] px-2 py-0.5 rounded border border-[#27272a]">
+                  <span className="font-mono text-[10px] text-[#849495] bg-[#141416] px-2 py-0.5 rounded-none border border-[#27272a]">
                     DEFERRED / ESCROW SIMULATION
                   </span>
                 </div>
@@ -755,7 +755,7 @@ export default function Step3RegistrationPrize({
               </div>
 
               {/* Admin Notice Banner */}
-              <div className="p-3 rounded-lg border border-[#27272a] bg-[#1b1b1d] flex items-start gap-2 text-xs font-body text-[#849495]">
+              <div className="p-3 rounded-none border border-[#27272a] bg-[#1b1b1d] flex items-start gap-2 text-xs font-body text-[#849495]">
                 <Info className="w-4 h-4 text-[#00f2ff] shrink-0 mt-0.5" />
                 <p className="leading-relaxed text-[11px]">
                   Publishing locks rule presets. Room ID & Password will automatically be provisioned to registered squad captains 15 minutes before scheduled match start.

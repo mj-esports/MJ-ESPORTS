@@ -164,7 +164,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
         <select
           value={selectedId}
           onChange={(e) => handleSelectTournament(e.target.value)}
-          className="py-2.5 px-4 bg-[#07090c] border border-[#3a494b] rounded text-xs font-bold text-[#00f2ff] focus:outline-none"
+          className="py-2.5 px-4 bg-[#07090c] border border-[#3a494b] rounded-none text-xs font-bold text-[#00f2ff] focus:outline-none"
         >
           {tournaments.map((t) => (
             <option key={`lb-select-${t.id}`} value={t.id}>{t.title} ({t.game})</option>
@@ -175,7 +175,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
       {/* MATCH ROUND CONTROLS & PUBLISH ACTIONS */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 shadow-xl">
         <div className="flex items-center gap-2">
           <span className="font-label-caps text-xs text-[#8e9dae] uppercase font-bold">Round Filter:</span>
           <div className="flex gap-1.5 font-mono text-xs font-bold">
@@ -183,7 +183,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
               <button
                 key={`round-${r}`}
                 onClick={() => setMatchRound(r)}
-                className={`px-3 py-1.5 rounded transition-all ${
+                className={`px-3 py-1.5 rounded-none transition-all ${
                   matchRound === r
                     ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_10px_rgba(0,242,255,0.3)]'
                     : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b] hover:text-white'
@@ -198,7 +198,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowPreview(!showPreview)}
-            className="px-3.5 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] rounded transition-colors flex items-center gap-1.5 uppercase min-h-[40px]"
+            className="px-3.5 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] rounded-none transition-colors flex items-center gap-1.5 uppercase min-h-[40px]"
           >
             <Eye className="w-4 h-4 text-[#00f2ff]" />
             <span>{showPreview ? 'Hide Preview' : 'Public Live Preview'}</span>
@@ -206,7 +206,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
 
           <button
             onClick={handleDeclareWinner}
-            className="px-3.5 py-2.5 bg-[#fe6b00]/10 hover:bg-[#fe6b00]/20 border border-[#fe6b00]/40 text-[#fe6b00] font-bold text-xs rounded transition-colors flex items-center gap-1.5 uppercase min-h-[40px]"
+            className="px-3.5 py-2.5 bg-[#fe6b00]/10 hover:bg-[#fe6b00]/20 border border-[#fe6b00]/40 text-[#fe6b00] font-bold text-xs rounded-none transition-colors flex items-center gap-1.5 uppercase min-h-[40px]"
           >
             <Crown className="w-4 h-4" />
             <span>Declare Winner</span>
@@ -225,7 +225,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
       </div>
 
       {/* EDITABLE POINTS TABLE */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl overflow-hidden shadow-xl">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none overflow-hidden shadow-xl">
         <div className="p-4 bg-[#07090c] border-b border-[#3a494b]/60 flex items-center justify-between">
           <h3 className="font-display-lg text-sm font-bold text-white uppercase flex items-center gap-2">
             <Trophy className="w-4 h-4 text-[#00f2ff]" />
@@ -300,7 +300,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
                           min="0"
                           value={t.kills}
                           onChange={(e) => handleScoreChange(idx, 'kills', e.target.value)}
-                          className="w-16 py-1.5 px-2 bg-[#07090c] border border-[#3a494b] rounded text-center font-mono text-xs font-bold text-white focus:outline-none focus:border-[#00f2ff]"
+                          className="w-16 py-1.5 px-2 bg-[#07090c] border border-[#3a494b] rounded-none text-center font-mono text-xs font-bold text-white focus:outline-none focus:border-[#00f2ff]"
                         />
                       </td>
 
@@ -311,7 +311,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
                           min="0"
                           value={t.placementPoints}
                           onChange={(e) => handleScoreChange(idx, 'placementPoints', e.target.value)}
-                          className="w-20 py-1.5 px-2 bg-[#07090c] border border-[#3a494b] rounded text-center font-mono text-xs font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff]"
+                          className="w-20 py-1.5 px-2 bg-[#07090c] border border-[#3a494b] rounded-none text-center font-mono text-xs font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff]"
                         />
                       </td>
 

@@ -10,27 +10,32 @@ export default function ToggleSwitch({
   disabled = false,
   required = false,
   error = null,
-  color = 'cyan' // 'cyan' | 'green' | 'orange'
+  color = 'amber' // 'amber' | 'cyan' | 'green' | 'orange'
 }) {
   const colorStyles = {
+    amber: {
+      active: 'bg-[#FFB900] shadow-[0_0_12px_rgba(255,185,0,0.4)]',
+      border: 'border-[#FFB900]/40',
+      text: 'text-[#FFB900]'
+    },
     cyan: {
-      active: 'bg-[#00f2ff] shadow-[0_0_12px_rgba(0,242,255,0.4)]',
-      border: 'border-[#00f2ff]/40',
-      text: 'text-[#00f2ff]'
+      active: 'bg-[#FFB900] shadow-[0_0_12px_rgba(255,185,0,0.4)]',
+      border: 'border-[#FFB900]/40',
+      text: 'text-[#FFB900]'
     },
     green: {
-      active: 'bg-[#00ff9d] shadow-[0_0_12px_rgba(0,255,157,0.4)]',
-      border: 'border-[#00ff9d]/40',
-      text: 'text-[#00ff9d]'
+      active: 'bg-[#10b981] shadow-[0_0_12px_rgba(16,185,129,0.4)]',
+      border: 'border-[#10b981]/40',
+      text: 'text-[#10b981]'
     },
     orange: {
-      active: 'bg-[#fe6b00] shadow-[0_0_12px_rgba(254,107,0,0.4)]',
-      border: 'border-[#fe6b00]/40',
-      text: 'text-[#fe6b00]'
+      active: 'bg-[#FF6200] shadow-[0_0_12px_rgba(255,98,0,0.4)]',
+      border: 'border-[#FF6200]/40',
+      text: 'text-[#FF6200]'
     }
   }
 
-  const activeTheme = colorStyles[color] || colorStyles.cyan
+  const activeTheme = colorStyles[color] || colorStyles.amber || colorStyles.cyan
 
   const handleToggle = () => {
     if (disabled) return
@@ -48,21 +53,21 @@ export default function ToggleSwitch({
     <div className="space-y-1">
       <div
         onClick={handleToggle}
-        className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+        className={`flex items-center justify-between p-3 rounded-none border transition-all cursor-pointer ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
         } ${
           checked
-            ? 'bg-[#151a21] border-[#00f2ff]/50 shadow-[0_0_15px_rgba(0,242,255,0.08)]'
-            : 'bg-[#07090c] border-[#3a494b]/60 hover:border-[#3a494b]'
+            ? 'bg-[#111318] border-[#FFB900]/50 shadow-[0_0_15px_rgba(255,185,0,0.08)]'
+            : 'bg-[#000000] border-[#2A2A30] hover:border-[#FFB900]/50'
         }`}
       >
         <div className="space-y-0.5 pr-3">
           <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider">
             <span>{label}</span>
-            {required && <span className="text-[#ff4655]">*</span>}
+            {required && <span className="text-[#FF0000]">*</span>}
           </div>
           {description && (
-            <p className="text-[11px] text-[#8e9dae] leading-relaxed">
+            <p className="text-[11px] text-[#A3A3A3] leading-relaxed">
               {description}
             </p>
           )}
@@ -78,20 +83,20 @@ export default function ToggleSwitch({
             e.stopPropagation()
             handleToggle()
           }}
-          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-            checked ? activeTheme.active : 'bg-[#1a212b]'
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-none border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+            checked ? activeTheme.active : 'bg-[#2A2A30]'
           }`}
         >
           <span
-            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-black shadow-md ring-0 transition duration-200 ease-in-out ${
-              checked ? 'translate-x-5 bg-black' : 'translate-x-0 bg-[#8e9dae]'
+            className={`pointer-events-none inline-block h-5 w-5 transform rounded-none bg-black shadow-md ring-0 transition duration-200 ease-in-out ${
+              checked ? 'translate-x-5 bg-black' : 'translate-x-0 bg-[#A3A3A3]'
             }`}
           />
         </button>
       </div>
 
       {error && (
-        <p className="text-[11px] text-[#ff4655] font-medium pl-1" role="alert">
+        <p className="text-[11px] text-[#FF0000] font-medium pl-1" role="alert">
           {error}
         </p>
       )}

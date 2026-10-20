@@ -36,11 +36,11 @@ export default class ErrorBoundary extends Component {
       return (
         <div className="min-h-screen min-h-dvh flex-1 w-full bg-[#0b0e17] text-[#e1e2e7] flex items-center justify-center p-6 relative overflow-hidden font-sans">
           {/* Cyberpunk aura background - GPU accelerated with robust absolute inset centering */}
-          <div className="absolute inset-0 m-auto w-80 h-80 sm:w-96 sm:h-96 bg-[#ff3366]/10 rounded-full blur-3xl transform-gpu pointer-events-none -z-10" />
+          <div className="absolute inset-0 m-auto w-80 h-80 sm:w-96 sm:h-96 bg-[#ff3366]/10 rounded-none blur-3xl transform-gpu pointer-events-none -z-10" />
 
-          <div className="bg-[#151a21] border border-[#ff3366]/40 rounded-2xl p-8 sm:p-12 text-center space-y-6 max-w-lg w-full shadow-[0_0_30px_rgba(255,51,102,0.2)] relative z-10">
+          <div className="bg-[#151a21] border border-[#ff3366]/40 rounded-none p-8 sm:p-12 text-center space-y-6 max-w-lg w-full shadow-[0_0_30px_rgba(255,51,102,0.2)] relative z-10">
             
-            <div className="w-16 h-16 rounded-2xl bg-[#07090c] border border-[#ff3366]/60 flex items-center justify-center mx-auto text-[#ff3366] shadow-lg">
+            <div className="w-16 h-16 rounded-none bg-[#07090c] border border-[#ff3366]/60 flex items-center justify-center mx-auto text-[#ff3366] shadow-lg">
               <ShieldAlert className="w-8 h-8" />
             </div>
 
@@ -54,7 +54,7 @@ export default class ErrorBoundary extends Component {
               
               {/* Technical Diagnostics — Strictly gated to Development mode, NEVER exposed in Production */}
               {import.meta.env.DEV && (
-                <details className="mt-4 p-3 bg-[#07090c] border border-[#ff3366]/30 rounded text-left overflow-auto max-h-48 text-[10px] font-mono text-[#ff6688]">
+                <details className="mt-4 p-3 bg-[#07090c] border border-[#ff3366]/30 rounded-none text-left overflow-auto max-h-48 text-[10px] font-mono text-[#ff6688]">
                   <summary className="font-bold text-white mb-1 cursor-pointer select-none">
                     DEVELOPMENT DIAGNOSTICS (DEV ONLY)
                   </summary>
@@ -77,7 +77,7 @@ export default class ErrorBoundary extends Component {
 
               <a
                 href="/"
-                className="py-3 px-5 rounded-xl bg-[#0b0e17] border border-[#3a494b] text-[#e1e2e7] hover:text-[#00f2ff] hover:border-[#00f2ff] font-bold text-xs flex items-center justify-center gap-2 transition-all min-h-[44px]"
+                className="py-3 px-5 rounded-none bg-[#0b0e17] border border-[#3a494b] text-[#e1e2e7] hover:text-[#00f2ff] hover:border-[#00f2ff] font-bold text-xs flex items-center justify-center gap-2 transition-all min-h-[44px]"
               >
                 <Home className="w-4 h-4 text-[#00f2ff]" />
                 <span>Return Home</span>

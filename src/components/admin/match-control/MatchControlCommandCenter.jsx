@@ -48,7 +48,7 @@ export default function MatchControlCommandCenter({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
         
         {/* Total Matches */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-1 shadow-xl relative overflow-hidden">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Total Matches</span>
             <Layers className="w-4 h-4 text-[#8e9dae]" />
@@ -58,7 +58,7 @@ export default function MatchControlCommandCenter({
         </div>
 
         {/* Upcoming Matches */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-1 shadow-xl relative overflow-hidden">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Upcoming Matches</span>
             <Clock className="w-4 h-4 text-[#00f2ff]" />
@@ -68,7 +68,7 @@ export default function MatchControlCommandCenter({
         </div>
 
         {/* Live Matches */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-1 shadow-xl relative overflow-hidden">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Live Matches</span>
             <Radio className="w-4 h-4 text-[#fe6b00] animate-pulse" />
@@ -78,7 +78,7 @@ export default function MatchControlCommandCenter({
         </div>
 
         {/* Completed Matches */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-1 shadow-xl relative overflow-hidden">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Completed Matches</span>
             <CheckCircle2 className="w-4 h-4 text-[#00ff9d]" />
@@ -91,11 +91,11 @@ export default function MatchControlCommandCenter({
 
       {/* 2. LIVE OPERATIONS PANEL */}
       {selectedTourney ? (
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-5 shadow-2xl relative overflow-hidden">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 sm:p-6 space-y-5 shadow-2xl relative overflow-hidden">
           {/* Top Banner Tag */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#3a494b]/60 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/40 flex items-center justify-center font-mono text-xs font-extrabold text-[#00f2ff] shrink-0">
+              <div className="w-10 h-10 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/40 flex items-center justify-center font-mono text-xs font-extrabold text-[#00f2ff] shrink-0">
                 #001
               </div>
               <div>
@@ -108,7 +108,7 @@ export default function MatchControlCommandCenter({
 
             <div className="flex items-center gap-2 flex-wrap">
               {/* Match Status Badge */}
-              <span className={`px-2.5 py-1 rounded text-xs font-mono font-extrabold uppercase border ${
+              <span className={`px-2.5 py-1 rounded-none text-xs font-mono font-extrabold uppercase border ${
                 selectedTourney.status === 'Live Now' || selectedTourney.status === 'Live'
                   ? 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40 animate-pulse'
                   : selectedTourney.status === 'Completed'
@@ -119,7 +119,7 @@ export default function MatchControlCommandCenter({
               </span>
 
               {/* Room Dispatch State Badge */}
-              <span className={`px-2.5 py-1 rounded text-xs font-mono font-extrabold uppercase border flex items-center gap-1 ${
+              <span className={`px-2.5 py-1 rounded-none text-xs font-mono font-extrabold uppercase border flex items-center gap-1 ${
                 roomPublished
                   ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                   : 'bg-amber-500/10 text-amber-400 border-amber-500/40'
@@ -132,13 +132,13 @@ export default function MatchControlCommandCenter({
 
           {/* Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/40 space-y-1">
+            <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/40 space-y-1">
               <span className="text-[10px] text-[#8e9dae] font-bold uppercase block">Game & Format</span>
               <span className="font-extrabold text-white block">{selectedTourney.game} ({selectedTourney.format})</span>
               <span className="text-[#00f2ff] font-mono text-[10px]">Map / Mode Verified</span>
             </div>
 
-            <div className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/40 space-y-1">
+            <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/40 space-y-1">
               <span className="text-[10px] text-[#8e9dae] font-bold uppercase block">Participating Teams</span>
               <span className="font-extrabold text-[#00ff9d] block">
                 {selectedTourney.registeredTeams ?? selectedTourney.registered_teams ?? 0} / {selectedTourney.maxTeams ?? selectedTourney.max_teams ?? 12} {getTournamentMode(selectedTourney).teamUnit}
@@ -146,7 +146,7 @@ export default function MatchControlCommandCenter({
               <span className="text-[#8e9dae] font-mono text-[10px]">Rosters Checked & Ready</span>
             </div>
 
-            <div className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/40 space-y-1">
+            <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/40 space-y-1">
               <span className="text-[10px] text-[#8e9dae] font-bold uppercase block">Room ID & Password</span>
               <span className="font-mono text-white font-extrabold block">
                 {activeRoomId || selectedTourney?.roomId || selectedTourney?.room_id || 'Not Assigned'}
@@ -162,7 +162,7 @@ export default function MatchControlCommandCenter({
             <div className="flex items-center gap-2">
               <button
                 onClick={onOpenMatch}
-                className="px-4 py-2 bg-[#fe6b00] hover:bg-[#ff8533] text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-lg shadow-[0_0_12px_rgba(254,107,0,0.4)] transition-all flex items-center gap-1.5 min-h-[38px]"
+                className="px-4 py-2 bg-[#fe6b00] hover:bg-[#ff8533] text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-none shadow-[0_0_12px_rgba(254,107,0,0.4)] transition-all flex items-center gap-1.5 min-h-[38px]"
               >
                 <Play className="w-4 h-4 fill-current" />
                 <span>Open Match Lobby</span>
@@ -170,7 +170,7 @@ export default function MatchControlCommandCenter({
 
               <button
                 onClick={() => onNavigateSubTab('ROOM_MANAGEMENT')}
-                className="px-4 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#00f2ff]/50 text-[#00f2ff] font-extrabold text-xs uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 min-h-[38px]"
+                className="px-4 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#00f2ff]/50 text-[#00f2ff] font-extrabold text-xs uppercase tracking-wider rounded-none transition-all flex items-center gap-1.5 min-h-[38px]"
               >
                 <Key className="w-4 h-4" />
                 <span>Manage Room Credentials</span>
@@ -179,7 +179,7 @@ export default function MatchControlCommandCenter({
 
             <button
               onClick={() => onNavigateSubTab('RESULTS')}
-              className="px-4 py-2 bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] font-extrabold text-xs uppercase tracking-wider rounded-lg shadow-[0_0_12px_rgba(0,242,255,0.4)] transition-all flex items-center gap-1.5 min-h-[38px]"
+              className="px-4 py-2 bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] font-extrabold text-xs uppercase tracking-wider rounded-none shadow-[0_0_12px_rgba(0,242,255,0.4)] transition-all flex items-center gap-1.5 min-h-[38px]"
             >
               <Edit3 className="w-4 h-4" />
               <span>Update Match Results</span>
@@ -187,7 +187,7 @@ export default function MatchControlCommandCenter({
           </div>
         </div>
       ) : (
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-12 text-center space-y-3 shadow-xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-12 text-center space-y-3 shadow-xl">
           <Gamepad2 className="w-12 h-12 text-[#00f2ff] mx-auto opacity-50 animate-pulse" />
           <h3 className="font-display-lg text-base font-bold text-white uppercase tracking-wider">
             No Active Match Operations Selected

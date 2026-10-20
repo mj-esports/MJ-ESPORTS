@@ -129,7 +129,7 @@ export default function AnalyticsView({ tournaments = [] }) {
       
       {/* 1. MODULE HEADER */}
       <div className="space-y-1 border-b border-[#3a494b]/60 pb-4">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-xs font-mono font-bold uppercase">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-xs font-mono font-bold uppercase">
           <TrendingUp className="w-3.5 h-3.5" />
           <span>ENTERPRISE TELEMETRY ENGINE</span>
         </div>
@@ -140,7 +140,7 @@ export default function AnalyticsView({ tournaments = [] }) {
 
       {/* 2. EXACT REQUIRED EMPTY STATE */}
       {!hasActivity ? (
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-12 text-center space-y-3 shadow-xl my-6">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-12 text-center space-y-3 shadow-xl my-6">
           <BarChart2 className="w-12 h-12 text-[#00f2ff] mx-auto opacity-50 animate-pulse" />
           <div className="space-y-1 max-w-md mx-auto">
             <h3 className="font-display-lg text-base sm:text-lg font-bold text-white uppercase tracking-wider">
@@ -155,42 +155,42 @@ export default function AnalyticsView({ tournaments = [] }) {
         <>
           {/* 3. EXECUTIVE KPI METRICS GRID */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-            <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 space-y-1 shadow-lg">
+            <div className="bg-[#151a21] p-4 rounded-none border border-[#3a494b]/60 space-y-1 shadow-lg">
               <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center gap-1">
                 <Trophy className="w-3.5 h-3.5 text-[#00f2ff]" /> Competitions
               </span>
               <span className="font-display-lg text-2xl font-extrabold text-white block">{telemetry.totalTournaments}</span>
             </div>
 
-            <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 space-y-1 shadow-lg">
+            <div className="bg-[#151a21] p-4 rounded-none border border-[#3a494b]/60 space-y-1 shadow-lg">
               <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center gap-1">
                 <Users className="w-3.5 h-3.5 text-[#00ff9d]" /> Total Players
               </span>
               <span className="font-display-lg text-2xl font-extrabold text-[#00ff9d] block">{telemetry.playersCount}</span>
             </div>
 
-            <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 space-y-1 shadow-lg">
+            <div className="bg-[#151a21] p-4 rounded-none border border-[#3a494b]/60 space-y-1 shadow-lg">
               <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center gap-1">
                 <Shield className="w-3.5 h-3.5 text-[#fe6b00]" /> Active Squads
               </span>
               <span className="font-display-lg text-2xl font-extrabold text-[#fe6b00] block">{telemetry.teamsCount}</span>
             </div>
 
-            <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 space-y-1 shadow-lg">
+            <div className="bg-[#151a21] p-4 rounded-none border border-[#3a494b]/60 space-y-1 shadow-lg">
               <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center gap-1">
                 <Activity className="w-3.5 h-3.5 text-[#00f2ff]" /> Fill Rate %
               </span>
               <span className="font-display-lg text-2xl font-extrabold text-[#00f2ff] block">{telemetry.fillRatePct}%</span>
             </div>
 
-            <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 space-y-1 shadow-lg">
+            <div className="bg-[#151a21] p-4 rounded-none border border-[#3a494b]/60 space-y-1 shadow-lg">
               <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center gap-1">
                 <DollarSign className="w-3.5 h-3.5 text-[#ffb693]" /> Gross Revenue
               </span>
               <span className="font-display-lg text-xl font-extrabold text-[#ffb693] block truncate">{telemetry.totalRevenue}</span>
             </div>
 
-            <div className="bg-[#151a21] p-4 rounded-xl border border-[#3a494b]/60 space-y-1 shadow-lg">
+            <div className="bg-[#151a21] p-4 rounded-none border border-[#3a494b]/60 space-y-1 shadow-lg">
               <span className="text-[10px] font-mono text-[#8e9dae] uppercase font-bold block flex items-center gap-1">
                 <Percent className="w-3.5 h-3.5 text-[#00ff9d]" /> Net Inflow
               </span>
@@ -199,7 +199,7 @@ export default function AnalyticsView({ tournaments = [] }) {
           </div>
 
           {/* 4. INTERACTIVE CHARTS: REGISTRATION TRENDS & GAME PARTICIPATION */}
-          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-6 shadow-xl text-center">
+          <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-6 shadow-xl text-center">
             <h3 className="font-display-lg text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 justify-center border-b border-[#3a494b]/60 pb-3 mb-4">
               <BarChart2 className="w-4 h-4 text-[#00f2ff]" />
               <span>Registration Velocity & Weekly Trends</span>

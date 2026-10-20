@@ -217,7 +217,7 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
     <div className="space-y-6 antialiased">
       
       {fetchError && (
-        <div className="p-4 bg-[#ff3366]/10 border border-[#ff3366]/40 rounded-2xl flex items-center gap-3 text-[#ff3366] text-xs font-mono">
+        <div className="p-4 bg-[#ff3366]/10 border border-[#ff3366]/40 rounded-none flex items-center gap-3 text-[#ff3366] text-xs font-mono">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{fetchError}</span>
         </div>

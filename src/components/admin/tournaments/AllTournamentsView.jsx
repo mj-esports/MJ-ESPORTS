@@ -182,7 +182,7 @@ export default function AllTournamentsView({
     <div className="space-y-4 font-body antialiased">
       
       {/* 1. COMPACT FILTER TOOLBAR */}
-      <div className="bg-[#141416] border border-[#27272a] rounded p-2.5 sm:p-3.5 shadow-xl space-y-2 w-full box-border">
+      <div className="bg-[#141416] border border-[#27272a] rounded-none p-2.5 sm:p-3.5 shadow-xl space-y-2 w-full box-border">
         {/* Search */}
         <div className="relative w-full">
           <Search className="w-3.5 h-3.5 text-[#849495] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -191,7 +191,7 @@ export default function AllTournamentsView({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search tournament title or ID..."
-            className="w-full bg-[#1c1b1c] border border-[#27272a] rounded pl-8.5 pr-8 py-1.5 text-xs text-white placeholder-[#849495] focus:border-[#00f2ff] focus:outline-none transition-colors min-h-[34px] sm:min-h-[36px]"
+            className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-none pl-8.5 pr-8 py-1.5 text-xs text-white placeholder-[#849495] focus:border-[#00f2ff] focus:outline-none transition-colors min-h-[34px] sm:min-h-[36px]"
           />
           {searchQuery && (
             <button
@@ -207,13 +207,13 @@ export default function AllTournamentsView({
         {/* Horizontal Scrollable Filter Row below search */}
         <div className="flex items-center gap-1.5 sm:gap-2 w-full max-w-full min-w-0 box-border overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex-nowrap pb-0.5 overscroll-x-contain">
           {/* Platform Indicator */}
-          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
+          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded-none px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
             <Gamepad2 className="w-3 h-3 text-[#00f2ff] shrink-0" />
             <span className="font-headline font-bold text-white text-xs">Free Fire MAX</span>
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-1 bg-[#1c1b1c] border border-[#27272a] rounded px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
+          <div className="flex items-center gap-1 bg-[#1c1b1c] border border-[#27272a] rounded-none px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
             <Filter className="w-3 h-3 text-[#00f2ff] shrink-0" />
             <select
               value={statusFilter}
@@ -232,7 +232,7 @@ export default function AllTournamentsView({
           </div>
 
           {/* Date Filter */}
-          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
+          <div className="flex items-center gap-1.5 bg-[#1c1b1c] border border-[#27272a] rounded-none px-2.5 py-1 text-xs text-white shrink-0 min-h-[32px]">
             <Calendar className="w-3 h-3 text-[#00f2ff] shrink-0" />
             <span className="text-[10px] text-[#849495] uppercase font-label-bold">Date:</span>
             <input
@@ -255,7 +255,7 @@ export default function AllTournamentsView({
       </div>
 
       {/* 2. TOURNAMENTS OPERATIONS TABLE & MOBILE CARDS */}
-      <div className="bg-[#141416] border border-[#27272a] rounded overflow-hidden shadow-xl">
+      <div className="bg-[#141416] border border-[#27272a] rounded-none overflow-hidden shadow-xl">
         {filteredTournaments.length === 0 ? (
           <div className="p-8 sm:p-12 text-center space-y-3 font-body">
             <Trophy className="w-10 h-10 text-[#849495] mx-auto opacity-40" />
@@ -270,7 +270,7 @@ export default function AllTournamentsView({
             {tournaments.length === 0 && (
               <button
                 onClick={onOpenCreateWizard}
-                className="mt-2 px-4 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_12px_rgba(0,242,255,0.25)] inline-flex items-center gap-2 cursor-pointer"
+                className="mt-2 px-4 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded-none text-xs tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_12px_rgba(0,242,255,0.25)] inline-flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create First Tournament</span>
@@ -349,7 +349,7 @@ export default function AllTournamentsView({
                                 {fillPct}% ({filledPlayers}/{totalPlayers}P)
                               </span>
                             </div>
-                            <div className="w-full h-2 bg-[#27272a] rounded-full overflow-hidden border border-[#3f3f46]/60">
+                            <div className="w-full h-2 bg-[#27272a] rounded-none overflow-hidden border border-[#3f3f46]/60">
                               <div
                                 className={`h-full transition-all duration-300 ${
                                   fillPct >= 100
@@ -389,7 +389,7 @@ export default function AllTournamentsView({
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => onSelectTournament(t.id)}
-                              className="px-3 py-1.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-sm cursor-pointer flex items-center gap-1 min-h-[32px]"
+                              className="px-3 py-1.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded-none text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-sm cursor-pointer flex items-center gap-1 min-h-[32px]"
                             >
                               <span>Manage</span>
                               <ChevronRight className="w-3 h-3" />
@@ -402,7 +402,7 @@ export default function AllTournamentsView({
                                 activeMenu?.id === t.id
                                     ? 'bg-[#27272a] text-white border-[#00f2ff]'
                                     : 'bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border-[#27272a]'
-                              } border rounded transition-colors cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center`}
+                              } border rounded-none transition-colors cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center`}
                               title="More Actions"
                             >
                               <MoreVertical className="w-3.5 h-3.5" />
@@ -453,7 +453,7 @@ export default function AllTournamentsView({
                         </span>
                         <span>{fillPct}%</span>
                       </div>
-                      <div className="w-full h-1.5 bg-[#27272a] rounded-full overflow-hidden border border-[#3f3f46]/40">
+                      <div className="w-full h-1.5 bg-[#27272a] rounded-none overflow-hidden border border-[#3f3f46]/40">
                         <div
                           className={`h-full transition-all duration-300 ${
                             fillPct >= 100
@@ -468,7 +468,7 @@ export default function AllTournamentsView({
                     </div>
 
                     {/* Financials & Schedule Reflow */}
-                    <div className="grid grid-cols-3 gap-1 bg-[#1c1b1c] p-1.5 rounded border border-[#27272a] text-center">
+                    <div className="grid grid-cols-3 gap-1 bg-[#1c1b1c] p-1.5 rounded-none border border-[#27272a] text-center">
                       <div className="min-w-0">
                         <span className="text-[8px] text-[#849495] block uppercase font-label-bold">Prize Pool</span>
                         <span className="font-headline font-bold text-[#fed83a] text-xs truncate block">{prizeDisplay}</span>
@@ -487,21 +487,21 @@ export default function AllTournamentsView({
                     <div className="flex items-center gap-1.5 pt-0.5">
                       <button
                         onClick={() => onSelectTournament(t.id)}
-                        className="flex-1 py-1.5 px-3 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_8px_rgba(0,242,255,0.2)] flex items-center justify-center gap-1 cursor-pointer min-h-[32px]"
+                        className="flex-1 py-1.5 px-3 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded-none text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_8px_rgba(0,242,255,0.2)] flex items-center justify-center gap-1 cursor-pointer min-h-[32px]"
                       >
                         <span>Manage</span>
                         <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => onEditTournament(t)}
-                        className="p-1.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
+                        className="p-1.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
                         title="Edit Tournament"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={(e) => handleToggleMenu(e, t)}
-                        className="p-1.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
+                        className="p-1.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
                         title="More Options"
                       >
                         <MoreVertical className="w-3.5 h-3.5" />
@@ -518,9 +518,9 @@ export default function AllTournamentsView({
       {/* 3. CONFIRMATION MODAL FOR DELETION */}
       {deleteConfirmTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded p-6 max-w-md w-full space-y-4 shadow-2xl">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-6 max-w-md w-full space-y-4 shadow-2xl">
             <div className="flex items-center gap-3 text-red-400">
-              <div className="w-9 h-9 rounded bg-red-950/60 border border-red-500/30 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-none bg-red-950/60 border border-red-500/30 flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-red-400" />
               </div>
               <div>
@@ -539,13 +539,13 @@ export default function AllTournamentsView({
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setDeleteConfirmTarget(null)}
-                className="flex-1 py-2 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+                className="flex-1 py-2 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-headline font-bold uppercase transition-colors cursor-pointer shadow-lg shadow-red-600/30"
+                className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer shadow-lg shadow-red-600/30"
               >
                 Delete Tournament
               </button>
@@ -557,10 +557,10 @@ export default function AllTournamentsView({
       {/* 3.1 CONFIRMATION & SUMMARY MODAL FOR TOURNAMENT CANCELLATION */}
       {cancelConfirmTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded p-6 max-w-lg w-full space-y-4 shadow-2xl">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-6 max-w-lg w-full space-y-4 shadow-2xl">
             {/* Modal Header */}
             <div className="flex items-center gap-3 text-[#ff5e07]">
-              <div className="w-10 h-10 rounded bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-none bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center shrink-0">
                 <Ban className="w-5 h-5 text-[#ff5e07]" />
               </div>
               <div>
@@ -578,7 +578,7 @@ export default function AllTournamentsView({
             {/* Modal Body: Active Confirmation */}
             {!cancelResultSummary ? (
               <div className="space-y-3.5 text-xs font-body">
-                <div className="p-3 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1.5">
+                <div className="p-3 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1.5">
                   <div className="flex justify-between text-[#849495]">
                     <span>Tournament Arena:</span>
                     <strong className="text-white font-headline">{cancelConfirmTarget.title}</strong>
@@ -593,7 +593,7 @@ export default function AllTournamentsView({
                   </div>
                 </div>
 
-                <div className="p-3.5 bg-[#ff5e07]/5 border border-[#ff5e07]/20 rounded space-y-2 text-[#b9cacb] leading-relaxed">
+                <div className="p-3.5 bg-[#ff5e07]/5 border border-[#ff5e07]/20 rounded-none space-y-2 text-[#b9cacb] leading-relaxed">
                   <span className="font-headline font-bold text-[#ff5e07] block uppercase text-[11px] tracking-wider">
                     Official Cancellation Terms:
                   </span>
@@ -615,7 +615,7 @@ export default function AllTournamentsView({
                     value={cancelReason}
                     onChange={(e) => setCancelReason(e.target.value)}
                     placeholder="e.g. Tournament Cancelled by Organizer"
-                    className="w-full bg-[#1c1b1c] border border-[#27272a] rounded px-3 py-2 text-xs text-white placeholder-[#849495] focus:outline-none focus:border-[#ff5e07]"
+                    className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-none px-3 py-2 text-xs text-white placeholder-[#849495] focus:outline-none focus:border-[#ff5e07]"
                   />
                 </div>
 
@@ -623,14 +623,14 @@ export default function AllTournamentsView({
                   <button
                     onClick={closeCancelModal}
                     disabled={isCancelling}
-                    className="flex-1 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
                   >
                     Keep Tournament
                   </button>
                   <button
                     onClick={confirmCancel}
                     disabled={isCancelling}
-                    className="flex-1 py-2.5 bg-[#ff5e07] hover:bg-[#ff7a33] text-white rounded text-xs font-headline font-bold uppercase transition-all cursor-pointer shadow-lg shadow-[#ff5e07]/30 flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-[#ff5e07] hover:bg-[#ff7a33] text-white rounded-none text-xs font-headline font-bold uppercase transition-all cursor-pointer shadow-lg shadow-[#ff5e07]/30 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isCancelling ? (
                       <>
@@ -649,17 +649,17 @@ export default function AllTournamentsView({
             ) : (
               /* Modal Body: Post-Cancellation Summary Report */
               <div className="space-y-4 text-xs font-body">
-                <div className="p-4 bg-[#1c1b1c] rounded border border-[#10b981]/30 space-y-2">
+                <div className="p-4 bg-[#1c1b1c] rounded-none border border-[#10b981]/30 space-y-2">
                   <div className="flex items-center gap-2 text-[#10b981] font-headline font-bold uppercase text-xs">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Cancellation & Refund Completed</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="p-2.5 bg-[#141416] rounded border border-[#27272a]">
+                    <div className="p-2.5 bg-[#141416] rounded-none border border-[#27272a]">
                       <span className="text-[10px] text-[#849495] block uppercase font-label-bold">Squads Refunded</span>
                       <strong className="text-sm font-headline text-white">{cancelResultSummary.refunded_count ?? 0} squads</strong>
                     </div>
-                    <div className="p-2.5 bg-[#141416] rounded border border-[#27272a]">
+                    <div className="p-2.5 bg-[#141416] rounded-none border border-[#27272a]">
                       <span className="text-[10px] text-[#849495] block uppercase font-label-bold">Total Disbursed</span>
                       <strong className="text-sm font-headline text-[#10b981]">₹{cancelResultSummary.total_refund_amount ?? 0}</strong>
                     </div>
@@ -673,7 +673,7 @@ export default function AllTournamentsView({
 
                 <button
                   onClick={closeCancelModal}
-                  className="w-full py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] rounded text-xs font-headline font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  className="w-full py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] rounded-none text-xs font-headline font-bold uppercase tracking-wider transition-colors cursor-pointer"
                 >
                   Done
                 </button>
@@ -700,7 +700,7 @@ export default function AllTournamentsView({
               bottom: activeMenu.openUpwards ? `${window.innerHeight - activeMenu.top}px` : undefined,
               left: `${activeMenu.left}px`,
             }}
-            className="z-[9999] w-44 bg-[#141416] border border-[#27272a] rounded shadow-2xl py-1 text-left"
+            className="z-[9999] w-44 bg-[#141416] border border-[#27272a] rounded-none shadow-2xl py-1 text-left"
             onClick={(e) => e.stopPropagation()}
           >
             <button

@@ -74,7 +74,7 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fadeIn"
     >
       <div
-        className="relative w-full max-w-md bg-[#0e1017] border border-[#27272a] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden my-auto"
+        className="relative w-full max-w-md bg-[#0e1017] border border-[#27272a] rounded-none shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#00f2ff] to-transparent opacity-80" />
@@ -82,7 +82,7 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-[#1f2230]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+            <div className="w-10 h-10 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
               <UserPlus className="w-5 h-5" />
             </div>
             <div>
@@ -97,7 +97,7 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
             onClick={onClose}
             disabled={isSubmitting}
             aria-label="Close dialog"
-            className="w-9 h-9 min-h-[44px] min-w-[44px] rounded-lg bg-[#141416] border border-[#27272a] flex items-center justify-center text-[#849495] hover:text-white hover:border-[#00f2ff]/50 transition-colors disabled:opacity-50"
+            className="w-9 h-9 min-h-[44px] min-w-[44px] rounded-none bg-[#141416] border border-[#27272a] flex items-center justify-center text-[#849495] hover:text-white hover:border-[#00f2ff]/50 transition-colors disabled:opacity-50"
           >
             <X className="w-5 h-5" />
           </button>
@@ -108,7 +108,7 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
           {errorBanner && (
             <div
               role="alert"
-              className="p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 text-red-200 text-xs flex items-start gap-2.5 animate-fadeIn"
+              className="p-3.5 rounded-none bg-red-950/40 border border-red-500/40 text-red-200 text-xs flex items-start gap-2.5 animate-fadeIn"
             >
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1 font-body">{errorBanner}</div>
@@ -131,7 +131,7 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
                 if (fieldError) setFieldError(null)
               }}
               placeholder="10-digit FF UID, username, or email"
-              className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#141416] rounded-xl border text-sm text-white placeholder-[#849495]/60 focus:outline-none focus:ring-1 focus:ring-[#00f2ff] transition-all ${
+              className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#141416] rounded-none border text-sm text-white placeholder-[#849495]/60 focus:outline-none focus:ring-1 focus:ring-[#00f2ff] transition-all ${
                 fieldError ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272a] focus:border-[#00f2ff]'
               }`}
             />
@@ -151,7 +151,7 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
               <button
                 type="button"
                 onClick={() => setRole('Member')}
-                className={`min-h-[44px] p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                className={`min-h-[44px] p-3 rounded-none border text-left flex flex-col justify-between transition-all ${
                   role === 'Member'
                     ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-white shadow-[0_0_15px_rgba(0,242,255,0.15)]'
                     : 'bg-[#141416] border-[#27272a] text-[#849495] hover:border-[#3a494b] hover:text-white'
@@ -160,11 +160,11 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
                 <div className="flex items-center justify-between w-full">
                   <span className="font-headline font-bold text-xs uppercase tracking-wider">Member</span>
                   <div
-                    className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                    className={`w-3.5 h-3.5 rounded-none border flex items-center justify-center ${
                       role === 'Member' ? 'border-[#00f2ff] bg-[#00f2ff]' : 'border-[#849495]'
                     }`}
                   >
-                    {role === 'Member' && <div className="w-1.5 h-1.5 rounded-full bg-[#0e1017]" />}
+                    {role === 'Member' && <div className="w-1.5 h-1.5 rounded-none bg-[#0e1017]" />}
                   </div>
                 </div>
                 <span className="text-[11px] mt-1 text-[#849495]">Main starter slot</span>
@@ -173,7 +173,7 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
               <button
                 type="button"
                 onClick={() => setRole('Substitute')}
-                className={`min-h-[44px] p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                className={`min-h-[44px] p-3 rounded-none border text-left flex flex-col justify-between transition-all ${
                   role === 'Substitute'
                     ? 'bg-amber-400/10 border-amber-400 text-white shadow-[0_0_15px_rgba(251,191,36,0.15)]'
                     : 'bg-[#141416] border-[#27272a] text-[#849495] hover:border-[#3a494b] hover:text-white'
@@ -182,11 +182,11 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
                 <div className="flex items-center justify-between w-full">
                   <span className="font-headline font-bold text-xs uppercase tracking-wider">Substitute</span>
                   <div
-                    className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                    className={`w-3.5 h-3.5 rounded-none border flex items-center justify-center ${
                       role === 'Substitute' ? 'border-amber-400 bg-amber-400' : 'border-[#849495]'
                     }`}
                   >
-                    {role === 'Substitute' && <div className="w-1.5 h-1.5 rounded-full bg-[#0e1017]" />}
+                    {role === 'Substitute' && <div className="w-1.5 h-1.5 rounded-none bg-[#0e1017]" />}
                   </div>
                 </div>
                 <span className="text-[11px] mt-1 text-[#849495]">Reserve squad slot</span>
@@ -195,7 +195,7 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
           </div>
 
           {/* Info Notice */}
-          <div className="p-3 rounded-xl bg-[#141416] border border-[#27272a] flex items-start gap-2.5 text-xs text-[#849495]">
+          <div className="p-3 rounded-none bg-[#141416] border border-[#27272a] flex items-start gap-2.5 text-xs text-[#849495]">
             <Info className="w-4 h-4 text-[#00f2ff] shrink-0 mt-0.5" />
             <p>
               An atomic Realtime notification will be sent to the player. Invitations remain valid for 7 days unless cancelled.
@@ -208,14 +208,14 @@ export default function TeamInviteModal({ isOpen, onClose, teamId, onSuccess }) 
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl border border-[#27272a] bg-[#141416] text-[#e5e2e3] font-headline font-semibold text-xs uppercase tracking-wider hover:bg-[#1f2230] transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-none border border-[#27272a] bg-[#141416] text-[#e5e2e3] font-headline font-semibold text-xs uppercase tracking-wider hover:bg-[#1f2230] transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 rounded-xl bg-[#00f2ff] text-[#00363a] font-headline font-bold text-xs uppercase tracking-wider hover:bg-[#74f5ff] active:scale-[0.99] transition-all shadow-[0_0_20px_rgba(0,242,255,0.25)] flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 rounded-none bg-[#00f2ff] text-[#00363a] font-headline font-bold text-xs uppercase tracking-wider hover:bg-[#74f5ff] active:scale-[0.99] transition-all shadow-[0_0_20px_rgba(0,242,255,0.25)] flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>

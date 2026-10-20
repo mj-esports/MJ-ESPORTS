@@ -557,14 +557,14 @@ export default function MatchScheduleModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md overflow-hidden animate-fadeIn"
     >
       {/* Modal Container */}
-      <div className="w-full max-w-4xl h-full sm:h-auto sm:max-h-[92vh] bg-[#131315] border-0 sm:border border-[#27272a] sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden relative font-body text-white">
+      <div className="w-full max-w-4xl h-full sm:h-auto sm:max-h-[92vh] bg-[#131315] border-0 sm:border border-[#27272a] sm:rounded-none flex flex-col shadow-2xl overflow-hidden relative font-body text-white">
         
         {/* ==================================================================== */}
         {/* 1. HEADER                                                           */}
         {/* ==================================================================== */}
         <header className="px-4 sm:px-6 py-4 bg-[#141416] border-b border-[#27272a] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
+            <div className="w-9 h-9 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
               <Swords className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -573,7 +573,7 @@ export default function MatchScheduleModal({
                 className="font-headline text-base sm:text-lg font-bold text-white uppercase tracking-tight truncate flex items-center gap-2"
               >
                 <span>Schedule Matches</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-[#1c1b1c] border border-[#27272a] text-[#849495] font-mono font-normal">
+                <span className="text-[10px] px-2 py-0.5 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[#849495] font-mono font-normal">
                   Multi-Round
                 </span>
               </h2>
@@ -588,7 +588,7 @@ export default function MatchScheduleModal({
             onClick={onClose}
             disabled={isSaving}
             aria-label="Close match schedule modal"
-            className="p-2 text-[#849495] hover:text-white hover:bg-[#1c1b1c] border border-transparent hover:border-[#27272a] rounded-lg transition-colors cursor-pointer disabled:opacity-50 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="p-2 text-[#849495] hover:text-white hover:bg-[#1c1b1c] border border-transparent hover:border-[#27272a] rounded-none transition-colors cursor-pointer disabled:opacity-50 min-h-[44px] min-w-[44px] flex items-center justify-center"
           >
             <X className="w-5 h-5" />
           </button>
@@ -599,7 +599,7 @@ export default function MatchScheduleModal({
         {/* ==================================================================== */}
         <div className="px-4 sm:px-6 py-3 bg-[#18181b] border-b border-[#27272a] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shrink-0 text-xs">
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 bg-[#141416] px-3 py-1 rounded border border-[#27272a]">
+            <div className="flex items-center gap-1.5 bg-[#141416] px-3 py-1 rounded-none border border-[#27272a]">
               <Layers className="w-3.5 h-3.5 text-[#00f2ff]" />
               <span className="text-[#849495] font-label-bold uppercase">Matches:</span>
               <span className="font-headline font-bold text-white">
@@ -607,7 +607,7 @@ export default function MatchScheduleModal({
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-[#141416] px-3 py-1 rounded border border-[#27272a]">
+            <div className="flex items-center gap-1.5 bg-[#141416] px-3 py-1 rounded-none border border-[#27272a]">
               <Clock className="w-3.5 h-3.5 text-[#fed83a]" />
               <span className="text-[#849495]">Min Spacing:</span>
               <span className="font-mono text-white">15 mins</span>
@@ -616,12 +616,12 @@ export default function MatchScheduleModal({
 
           <div>
             {validation.isValid ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 font-headline font-bold uppercase text-[11px]">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 font-headline font-bold uppercase text-[11px]">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Schedule Valid</span>
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-950/40 text-[#fed83a] border border-amber-500/40 font-headline font-bold uppercase text-[11px]">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-amber-950/40 text-[#fed83a] border border-amber-500/40 font-headline font-bold uppercase text-[11px]">
                 <AlertCircle className="w-3.5 h-3.5 text-[#fed83a]" />
                 <span>Issues ({validation.errors.length})</span>
               </span>
@@ -633,7 +633,7 @@ export default function MatchScheduleModal({
         {serverError && (
           <div
             role="alert"
-            className="mx-4 sm:mx-6 mt-4 p-3 rounded-lg bg-red-950/40 border border-red-500/40 text-red-200 text-xs flex items-start gap-2.5 animate-fadeIn"
+            className="mx-4 sm:mx-6 mt-4 p-3 rounded-none bg-red-950/40 border border-red-500/40 text-red-200 text-xs flex items-start gap-2.5 animate-fadeIn"
           >
             <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
             <div className="flex-1">
@@ -654,7 +654,7 @@ export default function MatchScheduleModal({
         {addMatchWarning && (
           <div
             role="alert"
-            className="mx-4 sm:mx-6 mt-4 p-3 rounded-lg bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs flex items-start gap-2.5 animate-fadeIn"
+            className="mx-4 sm:mx-6 mt-4 p-3 rounded-none bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs flex items-start gap-2.5 animate-fadeIn"
           >
             <AlertCircle className="w-4 h-4 text-[#fed83a] shrink-0 mt-0.5" />
             <div className="flex-1">{addMatchWarning}</div>
@@ -688,7 +688,7 @@ export default function MatchScheduleModal({
                 return (
                   <article
                     key={match.id || `local-match-${idx}`}
-                    className={`bg-[#141416] border rounded-xl p-4 sm:p-5 transition-all shadow-md relative ${
+                    className={`bg-[#141416] border rounded-none p-4 sm:p-5 transition-all shadow-md relative ${
                       matchErrors.length > 0
                         ? 'border-red-500/50 bg-red-950/5'
                         : 'border-[#27272a] hover:border-[#3f3f46]'
@@ -701,7 +701,7 @@ export default function MatchScheduleModal({
                           MATCH {String(match.match_number || idx + 1).padStart(2, '0')}
                         </span>
                         <span
-                          className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase border ${
+                          className={`text-[10px] px-2 py-0.5 rounded-none font-mono uppercase border ${
                             match.isPersisted
                               ? 'bg-[#1c1b1c] text-[#b9cacb] border-[#27272a]'
                               : 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/30'
@@ -728,7 +728,7 @@ export default function MatchScheduleModal({
                               ? `Cannot delete a ${match.status} match`
                               : `Delete Match ${idx + 1}`
                           }
-                          className="p-2 text-[#849495] hover:text-red-400 hover:bg-red-950/20 border border-transparent hover:border-red-500/30 rounded-lg transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] flex items-center justify-center"
+                          className="p-2 text-[#849495] hover:text-red-400 hover:bg-red-950/20 border border-transparent hover:border-red-500/30 rounded-none transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] flex items-center justify-center"
                         >
                           {deletingId === match.id ? (
                             <Loader2 className="w-4 h-4 text-red-400 animate-spin" />
@@ -757,7 +757,7 @@ export default function MatchScheduleModal({
                           onChange={(e) => handleFieldChange(idx, 'round_name', e.target.value)}
                           placeholder="e.g. Round 1 / Grand Finals"
                           disabled={isSaving}
-                          className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-lg px-3 py-2.5 text-xs text-white placeholder-[#849495] focus:border-[#00f2ff] focus:outline-none focus:ring-1 focus:ring-[#00f2ff] min-h-[44px] transition-colors"
+                          className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-none px-3 py-2.5 text-xs text-white placeholder-[#849495] focus:border-[#00f2ff] focus:outline-none focus:ring-1 focus:ring-[#00f2ff] min-h-[44px] transition-colors"
                         />
                       </div>
 
@@ -775,7 +775,7 @@ export default function MatchScheduleModal({
                             value={match.match_type}
                             onChange={(e) => handleFieldChange(idx, 'match_type', e.target.value)}
                             disabled={isSaving}
-                            className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-lg px-3 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none focus:ring-1 focus:ring-[#00f2ff] appearance-none pr-8 min-h-[44px] transition-colors cursor-pointer"
+                            className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-none px-3 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none focus:ring-1 focus:ring-[#00f2ff] appearance-none pr-8 min-h-[44px] transition-colors cursor-pointer"
                           >
                             {SUPPORTED_MATCH_TYPES.map((type) => (
                               <option key={type.id} value={type.id} className="bg-[#1c1b1c] text-white">
@@ -801,7 +801,7 @@ export default function MatchScheduleModal({
                             value={match.map_name}
                             onChange={(e) => handleFieldChange(idx, 'map_name', e.target.value)}
                             disabled={isSaving}
-                            className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-lg px-3 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none focus:ring-1 focus:ring-[#00f2ff] appearance-none pr-8 min-h-[44px] transition-colors cursor-pointer"
+                            className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-none px-3 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none focus:ring-1 focus:ring-[#00f2ff] appearance-none pr-8 min-h-[44px] transition-colors cursor-pointer"
                           >
                             {SUPPORTED_MAPS.map((map) => (
                               <option key={map.id} value={map.id} className="bg-[#1c1b1c] text-white">
@@ -818,7 +818,7 @@ export default function MatchScheduleModal({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           
                           {/* Scheduled Date/Time Pair */}
-                          <div className="space-y-1.5 bg-[#18181b] p-3 rounded-lg border border-[#27272a]">
+                          <div className="space-y-1.5 bg-[#18181b] p-3 rounded-none border border-[#27272a]">
                             <label className="block text-[11px] font-headline font-bold text-[#00f2ff] uppercase tracking-wide">
                               Scheduled Match Time *
                             </label>
@@ -831,7 +831,7 @@ export default function MatchScheduleModal({
                                   onChange={(e) => handleFieldChange(idx, 'scheduled_date', e.target.value)}
                                   aria-label={`Match ${idx + 1} Scheduled Date`}
                                   disabled={isSaving}
-                                  className="w-full bg-[#141416] border border-[#27272a] rounded px-2.5 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none min-h-[44px] cursor-pointer"
+                                  className="w-full bg-[#141416] border border-[#27272a] rounded-none px-2.5 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none min-h-[44px] cursor-pointer"
                                 />
                               </div>
                               <div>
@@ -842,7 +842,7 @@ export default function MatchScheduleModal({
                                   onChange={(e) => handleFieldChange(idx, 'scheduled_time_val', e.target.value)}
                                   aria-label={`Match ${idx + 1} Scheduled Time`}
                                   disabled={isSaving}
-                                  className="w-full bg-[#141416] border border-[#27272a] rounded px-2.5 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none min-h-[44px] cursor-pointer"
+                                  className="w-full bg-[#141416] border border-[#27272a] rounded-none px-2.5 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none min-h-[44px] cursor-pointer"
                                 />
                               </div>
                             </div>
@@ -852,7 +852,7 @@ export default function MatchScheduleModal({
                           </div>
 
                           {/* Room Release Date/Time Pair */}
-                          <div className="space-y-1.5 bg-[#18181b] p-3 rounded-lg border border-[#27272a]">
+                          <div className="space-y-1.5 bg-[#18181b] p-3 rounded-none border border-[#27272a]">
                             <label className="block text-[11px] font-headline font-bold text-[#fed83a] uppercase tracking-wide">
                               Room Release Time (Optional)
                             </label>
@@ -865,7 +865,7 @@ export default function MatchScheduleModal({
                                   onChange={(e) => handleFieldChange(idx, 'room_release_date', e.target.value)}
                                   aria-label={`Match ${idx + 1} Room Release Date`}
                                   disabled={isSaving}
-                                  className="w-full bg-[#141416] border border-[#27272a] rounded px-2.5 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none min-h-[44px] cursor-pointer"
+                                  className="w-full bg-[#141416] border border-[#27272a] rounded-none px-2.5 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none min-h-[44px] cursor-pointer"
                                 />
                               </div>
                               <div>
@@ -876,7 +876,7 @@ export default function MatchScheduleModal({
                                   onChange={(e) => handleFieldChange(idx, 'room_release_time_val', e.target.value)}
                                   aria-label={`Match ${idx + 1} Room Release Time`}
                                   disabled={isSaving}
-                                  className="w-full bg-[#141416] border border-[#27272a] rounded px-2.5 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none min-h-[44px] cursor-pointer"
+                                  className="w-full bg-[#141416] border border-[#27272a] rounded-none px-2.5 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none min-h-[44px] cursor-pointer"
                                 />
                               </div>
                             </div>
@@ -914,7 +914,7 @@ export default function MatchScheduleModal({
                   type="button"
                   onClick={handleAddMatch}
                   disabled={matches.length >= MAX_MATCHES || isSaving}
-                  className="w-full py-3 px-4 bg-[#141416] hover:bg-[#1c1b1c] border border-dashed border-[#00f2ff]/40 hover:border-[#00f2ff] text-[#00f2ff] rounded-xl text-xs font-headline font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
+                  className="w-full py-3 px-4 bg-[#141416] hover:bg-[#1c1b1c] border border-dashed border-[#00f2ff]/40 hover:border-[#00f2ff] text-[#00f2ff] rounded-none text-xs font-headline font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
                 >
                   <Plus className="w-4 h-4" />
                   <span>
@@ -934,7 +934,7 @@ export default function MatchScheduleModal({
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="px-4 sm:px-5 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-lg text-xs font-headline font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 min-h-[44px]"
+            className="px-4 sm:px-5 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 min-h-[44px]"
           >
             Cancel
           </button>
@@ -944,7 +944,7 @@ export default function MatchScheduleModal({
               type="button"
               onClick={handleSaveSchedule}
               disabled={isSaving || isLoading || !validation.isValid}
-              className="px-5 sm:px-7 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-extrabold rounded-lg text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_12px_rgba(0,242,255,0.25)] min-h-[44px]"
+              className="px-5 sm:px-7 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-extrabold rounded-none text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_12px_rgba(0,242,255,0.25)] min-h-[44px]"
             >
               {isSaving ? (
                 <>

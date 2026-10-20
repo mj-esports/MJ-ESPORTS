@@ -56,9 +56,9 @@ export default function WhyChooseUs() {
             return (
               <div
                 key={idx}
-                className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 hover:border-slate-700 transition-all hover:-translate-y-1 space-y-4"
+                className="bg-slate-900/40 border border-slate-800/80 rounded-none p-6 hover:border-slate-700 transition-all hover:-translate-y-1 space-y-4"
               >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${feature.iconBg}`}>
+                <div className={`w-12 h-12 rounded-none flex items-center justify-center border ${feature.iconBg}`}>
                   <Icon className={`w-6 h-6 ${feature.iconColor}`} />
                 </div>
                 <h3 className="text-lg font-bold text-white">{feature.title}</h3>

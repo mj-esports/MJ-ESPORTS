@@ -110,9 +110,9 @@ export default function AdminAuditLogsView() {
     <div className="space-y-6">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-4 shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+          <div className="w-10 h-10 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
             <Shield className="w-5 h-5" />
           </div>
           <div>
@@ -125,7 +125,7 @@ export default function AdminAuditLogsView() {
 
         <button
           onClick={exportAuditCSV}
-          className="px-4 py-2 bg-[#09090b] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] hover:border-[#00f2ff] rounded-xl text-xs font-mono font-bold uppercase transition-all flex items-center justify-center gap-2 min-h-[44px]"
+          className="px-4 py-2 bg-[#09090b] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] hover:border-[#00f2ff] rounded-none text-xs font-mono font-bold uppercase transition-all flex items-center justify-center gap-2 min-h-[44px]"
         >
           <ArrowDownToLine className="w-4 h-4" />
           <span>Export Audit CSV</span>
@@ -133,7 +133,7 @@ export default function AdminAuditLogsView() {
       </div>
 
       {/* Filters Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#18181b]/60 p-4 rounded-xl border border-[#27272a]">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#18181b]/60 p-4 rounded-none border border-[#27272a]">
         <div className="relative w-full sm:w-72">
           <Search className="w-4 h-4 text-[#a1a1aa] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -141,7 +141,7 @@ export default function AdminAuditLogsView() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search audit actions or admins..."
-            className="w-full bg-[#09090b] border border-[#27272a] rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder-[#71717a] focus:border-[#00f2ff] focus:outline-none font-mono h-[38px]"
+            className="w-full bg-[#09090b] border border-[#27272a] rounded-none pl-9 pr-3 py-2 text-xs text-white placeholder-[#71717a] focus:border-[#00f2ff] focus:outline-none font-mono h-[38px]"
           />
         </div>
 
@@ -149,7 +149,7 @@ export default function AdminAuditLogsView() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono h-[38px] w-full sm:w-auto"
+            className="bg-[#09090b] border border-[#27272a] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono h-[38px] w-full sm:w-auto"
           >
             <option value="ALL">All Categories</option>
             <option value="MATCH">Match Ops</option>
@@ -160,7 +160,7 @@ export default function AdminAuditLogsView() {
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono h-[38px] w-full sm:w-auto"
+            className="bg-[#09090b] border border-[#27272a] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono h-[38px] w-full sm:w-auto"
           >
             <option value="ALL">All Severities</option>
             <option value="INFO">Info</option>
@@ -187,11 +187,11 @@ export default function AdminAuditLogsView() {
           {filteredLogs.map((log) => (
             <div
               key={log.id}
-              className="bg-[#18181b]/60 border border-[#27272a] hover:border-[#00f2ff]/40 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all shadow-md font-mono"
+              className="bg-[#18181b]/60 border border-[#27272a] hover:border-[#00f2ff]/40 rounded-none p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all shadow-md font-mono"
             >
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${getSeverityBadge(log.severity)}`}>
+                  <span className={`px-2.5 py-0.5 rounded-none text-[10px] font-bold border ${getSeverityBadge(log.severity)}`}>
                     {log.severity}
                   </span>
                   <span className="font-extrabold text-xs text-white uppercase">{log.action}</span>
@@ -212,7 +212,7 @@ export default function AdminAuditLogsView() {
               </div>
 
               <div className="shrink-0">
-                <span className="text-[10px] text-[#00ff9d] font-bold bg-[#00ff9d]/10 border border-[#00ff9d]/30 px-2.5 py-1 rounded">
+                <span className="text-[10px] text-[#00ff9d] font-bold bg-[#00ff9d]/10 border border-[#00ff9d]/30 px-2.5 py-1 rounded-none">
                   LOGGED
                 </span>
               </div>

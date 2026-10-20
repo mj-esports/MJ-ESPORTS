@@ -93,7 +93,7 @@ export default function Step2MatchSchedule({
       <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#27272a] pb-4 sm:pb-5 gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-[#00f2ff]" />
+            <span className="w-2 h-2 rounded-none bg-[#00f2ff]" />
             <h1 className="font-headline text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight">
               02. MATCH & SCHEDULE
             </h1>
@@ -104,14 +104,14 @@ export default function Step2MatchSchedule({
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className="px-2.5 py-1 rounded text-[10px] font-mono font-bold bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 uppercase">
+          <span className="px-2.5 py-1 rounded-none text-[10px] font-mono font-bold bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 uppercase">
             CALIBRATED FOR COMPETITIVE
           </span>
         </div>
       </div>
 
       {/* 2. MATCH CONFIGURATION CARD */}
-      <section className="bg-[#141416] rounded-xl border border-[#27272a] p-5 sm:p-6 space-y-6 shadow-lg">
+      <section className="bg-[#141416] rounded-none border border-[#27272a] p-5 sm:p-6 space-y-6 shadow-lg">
         <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
           <div className="flex items-center gap-2 text-[#00f2ff]">
             <Gamepad2 className="w-4 h-4" />
@@ -122,7 +122,7 @@ export default function Step2MatchSchedule({
               | Free Fire MAX Tactical Lobby Specs
             </span>
           </div>
-          <span className="text-[10px] font-mono text-[#00f2ff] px-2 py-0.5 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 uppercase">
+          <span className="text-[10px] font-mono text-[#00f2ff] px-2 py-0.5 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 uppercase">
             OFFICIAL SCENE PRESET
           </span>
         </div>
@@ -137,7 +137,7 @@ export default function Step2MatchSchedule({
               <select
                 value={currentMap}
                 onChange={(e) => handleFieldChange('ffMap', e.target.value)}
-                className="w-full h-11 min-h-[44px] bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] text-white rounded-lg px-3.5 py-2.5 text-xs font-body appearance-none pr-9 focus:outline-none transition-colors cursor-pointer"
+                className="w-full h-11 min-h-[44px] bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] text-white rounded-none px-3.5 py-2.5 text-xs font-body appearance-none pr-9 focus:outline-none transition-colors cursor-pointer"
               >
                 {maps.map((m) => (
                   <option key={m.id} value={m.id} className="bg-[#141416] text-white">
@@ -162,7 +162,7 @@ export default function Step2MatchSchedule({
               <select
                 value={currentMatchType}
                 onChange={(e) => handleFieldChange('matchType', e.target.value)}
-                className="w-full h-11 min-h-[44px] bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] text-white rounded-lg px-3.5 py-2.5 text-xs font-body appearance-none pr-9 focus:outline-none transition-colors cursor-pointer"
+                className="w-full h-11 min-h-[44px] bg-[#1b1b1d] border border-[#27272a] focus:border-[#00f2ff] text-white rounded-none px-3.5 py-2.5 text-xs font-body appearance-none pr-9 focus:outline-none transition-colors cursor-pointer"
               >
                 {matchTypes.map((mt) => (
                   <option key={mt.id} value={mt.id} className="bg-[#141416] text-white">
@@ -183,29 +183,29 @@ export default function Step2MatchSchedule({
             <label className="block font-headline text-xs font-bold tracking-wider text-[#849495] uppercase">
               Gun Attributes (Skin Stats)
             </label>
-            <div className="h-11 min-h-[44px] grid grid-cols-2 gap-1.5 p-1 bg-[#1b1b1d] border border-[#27272a] rounded-lg">
+            <div className="h-11 min-h-[44px] grid grid-cols-2 gap-1.5 p-1 bg-[#1b1b1d] border border-[#27272a] rounded-none">
               <button
                 type="button"
                 onClick={() => handleGunToggle(true)}
-                className={`h-full py-0 px-2 text-xs font-headline font-bold rounded transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                className={`h-full py-0 px-2 text-xs font-headline font-bold rounded-none transition-all cursor-pointer flex items-center justify-center gap-1 ${
                   isGunEnabled
                     ? 'bg-[#00f2ff]/15 border border-[#00f2ff] text-[#00f2ff] shadow-sm'
                     : 'text-[#849495] hover:text-white bg-transparent border border-transparent'
                 }`}
               >
-                {isGunEnabled && <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0" />}
+                {isGunEnabled && <span className="w-1.5 h-1.5 rounded-none bg-[#00f2ff] shrink-0" />}
                 <span>ENABLED</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleGunToggle(false)}
-                className={`h-full py-0 px-2 text-xs font-headline font-bold rounded transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                className={`h-full py-0 px-2 text-xs font-headline font-bold rounded-none transition-all cursor-pointer flex items-center justify-center gap-1 ${
                   !isGunEnabled
                     ? 'bg-[#00f2ff]/15 border border-[#00f2ff] text-[#00f2ff] shadow-sm'
                     : 'text-[#849495] hover:text-white bg-transparent border border-transparent'
                 }`}
               >
-                {!isGunEnabled && <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0" />}
+                {!isGunEnabled && <span className="w-1.5 h-1.5 rounded-none bg-[#00f2ff] shrink-0" />}
                 <span>DISABLED</span>
               </button>
             </div>
@@ -220,29 +220,29 @@ export default function Step2MatchSchedule({
             <label className="block font-headline text-xs font-bold tracking-wider text-[#849495] uppercase">
               Character Skills
             </label>
-            <div className="h-11 min-h-[44px] grid grid-cols-2 gap-1.5 p-1 bg-[#1b1b1d] border border-[#27272a] rounded-lg">
+            <div className="h-11 min-h-[44px] grid grid-cols-2 gap-1.5 p-1 bg-[#1b1b1d] border border-[#27272a] rounded-none">
               <button
                 type="button"
                 onClick={() => handleSkillsToggle(false)}
-                className={`h-full py-0 px-2 text-xs font-headline font-bold rounded transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                className={`h-full py-0 px-2 text-xs font-headline font-bold rounded-none transition-all cursor-pointer flex items-center justify-center gap-1 ${
                   !isSkillsEnabled
                     ? 'bg-[#00f2ff]/15 border border-[#00f2ff] text-[#00f2ff] shadow-sm'
                     : 'text-[#849495] hover:text-white bg-transparent border border-transparent'
                 }`}
               >
-                {!isSkillsEnabled && <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0" />}
+                {!isSkillsEnabled && <span className="w-1.5 h-1.5 rounded-none bg-[#00f2ff] shrink-0" />}
                 <span>NO SKILLS</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleSkillsToggle(true)}
-                className={`h-full py-0 px-2 text-xs font-headline font-bold rounded transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                className={`h-full py-0 px-2 text-xs font-headline font-bold rounded-none transition-all cursor-pointer flex items-center justify-center gap-1 ${
                   isSkillsEnabled
                     ? 'bg-[#00f2ff]/15 border border-[#00f2ff] text-[#00f2ff] shadow-sm'
                     : 'text-[#849495] hover:text-white bg-transparent border border-transparent'
                 }`}
               >
-                {isSkillsEnabled && <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0" />}
+                {isSkillsEnabled && <span className="w-1.5 h-1.5 rounded-none bg-[#00f2ff] shrink-0" />}
                 <span>ACTIVE</span>
               </button>
             </div>
@@ -255,19 +255,19 @@ export default function Step2MatchSchedule({
 
         {/* Quick Sub-Settings Grid */}
         <div className="pt-4 border-t border-[#27272a] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-          <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#1b1b1d] border border-[#27272a]">
+          <div className="flex items-center justify-between p-2.5 rounded-none bg-[#1b1b1d] border border-[#27272a]">
             <span className="text-[#849495]">Revival Mechanism</span>
             <span className="font-bold text-[#00f2ff]">OFF</span>
           </div>
-          <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#1b1b1d] border border-[#27272a]">
+          <div className="flex items-center justify-between p-2.5 rounded-none bg-[#1b1b1d] border border-[#27272a]">
             <span className="text-[#849495]">Fall Damage</span>
             <span className="font-bold text-white">ENABLED</span>
           </div>
-          <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#1b1b1d] border border-[#27272a]">
+          <div className="flex items-center justify-between p-2.5 rounded-none bg-[#1b1b1d] border border-[#27272a]">
             <span className="text-[#849495]">Airdrop Supplies</span>
             <span className="font-bold text-white">STANDARD</span>
           </div>
-          <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#1b1b1d] border border-[#27272a]">
+          <div className="flex items-center justify-between p-2.5 rounded-none bg-[#1b1b1d] border border-[#27272a]">
             <span className="text-[#849495]">Anti-Cheat</span>
             <span className="font-bold text-[#10b981] flex items-center gap-1">
               <Shield className="w-3 h-3" /> ACTIVE
@@ -277,7 +277,7 @@ export default function Step2MatchSchedule({
       </section>
 
       {/* 3. TOURNAMENT TIMELINE & DISPATCH */}
-      <section className="bg-[#141416] rounded-xl border border-[#27272a] p-5 sm:p-6 space-y-6 shadow-lg">
+      <section className="bg-[#141416] rounded-none border border-[#27272a] p-5 sm:p-6 space-y-6 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#27272a] gap-2">
           <div className="flex items-center gap-2 text-[#00f2ff]">
             <Clock className="w-4 h-4" />
@@ -297,10 +297,10 @@ export default function Step2MatchSchedule({
         {/* 3 Chronological Connected Stage Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 relative items-stretch">
           {/* STAGE 01: REGISTRATION PHASE */}
-          <div className="bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] p-4 sm:p-5 rounded-xl transition-all flex flex-col justify-between h-full space-y-4">
+          <div className="bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] p-4 sm:p-5 rounded-none transition-all flex flex-col justify-between h-full space-y-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="px-2.5 py-0.5 rounded bg-[#201f21] text-[#00f2ff] font-mono text-[10px] font-bold border border-[#00f2ff]/20">
+                <span className="px-2.5 py-0.5 rounded-none bg-[#201f21] text-[#00f2ff] font-mono text-[10px] font-bold border border-[#00f2ff]/20">
                   STAGE 01
                 </span>
                 <span className="text-[10px] font-mono text-[#849495]">PUBLIC ACCESS</span>
@@ -322,7 +322,7 @@ export default function Step2MatchSchedule({
                     value={form.registrationStart || 'Immediate'}
                     onChange={(e) => handleFieldChange('registrationStart', e.target.value)}
                     placeholder="e.g. Immediate or 10:00 AM IST"
-                    className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-lg px-3 text-xs text-white font-mono focus:outline-none transition-colors"
+                    className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-none px-3 text-xs text-white font-mono focus:outline-none transition-colors"
                   />
                 </div>
 
@@ -337,7 +337,7 @@ export default function Step2MatchSchedule({
                     value={form.registrationEnd || '1 Hour Prior to Kickoff'}
                     onChange={(e) => handleFieldChange('registrationEnd', e.target.value)}
                     placeholder="e.g. 05:00 PM IST"
-                    className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-lg px-3 text-xs text-white font-mono focus:outline-none transition-colors"
+                    className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-none px-3 text-xs text-white font-mono focus:outline-none transition-colors"
                   />
                   {mergedErrors.registrationEnd && (
                     <p className="text-[10px] text-[#ef4444] font-body flex items-center gap-1 mt-0.5">
@@ -349,17 +349,17 @@ export default function Step2MatchSchedule({
               </div>
             </div>
 
-            <div className="p-2.5 bg-[#201f21] rounded-lg border border-[#27272a] text-[#849495] text-xs font-body flex items-center gap-2 mt-auto">
+            <div className="p-2.5 bg-[#201f21] rounded-none border border-[#27272a] text-[#849495] text-xs font-body flex items-center gap-2 mt-auto">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
               <span>Capacity limit: {form.maxTeams || 12} registered squads</span>
             </div>
           </div>
 
           {/* STAGE 02: CAPTAIN CHECK-IN */}
-          <div className="bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] p-4 sm:p-5 rounded-xl transition-all flex flex-col justify-between h-full space-y-4">
+          <div className="bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] p-4 sm:p-5 rounded-none transition-all flex flex-col justify-between h-full space-y-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="px-2.5 py-0.5 rounded bg-[#201f21] text-[#f1cc2d] font-mono text-[10px] font-bold border border-[#f1cc2d]/20">
+                <span className="px-2.5 py-0.5 rounded-none bg-[#201f21] text-[#f1cc2d] font-mono text-[10px] font-bold border border-[#f1cc2d]/20">
                   STAGE 02
                 </span>
                 <span className="text-[10px] font-mono text-[#f1cc2d]">MANDATORY VERIFICATION</span>
@@ -381,7 +381,7 @@ export default function Step2MatchSchedule({
                     value={form.checkInStart || '05:00 PM IST'}
                     onChange={(e) => handleFieldChange('checkInStart', e.target.value)}
                     placeholder="e.g. 05:00 PM IST"
-                    className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-lg px-3 text-xs text-white font-mono focus:outline-none transition-colors"
+                    className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-none px-3 text-xs text-white font-mono focus:outline-none transition-colors"
                   />
                   {mergedErrors.checkInStart && (
                     <p className="text-[10px] text-[#ef4444] font-body flex items-center gap-1 mt-0.5">
@@ -402,7 +402,7 @@ export default function Step2MatchSchedule({
                     value={form.checkInEnd || form.checkInTime || '05:30 PM IST'}
                     onChange={(e) => handleFieldChange('checkInEnd', e.target.value)}
                     placeholder="e.g. 05:30 PM IST"
-                    className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-lg px-3 text-xs text-white font-mono focus:outline-none transition-colors"
+                    className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-none px-3 text-xs text-white font-mono focus:outline-none transition-colors"
                   />
                   {mergedErrors.checkInEnd && (
                     <p className="text-[10px] text-[#ef4444] font-body flex items-center gap-1 mt-0.5">
@@ -414,17 +414,17 @@ export default function Step2MatchSchedule({
               </div>
             </div>
 
-            <div className="p-2.5 bg-[#201f21] rounded-lg border border-[#27272a] text-[#849495] text-xs font-body flex items-center gap-2 mt-auto">
+            <div className="p-2.5 bg-[#201f21] rounded-none border border-[#27272a] text-[#849495] text-xs font-body flex items-center gap-2 mt-auto">
               <ShieldAlert className="w-3.5 h-3.5 text-[#f1cc2d] shrink-0" />
               <span>Unverified squads get auto-disqualified</span>
             </div>
           </div>
 
           {/* STAGE 03: MATCH PROTOCOL */}
-          <div className="bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] p-4 sm:p-5 rounded-xl transition-all flex flex-col justify-between h-full space-y-4">
+          <div className="bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] p-4 sm:p-5 rounded-none transition-all flex flex-col justify-between h-full space-y-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="px-2.5 py-0.5 rounded bg-[#201f21] text-[#00f2ff] font-mono text-[10px] font-bold border border-[#00f2ff]/20">
+                <span className="px-2.5 py-0.5 rounded-none bg-[#201f21] text-[#00f2ff] font-mono text-[10px] font-bold border border-[#00f2ff]/20">
                   STAGE 03
                 </span>
                 <span className="text-[10px] font-mono text-[#00f2ff]">COMBAT ENGAGEMENT</span>
@@ -449,7 +449,7 @@ export default function Step2MatchSchedule({
                     value={form.roomPublishTime || '05:45 PM IST'}
                     onChange={(e) => handleFieldChange('roomPublishTime', e.target.value)}
                     placeholder="e.g. 05:45 PM IST"
-                    className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-lg px-3 text-xs text-white font-mono focus:outline-none transition-colors"
+                    className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-none px-3 text-xs text-white font-mono focus:outline-none transition-colors"
                   />
                   {mergedErrors.roomPublishTime && (
                     <p className="text-[10px] text-[#ef4444] font-body flex items-center gap-1 mt-0.5">
@@ -470,14 +470,14 @@ export default function Step2MatchSchedule({
                       type="date"
                       value={form.startDate || ''}
                       onChange={(e) => handleFieldChange('startDate', e.target.value)}
-                      className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-lg px-3 text-xs text-white font-mono focus:outline-none transition-colors"
+                      className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-none px-3 text-xs text-white font-mono focus:outline-none transition-colors"
                     />
                     <input
                       type="text"
                       value={form.startTime || '06:00 PM IST'}
                       onChange={(e) => handleFieldChange('startTime', e.target.value)}
                       placeholder="e.g. 06:00 PM IST"
-                      className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-lg px-3 text-xs text-white font-mono focus:outline-none transition-colors"
+                      className="w-full h-10 sm:h-11 bg-[#141416] border border-[#27272a] focus:border-[#00f2ff] rounded-none px-3 text-xs text-white font-mono focus:outline-none transition-colors"
                     />
                   </div>
                   {(mergedErrors.startDate || mergedErrors.startTime) && (
@@ -490,7 +490,7 @@ export default function Step2MatchSchedule({
               </div>
             </div>
 
-            <div className="p-2.5 bg-[#201f21] rounded-lg border border-[#27272a] text-[#849495] text-xs font-body flex items-center gap-2 mt-auto">
+            <div className="p-2.5 bg-[#201f21] rounded-none border border-[#27272a] text-[#849495] text-xs font-body flex items-center gap-2 mt-auto">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
               <span>SMS & App push dispatch to verified captains</span>
             </div>
@@ -498,7 +498,7 @@ export default function Step2MatchSchedule({
         </div>
 
         {/* Sync Notice Banner */}
-        <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#1b1b1d] border border-[#27272a] text-xs font-body text-[#849495]">
+        <div className="flex items-start gap-3 p-3.5 rounded-none bg-[#1b1b1d] border border-[#27272a] text-xs font-body text-[#849495]">
           <Info className="w-4 h-4 text-[#00f2ff] shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             <strong className="text-white font-semibold">Synchronization Notice:</strong> All timeline events are synchronized to Indian Standard Time (IST). Room credentials dispatch automatically to team captains via verified SMS gateway 15 minutes before match start.
@@ -507,7 +507,7 @@ export default function Step2MatchSchedule({
       </section>
 
       {/* 4. OFFICIAL TOURNAMENT RULEBOOK */}
-      <section className="bg-[#141416] rounded-xl border border-[#27272a] p-5 sm:p-6 space-y-5 shadow-lg">
+      <section className="bg-[#141416] rounded-none border border-[#27272a] p-5 sm:p-6 space-y-5 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#27272a] gap-2">
           <div className="flex items-center gap-2 text-[#00f2ff]">
             <ShieldAlert className="w-4 h-4" />
@@ -520,15 +520,15 @@ export default function Step2MatchSchedule({
               </p>
             </div>
           </div>
-          <span className="px-2.5 py-1 rounded bg-[#1b1b1d] border border-[#27272a] text-[10px] font-mono text-[#849495] self-start sm:self-auto">
+          <span className="px-2.5 py-1 rounded-none bg-[#1b1b1d] border border-[#27272a] text-[10px] font-mono text-[#849495] self-start sm:self-auto">
             RULESET REV: 2024.4.1
           </span>
         </div>
 
         {/* 4 Rule Highlight Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-          <div className="flex items-start gap-3.5 p-3.5 rounded-lg bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] transition-colors">
-            <div className="w-7 h-7 rounded bg-[#201f21] text-[#10b981] border border-[#27272a] flex items-center justify-center shrink-0 mt-0.5">
+          <div className="flex items-start gap-3.5 p-3.5 rounded-none bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] transition-colors">
+            <div className="w-7 h-7 rounded-none bg-[#201f21] text-[#10b981] border border-[#27272a] flex items-center justify-center shrink-0 mt-0.5">
               <CheckCircle2 className="w-4 h-4" />
             </div>
             <div className="space-y-0.5">
@@ -541,8 +541,8 @@ export default function Step2MatchSchedule({
             </div>
           </div>
 
-          <div className="flex items-start gap-3.5 p-3.5 rounded-lg bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] transition-colors">
-            <div className="w-7 h-7 rounded bg-[#201f21] text-[#10b981] border border-[#27272a] flex items-center justify-center shrink-0 mt-0.5">
+          <div className="flex items-start gap-3.5 p-3.5 rounded-none bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] transition-colors">
+            <div className="w-7 h-7 rounded-none bg-[#201f21] text-[#10b981] border border-[#27272a] flex items-center justify-center shrink-0 mt-0.5">
               <CheckCircle2 className="w-4 h-4" />
             </div>
             <div className="space-y-0.5">
@@ -555,8 +555,8 @@ export default function Step2MatchSchedule({
             </div>
           </div>
 
-          <div className="flex items-start gap-3.5 p-3.5 rounded-lg bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] transition-colors">
-            <div className="w-7 h-7 rounded bg-[#201f21] text-[#ef4444] border border-[#27272a] flex items-center justify-center shrink-0 mt-0.5">
+          <div className="flex items-start gap-3.5 p-3.5 rounded-none bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] transition-colors">
+            <div className="w-7 h-7 rounded-none bg-[#201f21] text-[#ef4444] border border-[#27272a] flex items-center justify-center shrink-0 mt-0.5">
               <ShieldAlert className="w-4 h-4" />
             </div>
             <div className="space-y-0.5">
@@ -569,8 +569,8 @@ export default function Step2MatchSchedule({
             </div>
           </div>
 
-          <div className="flex items-start gap-3.5 p-3.5 rounded-lg bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] transition-colors">
-            <div className="w-7 h-7 rounded bg-[#201f21] text-[#ef4444] border border-[#27272a] flex items-center justify-center shrink-0 mt-0.5">
+          <div className="flex items-start gap-3.5 p-3.5 rounded-none bg-[#1b1b1d] border border-[#27272a] hover:border-[#3a494b] transition-colors">
+            <div className="w-7 h-7 rounded-none bg-[#201f21] text-[#ef4444] border border-[#27272a] flex items-center justify-center shrink-0 mt-0.5">
               <ShieldAlert className="w-4 h-4" />
             </div>
             <div className="space-y-0.5">
@@ -587,7 +587,7 @@ export default function Step2MatchSchedule({
         {/* Rulebook Footer Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between pt-3 border-t border-[#27272a] gap-3">
           <div className="flex items-center gap-2 text-[#849495] text-xs font-mono">
-            <span className="w-2 h-2 rounded-full bg-[#00f2ff]" />
+            <span className="w-2 h-2 rounded-none bg-[#00f2ff]" />
             <span className="font-bold text-white font-headline uppercase">
               10 OFFICIAL GUIDELINES ENFORCED BY ARBITER
             </span>
@@ -596,7 +596,7 @@ export default function Step2MatchSchedule({
           <button
             type="button"
             onClick={() => setShowFullRulebook(true)}
-            className="px-4 py-2 rounded-lg bg-[#1b1b1d] hover:bg-[#201f21] border border-[#27272a] hover:border-[#00f2ff]/40 text-[#00f2ff] text-xs font-headline font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer"
+            className="px-4 py-2 rounded-none bg-[#1b1b1d] hover:bg-[#201f21] border border-[#27272a] hover:border-[#00f2ff]/40 text-[#00f2ff] text-xs font-headline font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer"
           >
             <FileText className="w-4 h-4" />
             <span>VIEW FULL RULEBOOK</span>
@@ -607,7 +607,7 @@ export default function Step2MatchSchedule({
       {/* FULL RULEBOOK MODAL POPUP */}
       {showFullRulebook && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl relative max-h-[85vh] overflow-y-auto font-body">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none max-w-2xl w-full p-6 space-y-4 shadow-2xl relative max-h-[85vh] overflow-y-auto font-body">
             <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
               <div className="flex items-center gap-2 text-[#00f2ff]">
                 <ShieldCheck className="w-5 h-5 text-[#00f2ff]" />
@@ -618,7 +618,7 @@ export default function Step2MatchSchedule({
               <button
                 type="button"
                 onClick={() => setShowFullRulebook(false)}
-                className="w-7 h-7 rounded bg-[#1b1b1d] hover:bg-[#201f21] border border-[#27272a] text-[#849495] hover:text-white flex items-center justify-center cursor-pointer"
+                className="w-7 h-7 rounded-none bg-[#1b1b1d] hover:bg-[#201f21] border border-[#27272a] text-[#849495] hover:text-white flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -628,9 +628,9 @@ export default function Step2MatchSchedule({
               {OFFICIAL_MJ_RULES.map((rule, idx) => (
                 <div
                   key={`rule-${idx}`}
-                  className="flex items-start gap-3 p-3 bg-[#1b1b1d] border border-[#27272a] rounded-lg text-xs"
+                  className="flex items-start gap-3 p-3 bg-[#1b1b1d] border border-[#27272a] rounded-none text-xs"
                 >
-                  <span className="w-5 h-5 rounded bg-[#201f21] border border-[#27272a] text-[#00f2ff] font-mono font-bold flex items-center justify-center shrink-0 text-[10px]">
+                  <span className="w-5 h-5 rounded-none bg-[#201f21] border border-[#27272a] text-[#00f2ff] font-mono font-bold flex items-center justify-center shrink-0 text-[10px]">
                     {idx + 1}
                   </span>
                   <span className="text-white font-medium leading-relaxed">{rule}</span>
@@ -642,7 +642,7 @@ export default function Step2MatchSchedule({
               <button
                 type="button"
                 onClick={() => setShowFullRulebook(false)}
-                className="px-4 py-2 rounded-lg bg-[#00f2ff] text-[#00363a] font-headline font-bold text-xs uppercase cursor-pointer"
+                className="px-4 py-2 rounded-none bg-[#00f2ff] text-[#00363a] font-headline font-bold text-xs uppercase cursor-pointer"
               >
                 Close Rulebook
               </button>

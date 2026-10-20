@@ -443,7 +443,7 @@ export default function TournamentCenterView({
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
       {/* 1. TOURNAMENTS CONSOLE PAGE HEADER (COMPACT HERO) */}
-      <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 md:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 w-full box-border">
+      <div className="bg-[#141416] border border-[#27272a] rounded-none p-3 sm:p-4 md:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 w-full box-border">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 text-[11px] font-headline font-bold text-[#00f2ff] uppercase tracking-wider mb-0.5">
             <Trophy className="w-3.5 h-3.5 shrink-0" />
@@ -459,7 +459,7 @@ export default function TournamentCenterView({
 
         <button
           onClick={handleOpenCreateModal}
-          className="px-3.5 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_10px_rgba(0,242,255,0.2)] flex items-center justify-center gap-1.5 shrink-0 cursor-pointer min-h-[34px] sm:min-h-[38px] self-start sm:self-auto"
+          className="px-3.5 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded-none text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_10px_rgba(0,242,255,0.2)] flex items-center justify-center gap-1.5 shrink-0 cursor-pointer min-h-[34px] sm:min-h-[38px] self-start sm:self-auto"
         >
           <Plus className="w-3.5 h-3.5 text-[#00363a] stroke-[3]" />
           <span>Create Tournament</span>
@@ -467,7 +467,7 @@ export default function TournamentCenterView({
       </div>
 
       {/* 2. UNIFIED PRIMARY HORIZONTAL NAVIGATION BAR (COMPACT CONTROL BAR 48-56PX) */}
-      <div className="w-full max-w-full min-w-0 box-border bg-[#141416] border border-[#27272a] rounded shadow-md overflow-hidden">
+      <div className="w-full max-w-full min-w-0 box-border bg-[#141416] border border-[#27272a] rounded-none shadow-md overflow-hidden">
         <div
           ref={tabContainerRef}
           className="w-full max-w-full min-w-0 box-border overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden overscroll-x-contain touch-pan-x p-1 sm:p-1.5"
@@ -495,7 +495,7 @@ export default function TournamentCenterView({
                   ref={(el) => (tabRefs.current[tab.id] = el)}
                   onClick={() => handleTabClick(tab.id)}
                   style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
-                  className={`px-2.5 sm:px-3.5 py-1.5 rounded text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] sm:min-h-[34px] select-none ${
+                  className={`px-2.5 sm:px-3.5 py-1.5 rounded-none text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] sm:min-h-[34px] select-none ${
                     active
                       ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_8px_rgba(0,242,255,0.25)]'
                       : 'bg-[#1c1b1c] sm:bg-transparent text-[#849495] hover:text-white hover:bg-[#1c1b1c] border border-[#27272a] sm:border-transparent'
@@ -548,7 +548,7 @@ export default function TournamentCenterView({
           )}
 
           {activeOpsTab === 'RESULTS' && (
-            <div className="bg-[#141416] border border-[#27272a] rounded p-8 text-center space-y-3 font-body">
+            <div className="bg-[#141416] border border-[#27272a] rounded-none p-8 text-center space-y-3 font-body">
               <Award className="w-10 h-10 text-[#fed83a] mx-auto opacity-70" />
               <h3 className="text-sm font-headline font-extrabold text-white uppercase tracking-wider">
                 Result Verification Pipeline
@@ -560,7 +560,7 @@ export default function TournamentCenterView({
           )}
 
           {activeOpsTab === 'HISTORY' && (
-            <div className="bg-[#141416] border border-[#27272a] rounded p-6 space-y-4">
+            <div className="bg-[#141416] border border-[#27272a] rounded-none p-6 space-y-4">
               <h3 className="text-sm font-headline font-extrabold text-white uppercase tracking-wider border-b border-[#27272a] pb-3">
                 Completed Tournament Archive
               </h3>
@@ -569,7 +569,7 @@ export default function TournamentCenterView({
                   <p className="text-xs text-[#849495] font-body py-4">No completed tournaments found in historical logs.</p>
                 ) : (
                   tournaments.filter(t => t.status === 'Completed' || t.status === 'Prize Distributed').map((t) => (
-                    <div key={t.id} className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded text-xs font-body space-y-1">
+                    <div key={t.id} className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-body space-y-1">
                       <span className="font-headline font-bold text-white block">{t.title}</span>
                       <span className="text-[#849495]">{t.game} &bull; Prize: {formatTournamentPrize(t)}</span>
                     </div>

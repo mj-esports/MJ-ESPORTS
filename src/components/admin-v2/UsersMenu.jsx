@@ -54,7 +54,7 @@ export default function UsersMenu() {
         </div>
       </div>
 
-      <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center gap-4">
+      <div className="p-4 rounded-none bg-slate-900/60 border border-slate-800/80 flex items-center gap-4">
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -62,12 +62,12 @@ export default function UsersMenu() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by player name or email..."
-            className="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/50"
+            className="w-full bg-slate-950/80 border border-slate-800 rounded-none pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/50"
           />
         </div>
       </div>
 
-      <div className="rounded-2xl bg-slate-900/60 border border-slate-800/80 overflow-hidden">
+      <div className="rounded-none bg-slate-900/60 border border-slate-800/80 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-950/80 text-slate-400 font-semibold border-b border-slate-800/80 uppercase text-[10px] tracking-wider">
@@ -88,7 +88,7 @@ export default function UsersMenu() {
                     <div className="text-[11px] text-slate-400 font-mono">{u.email}</div>
                   </td>
                   <td className="px-4 py-4">
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                    <span className="px-2.5 py-0.5 rounded-none text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
                       {u.role}
                     </span>
                   </td>
@@ -96,7 +96,7 @@ export default function UsersMenu() {
                   <td className="px-4 py-4 font-mono text-slate-400">{u.joinedDate}</td>
                   <td className="px-4 py-4">
                     <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                      className={`px-2.5 py-1 rounded-none text-[10px] font-bold border ${
                         u.status === 'Active'
                           ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                           : 'bg-red-500/10 text-red-400 border-red-500/20'
@@ -106,7 +106,7 @@ export default function UsersMenu() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+                    <button className="p-1.5 rounded-none text-slate-400 hover:text-white hover:bg-slate-800">
                       <MoreVertical className="w-4 h-4" />
                     </button>
                   </td>

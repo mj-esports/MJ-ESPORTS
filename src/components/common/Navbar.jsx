@@ -61,20 +61,20 @@ function formatRelativeTime(dateInput) {
 function getNotificationIcon(type) {
   switch (type) {
     case 'room':
-      return <Key className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+      return <Key className="w-3.5 h-3.5 text-[#FFB900] shrink-0" />
     case 'prize':
-      return <Trophy className="w-3.5 h-3.5 text-[#ffd700] shrink-0" />
+      return <Trophy className="w-3.5 h-3.5 text-[#FFB900] shrink-0" />
     case 'warning':
-      return <AlertTriangle className="w-3.5 h-3.5 text-[#fe6b00] shrink-0" />
+      return <AlertTriangle className="w-3.5 h-3.5 text-[#FF6200] shrink-0" />
     case 'success':
-      return <CheckCircle2 className="w-3.5 h-3.5 text-[#00ff9d] shrink-0" />
+      return <CheckCircle2 className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
     case 'error':
-      return <AlertCircle className="w-3.5 h-3.5 text-[#ff3366] shrink-0" />
+      return <AlertCircle className="w-3.5 h-3.5 text-[#FF0000] shrink-0" />
     case 'payment':
-      return <CreditCard className="w-3.5 h-3.5 text-[#00ff9d] shrink-0" />
+      return <CreditCard className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
     case 'info':
     default:
-      return <Info className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+      return <Info className="w-3.5 h-3.5 text-[#FFB900] shrink-0" />
   }
 }
 
@@ -320,10 +320,10 @@ export default function Navbar() {
   const unreadNotificationsCount = notifications.filter((n) => !n.is_read).length
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#131314]/95 backdrop-blur-md border-b border-[#27272a] shadow-[0_8px_24px_rgba(0,0,0,0.6)]">
+    <nav className="sticky top-0 z-50 bg-[#000000]/95 backdrop-blur-md border-b border-[#1B1B1F] shadow-[0_8px_24px_rgba(0,0,0,0.6)]">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#00f2ff] focus:text-[#00363a] focus:font-headline focus:font-bold focus:rounded shadow-lg text-xs"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#FFB900] focus:text-[#000000] focus:font-headline focus:font-bold focus:rounded-none shadow-lg text-xs"
       >
         Skip to main content
       </a>
@@ -332,18 +332,18 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo (LEFT) */}
-          <Link to="/" className="flex items-center gap-2.5 xs:gap-3.5 group shrink min-w-0" aria-label="MJ ESPORTS Home">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink min-w-0 flex-1 max-w-[calc(100%-52px)]" aria-label="MJ ESPORTS Home">
             <img
               src="/mj-esports-logo.png"
               alt="MJ ESPORTS"
-              className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-contain shrink-0 group-hover:scale-105 transition-transform duration-200"
+              className="w-8 h-8 xs:w-9 xs:h-9 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-none object-contain shrink-0 group-hover:scale-105 transition-transform duration-200 shadow-sm"
             />
-            <div className="min-w-0">
-              <span className="font-headline text-sm xs:text-base sm:text-xl font-extrabold tracking-wider text-white truncate block uppercase">
-                MJ <span className="text-[#00f2ff]">ESPORTS</span>
+            <div className="min-w-0 flex flex-col justify-center">
+              <span className="font-headline text-xs xs:text-sm sm:text-xl font-extrabold tracking-wider text-white truncate block uppercase leading-tight">
+                MJ <span className="text-[#FFB900]">ESPORTS</span>
               </span>
-              <span className="flex items-center gap-1 text-[10.5px] xs:text-xs font-bold tracking-wider text-[#ff5e07] font-headline truncate">
-                <span>Free Fire MAX Tournament Arena</span>
+              <span className="text-[9.5px] xs:text-[11px] sm:text-xs font-bold tracking-wider text-[#FF6200] font-headline truncate block uppercase leading-tight mt-0.5">
+                Free Fire MAX Arena
               </span>
             </div>
           </Link>
@@ -356,8 +356,8 @@ export default function Navbar() {
                 to={link.path}
                 className={`py-2 text-xs font-headline font-bold uppercase tracking-wider transition-all duration-200 relative ${
                   isActive(link.path)
-                    ? 'text-[#00f2ff] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#00f2ff] after:shadow-[0_0_8px_rgba(0,242,255,0.8)]'
-                    : 'text-[#b9cacb] hover:text-[#00f2ff]'
+                    ? 'text-[#FFB900] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#FFB900] after:shadow-[0_0_8px_rgba(255,185,0,0.8)]'
+                    : 'text-[#A3A3A3] hover:text-[#FFB900]'
                 }`}
               >
                 {link.name}
@@ -373,16 +373,16 @@ export default function Navbar() {
                 {/* Compact Wallet Card */}
                 <Link
                   to="/wallet"
-                  className={`flex items-center px-3.5 py-1.5 gap-2 rounded border text-xs font-mono font-bold transition-all duration-200 shadow-sm ${
+                  className={`flex items-center px-3.5 py-1.5 gap-2 rounded-none border text-xs font-mono font-bold transition-all duration-200 shadow-sm ${
                     isActive('/wallet')
                       ? 'bg-[#10b981]/10 border-[#10b981]/40 text-[#10b981] shadow-[0_0_12px_rgba(16,185,129,0.25)]'
-                      : 'bg-[#141416] border-[#27272a] text-[#ff5e07] hover:border-[#ff5e07]'
+                      : 'bg-[#111318] border-[#2A2A30] text-[#FF6200] hover:border-[#FF6200]'
                   }`}
                   title="Esports Authoritative Wallet Balance"
                 >
-                  <Wallet className="w-3.5 h-3.5 text-[#ff5e07]" />
+                  <Wallet className="w-3.5 h-3.5 text-[#FF6200]" />
                   {isWalletLoading || navWalletBalance === null ? (
-                    <span className="inline-block w-8 h-3.5 bg-[#27272a] animate-pulse rounded my-0.5"></span>
+                    <span className="inline-block w-8 h-3.5 bg-[#2A2A30] animate-pulse rounded-none my-0.5"></span>
                   ) : (
                     <span>₹{Math.floor(navWalletBalance)}</span>
                   )}
@@ -392,16 +392,16 @@ export default function Navbar() {
                 <div className="relative" ref={notifRef}>
                   <button
                     onClick={() => setNotificationsOpen(!notificationsOpen)}
-                    className={`p-2 rounded border text-xs transition-all duration-200 shadow-sm cursor-pointer ${
+                    className={`p-2 rounded-none border text-xs transition-all duration-200 shadow-sm cursor-pointer ${
                       notificationsOpen
-                        ? 'bg-[#00f2ff]/20 border-[#00f2ff] text-[#00f2ff]'
-                        : 'bg-[#141416] border-[#27272a] text-[#b9cacb] hover:text-[#00f2ff] hover:border-[#00f2ff]/50'
+                        ? 'bg-[#FFB900]/20 border-[#FFB900] text-[#FFB900]'
+                        : 'bg-[#111318] border-[#2A2A30] text-[#A3A3A3] hover:text-[#FFB900] hover:border-[#FFB900]/50'
                     }`}
                     title="Alert Feed"
                   >
                     <Bell className="w-4 h-4" />
                     {unreadNotificationsCount > 0 && (
-                      <span className="absolute -top-1 -right-1 min-w-[15px] h-3.5 rounded-full bg-[#ef4444] text-[8.5px] font-black text-white flex items-center justify-center px-1 animate-pulse border border-[#131314]">
+                      <span className="absolute -top-1 -right-1 min-w-[15px] h-3.5 rounded-none bg-[#FF0000] text-[8.5px] font-black text-white flex items-center justify-center px-1 animate-pulse border border-[#000000]">
                         {unreadNotificationsCount}
                       </span>
                     )}
@@ -409,15 +409,15 @@ export default function Navbar() {
 
                   {/* Notification Dropdown Feed */}
                   {notificationsOpen && (
-                    <div className="absolute right-0 mt-2.5 w-80 rounded bg-[#141416] border border-[#27272a] shadow-2xl p-4 space-y-3 z-50 text-xs font-mono backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
+                    <div className="absolute right-0 mt-2.5 w-80 rounded-none bg-[#111318] border border-[#2A2A30] shadow-2xl p-4 space-y-3 z-50 text-xs font-mono backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="flex items-center justify-between border-b border-[#2A2A30] pb-2">
                         <span className="font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                          <Bell className="w-3.5 h-3.5 text-[#00f2ff]" /> Alerts ({unreadNotificationsCount})
+                          <Bell className="w-3.5 h-3.5 text-[#FFB900]" /> Alerts ({unreadNotificationsCount})
                         </span>
                         {unreadNotificationsCount > 0 && (
                           <button
                             onClick={handleMarkAllRead}
-                            className="text-[9px] text-[#00f2ff] hover:underline uppercase font-bold cursor-pointer"
+                            className="text-[9px] text-[#FFB900] hover:underline uppercase font-bold cursor-pointer"
                           >
                             Mark Read
                           </button>
@@ -426,7 +426,7 @@ export default function Navbar() {
                       
                       <div className="max-h-72 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
                         {notifications.length === 0 ? (
-                          <div className="py-8 text-center text-[#b9cacb] font-sans">
+                          <div className="py-8 text-center text-[#A3A3A3] font-sans">
                             No notifications on log.
                           </div>
                         ) : (
@@ -435,10 +435,10 @@ export default function Navbar() {
                               key={`notif-card-${n.id}`}
                               type="button"
                               onClick={() => handleNotificationClick(n)}
-                              className={`w-full text-left p-2.5 rounded border text-[11px] leading-relaxed transition-all cursor-pointer ${
+                              className={`w-full text-left p-2.5 rounded-none border text-[11px] leading-relaxed transition-all cursor-pointer ${
                                 n.is_read
-                                  ? 'bg-[#1c1b1c]/40 border-[#27272a]/60 text-[#b9cacb] hover:bg-[#201f20]'
-                                  : 'bg-[#00f2ff]/5 border-[#00f2ff]/30 text-white hover:bg-[#00f2ff]/10 shadow-[0_0_8px_rgba(0,242,255,0.1)]'
+                                  ? 'bg-[#1B1B1F]/40 border-[#2A2A30]/60 text-[#A3A3A3] hover:bg-[#1B1B1F]'
+                                  : 'bg-[#FFB900]/5 border-[#FFB900]/30 text-white hover:bg-[#FFB900]/10 shadow-[0_0_8px_rgba(255,185,0,0.1)]'
                               }`}
                             >
                               <div className="flex items-start gap-2">
@@ -449,15 +449,15 @@ export default function Navbar() {
                                   <div className="flex justify-between items-start font-bold gap-2">
                                     <span className="truncate">{n.title}</span>
                                     <div className="flex items-center gap-1.5 shrink-0">
-                                      <span className="text-[9px] text-[#849495] font-normal">
+                                      <span className="text-[9px] text-[#A3A3A3] font-normal">
                                         {formatRelativeTime(n.created_at)}
                                       </span>
                                       {!n.is_read && (
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0"></span>
+                                        <span className="w-1.5 h-1.5 rounded-none bg-[#FFB900] shrink-0"></span>
                                       )}
                                     </div>
                                   </div>
-                                  <p className="text-[10px] text-[#b9cacb] mt-0.5 font-sans line-clamp-2">{n.message}</p>
+                                  <p className="text-[10px] text-[#A3A3A3] mt-0.5 font-sans line-clamp-2">{n.message}</p>
                                 </div>
                               </div>
                             </button>
@@ -472,56 +472,56 @@ export default function Navbar() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded border transition-all duration-200 shadow-sm cursor-pointer ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-none border transition-all duration-200 shadow-sm cursor-pointer ${
                       userDropdownOpen
-                        ? 'bg-[#00f2ff]/10 border-[#00f2ff]/60'
-                        : 'bg-[#141416] border-[#27272a] hover:border-[#00f2ff]/50'
+                        ? 'bg-[#FFB900]/10 border-[#FFB900]/60'
+                        : 'bg-[#111318] border-[#2A2A30] hover:border-[#FFB900]/50'
                     }`}
                   >
-                    <div className="w-5.5 h-5.5 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff]/35 overflow-hidden flex items-center justify-center shrink-0">
+                    <div className="w-5.5 h-5.5 rounded-none bg-[#FFB900]/20 border border-[#FFB900]/35 overflow-hidden flex items-center justify-center shrink-0">
                       {userAvatarUrl && !avatarError ? (
                         <img
                           src={userAvatarUrl}
                           alt={`${userDisplayName} profile photo`}
-                          className="w-full h-full object-cover rounded-full"
+                          className="w-full h-full object-cover rounded-none"
                           onError={() => setAvatarError(true)}
                         />
                       ) : (
-                        <span className="text-[11px] font-headline font-bold text-[#00f2ff] uppercase leading-none select-none" aria-hidden="true">
+                        <span className="text-[11px] font-headline font-bold text-[#FFB900] uppercase leading-none select-none" aria-hidden="true">
                           {userInitial}
                         </span>
                       )}
                     </div>
-                    <span className="text-xs font-bold text-[#e5e2e3] uppercase font-label-bold">{userDisplayName}</span>
-                    <ChevronDown className={`w-3.5 h-3.5 text-[#b9cacb] transition-transform duration-200 ${userDropdownOpen ? 'rotate-180' : ''}`} />
+                    <span className="text-xs font-bold text-[#FFFFFF] uppercase font-label-bold">{userDisplayName}</span>
+                    <ChevronDown className={`w-3.5 h-3.5 text-[#A3A3A3] transition-transform duration-200 ${userDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {/* Dropdown Menu overlay */}
                   {userDropdownOpen && (
-                    <div className="absolute right-0 mt-2.5 w-48 rounded bg-[#141416] border border-[#27272a] shadow-2xl p-2 z-50 text-xs font-label-bold backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="absolute right-0 mt-2.5 w-48 rounded-none bg-[#111318] border border-[#2A2A30] shadow-2xl p-2 z-50 text-xs font-label-bold backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
                       
                       <Link
                         to="/profile"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded text-[#b9cacb] hover:text-[#00f2ff] hover:bg-[#201f20] transition-colors uppercase tracking-wider"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-none text-[#A3A3A3] hover:text-[#FFB900] hover:bg-[#1B1B1F] transition-colors uppercase tracking-wider"
                       >
-                        <User className="w-4 h-4 text-[#00f2ff]" />
+                        <User className="w-4 h-4 text-[#FFB900]" />
                         <span>My Profile</span>
                       </Link>
 
                       <Link
                         to="/profile/team"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded text-[#b9cacb] hover:text-[#00f2ff] hover:bg-[#201f20] transition-colors uppercase tracking-wider"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-none text-[#A3A3A3] hover:text-[#FFB900] hover:bg-[#1B1B1F] transition-colors uppercase tracking-wider"
                       >
-                        <Users className="w-4 h-4 text-[#00f2ff]" />
+                        <Users className="w-4 h-4 text-[#FFB900]" />
                         <span>My Team</span>
                       </Link>
 
                       <Link
                         to="/wallet"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded text-[#b9cacb] hover:text-[#10b981] hover:bg-[#201f20] transition-colors uppercase tracking-wider"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-none text-[#A3A3A3] hover:text-[#10b981] hover:bg-[#1B1B1F] transition-colors uppercase tracking-wider"
                       >
                         <Wallet className="w-4 h-4 text-[#10b981]" />
                         <span>Wallet Ledger</span>
@@ -530,9 +530,9 @@ export default function Navbar() {
                       <Link
                         to="/settings"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded text-[#b9cacb] hover:text-white hover:bg-[#201f20] transition-colors uppercase tracking-wider"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-none text-[#A3A3A3] hover:text-white hover:bg-[#1B1B1F] transition-colors uppercase tracking-wider"
                       >
-                        <Settings className="w-4 h-4 text-[#849495]" />
+                        <Settings className="w-4 h-4 text-[#A3A3A3]" />
                         <span>Settings</span>
                       </Link>
 
@@ -541,19 +541,19 @@ export default function Navbar() {
                         <Link
                           to="/admin"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded text-[#ff5e07] hover:text-[#ff8533] hover:bg-[#ff5e07]/10 border border-[#ff5e07]/20 my-1 transition-colors uppercase tracking-wider"
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-none text-[#FF6200] hover:text-[#FFA500] hover:bg-[#FF6200]/10 border border-[#FF6200]/20 my-1 transition-colors uppercase tracking-wider"
                         >
-                          <Shield className="w-4 h-4 text-[#ff5e07]" />
+                          <Shield className="w-4 h-4 text-[#FF6200]" />
                           <span>Admin Console</span>
                         </Link>
                       )}
 
-                      <div className="border-t border-[#27272a] my-1"></div>
+                      <div className="border-t border-[#2A2A30] my-1"></div>
 
                       <button
                         onClick={handleSignOut}
                         disabled={isSigningOut}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded text-[#ef4444] hover:bg-[#ef4444]/10 transition-colors uppercase tracking-wider font-bold cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-none text-[#FF0000] hover:bg-[#FF0000]/10 transition-colors uppercase tracking-wider font-bold cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>{isSigningOut ? 'Disconnecting...' : 'Sign Out'}</span>
@@ -568,13 +568,13 @@ export default function Navbar() {
               <div className="flex items-center gap-3">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-xs font-headline font-bold uppercase tracking-wider text-[#b9cacb] hover:text-white hover:bg-[#141416] rounded border border-transparent hover:border-[#27272a] transition-all"
+                  className="px-4 py-2 text-xs font-headline font-bold uppercase tracking-wider text-[#A3A3A3] hover:text-white hover:bg-[#111318] rounded-none border border-transparent hover:border-[#2A2A30] transition-all"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 text-xs font-headline font-bold uppercase tracking-wider bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] rounded transition-all shadow-[0_0_12px_rgba(0,242,255,0.35)] active:scale-95"
+                  className="px-4 py-2 text-xs font-headline font-bold uppercase tracking-wider bg-[#FFB900] hover:bg-[#FFA500] text-[#000000] rounded-none transition-all shadow-[0_0_12px_rgba(255,185,0,0.35)] active:scale-95"
                 >
                   Register
                 </Link>
@@ -583,15 +583,15 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Trigger */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex md:hidden items-center shrink-0 ml-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded bg-[#141416] border border-[#27272a] text-[#b9cacb] hover:text-[#00f2ff] focus:outline-none focus:ring-2 focus:ring-[#00f2ff] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 rounded-none bg-[#111318] border border-[#2A2A30] text-[#FFB900] hover:text-white hover:border-[#FFB900] focus:outline-none focus:ring-2 focus:ring-[#FFB900] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0 active:scale-95 shadow-md"
               aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation-drawer"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-[#FFB900]" />}
             </button>
           </div>
 
@@ -614,23 +614,23 @@ export default function Navbar() {
             role="dialog"
             aria-modal="true"
             aria-label="Mobile Navigation Menu"
-            className="fixed inset-y-0 right-0 top-16 sm:top-20 z-50 w-full max-w-sm bg-[#131314]/98 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] space-y-4 md:hidden overflow-y-auto animate-in slide-in-from-right duration-200 border-l border-[#27272a] shadow-2xl"
+            className="fixed inset-y-0 right-0 top-16 sm:top-20 z-50 w-full max-w-sm bg-[#111318]/98 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] space-y-4 md:hidden overflow-y-auto animate-in slide-in-from-right duration-200 border-l border-[#2A2A30] shadow-2xl"
           >
             <div className="space-y-4 overflow-y-auto pr-0.5">
               {/* Authenticated User Overview Card */}
               {isAuthenticated ? (
-                <div className="p-3.5 rounded bg-[#141416] border border-[#27272a] flex items-center justify-between gap-3">
+                <div className="p-3.5 rounded-none bg-[#1B1B1F] border border-[#2A2A30] flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff]/40 overflow-hidden flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-none bg-[#FFB900]/20 border border-[#FFB900]/40 overflow-hidden flex items-center justify-center shrink-0">
                       {userAvatarUrl && !avatarError ? (
                         <img
                           src={userAvatarUrl}
                           alt={`${userDisplayName} profile photo`}
-                          className="w-full h-full object-cover rounded-full"
+                          className="w-full h-full object-cover rounded-none"
                           onError={() => setAvatarError(true)}
                         />
                       ) : (
-                        <span className="text-sm font-headline font-bold text-[#00f2ff] uppercase leading-none select-none" aria-hidden="true">
+                        <span className="text-sm font-headline font-bold text-[#FFB900] uppercase leading-none select-none" aria-hidden="true">
                           {userInitial}
                         </span>
                       )}
@@ -639,12 +639,12 @@ export default function Navbar() {
                       <span className="text-sm font-bold text-white block truncate font-headline">{userDisplayName}</span>
                       <div className="text-[10.5px] font-mono font-bold block uppercase mt-0.5">
                         {isWalletLoading ? (
-                          <span className="inline-flex items-center gap-1.5 text-[#849495]">
+                          <span className="inline-flex items-center gap-1.5 text-[#A3A3A3]">
                             <span>Wallet:</span>
-                            <span className="inline-block w-8 h-3.5 bg-[#27272a] animate-pulse rounded my-0.5"></span>
+                            <span className="inline-block w-8 h-3.5 bg-[#2A2A30] animate-pulse rounded-none my-0.5"></span>
                           </span>
                         ) : navWalletBalance === null ? (
-                          <span className="text-[#849495]">Wallet unavailable</span>
+                          <span className="text-[#A3A3A3]">Wallet unavailable</span>
                         ) : (
                           <span className="text-[#10b981]">Wallet Balance: ₹{Math.floor(navWalletBalance)}</span>
                         )}
@@ -652,7 +652,7 @@ export default function Navbar() {
                     </div>
                   </div>
                   {isAdmin && (
-                    <span className="text-[9px] font-extrabold bg-[#ff5e07] text-slate-950 px-2 py-0.5 rounded uppercase font-headline shrink-0">
+                    <span className="text-[9px] font-extrabold bg-[#FF6200] text-slate-950 px-2 py-0.5 rounded-none uppercase font-headline shrink-0">
                       ADMIN
                     </span>
                   )}
@@ -663,17 +663,17 @@ export default function Navbar() {
                   <Link
                     to="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex-1 py-2.5 px-3 border border-[#27272a] hover:border-[#00f2ff]/40 text-[#e5e2e3] rounded text-center text-xs font-headline font-bold uppercase min-h-[44px] flex items-center justify-center gap-2 transition-colors"
+                    className="flex-1 py-2.5 px-3 border border-[#2A2A30] hover:border-[#FFB900]/40 text-[#FFFFFF] rounded-none text-center text-xs font-headline font-bold uppercase min-h-[44px] flex items-center justify-center gap-2 transition-colors"
                   >
-                    <LogIn className="w-4 h-4 text-[#00f2ff]" />
+                    <LogIn className="w-4 h-4 text-[#FFB900]" />
                     <span>Login</span>
                   </Link>
                   <Link
                     to="/register"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex-1 py-2.5 px-3 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] rounded text-center text-xs font-headline font-bold uppercase shadow-[0_0_12px_rgba(0,242,255,0.35)] min-h-[44px] flex items-center justify-center gap-2 transition-all active:scale-95"
+                    className="flex-1 py-2.5 px-3 bg-[#FFB900] hover:bg-[#FFA500] text-[#000000] rounded-none text-center text-xs font-headline font-bold uppercase shadow-[0_0_12px_rgba(255,185,0,0.35)] min-h-[44px] flex items-center justify-center gap-2 transition-all active:scale-95"
                   >
-                    <UserPlus className="w-4 h-4 text-[#00363a]" />
+                    <UserPlus className="w-4 h-4 text-[#000000]" />
                     <span>Register</span>
                   </Link>
                 </div>
@@ -681,7 +681,7 @@ export default function Navbar() {
 
               {/* Navigation Links */}
               <div className="flex flex-col space-y-1 text-xs font-headline">
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#849495] px-2 mb-1">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#A3A3A3] px-2 mb-1">
                   {isAuthenticated ? 'Arena Navigation' : 'Public Directory'}
                 </span>
 
@@ -689,13 +689,13 @@ export default function Navbar() {
                 <Link
                   to="/"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                  className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
                     isActive('/')
-                      ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                      : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                      ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
+                      : 'text-[#A3A3A3] hover:bg-[#1B1B1F] hover:text-white'
                   }`}
                 >
-                  <Home className="w-4.5 h-4.5 text-[#00f2ff]" />
+                  <Home className="w-4.5 h-4.5 text-[#FFB900]" />
                   <span>Home</span>
                 </Link>
 
@@ -703,13 +703,13 @@ export default function Navbar() {
                 <Link
                   to="/tournaments"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                  className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
                     isActive('/tournaments')
-                      ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                      : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                      ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
+                      : 'text-[#A3A3A3] hover:bg-[#1B1B1F] hover:text-white'
                   }`}
                 >
-                  <Trophy className="w-4.5 h-4.5 text-[#ff5e07]" />
+                  <Trophy className="w-4.5 h-4.5 text-[#FF6200]" />
                   <span>Tournaments</span>
                 </Link>
 
@@ -718,13 +718,13 @@ export default function Navbar() {
                   <Link
                     to="/profile/history"
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                    className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
                       isActive('/profile/history')
-                        ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                        : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                        ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
+                        : 'text-[#A3A3A3] hover:bg-[#1B1B1F] hover:text-white'
                     }`}
                   >
-                    <Gamepad2 className="w-4.5 h-4.5 text-[#00f2ff]" />
+                    <Gamepad2 className="w-4.5 h-4.5 text-[#FFB900]" />
                     <span>My Matches</span>
                   </Link>
                 )}
@@ -733,13 +733,13 @@ export default function Navbar() {
                 <Link
                   to="/leaderboard"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                  className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
                     isActive('/leaderboard')
-                      ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                      : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                      ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
+                      : 'text-[#A3A3A3] hover:bg-[#1B1B1F] hover:text-white'
                   }`}
                 >
-                  <BarChart3 className="w-4.5 h-4.5 text-[#fed83a]" />
+                  <BarChart3 className="w-4.5 h-4.5 text-[#FFB900]" />
                   <span>Leaderboard</span>
                 </Link>
 
@@ -748,20 +748,20 @@ export default function Navbar() {
                   <Link
                     to="/wallet"
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`px-3.5 py-2.5 rounded flex items-center justify-between min-h-[44px] uppercase tracking-wider transition-colors ${
+                    className={`px-3.5 py-2.5 rounded-none flex items-center justify-between min-h-[44px] uppercase tracking-wider transition-colors ${
                       isActive('/wallet')
-                        ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                        : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                        ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
+                        : 'text-[#A3A3A3] hover:bg-[#1B1B1F] hover:text-white'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Wallet className={`w-4.5 h-4.5 ${isActive('/wallet') ? 'text-[#00f2ff]' : 'text-[#10b981]'}`} />
+                      <Wallet className={`w-4.5 h-4.5 ${isActive('/wallet') ? 'text-[#FFB900]' : 'text-[#10b981]'}`} />
                       <span>Wallet</span>
                     </div>
                     {isWalletLoading || navWalletBalance === null ? (
-                      <span className="inline-block w-8 h-3.5 bg-[#27272a] animate-pulse rounded my-0.5"></span>
+                      <span className="inline-block w-8 h-3.5 bg-[#2A2A30] animate-pulse rounded-none my-0.5"></span>
                     ) : (
-                      <span className="text-xs font-mono font-bold text-[#00f2ff] bg-[#00f2ff]/10 px-2 py-0.5 rounded border border-[#00f2ff]/20">
+                      <span className="text-xs font-mono font-bold text-[#FFB900] bg-[#FFB900]/10 px-2 py-0.5 rounded-none border border-[#FFB900]/20">
                         ₹{Math.floor(navWalletBalance)}
                       </span>
                     )}
@@ -772,32 +772,32 @@ export default function Navbar() {
                 <Link
                   to="/about"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                  className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
                     isActive('/about')
-                      ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                      : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                      ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
+                      : 'text-[#A3A3A3] hover:bg-[#1B1B1F] hover:text-white'
                   }`}
                 >
-                  <BookOpen className="w-4.5 h-4.5 text-[#00f2ff]" />
+                  <BookOpen className="w-4.5 h-4.5 text-[#FFB900]" />
                   <span>Rulebook & Info</span>
                 </Link>
 
                 {/* Authenticated Actions */}
                 {isAuthenticated && (
                   <>
-                    <div className="border-t border-[#27272a] my-1.5"></div>
+                    <div className="border-t border-[#2A2A30] my-1.5"></div>
 
                     {/* 7. Profile */}
                     <Link
                       to="/profile"
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                      className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
                         isActive('/profile')
-                          ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                          : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                          ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
+                          : 'text-[#A3A3A3] hover:bg-[#1B1B1F] hover:text-white'
                       }`}
                     >
-                      <User className="w-4.5 h-4.5 text-[#00f2ff]" />
+                      <User className="w-4.5 h-4.5 text-[#FFB900]" />
                       <span>Profile</span>
                     </Link>
 
@@ -805,51 +805,51 @@ export default function Navbar() {
                     <Link
                       to="/profile/team"
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`px-3.5 py-2.5 rounded flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                      className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
                         isActive('/profile/team')
-                          ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-bold'
-                          : 'text-[#b9cacb] hover:bg-[#141416] hover:text-white'
+                          ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
+                          : 'text-[#A3A3A3] hover:bg-[#1B1B1F] hover:text-white'
                       }`}
                     >
-                      <Users className="w-4.5 h-4.5 text-[#00f2ff]" />
+                      <Users className="w-4.5 h-4.5 text-[#FFB900]" />
                       <span>My Team</span>
                     </Link>
 
                     {/* 8. Notifications Tray */}
-                    <div className="rounded border border-[#27272a] bg-[#141416] overflow-hidden my-1">
+                    <div className="rounded-none border border-[#2A2A30] bg-[#1B1B1F] overflow-hidden my-1">
                       <button
                         type="button"
                         onClick={() => setMobileNotifOpen(!mobileNotifOpen)}
-                        className="w-full px-3.5 py-2.5 flex items-center justify-between min-h-[44px] text-xs font-headline uppercase tracking-wider text-[#b9cacb] hover:text-white transition-colors cursor-pointer"
+                        className="w-full px-3.5 py-2.5 flex items-center justify-between min-h-[44px] text-xs font-headline uppercase tracking-wider text-[#A3A3A3] hover:text-white transition-colors cursor-pointer"
                         aria-expanded={mobileNotifOpen}
                       >
                         <div className="flex items-center gap-3">
-                          <Bell className="w-4.5 h-4.5 text-[#00f2ff]" />
+                          <Bell className="w-4.5 h-4.5 text-[#FFB900]" />
                           <span>Notifications</span>
                         </div>
                         <div className="flex items-center gap-2">
                           {unreadNotificationsCount > 0 ? (
-                            <span className="min-w-[18px] h-4.5 rounded-full bg-[#ef4444] text-[9px] font-black text-white flex items-center justify-center px-1.5 animate-pulse">
+                            <span className="min-w-[18px] h-4.5 rounded-none bg-[#FF0000] text-[9px] font-black text-white flex items-center justify-center px-1.5 animate-pulse">
                               {unreadNotificationsCount}
                             </span>
                           ) : (
-                            <span className="text-[10px] text-[#849495] font-mono lowercase">0 unread</span>
+                            <span className="text-[10px] text-[#A3A3A3] font-mono lowercase">0 unread</span>
                           )}
-                          <ChevronDown className={`w-3.5 h-3.5 text-[#849495] transition-transform duration-200 ${mobileNotifOpen ? 'rotate-180' : ''}`} />
+                          <ChevronDown className={`w-3.5 h-3.5 text-[#A3A3A3] transition-transform duration-200 ${mobileNotifOpen ? 'rotate-180' : ''}`} />
                         </div>
                       </button>
 
                       {mobileNotifOpen && (
-                        <div className="border-t border-[#27272a] p-3 space-y-2.5 bg-[#0f0f11]">
-                          <div className="flex items-center justify-between pb-1 border-b border-[#27272a]/60">
-                            <span className="text-[10px] font-mono text-[#849495] uppercase font-bold">
+                        <div className="border-t border-[#2A2A30] p-3 space-y-2.5 bg-[#111318]">
+                          <div className="flex items-center justify-between pb-1 border-b border-[#2A2A30]/60">
+                            <span className="text-[10px] font-mono text-[#A3A3A3] uppercase font-bold">
                               Alerts ({unreadNotificationsCount} unread)
                             </span>
                             {unreadNotificationsCount > 0 && (
                               <button
                                 type="button"
                                 onClick={handleMarkAllRead}
-                                className="text-[9px] text-[#00f2ff] hover:underline uppercase font-bold cursor-pointer font-mono"
+                                className="text-[9px] text-[#FFB900] hover:underline uppercase font-bold cursor-pointer font-mono"
                               >
                                 Mark Read
                               </button>
@@ -858,7 +858,7 @@ export default function Navbar() {
 
                           <div className="max-h-56 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
                             {notifications.length === 0 ? (
-                              <div className="py-3 text-center text-[#849495] text-[11px] font-sans">
+                              <div className="py-3 text-center text-[#A3A3A3] text-[11px] font-sans">
                                 No notifications on log.
                               </div>
                             ) : (
@@ -867,10 +867,10 @@ export default function Navbar() {
                                   key={`mobile-notif-${n.id}`}
                                   type="button"
                                   onClick={() => handleNotificationClick(n)}
-                                  className={`w-full text-left p-2 rounded border text-[11px] leading-relaxed transition-all cursor-pointer ${
+                                  className={`w-full text-left p-2 rounded-none border text-[11px] leading-relaxed transition-all cursor-pointer ${
                                     n.is_read
-                                      ? 'bg-[#1c1b1c]/40 border-[#27272a]/60 text-[#b9cacb] hover:bg-[#201f20]'
-                                      : 'bg-[#00f2ff]/5 border-[#00f2ff]/30 text-white hover:bg-[#00f2ff]/10'
+                                      ? 'bg-[#1B1B1F]/40 border-[#2A2A30]/60 text-[#A3A3A3] hover:bg-[#1B1B1F]'
+                                      : 'bg-[#FFB900]/5 border-[#FFB900]/30 text-white hover:bg-[#FFB900]/10'
                                   }`}
                                 >
                                   <div className="flex items-start gap-2">
@@ -881,15 +881,15 @@ export default function Navbar() {
                                       <div className="flex justify-between items-start font-bold gap-2">
                                         <span className="truncate">{n.title}</span>
                                         <div className="flex items-center gap-1.5 shrink-0">
-                                          <span className="text-[9px] text-[#849495] font-normal">
+                                          <span className="text-[9px] text-[#A3A3A3] font-normal">
                                             {formatRelativeTime(n.created_at)}
                                           </span>
                                           {!n.is_read && (
-                                            <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff] shrink-0"></span>
+                                            <span className="w-1.5 h-1.5 rounded-none bg-[#FFB900] shrink-0"></span>
                                           )}
                                         </div>
                                       </div>
-                                      <p className="text-[10px] text-[#b9cacb] mt-0.5 font-sans line-clamp-2">{n.message}</p>
+                                      <p className="text-[10px] text-[#A3A3A3] mt-0.5 font-sans line-clamp-2">{n.message}</p>
                                     </div>
                                   </div>
                                 </button>
@@ -905,13 +905,13 @@ export default function Navbar() {
                       <Link
                         to="/admin"
                         onClick={() => setMobileMenuOpen(false)}
-                        className="px-3.5 py-2.5 rounded flex items-center justify-between text-[#ff5e07] bg-[#ff5e07]/10 border border-[#ff5e07]/25 min-h-[44px] uppercase tracking-wider font-bold transition-colors hover:bg-[#ff5e07]/20"
+                        className="px-3.5 py-2.5 rounded-none flex items-center justify-between text-[#FF6200] bg-[#FF6200]/10 border border-[#FF6200]/25 min-h-[44px] uppercase tracking-wider font-bold transition-colors hover:bg-[#FF6200]/20"
                       >
                         <div className="flex items-center gap-3">
-                          <Shield className="w-4.5 h-4.5 text-[#ff5e07]" />
+                          <Shield className="w-4.5 h-4.5 text-[#FF6200]" />
                           <span>Admin Dashboard</span>
                         </div>
-                        <span className="text-[9px] font-extrabold bg-[#ff5e07] text-slate-950 px-1.5 py-0.5 rounded">
+                        <span className="text-[9px] font-extrabold bg-[#FF6200] text-slate-950 px-1.5 py-0.5 rounded-none">
                           ACCESS
                         </span>
                       </Link>
@@ -923,7 +923,7 @@ export default function Navbar() {
 
             {/* Drawer Footer: Logout (Authenticated Only) */}
             {isAuthenticated && (
-              <div className="pt-2 border-t border-[#27272a]">
+              <div className="pt-2 border-t border-[#2A2A30]">
                 <button
                   type="button"
                   onClick={() => {
@@ -931,9 +931,9 @@ export default function Navbar() {
                     setMobileMenuOpen(false)
                   }}
                   disabled={isSigningOut}
-                  className="w-full py-3 text-xs font-bold text-red-500 bg-[#141416] hover:bg-red-950/20 rounded border border-[#27272a] hover:border-red-500/40 flex items-center justify-center gap-2 min-h-[44px] uppercase font-headline cursor-pointer transition-colors"
+                  className="w-full py-3 text-xs font-bold text-[#FF0000] bg-[#111318] hover:bg-[#FF0000]/10 rounded-none border border-[#2A2A30] hover:border-[#FF0000]/40 flex items-center justify-center gap-2 min-h-[44px] uppercase font-headline cursor-pointer transition-colors"
                 >
-                  <LogOut className="w-4 h-4 text-red-500" />
+                  <LogOut className="w-4 h-4 text-[#FF0000]" />
                   <span>{isSigningOut ? 'Disconnecting...' : 'Logout'}</span>
                 </button>
               </div>

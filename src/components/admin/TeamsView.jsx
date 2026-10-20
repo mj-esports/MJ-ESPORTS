@@ -236,7 +236,7 @@ export default function TeamsView({ tournaments = [] }) {
       {/* 1. MODULE HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
             <Shield className="w-3.5 h-3.5" />
             <span>SQUAD ROSTER CONTROL</span>
           </div>
@@ -247,7 +247,7 @@ export default function TeamsView({ tournaments = [] }) {
 
         <button
           onClick={fetchTeamsAndRosters}
-          className="px-4 py-2 bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] hover:border-[#00f2ff] rounded-xl text-xs font-mono font-bold text-white transition-all flex items-center gap-2 uppercase shrink-0"
+          className="px-4 py-2 bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] hover:border-[#00f2ff] rounded-none text-xs font-mono font-bold text-white transition-all flex items-center gap-2 uppercase shrink-0"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-[#00f2ff] ${loading ? 'animate-spin' : ''}`} />
           <span>Sync Roster Directory</span>
@@ -258,25 +258,25 @@ export default function TeamsView({ tournaments = [] }) {
 
       {/* 2. STATS KPI HEADER */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
-        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 space-y-2 shadow-xl">
+        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-4 space-y-2 shadow-xl">
           <span className="text-[#a1a1aa] uppercase font-bold text-[10px] block">Total Squads</span>
           <span className="font-headline text-2xl font-black text-[#00f2ff] block">{kpis.totalTeams}</span>
           <span className="text-[10px] text-[#a1a1aa] block">REGISTERED SQUADS</span>
         </div>
 
-        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 space-y-2 shadow-xl">
+        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-4 space-y-2 shadow-xl">
           <span className="text-[#a1a1aa] uppercase font-bold text-[10px] block">Active Squads</span>
           <span className="font-headline text-2xl font-black text-white block">{kpis.activeTeams}</span>
           <span className="text-[10px] text-[#a1a1aa] block">ELIGIBLE SQUADS</span>
         </div>
 
-        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 space-y-2 shadow-xl">
+        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-4 space-y-2 shadow-xl">
           <span className="text-[#a1a1aa] uppercase font-bold text-[10px] block">Verified Squads</span>
           <span className="font-headline text-2xl font-black text-[#00ff9d] block">{kpis.verifiedTeams}</span>
           <span className="text-[10px] text-[#00ff9d] block">VERIFIED SQUADS</span>
         </div>
 
-        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 space-y-2 shadow-xl">
+        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-4 space-y-2 shadow-xl">
           <span className="text-[#a1a1aa] uppercase font-bold text-[10px] block">Total Team Players</span>
           <span className="font-headline text-2xl font-black text-[#fe6b00] block">{kpis.totalPlayersInTeams}</span>
           <span className="text-[10px] text-[#fe6b00] block">ROSTERED PLAYERS</span>
@@ -284,7 +284,7 @@ export default function TeamsView({ tournaments = [] }) {
       </div>
 
       {/* 3. SEARCH & MULTI-FILTER BAR */}
-      <div className="flex flex-col lg:flex-row gap-3 bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-4 shadow-xl">
+      <div className="flex flex-col lg:flex-row gap-3 bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-4 shadow-xl">
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-[#a1a1aa] absolute left-3.5 top-3" />
           <input
@@ -292,7 +292,7 @@ export default function TeamsView({ tournaments = [] }) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search teams by squad name, tag, or captain name..."
-            className="w-full pl-10 pr-4 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-xs text-white placeholder-[#71717a] focus:outline-none focus:border-[#00f2ff] font-mono transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#09090b] border border-[#27272a] rounded-none text-xs text-white placeholder-[#71717a] focus:outline-none focus:border-[#00f2ff] font-mono transition-colors"
           />
         </div>
 
@@ -303,7 +303,7 @@ export default function TeamsView({ tournaments = [] }) {
             <select
               value={gameFilter}
               onChange={(e) => setGameFilter(e.target.value)}
-              className="bg-[#09090b] border border-[#27272a] text-white text-xs font-mono font-bold rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#00f2ff]"
+              className="bg-[#09090b] border border-[#27272a] text-white text-xs font-mono font-bold rounded-none px-3 py-2.5 focus:outline-none focus:border-[#00f2ff]"
             >
               <option value="ALL">ALL GAMES</option>
               <option value="FREEFIRE">FREE FIRE</option>
@@ -317,7 +317,7 @@ export default function TeamsView({ tournaments = [] }) {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[#09090b] border border-[#27272a] text-white text-xs font-mono font-bold rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#00f2ff]"
+              className="bg-[#09090b] border border-[#27272a] text-white text-xs font-mono font-bold rounded-none px-3 py-2.5 focus:outline-none focus:border-[#00f2ff]"
             >
               <option value="ALL">ALL STATUS</option>
               <option value="VERIFIED">VERIFIED</option>
@@ -330,12 +330,12 @@ export default function TeamsView({ tournaments = [] }) {
 
       {/* 4. TEAM CARDS GRID */}
       {loading ? (
-        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-12 text-center text-[#a1a1aa] font-mono text-xs space-y-3 shadow-xl">
-          <div className="w-7 h-7 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-12 text-center text-[#a1a1aa] font-mono text-xs space-y-3 shadow-xl">
+          <div className="w-7 h-7 border-2 border-[#00f2ff] border-t-transparent rounded-none animate-spin mx-auto"></div>
           <span>Loading team rosters and competitive records...</span>
         </div>
       ) : filteredTeams.length === 0 ? (
-        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-12 text-center space-y-3 shadow-xl">
+        <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-12 text-center space-y-3 shadow-xl">
           <Shield className="w-12 h-12 text-[#00f2ff] mx-auto opacity-40 animate-pulse" />
           <div className="space-y-1 max-w-md mx-auto">
             <h3 className="font-headline text-base sm:text-lg font-bold text-white uppercase tracking-wider">
@@ -351,12 +351,12 @@ export default function TeamsView({ tournaments = [] }) {
           {filteredTeams.map((team) => (
             <div
               key={team.id}
-              className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] hover:border-[#00f2ff]/40 rounded-2xl p-5 space-y-4 shadow-xl transition-all flex flex-col justify-between"
+              className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] hover:border-[#00f2ff]/40 rounded-none p-5 space-y-4 shadow-xl transition-all flex flex-col justify-between"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between border-b border-white/5 pb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#09090b] border border-[#00f2ff]/40 flex items-center justify-center font-headline text-sm font-black text-[#00f2ff] font-mono">
+                    <div className="w-10 h-10 rounded-none bg-[#09090b] border border-[#00f2ff]/40 flex items-center justify-center font-headline text-sm font-black text-[#00f2ff] font-mono">
                       [{team.tag}]
                     </div>
                     <div>
@@ -368,7 +368,7 @@ export default function TeamsView({ tournaments = [] }) {
                     </div>
                   </div>
 
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase border ${
+                  <span className={`px-3 py-1 rounded-none text-[10px] font-mono font-bold uppercase border ${
                     team.status === 'Verified'
                       ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                       : team.status === 'Suspended'
@@ -381,14 +381,14 @@ export default function TeamsView({ tournaments = [] }) {
 
                 {/* Team Captain & Matches */}
                 <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                  <div className="p-2.5 bg-[#09090b] rounded-xl border border-[#27272a]">
+                  <div className="p-2.5 bg-[#09090b] rounded-none border border-[#27272a]">
                     <span className="text-[10px] text-[#a1a1aa] block uppercase">Squad Captain</span>
                     <span className="font-bold text-white block truncate flex items-center gap-1 font-sans">
                       <Crown className="w-3.5 h-3.5 text-[#fe6b00]" />
                       {team.captain}
                     </span>
                   </div>
-                  <div className="p-2.5 bg-[#09090b] rounded-xl border border-[#27272a]">
+                  <div className="p-2.5 bg-[#09090b] rounded-none border border-[#27272a]">
                     <span className="text-[10px] text-[#a1a1aa] block uppercase">Matches / Wins</span>
                     <span className="font-bold text-[#00f2ff] block">
                       {team.matchesPlayed} Matches &bull; {team.wins} Wins
@@ -401,7 +401,7 @@ export default function TeamsView({ tournaments = [] }) {
               <div className="flex items-center gap-2 pt-2 border-t border-white/5 font-mono text-xs">
                 <button
                   onClick={() => setSelectedTeam(team)}
-                  className="flex-1 py-2 bg-[#09090b] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] hover:border-[#00f2ff] rounded-xl font-bold uppercase transition-colors flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2 bg-[#09090b] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] hover:border-[#00f2ff] rounded-none font-bold uppercase transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Roster Ranks</span>
@@ -409,7 +409,7 @@ export default function TeamsView({ tournaments = [] }) {
 
                 <button
                   onClick={() => handleUpdateTeamStatus(team.id, team.status === 'Verified' ? 'Pending' : 'Verified')}
-                  className="p-2 rounded-xl bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 transition-colors"
+                  className="p-2 rounded-none bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 transition-colors"
                   title="Toggle Verification Status"
                 >
                   <Check className="w-4 h-4" />
@@ -424,23 +424,23 @@ export default function TeamsView({ tournaments = [] }) {
       {/* 5. TEAM PROFILE & ROSTER MODAL VIEW */}
       {selectedTeam && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-2xl w-full p-6 space-y-6 shadow-2xl relative">
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-none max-w-2xl w-full p-6 space-y-6 shadow-2xl relative">
             <button
               onClick={() => setSelectedTeam(null)}
-              className="absolute top-5 right-5 p-2 rounded bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
+              className="absolute top-5 right-5 p-2 rounded-none bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
 
             {/* Basic Team Info */}
             <div className="flex items-center gap-4 border-b border-[#3a494b]/60 pb-4">
-              <div className="w-16 h-16 rounded-xl bg-[#07090c] border border-[#00f2ff] flex items-center justify-center text-xl font-extrabold text-[#00f2ff]">
+              <div className="w-16 h-16 rounded-none bg-[#07090c] border border-[#00f2ff] flex items-center justify-center text-xl font-extrabold text-[#00f2ff]">
                 [{selectedTeam.tag}]
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h3 className="font-display-lg text-lg font-extrabold text-white uppercase">{selectedTeam.name}</h3>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold uppercase border ${
+                  <span className={`px-2 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border ${
                     selectedTeam.status === 'Verified'
                       ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                       : selectedTeam.status === 'Suspended'
@@ -462,7 +462,7 @@ export default function TeamsView({ tournaments = [] }) {
                 <span>Active Squad Roster ({selectedTeam.members?.length || 0})</span>
               </h4>
 
-              <div className="bg-[#07090c] border border-[#3a494b]/60 rounded-lg overflow-hidden text-xs">
+              <div className="bg-[#07090c] border border-[#3a494b]/60 rounded-none overflow-hidden text-xs">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-[#3a494b]/60 text-[#8e9dae] font-label-caps">
@@ -480,7 +480,7 @@ export default function TeamsView({ tournaments = [] }) {
                         </td>
                         <td className="p-2.5 font-mono text-[#00f2ff] font-bold">{m.game_uid}</td>
                         <td className="p-2.5 text-right pr-3">
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-extrabold uppercase border ${
+                          <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-extrabold uppercase border ${
                             m.role === 'Captain' ? 'bg-[#ffb800]/10 text-[#ffb800] border-[#ffb800]/40' : 'bg-[#151a21] text-[#8e9dae] border-[#3a494b]'
                           }`}>
                             {m.role || 'Member'}
@@ -495,19 +495,19 @@ export default function TeamsView({ tournaments = [] }) {
 
             {/* Performance Statistics */}
             <div className="grid grid-cols-4 gap-3 text-xs font-mono">
-              <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/40 text-center space-y-0.5">
+              <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/40 text-center space-y-0.5">
                 <span className="text-[9px] text-[#8e9dae] uppercase font-bold block">Matches</span>
                 <span className="font-extrabold text-white text-base">{selectedTeam.matchesPlayed}</span>
               </div>
-              <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/40 text-center space-y-0.5">
+              <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/40 text-center space-y-0.5">
                 <span className="text-[9px] text-[#8e9dae] uppercase font-bold block">Wins</span>
                 <span className="font-extrabold text-[#00ff9d] text-base">{selectedTeam.wins}</span>
               </div>
-              <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/40 text-center space-y-0.5">
+              <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/40 text-center space-y-0.5">
                 <span className="text-[9px] text-[#8e9dae] uppercase font-bold block">Entries</span>
                 <span className="font-extrabold text-[#00f2ff] text-base">{selectedTeam.tournamentHistory?.length || 0}</span>
               </div>
-              <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/40 text-center space-y-0.5">
+              <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/40 text-center space-y-0.5">
                 <span className="text-[9px] text-[#8e9dae] uppercase font-bold block">Earnings</span>
                 <span className="font-extrabold text-[#fe6b00] text-base">{selectedTeam.earnings}</span>
               </div>
@@ -522,13 +522,13 @@ export default function TeamsView({ tournaments = [] }) {
               <div className="max-h-40 overflow-y-auto space-y-2 pr-1">
                 {selectedTeam.tournamentHistory && selectedTeam.tournamentHistory.length > 0 ? (
                   selectedTeam.tournamentHistory.map((h, idx) => (
-                    <div key={`thist-${idx}`} className="p-2.5 bg-[#07090c] rounded border border-[#3a494b]/60 text-xs flex justify-between items-center">
+                    <div key={`thist-${idx}`} className="p-2.5 bg-[#07090c] rounded-none border border-[#3a494b]/60 text-xs flex justify-between items-center">
                       <span className="font-bold text-white">{h.tournament_title || h.tournamentTitle || 'Official Cup'}</span>
                       <span className="font-mono text-[#00ff9d]">{h.status || 'Approved'}</span>
                     </div>
                   ))
                 ) : (
-                  <div className="p-3 text-center bg-[#07090c] rounded border border-[#3a494b]/60 text-xs text-[#8e9dae]">
+                  <div className="p-3 text-center bg-[#07090c] rounded-none border border-[#3a494b]/60 text-xs text-[#8e9dae]">
                     No tournament entries recorded yet.
                   </div>
                 )}
@@ -538,7 +538,7 @@ export default function TeamsView({ tournaments = [] }) {
             <div className="pt-2 border-t border-[#3a494b]/60 flex justify-end">
               <button
                 onClick={() => setSelectedTeam(null)}
-                className="px-5 py-2 bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] font-extrabold text-xs uppercase tracking-wider rounded-lg shadow-[0_0_12px_rgba(0,242,255,0.4)]"
+                className="px-5 py-2 bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] font-extrabold text-xs uppercase tracking-wider rounded-none shadow-[0_0_12px_rgba(0,242,255,0.4)]"
               >
                 Close Profile
               </button>

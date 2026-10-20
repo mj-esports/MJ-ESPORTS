@@ -87,7 +87,7 @@ export default function AvatarUploadModal({ isOpen, onClose, onSave, isUploading
       aria-modal="true"
       aria-labelledby="avatar-upload-modal-title"
     >
-      <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+      <div className="bg-[#151a21] border border-[#3a494b] rounded-none max-w-md w-full p-6 space-y-5 shadow-2xl relative">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
@@ -101,14 +101,14 @@ export default function AvatarUploadModal({ isOpen, onClose, onSave, isUploading
             type="button"
             onClick={onClose}
             aria-label="Close Avatar Modal"
-            className="p-1 rounded text-[#8e9dae] hover:text-white hover:bg-[#07090c] transition-colors"
+            className="p-1 rounded-none text-[#8e9dae] hover:text-white hover:bg-[#07090c] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-950/60 border border-[#ff3366] rounded-lg text-xs text-[#ff3366] flex items-center gap-2">
+          <div className="p-3 bg-red-950/60 border border-[#ff3366] rounded-none text-xs text-[#ff3366] flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -121,9 +121,9 @@ export default function AvatarUploadModal({ isOpen, onClose, onSave, isUploading
         {!previewUrl ? (
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-[#3a494b] hover:border-[#00f2ff] rounded-xl p-8 text-center space-y-3 cursor-pointer transition-colors bg-[#07090c]/60 group"
+            className="border-2 border-dashed border-[#3a494b] hover:border-[#00f2ff] rounded-none p-8 text-center space-y-3 cursor-pointer transition-colors bg-[#07090c]/60 group"
           >
-            <div className="w-14 h-14 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center mx-auto text-[#00f2ff] group-hover:scale-110 transition-transform">
+            <div className="w-14 h-14 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center mx-auto text-[#00f2ff] group-hover:scale-110 transition-transform">
               <Upload className="w-6 h-6" />
             </div>
             <div className="space-y-1">
@@ -138,14 +138,14 @@ export default function AvatarUploadModal({ isOpen, onClose, onSave, isUploading
         ) : (
           <div className="space-y-4 text-center">
             {/* Circular Crop Frame Overlay */}
-            <div className="relative w-48 h-48 mx-auto rounded-full overflow-hidden border-2 border-[#00f2ff] shadow-[0_0_20px_rgba(0,242,255,0.4)] bg-[#07090c]">
+            <div className="relative w-48 h-48 mx-auto rounded-none overflow-hidden border-2 border-[#00f2ff] shadow-[0_0_20px_rgba(0,242,255,0.4)] bg-[#07090c]">
               <img
                 src={previewUrl}
                 alt="Avatar Crop Preview"
                 className="w-full h-full object-cover transition-transform duration-150"
                 style={{ transform: `scale(${zoom})` }}
               />
-              <div className="absolute inset-0 rounded-full border-2 border-dashed border-white/40 pointer-events-none" />
+              <div className="absolute inset-0 rounded-none border-2 border-dashed border-white/40 pointer-events-none" />
             </div>
 
             {/* Zoom Slider Controls */}
@@ -158,7 +158,7 @@ export default function AvatarUploadModal({ isOpen, onClose, onSave, isUploading
                 step="0.05"
                 value={zoom}
                 onChange={(e) => setZoom(parseFloat(e.target.value))}
-                className="w-full h-1 bg-[#07090c] rounded-lg appearance-none cursor-pointer accent-[#00f2ff]"
+                className="w-full h-1 bg-[#07090c] rounded-none appearance-none cursor-pointer accent-[#00f2ff]"
               />
               <ZoomIn className="w-4 h-4 text-[#00f2ff]" />
             </div>
@@ -191,7 +191,7 @@ export default function AvatarUploadModal({ isOpen, onClose, onSave, isUploading
             type="button"
             onClick={onClose}
             disabled={isUploading}
-            className="flex-1 py-2.5 bg-[#07090c] hover:bg-[#1d232c] text-[#8e9dae] border border-[#3a494b] rounded text-xs font-bold uppercase transition-colors min-h-[44px]"
+            className="flex-1 py-2.5 bg-[#07090c] hover:bg-[#1d232c] text-[#8e9dae] border border-[#3a494b] rounded-none text-xs font-bold uppercase transition-colors min-h-[44px]"
           >
             Cancel
           </button>

@@ -325,7 +325,7 @@ export default function TournamentHistoryPage() {
     const numRank = Number(rank)
     if (!numRank || numRank <= 0) {
       return (
-        <span className="text-[11px] font-mono font-bold text-[#717a8e] bg-[#141620] px-2 py-0.5 rounded border border-[#222638]">
+        <span className="text-[11px] font-mono font-bold text-[#717a8e] bg-[#141620] px-2 py-0.5 rounded-none border border-[#222638]">
           UNRANKED
         </span>
       )
@@ -333,7 +333,7 @@ export default function TournamentHistoryPage() {
 
     if (numRank === 1) {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono font-black uppercase bg-[#fbbf24]/15 text-[#fbbf24] border border-[#fbbf24]/40 shadow-[0_0_12px_rgba(251,191,36,0.15)]">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[11px] font-mono font-black uppercase bg-[#fbbf24]/15 text-[#fbbf24] border border-[#fbbf24]/40 shadow-[0_0_12px_rgba(251,191,36,0.15)]">
           <Trophy className="w-3.5 h-3.5 text-[#fbbf24]" />
           <span>#1 CHAMPION</span>
         </span>
@@ -342,7 +342,7 @@ export default function TournamentHistoryPage() {
 
     if (numRank === 2) {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono font-black uppercase bg-[#94a3b8]/15 text-[#e2e8f0] border border-[#94a3b8]/40">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[11px] font-mono font-black uppercase bg-[#94a3b8]/15 text-[#e2e8f0] border border-[#94a3b8]/40">
           <Medal className="w-3.5 h-3.5 text-[#cbd5e1]" />
           <span>#2 RUNNER-UP</span>
         </span>
@@ -351,7 +351,7 @@ export default function TournamentHistoryPage() {
 
     if (numRank === 3) {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono font-black uppercase bg-[#d97706]/15 text-[#f59e0b] border border-[#d97706]/40">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[11px] font-mono font-black uppercase bg-[#d97706]/15 text-[#f59e0b] border border-[#d97706]/40">
           <Award className="w-3.5 h-3.5 text-[#f59e0b]" />
           <span>#3 PODIUM</span>
         </span>
@@ -359,7 +359,7 @@ export default function TournamentHistoryPage() {
     }
 
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-bold uppercase bg-[#141620] text-[#8e95a5] border border-[#222638]">
+      <span className="inline-flex items-center px-2 py-0.5 rounded-none text-[11px] font-mono font-bold uppercase bg-[#141620] text-[#8e95a5] border border-[#222638]">
         #{numRank} FINISH
       </span>
     )
@@ -371,7 +371,7 @@ export default function TournamentHistoryPage() {
 
     if (status === 'Cancelled') {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-extrabold uppercase bg-[#ff4655]/10 text-[#ff4655] border border-[#ff4655]/30">
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase bg-[#ff4655]/10 text-[#ff4655] border border-[#ff4655]/30">
           <Ban className="w-3 h-3" />
           <span>CANCELLED</span>
         </span>
@@ -380,7 +380,7 @@ export default function TournamentHistoryPage() {
 
     if (status === 'Live' || status === 'Live Now' || status === 'In Progress' || status === 'Underway') {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-extrabold uppercase bg-[#fe6b00]/15 text-[#fe6b00] border border-[#fe6b00]/40 animate-pulse">
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase bg-[#fe6b00]/15 text-[#fe6b00] border border-[#fe6b00]/40 animate-pulse">
           <Radio className="w-3 h-3 text-[#fe6b00]" />
           <span>LIVE NOW</span>
         </span>
@@ -389,7 +389,7 @@ export default function TournamentHistoryPage() {
 
     if (status === 'Registration Open') {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-extrabold uppercase bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
           <CheckCircle2 className="w-3 h-3" />
           <span>REGISTERED</span>
         </span>
@@ -398,7 +398,7 @@ export default function TournamentHistoryPage() {
 
     if (status === 'Results Pending') {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-extrabold uppercase bg-[#eab308]/10 text-[#eab308] border border-[#eab308]/30">
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase bg-[#eab308]/10 text-[#eab308] border border-[#eab308]/30">
           <RefreshCw className="w-3 h-3 animate-spin" />
           <span>RESULTS PENDING</span>
         </span>
@@ -406,7 +406,7 @@ export default function TournamentHistoryPage() {
     }
 
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-[#141620] text-[#8e95a5] border border-[#222638]">
+      <span className="inline-flex items-center px-2 py-0.5 rounded-none text-[10px] font-mono font-bold uppercase bg-[#141620] text-[#8e95a5] border border-[#222638]">
         {status || 'UPCOMING'}
       </span>
     )
@@ -417,17 +417,17 @@ export default function TournamentHistoryPage() {
     return (
       <div className="bg-[#050508] text-white min-h-screen pb-20 antialiased font-mono">
         <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
-          <div className="h-6 w-36 bg-[#12141c] rounded animate-pulse" />
-          <div className="h-28 bg-[#0d0e15] border border-[#1f2230] rounded-2xl animate-pulse" />
+          <div className="h-6 w-36 bg-[#12141c] rounded-none animate-pulse" />
+          <div className="h-28 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
           <div className="grid grid-cols-3 gap-3">
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
+            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
           </div>
           <div className="space-y-3">
-            <div className="h-24 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
-            <div className="h-24 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
-            <div className="h-24 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
+            <div className="h-24 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+            <div className="h-24 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+            <div className="h-24 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
           </div>
         </main>
       </div>
@@ -438,7 +438,7 @@ export default function TournamentHistoryPage() {
   if (!Array.isArray(tournaments)) {
     return (
       <div className="bg-[#050508] text-white min-h-screen pb-20 antialiased font-mono flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center p-8 bg-[#0d0e15] border border-[#ff4655]/30 rounded-2xl space-y-4">
+        <div className="max-w-md w-full text-center p-8 bg-[#0d0e15] border border-[#ff4655]/30 rounded-none space-y-4">
           <AlertCircle className="w-10 h-10 text-[#ff4655] mx-auto" />
           <h2 className="text-sm font-bold uppercase tracking-wider text-white">
             TOURNAMENT HISTORY UNAVAILABLE
@@ -448,7 +448,7 @@ export default function TournamentHistoryPage() {
           </p>
           <Link
             to="/profile"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#141620] border border-[#222638] text-xs font-bold text-[#00f2ff] hover:bg-[#1a1d29] transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-none bg-[#141620] border border-[#222638] text-xs font-bold text-[#00f2ff] hover:bg-[#1a1d29] transition-all"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Profile</span>
@@ -474,7 +474,7 @@ export default function TournamentHistoryPage() {
             <span>Return to Profile</span>
           </Link>
 
-          <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-widest bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/20">
+          <span className="px-2 py-0.5 rounded-none text-[10px] font-extrabold uppercase tracking-widest bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/20">
             FREE FIRE MAX
           </span>
         </div>
@@ -484,11 +484,11 @@ export default function TournamentHistoryPage() {
         {/* ================================================== */}
         <header
           aria-label="Tournament History Header"
-          className="p-5 rounded-2xl bg-gradient-to-b from-[#0e1017] to-[#08090d] border border-[#1f2230] relative overflow-hidden shadow-[0_0_25px_rgba(0,0,0,0.4)]"
+          className="p-5 rounded-none bg-gradient-to-b from-[#0e1017] to-[#08090d] border border-[#1f2230] relative overflow-hidden shadow-[0_0_25px_rgba(0,0,0,0.4)]"
         >
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <div className="relative w-12 h-12 rounded-xl bg-[#141620] border border-[#222638] flex items-center justify-center overflow-hidden shrink-0">
+              <div className="relative w-12 h-12 rounded-none bg-[#141620] border border-[#222638] flex items-center justify-center overflow-hidden shrink-0">
                 <img
                   src={avatarUrl}
                   alt={displayName}
@@ -504,7 +504,7 @@ export default function TournamentHistoryPage() {
                   {isVerified && (
                     <span
                       title="Authoritatively Verified Player"
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30"
                     >
                       <ShieldCheck className="w-3 h-3 text-[#00f2ff]" />
                       <span>VERIFIED</span>
@@ -519,8 +519,8 @@ export default function TournamentHistoryPage() {
             </div>
 
             {/* Free Fire MAX Identity Pill */}
-            <div className="flex items-center gap-2 bg-[#12141c] border border-[#1f2230] rounded-xl px-3 py-2 text-xs shrink-0">
-              <div className="w-2 h-2 rounded-full bg-[#00f2ff] shadow-[0_0_8px_#00f2ff]" />
+            <div className="flex items-center gap-2 bg-[#12141c] border border-[#1f2230] rounded-none px-3 py-2 text-xs shrink-0">
+              <div className="w-2 h-2 rounded-none bg-[#00f2ff] shadow-[0_0_8px_#00f2ff]" />
               <div className="flex flex-col">
                 <span className="text-[9px] text-[#717a8e] uppercase font-bold tracking-wider">
                   FF MAX UID
@@ -552,14 +552,14 @@ export default function TournamentHistoryPage() {
           className="grid grid-cols-3 gap-2.5 sm:gap-4"
         >
           {/* TOTAL WON */}
-          <div className="p-3 sm:p-4 rounded-xl bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#00f2ff]/30 transition-all">
+          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#00f2ff]/30 transition-all">
             <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>TOTAL WON</span>
               <Wallet className="w-3.5 h-3.5 text-[#00f2ff]" />
             </div>
             <div className="font-sans font-black text-base sm:text-xl text-[#00f2ff] tracking-tight">
               {isEarningsLoading ? (
-                <span className="inline-block w-12 h-5 bg-[#141620] rounded animate-pulse" />
+                <span className="inline-block w-12 h-5 bg-[#141620] rounded-none animate-pulse" />
               ) : totalWonAmount !== null ? (
                 `₹${totalWonAmount.toLocaleString('en-IN')}`
               ) : (
@@ -572,7 +572,7 @@ export default function TournamentHistoryPage() {
           </div>
 
           {/* PODIUM RATE */}
-          <div className="p-3 sm:p-4 rounded-xl bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#ff8c00]/30 transition-all">
+          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#ff8c00]/30 transition-all">
             <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>PODIUM RATE</span>
               <Trophy className="w-3.5 h-3.5 text-[#ff8c00]" />
@@ -586,7 +586,7 @@ export default function TournamentHistoryPage() {
           </div>
 
           {/* TOTAL KILLS */}
-          <div className="p-3 sm:p-4 rounded-xl bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#00ff9d]/30 transition-all">
+          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#00ff9d]/30 transition-all">
             <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>TOTAL KILLS</span>
               <Flame className="w-3.5 h-3.5 text-[#00ff9d]" />
@@ -608,13 +608,13 @@ export default function TournamentHistoryPage() {
           <div
             role="tablist"
             aria-label="Tournament Filter Tabs"
-            className="flex items-center bg-[#0d0e15] p-1 rounded-xl border border-[#1f2230] text-xs font-bold"
+            className="flex items-center bg-[#0d0e15] p-1 rounded-none border border-[#1f2230] text-xs font-bold"
           >
             <button
               role="tab"
               aria-selected={filterTab === 'ALL'}
               onClick={() => setFilterTab('ALL')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer uppercase tracking-wider ${
+              className={`px-3.5 py-1.5 rounded-none transition-all cursor-pointer uppercase tracking-wider ${
                 filterTab === 'ALL'
                   ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                   : 'text-[#8e95a5] hover:text-white'
@@ -626,7 +626,7 @@ export default function TournamentHistoryPage() {
               role="tab"
               aria-selected={filterTab === 'ACTIVE'}
               onClick={() => setFilterTab('ACTIVE')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer uppercase tracking-wider ${
+              className={`px-3.5 py-1.5 rounded-none transition-all cursor-pointer uppercase tracking-wider ${
                 filterTab === 'ACTIVE'
                   ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                   : 'text-[#8e95a5] hover:text-white'
@@ -638,7 +638,7 @@ export default function TournamentHistoryPage() {
               role="tab"
               aria-selected={filterTab === 'COMPLETED'}
               onClick={() => setFilterTab('COMPLETED')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer uppercase tracking-wider ${
+              className={`px-3.5 py-1.5 rounded-none transition-all cursor-pointer uppercase tracking-wider ${
                 filterTab === 'COMPLETED'
                   ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                   : 'text-[#8e95a5] hover:text-white'
@@ -656,7 +656,7 @@ export default function TournamentHistoryPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tournaments..."
               aria-label="Search tournament name"
-              className="w-full bg-[#0d0e15] border border-[#1f2230] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-[#525866] focus:border-[#00f2ff] focus:outline-none h-[38px] transition-colors"
+              className="w-full bg-[#0d0e15] border border-[#1f2230] rounded-none pl-9 pr-4 py-2 text-xs text-white placeholder-[#525866] focus:border-[#00f2ff] focus:outline-none h-[38px] transition-colors"
             />
             <Search className="w-4 h-4 text-[#525866] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
@@ -669,7 +669,7 @@ export default function TournamentHistoryPage() {
           /* Empty State: Player has zero registered tournaments */
           <div
             aria-label="No Tournament History"
-            className="py-16 text-center border border-[#1f2230] bg-[#0d0e15] rounded-2xl p-6 space-y-3 font-mono"
+            className="py-16 text-center border border-[#1f2230] bg-[#0d0e15] rounded-none p-6 space-y-3 font-mono"
           >
             <Trophy className="w-10 h-10 text-[#525866] mx-auto" />
             <h2 className="text-sm font-bold text-white uppercase tracking-wider">
@@ -681,7 +681,7 @@ export default function TournamentHistoryPage() {
             <div className="pt-2">
               <Link
                 to="/tournaments"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00f2ff] text-black text-xs font-black uppercase tracking-wider hover:bg-[#00d8e6] transition-all"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-none bg-[#00f2ff] text-black text-xs font-black uppercase tracking-wider hover:bg-[#00d8e6] transition-all"
               >
                 <span>Browse Tournaments</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -692,7 +692,7 @@ export default function TournamentHistoryPage() {
           /* Empty State: Filter or search produced no matches */
           <div
             aria-label="No Matching Tournaments"
-            className="py-16 text-center border border-[#1f2230] bg-[#0d0e15] rounded-2xl p-6 space-y-3 font-mono"
+            className="py-16 text-center border border-[#1f2230] bg-[#0d0e15] rounded-none p-6 space-y-3 font-mono"
           >
             <Search className="w-10 h-10 text-[#525866] mx-auto" />
             <h2 className="text-sm font-bold text-white uppercase tracking-wider">
@@ -708,7 +708,7 @@ export default function TournamentHistoryPage() {
                   setFilterTab('ALL')
                   setSearchQuery('')
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#141620] border border-[#222638] text-xs font-bold text-[#00f2ff] hover:bg-[#1a1d29] transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#141620] border border-[#222638] text-xs font-bold text-[#00f2ff] hover:bg-[#1a1d29] transition-all cursor-pointer"
               >
                 <span>Clear Filters</span>
               </button>
@@ -734,7 +734,7 @@ export default function TournamentHistoryPage() {
               return (
                 <article
                   key={t.id}
-                  className="p-4 sm:p-4.5 rounded-2xl bg-[#0d0e15] border border-[#1f2230] hover:border-[#00f2ff]/40 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.25)] space-y-3 font-mono"
+                  className="p-4 sm:p-4.5 rounded-none bg-[#0d0e15] border border-[#1f2230] hover:border-[#00f2ff]/40 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.25)] space-y-3 font-mono"
                 >
                   {/* Top Row: Tournament Title, Game, Format & Status/Placement */}
                   <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -743,11 +743,11 @@ export default function TournamentHistoryPage() {
                         <h2 className="text-sm sm:text-base font-bold text-white tracking-wide truncate">
                           {t.title}
                         </h2>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/20 uppercase">
+                        <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/20 uppercase">
                           FREE FIRE MAX
                         </span>
                         {t.format && (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#141620] text-[#8e95a5] border border-[#222638] uppercase">
+                          <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold bg-[#141620] text-[#8e95a5] border border-[#222638] uppercase">
                             {t.format}
                           </span>
                         )}
@@ -782,7 +782,7 @@ export default function TournamentHistoryPage() {
                     {isCompleted ? (
                       <>
                         {/* PLACEMENT */}
-                        <div className="p-2.5 rounded-xl bg-[#12141c] border border-[#1f2230]">
+                        <div className="p-2.5 rounded-none bg-[#12141c] border border-[#1f2230]">
                           <span className="text-[9px] uppercase tracking-wider text-[#717a8e] block">
                             Placement
                           </span>
@@ -792,7 +792,7 @@ export default function TournamentHistoryPage() {
                         </div>
 
                         {/* KILLS */}
-                        <div className="p-2.5 rounded-xl bg-[#12141c] border border-[#1f2230]">
+                        <div className="p-2.5 rounded-none bg-[#12141c] border border-[#1f2230]">
                           <span className="text-[9px] uppercase tracking-wider text-[#717a8e] block">
                             Kills
                           </span>
@@ -802,7 +802,7 @@ export default function TournamentHistoryPage() {
                         </div>
 
                         {/* PRIZE WON */}
-                        <div className="p-2.5 rounded-xl bg-[#12141c] border border-[#1f2230]">
+                        <div className="p-2.5 rounded-none bg-[#12141c] border border-[#1f2230]">
                           <span className="text-[9px] uppercase tracking-wider text-[#717a8e] block">
                             Prize Won
                           </span>
@@ -812,7 +812,7 @@ export default function TournamentHistoryPage() {
                         </div>
 
                         {/* STATUS */}
-                        <div className="p-2.5 rounded-xl bg-[#12141c] border border-[#1f2230]">
+                        <div className="p-2.5 rounded-none bg-[#12141c] border border-[#1f2230]">
                           <span className="text-[9px] uppercase tracking-wider text-[#717a8e] block">
                             State
                           </span>
@@ -824,7 +824,7 @@ export default function TournamentHistoryPage() {
                     ) : isCancelled ? (
                       <>
                         {/* CANCELLED STATE METRICS */}
-                        <div className="p-2.5 rounded-xl bg-[#12141c] border border-[#1f2230] col-span-2">
+                        <div className="p-2.5 rounded-none bg-[#12141c] border border-[#1f2230] col-span-2">
                           <span className="text-[9px] uppercase tracking-wider text-[#717a8e] block">
                             Tournament Status
                           </span>
@@ -833,7 +833,7 @@ export default function TournamentHistoryPage() {
                           </span>
                         </div>
 
-                        <div className="p-2.5 rounded-xl bg-[#12141c] border border-[#1f2230] col-span-2 flex items-center justify-between">
+                        <div className="p-2.5 rounded-none bg-[#12141c] border border-[#1f2230] col-span-2 flex items-center justify-between">
                           <div>
                             <span className="text-[9px] uppercase tracking-wider text-[#717a8e] block">
                               Refund Status
@@ -854,7 +854,7 @@ export default function TournamentHistoryPage() {
                     ) : (
                       <>
                         {/* ACTIVE / UPCOMING TOURNAMENT METRICS (NO fake placement/kills/prize) */}
-                        <div className="p-2.5 rounded-xl bg-[#12141c] border border-[#1f2230]">
+                        <div className="p-2.5 rounded-none bg-[#12141c] border border-[#1f2230]">
                           <span className="text-[9px] uppercase tracking-wider text-[#717a8e] block">
                             Prize Pool
                           </span>
@@ -863,7 +863,7 @@ export default function TournamentHistoryPage() {
                           </span>
                         </div>
 
-                        <div className="p-2.5 rounded-xl bg-[#12141c] border border-[#1f2230]">
+                        <div className="p-2.5 rounded-none bg-[#12141c] border border-[#1f2230]">
                           <span className="text-[9px] uppercase tracking-wider text-[#717a8e] block">
                             Entry Fee
                           </span>
@@ -872,7 +872,7 @@ export default function TournamentHistoryPage() {
                           </span>
                         </div>
 
-                        <div className="p-2.5 rounded-xl bg-[#12141c] border border-[#1f2230] col-span-2 flex items-center justify-between">
+                        <div className="p-2.5 rounded-none bg-[#12141c] border border-[#1f2230] col-span-2 flex items-center justify-between">
                           <div>
                             <span className="text-[9px] uppercase tracking-wider text-[#717a8e] block">
                               Registration State
@@ -883,7 +883,7 @@ export default function TournamentHistoryPage() {
                             </span>
                           </div>
                           {t.room_status === 'Published' && (
-                            <span className="px-2 py-0.5 rounded text-[9.5px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
+                            <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30">
                               Room Ready
                             </span>
                           )}

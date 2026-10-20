@@ -28,7 +28,7 @@ export default function FormModeSelector({
               key={`mode-btn-${m.key}`}
               type="button"
               onClick={() => onChange(m.key)}
-              className={`py-2.5 px-3 rounded-md text-xs font-bold uppercase transition-all border flex flex-col items-center justify-center min-h-[44px] cursor-pointer ${
+              className={`py-2.5 px-3 rounded-none text-xs font-bold uppercase transition-all border flex flex-col items-center justify-center min-h-[44px] cursor-pointer ${
                 isSelected
                   ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                   : 'bg-[#1d2023] text-[#849495] border-[#3a494b] hover:text-white hover:border-[#00f2ff]/40'

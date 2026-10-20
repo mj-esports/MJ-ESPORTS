@@ -235,8 +235,8 @@ export default function SettingsView() {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#10b981]/10 border border-[#10b981]/30 rounded text-xs font-mono font-bold text-[#10b981] uppercase">
-            <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#10b981]/10 border border-[#10b981]/30 rounded-none text-xs font-mono font-bold text-[#10b981] uppercase">
+            <span className="w-2 h-2 rounded-none bg-[#10b981] animate-pulse" />
             <span>OPERATIONAL</span>
           </div>
         </div>
@@ -253,7 +253,7 @@ export default function SettingsView() {
         {/* LEFT: COMPACT SETTINGS NAVIGATION */}
         <div className="w-full lg:w-64 shrink-0">
           {/* Desktop Vertical Menu */}
-          <div className="hidden lg:flex flex-col space-y-1 bg-[#141416] border border-[#27272a] rounded-lg p-2 shadow-xl">
+          <div className="hidden lg:flex flex-col space-y-1 bg-[#141416] border border-[#27272a] rounded-none p-2 shadow-xl">
             {SECTIONS.map((sec) => {
               const Icon = sec.icon
               const isActive = activeSection === sec.id
@@ -261,7 +261,7 @@ export default function SettingsView() {
                 <button
                   key={`sec-${sec.id}`}
                   onClick={() => setActiveSection(sec.id)}
-                  className={`w-full text-left p-3 rounded transition-all cursor-pointer flex items-center gap-3 ${
+                  className={`w-full text-left p-3 rounded-none transition-all cursor-pointer flex items-center gap-3 ${
                     isActive
                       ? 'bg-[#00f2ff]/10 text-[#00f2ff] border-l-2 border-[#00f2ff] shadow-[inset_0_0_12px_rgba(0,242,255,0.05)] font-bold'
                       : 'text-[#849495] hover:text-white hover:bg-[#1c1b1c] border-l-2 border-transparent'
@@ -288,7 +288,7 @@ export default function SettingsView() {
                 <button
                   key={`sec-m-${sec.id}`}
                   onClick={() => setActiveSection(sec.id)}
-                  className={`px-3.5 py-2.5 rounded-t text-xs font-headline font-bold uppercase whitespace-nowrap flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+                  className={`px-3.5 py-2.5 rounded-none text-xs font-headline font-bold uppercase whitespace-nowrap flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
                     isActive
                       ? 'border-[#00f2ff] text-[#00f2ff] bg-[#141416]'
                       : 'border-transparent text-[#849495] hover:text-white'
@@ -309,7 +309,7 @@ export default function SettingsView() {
 
             {/* SECTION 1: GENERAL */}
             {activeSection === 'general' && (
-              <div className="bg-[#141416] border border-[#27272a] rounded-lg p-5 sm:p-6 space-y-6 shadow-xl animate-fadeIn">
+              <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-6 shadow-xl animate-fadeIn">
                 <div className="border-b border-[#27272a] pb-4">
                   <h2 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
                     <Globe className="w-4 h-4 text-[#00f2ff]" />
@@ -332,7 +332,7 @@ export default function SettingsView() {
                       value={settings.platformTitle}
                       onChange={handleChange}
                       placeholder="e.g. MJ ESPORTS Pro Arena"
-                      className={`w-full px-3.5 py-2.5 bg-[#1c1b1c] border rounded-lg text-xs font-bold text-white focus:outline-none transition-colors ${
+                      className={`w-full px-3.5 py-2.5 bg-[#1c1b1c] border rounded-none text-xs font-bold text-white focus:outline-none transition-colors ${
                         errors.platformTitle ? 'border-red-500 focus:border-red-400' : 'border-[#27272a] focus:border-[#00f2ff]'
                       }`}
                     />
@@ -354,7 +354,7 @@ export default function SettingsView() {
                         value={settings.supportEmail}
                         onChange={handleChange}
                         placeholder="e.g. support.mjesports@gmail.com"
-                        className={`w-full pl-9 pr-3.5 py-2.5 bg-[#1c1b1c] border rounded-lg text-xs font-mono font-bold text-white focus:outline-none transition-colors ${
+                        className={`w-full pl-9 pr-3.5 py-2.5 bg-[#1c1b1c] border rounded-none text-xs font-mono font-bold text-white focus:outline-none transition-colors ${
                           errors.supportEmail ? 'border-red-500 focus:border-red-400' : 'border-[#27272a] focus:border-[#00f2ff]'
                         }`}
                       />
@@ -376,7 +376,7 @@ export default function SettingsView() {
                       name="timezone"
                       value={settings.timezone}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-xs font-mono font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff] cursor-pointer"
+                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-mono font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff] cursor-pointer"
                     >
                       <option value="Asia/Kolkata">Asia/Kolkata (IST &bull; UTC+05:30)</option>
                       <option value="UTC">UTC (Coordinated Universal Time)</option>
@@ -398,7 +398,7 @@ export default function SettingsView() {
                       name="currency"
                       value={settings.currency}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-xs font-mono font-bold text-[#10b981] focus:outline-none focus:border-[#00f2ff] cursor-pointer"
+                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-mono font-bold text-[#10b981] focus:outline-none focus:border-[#00f2ff] cursor-pointer"
                     >
                       <option value="INR">INR (₹ &bull; Indian Rupee)</option>
                       <option value="USD">USD ($ &bull; US Dollar)</option>
@@ -417,7 +417,7 @@ export default function SettingsView() {
               <div className="space-y-6 animate-fadeIn">
                 
                 {/* SUB-CARD A: PLATFORM BRANDING */}
-                <div className="bg-[#141416] border border-[#27272a] rounded-lg p-5 sm:p-6 space-y-4 shadow-xl">
+                <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-4 shadow-xl">
                   <div className="border-b border-[#27272a] pb-3">
                     <h2 className="font-headline text-sm font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-[#00f2ff]" />
@@ -439,7 +439,7 @@ export default function SettingsView() {
                         value={settings.platformTitle}
                         onChange={handleChange}
                         placeholder="e.g. MJ ESPORTS Pro Arena"
-                        className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-xs font-bold text-white focus:outline-none focus:border-[#00f2ff]"
+                        className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-bold text-white focus:outline-none focus:border-[#00f2ff]"
                       />
                       <p className="text-[11px] text-[#849495] font-body">Primary brand headline.</p>
                     </div>
@@ -454,7 +454,7 @@ export default function SettingsView() {
                         value={settings.platformTagline}
                         onChange={handleChange}
                         placeholder="e.g. India's Premier Battle Royale Tournament Arena"
-                        className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-xs font-bold text-white focus:outline-none focus:border-[#00f2ff]"
+                        className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-bold text-white focus:outline-none focus:border-[#00f2ff]"
                       />
                       <p className="text-[11px] text-[#849495] font-body">Subheading for landing pages and promotional rules.</p>
                     </div>
@@ -462,7 +462,7 @@ export default function SettingsView() {
                 </div>
 
                 {/* SUB-CARD B: ANNOUNCEMENT BANNER */}
-                <div className="bg-[#141416] border border-[#27272a] rounded-lg p-5 sm:p-6 space-y-4 shadow-xl">
+                <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-4 shadow-xl">
                   {/* Status Row */}
                   <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
                     <div>
@@ -476,7 +476,7 @@ export default function SettingsView() {
                     </div>
 
                     <label className="flex items-center gap-2 cursor-pointer select-none">
-                      <span className={`px-2.5 py-1 rounded text-[11px] font-headline font-extrabold uppercase border ${
+                      <span className={`px-2.5 py-1 rounded-none text-[11px] font-headline font-extrabold uppercase border ${
                         settings.bannerEnabled
                           ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
                           : 'bg-slate-800 text-slate-400 border-slate-700'
@@ -489,7 +489,7 @@ export default function SettingsView() {
                         name="bannerEnabled"
                         checked={settings.bannerEnabled}
                         onChange={handleChange}
-                        className="w-4 h-4 rounded bg-[#1c1b1c] border-[#27272a] text-[#00f2ff] focus:ring-[#00f2ff] cursor-pointer"
+                        className="w-4 h-4 rounded-none bg-[#1c1b1c] border-[#27272a] text-[#00f2ff] focus:ring-[#00f2ff] cursor-pointer"
                       />
                     </label>
                   </div>
@@ -505,7 +505,7 @@ export default function SettingsView() {
                       onChange={handleChange}
                       rows={2}
                       placeholder="Enter announcement text to broadcast..."
-                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-xs text-white focus:outline-none focus:border-[#00f2ff] resize-none"
+                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white focus:outline-none focus:border-[#00f2ff] resize-none"
                     />
                   </div>
 
@@ -521,7 +521,7 @@ export default function SettingsView() {
                         name="announcementStartAt"
                         value={settings.announcementStartAt}
                         onChange={handleChange}
-                        className="w-full px-3.5 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-xs text-white focus:outline-none focus:border-[#00f2ff]"
+                        className="w-full px-3.5 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white focus:outline-none focus:border-[#00f2ff]"
                       />
                     </div>
 
@@ -535,7 +535,7 @@ export default function SettingsView() {
                         name="announcementEndAt"
                         value={settings.announcementEndAt}
                         onChange={handleChange}
-                        className={`w-full px-3.5 py-2 bg-[#1c1b1c] border rounded-lg text-xs text-white focus:outline-none ${
+                        className={`w-full px-3.5 py-2 bg-[#1c1b1c] border rounded-none text-xs text-white focus:outline-none ${
                           errors.announcementEndAt ? 'border-red-500 focus:border-red-400' : 'border-[#27272a] focus:border-[#00f2ff]'
                         }`}
                       />
@@ -545,7 +545,7 @@ export default function SettingsView() {
 
                   {/* Public Preview Live Box */}
                   <div className="pt-2">
-                    <div className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded-lg space-y-2">
+                    <div className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-2">
                       <div className="flex items-center justify-between text-[10px] font-headline font-bold uppercase tracking-wider text-[#849495]">
                         <span>PUBLIC PREVIEW</span>
                         <span>{settings.bannerEnabled ? 'STATUS: LIVE' : 'STATUS: HIDDEN'}</span>
@@ -554,14 +554,14 @@ export default function SettingsView() {
                       <div className="h-px bg-[#27272a] w-full" />
 
                       {settings.bannerEnabled ? (
-                        <div className="p-3 bg-[#00f2ff]/10 border border-[#00f2ff]/30 rounded text-xs text-white flex items-center gap-2.5">
+                        <div className="p-3 bg-[#00f2ff]/10 border border-[#00f2ff]/30 rounded-none text-xs text-white flex items-center gap-2.5">
                           <Bell className="w-4 h-4 text-[#00f2ff] shrink-0" />
                           <span className="font-body text-xs font-semibold">
                             {settings.announcementBanner || 'No announcement message entered.'}
                           </span>
                         </div>
                       ) : (
-                        <div className="p-3 bg-[#141416] border border-[#27272a] rounded text-xs text-[#849495] italic font-body">
+                        <div className="p-3 bg-[#141416] border border-[#27272a] rounded-none text-xs text-[#849495] italic font-body">
                           Announcement banner is currently turned OFF. Enable toggle to display ticker on platform header.
                         </div>
                       )}
@@ -574,7 +574,7 @@ export default function SettingsView() {
 
             {/* SECTION 3: SOCIAL CHANNELS */}
             {activeSection === 'social' && (
-              <div className="bg-[#141416] border border-[#27272a] rounded-lg p-5 sm:p-6 space-y-5 shadow-xl animate-fadeIn">
+              <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-5 shadow-xl animate-fadeIn">
                 <div className="border-b border-[#27272a] pb-4">
                   <h2 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
                     <Share2 className="w-4 h-4 text-[#00f2ff]" />
@@ -585,23 +585,23 @@ export default function SettingsView() {
                   </p>
                 </div>
 
-                <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-xs text-[#849495] font-body">
+                <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-[#849495] font-body">
                   Leave blank if the platform is not currently configured.
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* WhatsApp */}
-                  <div className="p-4 bg-[#1c1b1c] border border-[#27272a] rounded-lg space-y-3">
+                  <div className="p-4 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="font-headline text-xs font-bold text-white uppercase flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-[#25D366]/10 border border-[#25D366]/30 flex items-center justify-center text-[#25D366]">
+                        <div className="w-6 h-6 rounded-none bg-[#25D366]/10 border border-[#25D366]/30 flex items-center justify-center text-[#25D366]">
                           <WhatsAppIcon className="w-3.5 h-3.5" />
                         </div>
                         <span>WhatsApp</span>
                       </span>
                       <span className="text-[10px] font-mono">
                         {settings.whatsappUrl ? (
-                          <span className="px-2 py-0.5 rounded bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 uppercase font-bold">Configured</span>
+                          <span className="px-2 py-0.5 rounded-none bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 uppercase font-bold">Configured</span>
                         ) : (
                           <span className="text-[#849495] italic">Not configured</span>
                         )}
@@ -615,7 +615,7 @@ export default function SettingsView() {
                         value={settings.whatsappUrl}
                         onChange={handleChange}
                         placeholder="https://chat.whatsapp.com/yourcommunity"
-                        className={`w-full px-3.5 py-2.5 bg-[#141416] border rounded-lg text-xs font-mono text-white focus:outline-none transition-colors ${
+                        className={`w-full px-3.5 py-2.5 bg-[#141416] border rounded-none text-xs font-mono text-white focus:outline-none transition-colors ${
                           errors.whatsappUrl ? 'border-red-500 focus:border-red-400' : 'border-[#27272a] focus:border-[#00f2ff]'
                         }`}
                       />
@@ -627,17 +627,17 @@ export default function SettingsView() {
                   </div>
 
                   {/* Instagram */}
-                  <div className="p-4 bg-[#1c1b1c] border border-[#27272a] rounded-lg space-y-3">
+                  <div className="p-4 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="font-headline text-xs font-bold text-white uppercase flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-[#E4405F]/10 border border-[#E4405F]/30 flex items-center justify-center text-[#E4405F]">
+                        <div className="w-6 h-6 rounded-none bg-[#E4405F]/10 border border-[#E4405F]/30 flex items-center justify-center text-[#E4405F]">
                           <InstagramIcon className="w-3.5 h-3.5" />
                         </div>
                         <span>Instagram</span>
                       </span>
                       <span className="text-[10px] font-mono">
                         {settings.instagramUrl ? (
-                          <span className="px-2 py-0.5 rounded bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 uppercase font-bold">Configured</span>
+                          <span className="px-2 py-0.5 rounded-none bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 uppercase font-bold">Configured</span>
                         ) : (
                           <span className="text-[#849495] italic">Not configured</span>
                         )}
@@ -651,7 +651,7 @@ export default function SettingsView() {
                         value={settings.instagramUrl}
                         onChange={handleChange}
                         placeholder="https://instagram.com/mjesports"
-                        className={`w-full px-3.5 py-2.5 bg-[#141416] border rounded-lg text-xs font-mono text-white focus:outline-none transition-colors ${
+                        className={`w-full px-3.5 py-2.5 bg-[#141416] border rounded-none text-xs font-mono text-white focus:outline-none transition-colors ${
                           errors.instagramUrl ? 'border-red-500 focus:border-red-400' : 'border-[#27272a] focus:border-[#00f2ff]'
                         }`}
                       />
@@ -667,7 +667,7 @@ export default function SettingsView() {
 
             {/* SECTION 4: TOURNAMENT DEFAULTS */}
             {activeSection === 'tournaments' && (
-              <div className="bg-[#141416] border border-[#27272a] rounded-lg p-5 sm:p-6 space-y-5 shadow-xl animate-fadeIn">
+              <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-5 shadow-xl animate-fadeIn">
                 <div className="border-b border-[#27272a] pb-4">
                   <h2 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
                     <Gamepad2 className="w-4 h-4 text-[#10b981]" />
@@ -679,7 +679,7 @@ export default function SettingsView() {
                 </div>
 
                 {/* Informational Notice */}
-                <div className="p-4 bg-[#00f2ff]/5 border border-[#00f2ff]/20 rounded-lg flex items-start gap-3 text-xs text-[#849495]">
+                <div className="p-4 bg-[#00f2ff]/5 border border-[#00f2ff]/20 rounded-none flex items-start gap-3 text-xs text-[#849495]">
                   <Info className="w-4 h-4 text-[#00f2ff] shrink-0 mt-0.5" />
                   <p className="leading-relaxed">
                     <strong className="text-white font-headline uppercase">Notice:</strong> These defaults are used when creating a new tournament. Changing them does not modify existing tournaments.
@@ -696,7 +696,7 @@ export default function SettingsView() {
                       name="defaultGame"
                       value={settings.defaultGame}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-xs font-headline font-bold text-white focus:outline-none focus:border-[#00f2ff] cursor-pointer"
+                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-headline font-bold text-white focus:outline-none focus:border-[#00f2ff] cursor-pointer"
                     >
                       <option value="Free Fire MAX">Free Fire MAX</option>
                       <option value="BGMI">Battlegrounds Mobile India (BGMI)</option>
@@ -713,7 +713,7 @@ export default function SettingsView() {
                       name="defaultFormat"
                       value={settings.defaultFormat}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-xs font-headline font-bold text-white focus:outline-none focus:border-[#00f2ff] cursor-pointer"
+                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-headline font-bold text-white focus:outline-none focus:border-[#00f2ff] cursor-pointer"
                     >
                       <option value="Squad (4P)">Squad (4P)</option>
                       <option value="Duo (2P)">Duo (2P)</option>
@@ -731,7 +731,7 @@ export default function SettingsView() {
                       name="defaultRegistrationStatus"
                       value={settings.defaultRegistrationStatus}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-lg text-xs font-headline font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff] cursor-pointer"
+                      className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-headline font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff] cursor-pointer"
                     >
                       <option value="Open">Open</option>
                       <option value="Closed">Closed</option>
@@ -747,7 +747,7 @@ export default function SettingsView() {
               <div className="space-y-6 animate-fadeIn">
                 
                 {/* Main System Section Card */}
-                <div className="bg-[#141416] border border-[#27272a] rounded-lg p-5 sm:p-6 space-y-5 shadow-xl">
+                <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-5 shadow-xl">
                   <div className="border-b border-[#27272a] pb-4">
                     <h2 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
                       <Server className="w-4 h-4 text-[#00f2ff]" />
@@ -759,19 +759,19 @@ export default function SettingsView() {
                   </div>
 
                   {/* CARD 1 — PLATFORM STATUS */}
-                  <div className="p-4 bg-[#1c1b1c] border border-[#27272a] rounded-lg space-y-3">
+                  <div className="p-4 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
                         <span className="text-[10px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
                           Platform Status
                         </span>
                         <div className="font-headline font-extrabold text-base text-white flex items-center gap-2 mt-1">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse" />
+                          <span className="w-2.5 h-2.5 rounded-none bg-[#10b981] animate-pulse" />
                           <span>Operational</span>
                         </div>
                       </div>
                       <div>
-                        <span className="px-2.5 py-1 bg-[#141416] border border-[#27272a] text-[#849495] text-[10px] font-headline font-bold uppercase tracking-wider rounded">
+                        <span className="px-2.5 py-1 bg-[#141416] border border-[#27272a] text-[#849495] text-[10px] font-headline font-bold uppercase tracking-wider rounded-none">
                           STATUS INFORMATION
                         </span>
                       </div>
@@ -784,7 +784,7 @@ export default function SettingsView() {
                 </div>
 
                 {/* CARD 2 — ADMIN ACCESS & SECURITY */}
-                <div className="bg-[#141416] border border-[#27272a] rounded-lg p-5 sm:p-6 space-y-4 shadow-xl">
+                <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-4 shadow-xl">
                   <div className="border-b border-[#27272a] pb-3">
                     <h3 className="font-headline text-sm sm:text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
                       <Shield className="w-4 h-4 text-[#00f2ff]" />
@@ -812,11 +812,11 @@ export default function SettingsView() {
             )}
 
             {/* 8. SECTION-LEVEL ACTION BAR */}
-            <div className="p-4 bg-[#141416] border border-[#27272a] rounded-lg shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="p-4 bg-[#141416] border border-[#27272a] rounded-none shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-xs font-body text-[#849495] flex items-center gap-2">
                 {isDirty ? (
                   <>
-                    <span className="w-2 h-2 rounded-full bg-[#ff5e07]" />
+                    <span className="w-2 h-2 rounded-none bg-[#ff5e07]" />
                     <span className="text-[#ff5e07] font-bold">Unsaved changes detected</span>
                   </>
                 ) : (
@@ -832,7 +832,7 @@ export default function SettingsView() {
                   type="button"
                   onClick={handleReset}
                   disabled={!isDirty || isSaving}
-                  className="flex-1 sm:flex-initial px-4 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] disabled:opacity-40 text-[#849495] hover:text-white border border-[#27272a] rounded text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                  className="flex-1 sm:flex-initial px-4 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] disabled:opacity-40 text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Reset Changes</span>
@@ -842,7 +842,7 @@ export default function SettingsView() {
                   type="submit"
                   loading={isSaving}
                   loadingText="Saving..."
-                  className="flex-1 sm:flex-initial px-6 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center justify-center gap-2 cursor-pointer min-h-[40px]"
+                  className="flex-1 sm:flex-initial px-6 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded-none text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center justify-center gap-2 cursor-pointer min-h-[40px]"
                 >
                   <Save className="w-3.5 h-3.5 text-[#00363a]" />
                   <span>Save Changes</span>

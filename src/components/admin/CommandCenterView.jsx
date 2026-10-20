@@ -229,7 +229,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
     <div className="space-y-5 sm:space-y-6 antialiased pb-16 sm:pb-12 text-xs w-full max-w-full overflow-x-hidden box-border">
 
       {/* 1. DASHBOARD HEADER / ADMIN COMMAND CENTER */}
-      <div className="bg-[#141416] border border-[#27272a] rounded p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 w-full box-border">
+      <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 w-full box-border">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-xs font-headline font-bold text-[#00f2ff] uppercase tracking-wider mb-1">
             <Shield className="w-4 h-4 shrink-0" />
@@ -245,8 +245,8 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
 
         {/* Identity & Status Indicators */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 self-start sm:self-auto">
-          <div className="px-3 py-1.5 bg-[#1c1b1c] border border-[#27272a] rounded flex items-center gap-2 select-none">
-            <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
+          <div className="px-3 py-1.5 bg-[#1c1b1c] border border-[#27272a] rounded-none flex items-center gap-2 select-none">
+            <span className="w-2 h-2 rounded-none bg-[#10b981] animate-pulse"></span>
             <span className="text-[10px] font-headline font-bold text-[#10b981] uppercase tracking-wider">
               OPERATIONAL
             </span>
@@ -255,7 +255,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
           <button
             onClick={fetchCommandCenterData}
             disabled={loading}
-            className="p-2 bg-[#1c1b1c] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff]/40 text-[#849495] hover:text-[#00f2ff] rounded transition-all cursor-pointer disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center shrink-0"
+            className="p-2 bg-[#1c1b1c] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff]/40 text-[#849495] hover:text-[#00f2ff] rounded-none transition-all cursor-pointer disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center shrink-0"
             title="Refresh Operational State"
             aria-label="Refresh Dashboard State"
           >
@@ -265,7 +265,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
       </div>
 
       {fetchError && (
-        <div className="p-3.5 sm:p-4 bg-red-950/30 border border-red-900/40 rounded flex items-center gap-3 text-red-400 text-xs font-body">
+        <div className="p-3.5 sm:p-4 bg-red-950/30 border border-red-900/40 rounded-none flex items-center gap-3 text-red-400 text-xs font-body">
           <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
           <span>{fetchError}</span>
         </div>
@@ -281,7 +281,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3.5">
           
           {/* Active Tournaments */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
             <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Active Tournaments</span>
             <div className="space-y-0.5 mt-2">
               <span className="text-xl sm:text-2xl font-bold font-headline text-[#00f2ff] block leading-tight">
@@ -292,7 +292,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
           </div>
 
           {/* Open Registrations */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
             <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Open Registrations</span>
             <div className="space-y-0.5 mt-2">
               <span className="text-xl sm:text-2xl font-bold font-headline text-white block leading-tight">
@@ -303,7 +303,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
           </div>
 
           {/* Registered Players */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
             <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Registered Players</span>
             <div className="space-y-0.5 mt-2">
               <span className="text-xl sm:text-2xl font-bold font-headline text-white block leading-tight">
@@ -314,7 +314,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
           </div>
 
           {/* Total Prize Pool */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
             <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Total Prize Pool</span>
             <div className="space-y-0.5 mt-2">
               <span className="text-xl sm:text-2xl font-bold font-headline text-[#fed83a] block leading-tight">
@@ -325,7 +325,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
           </div>
 
           {/* Pending Withdrawals */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
             <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Pending Withdrawals</span>
             <div className="space-y-0.5 mt-2">
               <span className={`text-xl sm:text-2xl font-bold font-headline block leading-tight ${metrics.pendingWithdrawalsCount > 0 ? 'text-[#ff5e07]' : 'text-white'}`}>
@@ -336,7 +336,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
           </div>
 
           {/* Today's Revenue */}
-          <div className="bg-[#141416] border border-[#27272a] rounded p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-3 sm:p-4 flex flex-col justify-between min-h-[105px] sm:min-h-[115px] shadow-sm">
             <span className="text-[10px] text-[#849495] uppercase font-label-bold tracking-wider leading-tight">Today's Revenue</span>
             <div className="space-y-0.5 mt-2">
               <span className="text-xl sm:text-2xl font-bold font-headline text-[#10b981] block leading-tight">
@@ -359,9 +359,9 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
           <button
             onClick={() => setActiveTab('tournaments')}
-            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 rounded text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
+            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-none text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
           >
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
               <PlusCircle className="w-4 h-4" />
             </div>
             <div>
@@ -376,9 +376,9 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
 
           <button
             onClick={() => setActiveTab('matches')}
-            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 rounded text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
+            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-none text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
           >
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
               <Swords className="w-4 h-4" />
             </div>
             <div>
@@ -393,9 +393,9 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
 
           <button
             onClick={() => setActiveTab('finance')}
-            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#fed83a]/40 rounded text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
+            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#fed83a]/40 rounded-none text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
           >
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#fed83a]/10 border border-[#fed83a]/30 flex items-center justify-center text-[#fed83a] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-none bg-[#fed83a]/10 border border-[#fed83a]/30 flex items-center justify-center text-[#fed83a] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
               <CreditCard className="w-4 h-4" />
             </div>
             <div>
@@ -410,9 +410,9 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
 
           <button
             onClick={() => setActiveTab('finance')}
-            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#ff5e07]/40 rounded text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
+            className="p-3.5 sm:p-4 bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a] hover:border-[#ff5e07]/40 rounded-none text-left transition-all group cursor-pointer flex flex-col justify-between min-h-[110px] sm:min-h-[120px] w-full"
           >
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center text-[#ff5e07] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-none bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center text-[#ff5e07] mb-2.5 group-hover:scale-105 transition-transform shrink-0">
               <AlertTriangle className="w-4 h-4" />
             </div>
             <div>
@@ -431,7 +431,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
 
         {/* Attention Required Queue */}
-        <div className="lg:col-span-1 bg-[#141416] border border-[#27272a] rounded p-4 sm:p-5 space-y-3.5 flex flex-col justify-between h-full shadow-md">
+        <div className="lg:col-span-1 bg-[#141416] border border-[#27272a] rounded-none p-4 sm:p-5 space-y-3.5 flex flex-col justify-between h-full shadow-md">
           <div>
             <div className="flex items-center justify-between border-b border-[#27272a] pb-3 mb-3">
               <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
@@ -456,21 +456,21 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                   return (
                     <div
                       key={item.id}
-                      className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded space-y-2"
+                      className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-2"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <Icon className={`w-4 h-4 ${item.color} shrink-0`} />
                           <span className="font-headline font-bold text-xs text-white uppercase truncate">{item.title}</span>
                         </div>
-                        <span className="px-2 py-0.5 bg-[#ff5e07]/15 text-[#ff5e07] border border-[#ff5e07]/30 text-[9px] font-headline font-bold rounded uppercase shrink-0">
+                        <span className="px-2 py-0.5 bg-[#ff5e07]/15 text-[#ff5e07] border border-[#ff5e07]/30 text-[9px] font-headline font-bold rounded-none uppercase shrink-0">
                           {item.count} Pending
                         </span>
                       </div>
                       <p className="text-xs text-[#849495] font-body leading-relaxed">{item.description}</p>
                       <button
                         onClick={() => setActiveTab(item.tabTarget)}
-                        className="w-full mt-1 py-2 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[38px]"
+                        className="w-full mt-1 py-2 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[38px]"
                       >
                         <span>{item.actionLabel}</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -484,7 +484,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
         </div>
 
         {/* Live Operations & Match Control Preview */}
-        <div className="lg:col-span-2 bg-[#141416] border border-[#27272a] rounded p-4 sm:p-5 space-y-3.5 flex flex-col justify-between h-full shadow-md">
+        <div className="lg:col-span-2 bg-[#141416] border border-[#27272a] rounded-none p-4 sm:p-5 space-y-3.5 flex flex-col justify-between h-full shadow-md">
           <div>
             <div className="flex items-center justify-between border-b border-[#27272a] pb-3 mb-3">
               <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
@@ -512,7 +512,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                   return (
                     <div
                       key={t.id}
-                      className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3"
+                      className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3"
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -528,7 +528,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
 
                       <button
                         onClick={() => setActiveTab('matches', t.id)}
-                        className="px-3.5 py-1.5 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0 min-h-[34px]"
+                        className="px-3.5 py-1.5 bg-[#141416] hover:bg-[#00f2ff] text-white hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0 min-h-[34px]"
                       >
                         <span>Control</span>
                         <ChevronRight className="w-3 h-3" />
@@ -559,7 +559,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
           </button>
         </div>
 
-        <div className="bg-[#141416] border border-[#27272a] rounded overflow-hidden shadow-xl">
+        <div className="bg-[#141416] border border-[#27272a] rounded-none overflow-hidden shadow-xl">
           {tournaments.length === 0 ? (
             <div className="py-8 text-center text-[#849495] font-body">
               No tournament snapshot data recorded.
@@ -609,7 +609,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                           <td className="py-3 px-4 text-right pr-4">
                             <button
                               onClick={() => setActiveTab('tournaments')}
-                              className="px-2.5 py-1 bg-[#1c1b1c] hover:bg-[#00f2ff] text-[#b9cacb] hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-[10px] font-headline font-bold uppercase transition-all cursor-pointer min-h-[30px]"
+                              className="px-2.5 py-1 bg-[#1c1b1c] hover:bg-[#00f2ff] text-[#b9cacb] hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded-none text-[10px] font-headline font-bold uppercase transition-all cursor-pointer min-h-[30px]"
                             >
                               Manage
                             </button>
@@ -642,7 +642,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                         <span className="text-[10px] text-[#849495]">Teams: <strong className="text-white">{filled}/{capacity}</strong></span>
                         <button
                           onClick={() => setActiveTab('tournaments')}
-                          className="px-3 py-1 bg-[#1c1b1c] hover:bg-[#00f2ff] text-[#b9cacb] hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded text-[10px] font-headline font-bold uppercase transition-all cursor-pointer min-h-[30px]"
+                          className="px-3 py-1 bg-[#1c1b1c] hover:bg-[#00f2ff] text-[#b9cacb] hover:text-[#00363a] border border-[#27272a] hover:border-[#00f2ff] rounded-none text-[10px] font-headline font-bold uppercase transition-all cursor-pointer min-h-[30px]"
                         >
                           Manage
                         </button>
@@ -663,7 +663,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
           <span>Recent Platform Activity</span>
         </h2>
 
-        <div className="bg-[#141416] border border-[#27272a] rounded p-3.5 sm:p-4 shadow-sm">
+        <div className="bg-[#141416] border border-[#27272a] rounded-none p-3.5 sm:p-4 shadow-sm">
           {recentRegistrations.length === 0 ? (
             <div className="py-6 text-center text-[#849495] font-body">
               No recent tournament registrations or ledger activity recorded.
@@ -680,7 +680,7 @@ export default function CommandCenterView({ tournaments = [], setActiveTab }) {
                       {r.created_at ? new Date(r.created_at).toLocaleString() : 'Recent activity'}
                     </span>
                   </div>
-                  <span className="px-2 py-0.5 bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 rounded text-[9px] font-headline font-bold uppercase shrink-0">
+                  <span className="px-2 py-0.5 bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 rounded-none text-[9px] font-headline font-bold uppercase shrink-0">
                     {r.status || 'Received'}
                   </span>
                 </div>

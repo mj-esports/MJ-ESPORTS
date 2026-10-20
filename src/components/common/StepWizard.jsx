@@ -20,10 +20,10 @@ export default function StepWizard({
     <div className="space-y-6 font-mono text-xs">
       
       {/* 1. PROGRESS BAR & STEP INDICATORS */}
-      <div className="space-y-3 bg-[#07090c] p-4 rounded-xl border border-[#3a494b]/60">
+      <div className="space-y-3 bg-[#07090c] p-4 rounded-none border border-[#3a494b]/60">
         <div className="flex justify-between items-center text-xs">
           <span className="text-[#00f2ff] font-bold uppercase tracking-wider flex items-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-[#00f2ff]/20 border border-[#00f2ff] flex items-center justify-center text-[10px]">
+            <span className="w-5 h-5 rounded-none bg-[#00f2ff]/20 border border-[#00f2ff] flex items-center justify-center text-[10px]">
               {currentStep + 1}
             </span>
             <span>Step {currentStep + 1} of {steps.length}: {steps[currentStep]?.title || 'Configuration'}</span>
@@ -32,9 +32,9 @@ export default function StepWizard({
         </div>
 
         {/* Bar */}
-        <div className="w-full h-2 bg-[#151a21] rounded-full overflow-hidden border border-[#3a494b]/60">
+        <div className="w-full h-2 bg-[#151a21] rounded-none overflow-hidden border border-[#3a494b]/60">
           <div
-            className="h-full bg-gradient-to-r from-[#00f2ff] to-[#00ff9d] rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(0,242,255,0.4)]"
+            className="h-full bg-gradient-to-r from-[#00f2ff] to-[#00ff9d] rounded-none transition-all duration-300 shadow-[0_0_10px_rgba(0,242,255,0.4)]"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -59,7 +59,7 @@ export default function StepWizard({
                 {isDone ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#00ff9d]" />
                 ) : (
-                  <span className={`w-3.5 h-3.5 rounded-full border text-[9px] flex items-center justify-center ${
+                  <span className={`w-3.5 h-3.5 rounded-none border text-[9px] flex items-center justify-center ${
                     isCurrent ? 'border-[#00f2ff] text-[#00f2ff]' : 'border-[#3a494b] text-[#8e9dae]/50'
                   }`}>
                     {idx + 1}
@@ -82,7 +82,7 @@ export default function StepWizard({
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2.5 text-xs font-bold bg-[#07090c] text-red-400 border border-[#3a494b] hover:border-red-500/50 hover:bg-red-500/10 rounded uppercase transition-colors shrink-0 cursor-pointer flex items-center gap-1.5"
+          className="px-4 py-2.5 text-xs font-bold bg-[#07090c] text-red-400 border border-[#3a494b] hover:border-red-500/50 hover:bg-red-500/10 rounded-none uppercase transition-colors shrink-0 cursor-pointer flex items-center gap-1.5"
         >
           <X className="w-3.5 h-3.5" />
           <span>Cancel</span>
@@ -93,7 +93,7 @@ export default function StepWizard({
             <button
               type="button"
               onClick={onSaveDraft}
-              className="px-4 py-2.5 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] hover:text-white hover:border-[#00f2ff]/40 rounded uppercase transition-colors cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2.5 text-xs font-bold bg-[#07090c] text-[#8e9dae] border border-[#3a494b] hover:text-white hover:border-[#00f2ff]/40 rounded-none uppercase transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <Save className="w-3.5 h-3.5 text-[#00f2ff]" />
               <span>Save Draft</span>
@@ -104,7 +104,7 @@ export default function StepWizard({
             <button
               type="button"
               onClick={onBack}
-              className="px-4 py-2.5 text-xs font-bold bg-[#07090c] text-white border border-[#3a494b] hover:bg-[#151a21] rounded uppercase transition-colors cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2.5 text-xs font-bold bg-[#07090c] text-white border border-[#3a494b] hover:bg-[#151a21] rounded-none uppercase transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Back</span>
@@ -115,7 +115,7 @@ export default function StepWizard({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 text-xs font-bold rounded uppercase bg-[#00ff9d] hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(0,255,157,0.3)] font-extrabold cursor-pointer transition-all disabled:opacity-50 min-h-[38px] flex items-center gap-1.5"
+              className="px-6 py-2.5 text-xs font-bold rounded-none uppercase bg-[#00ff9d] hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(0,255,157,0.3)] font-extrabold cursor-pointer transition-all disabled:opacity-50 min-h-[38px] flex items-center gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>{isSubmitting ? 'Saving...' : finishText}</span>
@@ -124,7 +124,7 @@ export default function StepWizard({
             <button
               type="button"
               onClick={onNext}
-              className="px-6 py-2.5 text-xs font-bold rounded uppercase bg-[#00f2ff] hover:bg-cyan-300 text-black shadow-[0_0_15px_rgba(0,242,255,0.3)] font-extrabold cursor-pointer transition-all min-h-[38px] flex items-center gap-1.5"
+              className="px-6 py-2.5 text-xs font-bold rounded-none uppercase bg-[#00f2ff] hover:bg-cyan-300 text-black shadow-[0_0_15px_rgba(0,242,255,0.3)] font-extrabold cursor-pointer transition-all min-h-[38px] flex items-center gap-1.5"
             >
               <span>{nextText}</span>
               <ChevronRight className="w-4 h-4" />

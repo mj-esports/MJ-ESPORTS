@@ -188,7 +188,7 @@ export default function SettingsPage() {
               <span>Return to Profile</span>
             </Link>
 
-            <span className="px-2.5 py-1 rounded bg-[#141620] border border-[#222638] text-[10px] font-bold text-[#fe6b00] tracking-wider uppercase">
+            <span className="px-2.5 py-1 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-bold text-[#fe6b00] tracking-wider uppercase">
               FREE FIRE MAX ONLY
             </span>
           </div>
@@ -210,19 +210,19 @@ export default function SettingsPage() {
         {/* ================================================== */}
         <section
           aria-label="Player Identity Strip"
-          className="p-4 sm:p-5 rounded-2xl bg-[#0d0e15] border border-[#1f2230] shadow-[0_4px_25px_rgba(0,0,0,0.3)] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          className="p-4 sm:p-5 rounded-none bg-[#0d0e15] border border-[#1f2230] shadow-[0_4px_25px_rgba(0,0,0,0.3)] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
         >
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="relative shrink-0">
               <img
                 src={avatarUrl}
                 alt={displayName}
-                className="w-12 h-12 rounded-xl object-cover border border-[#1f2230]"
+                className="w-12 h-12 rounded-none object-cover border border-[#1f2230]"
               />
               {isVerified && (
                 <div
                   title="Authoritative Verified Player"
-                  className="absolute -bottom-1 -right-1 p-0.5 bg-[#08080a] rounded-full"
+                  className="absolute -bottom-1 -right-1 p-0.5 bg-[#08080a] rounded-none"
                 >
                   <CheckCircle2 className="w-4 h-4 text-[#00ff9d] fill-[#08080a]" />
                 </div>
@@ -236,14 +236,14 @@ export default function SettingsPage() {
                 </h2>
 
                 {isVerified && (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
                     <ShieldCheck className="w-2.5 h-2.5" />
                     <span>VERIFIED</span>
                   </span>
                 )}
 
                 {isPro && (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#fe6b00]/15 text-[#fe6b00] border border-[#fe6b00]/30">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#fe6b00]/15 text-[#fe6b00] border border-[#fe6b00]/30">
                     <Zap className="w-2.5 h-2.5" />
                     <span>PRO</span>
                   </span>
@@ -260,7 +260,7 @@ export default function SettingsPage() {
 
           <Link
             to="/profile/edit"
-            className="self-start sm:self-auto px-4 py-2 rounded-xl bg-[#141620] hover:bg-[#1a1d29] text-white hover:text-[#00f2ff] border border-[#222638] hover:border-[#00f2ff]/40 font-bold uppercase tracking-wider text-xs transition-all flex items-center gap-2 cursor-pointer shrink-0"
+            className="self-start sm:self-auto px-4 py-2 rounded-none bg-[#141620] hover:bg-[#1a1d29] text-white hover:text-[#00f2ff] border border-[#222638] hover:border-[#00f2ff]/40 font-bold uppercase tracking-wider text-xs transition-all flex items-center gap-2 cursor-pointer shrink-0"
           >
             <span>Edit Profile</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -291,7 +291,7 @@ export default function SettingsPage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left font-bold cursor-pointer border ${
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-none transition-all text-left font-bold cursor-pointer border ${
                     isSelected
                       ? tab.danger
                         ? 'bg-[#ff3366]/10 text-[#ff3366] border-[#ff3366]/40 shadow-lg'
@@ -303,14 +303,14 @@ export default function SettingsPage() {
                     <Icon className="w-4 h-4 shrink-0" />
                     <span>{tab.label}</span>
                   </div>
-                  {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-current"></span>}
+                  {isSelected && <span className="w-1.5 h-1.5 rounded-none bg-current"></span>}
                 </button>
               )
             })}
           </nav>
 
           {/* Settings Content Area */}
-          <div className="lg:col-span-8 bg-[#0d0e15] rounded-2xl p-5 sm:p-7 border border-[#1f2230] shadow-xl space-y-6">
+          <div className="lg:col-span-8 bg-[#0d0e15] rounded-none p-5 sm:p-7 border border-[#1f2230] shadow-xl space-y-6">
 
             {/* TAB 1: GENERAL INFO */}
             {activeTab === 'general' && (
@@ -330,7 +330,7 @@ export default function SettingsPage() {
                     <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
                       DISPLAY NAME
                     </span>
-                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-xl text-xs text-white font-mono flex items-center justify-between">
+                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-none text-xs text-white font-mono flex items-center justify-between">
                       <span>{displayName}</span>
                       <span className="text-[10px] text-[#717a8e] font-sans">Synced from Profile</span>
                     </div>
@@ -340,9 +340,9 @@ export default function SettingsPage() {
                     <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
                       EMAIL ADDRESS (READ ONLY)
                     </span>
-                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-xl text-xs text-[#8e95a5] font-mono flex items-center justify-between">
+                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-none text-xs text-[#8e95a5] font-mono flex items-center justify-between">
                       <span>{emailAddress}</span>
-                      <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-[#08080a] border border-[#222638] text-[#717a8e] uppercase font-bold">
+                      <span className="text-[9.5px] px-1.5 py-0.5 rounded-none bg-[#08080a] border border-[#222638] text-[#717a8e] uppercase font-bold">
                         Read Only
                       </span>
                     </div>
@@ -352,7 +352,7 @@ export default function SettingsPage() {
                     <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
                       PHONE NUMBER
                     </span>
-                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-xl text-xs text-white font-mono flex items-center justify-between">
+                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-none text-xs text-white font-mono flex items-center justify-between">
                       <span>{phoneNumber ? `+91 ${phoneNumber}` : 'Not linked'}</span>
                       <span className="text-[10px] text-[#717a8e] font-sans">WhatsApp Contact</span>
                     </div>
@@ -362,9 +362,9 @@ export default function SettingsPage() {
                     <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
                       FREE FIRE MAX UID
                     </span>
-                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-xl text-xs text-white font-mono flex items-center justify-between">
+                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-none text-xs text-white font-mono flex items-center justify-between">
                       <span className="font-bold text-[#00f2ff]">{freeFireUid || 'Not registered'}</span>
-                      <span className="text-[9.5px] px-2 py-0.5 rounded bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/30 font-bold uppercase">
+                      <span className="text-[9.5px] px-2 py-0.5 rounded-none bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/30 font-bold uppercase">
                         FF MAX ONLY
                       </span>
                     </div>
@@ -373,7 +373,7 @@ export default function SettingsPage() {
                   <div className="pt-2">
                     <Link
                       to="/profile/edit"
-                      className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(0,242,255,0.25)] cursor-pointer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black rounded-none text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(0,242,255,0.25)] cursor-pointer"
                     >
                       <span>Edit in Profile Center</span>
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -413,7 +413,7 @@ export default function SettingsPage() {
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="Minimum 6 characters"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-xl pl-3.5 pr-10 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono"
+                        className="w-full bg-[#141620] border border-[#222638] rounded-none pl-3.5 pr-10 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono"
                       />
                       <button
                         type="button"
@@ -432,7 +432,7 @@ export default function SettingsPage() {
                             {passwordStrength.label}
                           </span>
                         </div>
-                        <div className="w-full bg-[#141620] h-1.5 rounded-full overflow-hidden border border-[#222638]">
+                        <div className="w-full bg-[#141620] h-1.5 rounded-none overflow-hidden border border-[#222638]">
                           <div className={`h-full transition-all duration-300 ${passwordStrength.color}`} style={{ width: passwordStrength.width }}></div>
                         </div>
                       </div>
@@ -450,7 +450,7 @@ export default function SettingsPage() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Re-enter new password"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-xl pl-3.5 pr-10 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono"
+                        className="w-full bg-[#141620] border border-[#222638] rounded-none pl-3.5 pr-10 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono"
                       />
                       <button
                         type="button"
@@ -465,7 +465,7 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={isChangingPassword}
-                    className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(0,242,255,0.25)] cursor-pointer disabled:opacity-50"
+                    className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black rounded-none text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(0,242,255,0.25)] cursor-pointer disabled:opacity-50"
                   >
                     {isChangingPassword ? 'Updating...' : 'Update Password'}
                   </button>
@@ -473,11 +473,11 @@ export default function SettingsPage() {
 
                 {/* Two-Factor Auth (Truthful Coming Soon) */}
                 <div className="pt-6 border-t border-[#1f2230] space-y-4">
-                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-white uppercase">TWO-FACTOR AUTH (2FA)</span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#fe6b00]/15 text-[#fe6b00] border border-[#fe6b00]/30">
+                        <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#fe6b00]/15 text-[#fe6b00] border border-[#fe6b00]/30">
                           COMING SOON
                         </span>
                       </div>
@@ -489,7 +489,7 @@ export default function SettingsPage() {
                     <button
                       type="button"
                       disabled
-                      className="px-3 py-1.5 rounded-lg bg-[#08080a] text-[#525866] border border-[#222638] text-xs font-bold uppercase cursor-not-allowed opacity-60"
+                      className="px-3 py-1.5 rounded-none bg-[#08080a] text-[#525866] border border-[#222638] text-xs font-bold uppercase cursor-not-allowed opacity-60"
                     >
                       Disabled
                     </button>
@@ -502,12 +502,12 @@ export default function SettingsPage() {
                         ACTIVE SESSIONS
                       </span>
                       <span className="text-[10px] text-[#00ff9d] font-mono font-bold flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#00ff9d] animate-pulse"></span>
+                        <span className="w-1.5 h-1.5 rounded-none bg-[#00ff9d] animate-pulse"></span>
                         <span>Current Session Active</span>
                       </span>
                     </div>
 
-                    <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-3">
+                    <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <Smartphone className="w-5 h-5 text-[#00f2ff] shrink-0" />
                         <div>
@@ -521,16 +521,16 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={handleSignOutCurrentDevice}
-                        className="px-3 py-1.5 bg-[#1f2230] hover:bg-red-950/40 text-[#f87171] border border-red-900/40 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5"
+                        className="px-3 py-1.5 bg-[#1f2230] hover:bg-red-950/40 text-[#f87171] border border-red-900/40 rounded-none text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5"
                       >
                         <LogOut className="w-3.5 h-3.5" />
                         <span>Sign Out</span>
                       </button>
                     </div>
 
-                    <div className="p-3 bg-[#141620]/60 rounded-xl border border-[#222638] flex items-center justify-between text-[11px]">
+                    <div className="p-3 bg-[#141620]/60 rounded-none border border-[#222638] flex items-center justify-between text-[11px]">
                       <span className="text-[#8e95a5] font-sans">Remote multi-session revocation (Logout All Devices)</span>
-                      <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#222638] text-[#8e95a5]">
+                      <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#222638] text-[#8e95a5]">
                         COMING SOON
                       </span>
                     </div>
@@ -552,7 +552,7 @@ export default function SettingsPage() {
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-xl border border-[#00f2ff]/20 bg-[#00f2ff]/5 text-xs text-[#8e95a5] font-sans flex items-start gap-2.5">
+                <div className="p-3.5 rounded-none border border-[#00f2ff]/20 bg-[#00f2ff]/5 text-xs text-[#8e95a5] font-sans flex items-start gap-2.5">
                   <Info className="w-4 h-4 text-[#00f2ff] shrink-0 mt-0.5" />
                   <span>
                     Real-time match alerts and tournament announcements are currently published in the in-app notification center. Granular push and email preference toggles are coming soon.
@@ -569,14 +569,14 @@ export default function SettingsPage() {
                   ].map((item) => (
                     <div
                       key={item.title}
-                      className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4"
+                      className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4"
                     >
                       <div className="space-y-0.5">
                         <span className="text-xs font-bold text-white block">{item.title}</span>
                         <span className="text-[10px] text-[#8e95a5] font-sans block">{item.desc}</span>
                       </div>
 
-                      <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                      <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
                         COMING SOON
                       </span>
                     </div>
@@ -599,11 +599,11 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-4 font-mono">
-                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-white uppercase">Profile Visibility</span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                        <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
                           PUBLIC (ACTIVE)
                         </span>
                       </div>
@@ -612,16 +612,16 @@ export default function SettingsPage() {
                       </p>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
                       COMING SOON
                     </span>
                   </div>
 
-                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-white uppercase">Match Telemetry & Stats</span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                        <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
                           PUBLIC (ACTIVE)
                         </span>
                       </div>
@@ -630,7 +630,7 @@ export default function SettingsPage() {
                       </p>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
                       COMING SOON
                     </span>
                   </div>
@@ -653,7 +653,7 @@ export default function SettingsPage() {
 
                 <div className="space-y-4 font-mono">
                   {/* Language */}
-                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white uppercase block">Platform Language</span>
                       <span className="text-[10px] text-[#8e95a5] font-sans block">
@@ -661,13 +661,13 @@ export default function SettingsPage() {
                       </span>
                     </div>
 
-                    <span className="px-2.5 py-1 rounded-lg bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-xs font-bold uppercase">
+                    <span className="px-2.5 py-1 rounded-none bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-xs font-bold uppercase">
                       English (US)
                     </span>
                   </div>
 
                   {/* Dedicated Game */}
-                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white uppercase block">Dedicated Platform Game</span>
                       <span className="text-[10px] text-[#8e95a5] font-sans block">
@@ -675,7 +675,7 @@ export default function SettingsPage() {
                       </span>
                     </div>
 
-                    <span className="px-2.5 py-1 rounded-lg bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/30 text-xs font-bold uppercase">
+                    <span className="px-2.5 py-1 rounded-none bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/30 text-xs font-bold uppercase">
                       FREE FIRE MAX
                     </span>
                   </div>
@@ -698,7 +698,7 @@ export default function SettingsPage() {
 
                 <div className="space-y-3 font-mono">
                   {/* Google */}
-                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white block">Google</span>
                       <span className="text-[10px] text-[#8e95a5] font-sans block">
@@ -707,18 +707,18 @@ export default function SettingsPage() {
                     </div>
 
                     {isGoogleLinked ? (
-                      <span className="px-2.5 py-1 rounded-lg bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 text-xs font-bold uppercase">
+                      <span className="px-2.5 py-1 rounded-none bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 text-xs font-bold uppercase">
                         CONNECTED
                       </span>
                     ) : (
-                      <span className="px-2.5 py-1 rounded-lg bg-[#08080a] text-[#8e95a5] border border-[#222638] text-xs font-bold uppercase">
+                      <span className="px-2.5 py-1 rounded-none bg-[#08080a] text-[#8e95a5] border border-[#222638] text-xs font-bold uppercase">
                         NOT CONNECTED
                       </span>
                     )}
                   </div>
 
                   {/* Discord */}
-                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white block">Discord</span>
                       <span className="text-[10px] text-[#8e95a5] font-sans block">
@@ -726,13 +726,13 @@ export default function SettingsPage() {
                       </span>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
                       COMING SOON
                     </span>
                   </div>
 
                   {/* YouTube */}
-                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white block">YouTube</span>
                       <span className="text-[10px] text-[#8e95a5] font-sans block">
@@ -740,13 +740,13 @@ export default function SettingsPage() {
                       </span>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
                       COMING SOON
                     </span>
                   </div>
 
                   {/* X / Twitter */}
-                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white block">X (Twitter)</span>
                       <span className="text-[10px] text-[#8e95a5] font-sans block">
@@ -754,7 +754,7 @@ export default function SettingsPage() {
                       </span>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
                       COMING SOON
                     </span>
                   </div>
@@ -777,7 +777,7 @@ export default function SettingsPage() {
 
                 <div className="space-y-4 font-mono">
                   {/* Export My Data */}
-                  <div className="p-4 bg-[#141620] rounded-xl border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white uppercase block">Export My Data</span>
                       <span className="text-[10px] text-[#8e95a5] font-sans block">
@@ -785,13 +785,13 @@ export default function SettingsPage() {
                       </span>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
                       COMING SOON
                     </span>
                   </div>
 
                   {/* Delete Account */}
-                  <div className="p-4 bg-red-950/20 rounded-xl border border-red-900/40 flex items-center justify-between gap-4">
+                  <div className="p-4 bg-red-950/20 rounded-none border border-red-900/40 flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-[#ff3366] uppercase block">Delete Account</span>
                       <span className="text-[10px] text-[#8e95a5] font-sans block">
@@ -801,7 +801,7 @@ export default function SettingsPage() {
 
                     <a
                       href="mailto:mjesports.team@gmail.com?subject=Account%20Deletion%20Request"
-                      className="px-3 py-1.5 bg-[#ff3366]/20 hover:bg-[#ff3366]/30 text-[#ff3366] border border-[#ff3366]/40 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer shrink-0"
+                      className="px-3 py-1.5 bg-[#ff3366]/20 hover:bg-[#ff3366]/30 text-[#ff3366] border border-[#ff3366]/40 rounded-none text-xs font-bold uppercase transition-all cursor-pointer shrink-0"
                     >
                       Contact Support
                     </a>

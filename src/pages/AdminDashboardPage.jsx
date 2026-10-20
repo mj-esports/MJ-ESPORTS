@@ -111,9 +111,9 @@ export default function AdminDashboardPage({ defaultTab }) {
           
           {/* Sub-Tab Header for Generic Pages */}
           {activeTab !== 'dashboard' && activeTab !== 'tournaments' && activeTab !== 'matches' && activeTab !== 'results' && (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#141416] border border-[#27272a] rounded p-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#141416] border border-[#27272a] rounded-none p-4 shadow-xl">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+                <div className="w-8 h-8 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
                   <activeNavItem.icon className="w-4 h-4" />
                 </div>
                 <div>
@@ -126,10 +126,10 @@ export default function AdminDashboardPage({ defaultTab }) {
 
               {/* Sub-Tab Navigation for Specific Tabs */}
               {activeTab === 'players' && (
-                <div className="flex items-center bg-[#1c1b1c] p-1 rounded border border-[#27272a] text-xs font-headline font-bold">
+                <div className="flex items-center bg-[#1c1b1c] p-1 rounded-none border border-[#27272a] text-xs font-headline font-bold">
                   <button
                     onClick={() => setPlayersSubTab('directory')}
-                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       playersSubTab === 'directory'
                         ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
                         : 'text-[#849495] hover:text-white'
@@ -139,7 +139,7 @@ export default function AdminDashboardPage({ defaultTab }) {
                   </button>
                   <button
                     onClick={() => setPlayersSubTab('teams')}
-                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       playersSubTab === 'teams'
                         ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
                         : 'text-[#849495] hover:text-white'
@@ -151,10 +151,10 @@ export default function AdminDashboardPage({ defaultTab }) {
               )}
 
               {activeTab === 'finance' && (
-                <div className="flex items-center bg-[#1c1b1c] p-1 rounded border border-[#27272a] text-xs font-headline font-bold">
+                <div className="flex items-center bg-[#1c1b1c] p-1 rounded-none border border-[#27272a] text-xs font-headline font-bold">
                   <button
                     onClick={() => setPaymentsSubTab('finance')}
-                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       paymentsSubTab === 'finance'
                         ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
                         : 'text-[#849495] hover:text-white'
@@ -164,7 +164,7 @@ export default function AdminDashboardPage({ defaultTab }) {
                   </button>
                   <button
                     onClick={() => setPaymentsSubTab('verification')}
-                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       paymentsSubTab === 'verification'
                         ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
                         : 'text-[#849495] hover:text-white'
@@ -176,10 +176,10 @@ export default function AdminDashboardPage({ defaultTab }) {
               )}
 
               {activeTab === 'reports' && (
-                <div className="flex items-center bg-[#1c1b1c] p-1 rounded border border-[#27272a] text-xs font-headline font-bold">
+                <div className="flex items-center bg-[#1c1b1c] p-1 rounded-none border border-[#27272a] text-xs font-headline font-bold">
                   <button
                     onClick={() => setReportsSubTab('reports')}
-                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       reportsSubTab === 'reports'
                         ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
                         : 'text-[#849495] hover:text-white'
@@ -189,7 +189,7 @@ export default function AdminDashboardPage({ defaultTab }) {
                   </button>
                   <button
                     onClick={() => setReportsSubTab('telemetry')}
-                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       reportsSubTab === 'telemetry'
                         ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
                         : 'text-[#849495] hover:text-white'

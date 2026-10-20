@@ -81,7 +81,7 @@ function getStatusConfig(status) {
         label: 'Live',
         badgeClass: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.2)] animate-pulse',
         cardBorder: 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]',
-        indicator: <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block mr-1.5" />,
+        indicator: <span className="w-2 h-2 rounded-none bg-emerald-400 animate-ping inline-block mr-1.5" />,
         ariaText: 'Status: Live',
       }
     case 'Room Ready':
@@ -97,7 +97,7 @@ function getStatusConfig(status) {
         label: 'Check-in Open',
         badgeClass: 'bg-amber-950/60 text-[#fed83a] border-amber-500/50',
         cardBorder: 'border-amber-500/40',
-        indicator: <span className="w-2 h-2 rounded-full bg-[#fed83a] inline-block mr-1.5" />,
+        indicator: <span className="w-2 h-2 rounded-none bg-[#fed83a] inline-block mr-1.5" />,
         ariaText: 'Status: Check-in Open',
       }
     case 'Completed':
@@ -122,7 +122,7 @@ function getStatusConfig(status) {
         label: 'Scheduled',
         badgeClass: 'bg-[#1c1b1c] text-[#849495] border-[#27272a]',
         cardBorder: 'border-[#27272a] hover:border-[#00f2ff]/40 transition-colors',
-        indicator: <span className="w-2 h-2 rounded-full bg-[#849495] inline-block mr-1.5" />,
+        indicator: <span className="w-2 h-2 rounded-none bg-[#849495] inline-block mr-1.5" />,
         ariaText: 'Status: Scheduled',
       }
   }
@@ -226,7 +226,7 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 border-b border-[#27272a] pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
+          <div className="w-8 h-8 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
             <Swords className="w-4 h-4 text-[#00f2ff]" aria-hidden="true" />
           </div>
           <div>
@@ -239,7 +239,7 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
           </div>
           {!loading && matches.length > 0 && (
             <span
-              className="text-[10px] sm:text-[11px] font-mono font-bold px-2.5 py-0.5 rounded bg-[#1c1b1c] text-[#00f2ff] border border-[#00f2ff]/30 uppercase tracking-wider shrink-0"
+              className="text-[10px] sm:text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-none bg-[#1c1b1c] text-[#00f2ff] border border-[#00f2ff]/30 uppercase tracking-wider shrink-0"
               aria-label={`${matches.length} scheduled rounds`}
             >
               {matches.length} {matches.length === 1 ? 'Round' : 'Rounds'}
@@ -252,7 +252,7 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
           onClick={loadMatches}
           disabled={loading}
           aria-label="Refresh match schedule"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-[#849495] hover:text-[#00f2ff] bg-[#1c1b1c] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[36px]"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-[#849495] hover:text-[#00f2ff] bg-[#1c1b1c] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[36px]"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
           <span className="hidden sm:inline">Refresh</span>
@@ -271,16 +271,16 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
           {[1, 2, 3].map((idx) => (
             <div
               key={`schedule-skeleton-${idx}`}
-              className="p-4 sm:p-5 bg-[#141416] border border-[#27272a] rounded-xl space-y-3 animate-pulse"
+              className="p-4 sm:p-5 bg-[#141416] border border-[#27272a] rounded-none space-y-3 animate-pulse"
             >
               <div className="flex justify-between items-center">
-                <div className="h-4 w-20 bg-[#1c1b1c] rounded" />
-                <div className="h-5 w-24 bg-[#1c1b1c] rounded-full" />
+                <div className="h-4 w-20 bg-[#1c1b1c] rounded-none" />
+                <div className="h-5 w-24 bg-[#1c1b1c] rounded-none" />
               </div>
-              <div className="h-5 w-36 bg-[#1c1b1c] rounded" />
+              <div className="h-5 w-36 bg-[#1c1b1c] rounded-none" />
               <div className="space-y-2 pt-2 border-t border-[#27272a]">
-                <div className="h-3 w-32 bg-[#1c1b1c] rounded" />
-                <div className="h-3 w-28 bg-[#1c1b1c] rounded" />
+                <div className="h-3 w-32 bg-[#1c1b1c] rounded-none" />
+                <div className="h-3 w-28 bg-[#1c1b1c] rounded-none" />
               </div>
             </div>
           ))}
@@ -291,7 +291,7 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
       {!loading && error && (
         <div
           role="alert"
-          className="p-5 sm:p-6 bg-red-950/20 border border-red-500/30 rounded-xl text-center space-y-3"
+          className="p-5 sm:p-6 bg-red-950/20 border border-red-500/30 rounded-none text-center space-y-3"
           data-testid="schedule-error-state"
         >
           <AlertTriangle className="w-8 h-8 text-red-400 mx-auto" aria-hidden="true" />
@@ -305,7 +305,7 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
           </div>
           <button
             onClick={loadMatches}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1c1b1c] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff]/40 text-white text-xs font-headline font-bold uppercase tracking-wider transition-colors cursor-pointer min-h-[38px] focus:outline-none focus:ring-2 focus:ring-[#00f2ff]"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-[#1c1b1c] hover:bg-[#201f20] border border-[#27272a] hover:border-[#00f2ff]/40 text-white text-xs font-headline font-bold uppercase tracking-wider transition-colors cursor-pointer min-h-[38px] focus:outline-none focus:ring-2 focus:ring-[#00f2ff]"
           >
             <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Retry</span>
@@ -316,10 +316,10 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
       {/* Empty State */}
       {!loading && !error && matches.length === 0 && (
         <div
-          className="p-6 sm:p-8 text-center bg-[#141416] border border-[#27272a] rounded-xl space-y-3 shadow-md"
+          className="p-6 sm:p-8 text-center bg-[#141416] border border-[#27272a] rounded-none space-y-3 shadow-md"
           data-testid="schedule-empty-state"
         >
-          <div className="w-12 h-12 rounded-xl bg-[#1c1b1c] border border-[#27272a] flex items-center justify-center mx-auto text-[#849495]">
+          <div className="w-12 h-12 rounded-none bg-[#1c1b1c] border border-[#27272a] flex items-center justify-center mx-auto text-[#849495]">
             <Calendar className="w-6 h-6 opacity-60" aria-hidden="true" />
           </div>
           <div className="space-y-1">
@@ -331,7 +331,7 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
             </p>
           </div>
           <div className="pt-1">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1c1b1c] border border-[#27272a] text-[10px] sm:text-[11px] font-mono text-[#00f2ff]">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[10px] sm:text-[11px] font-mono text-[#00f2ff]">
               Awaiting Organizer Roster Lock
             </span>
           </div>
@@ -354,7 +354,7 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
                 key={match.id || `match-${match.match_number}`}
                 data-testid={`player-match-card-${match.match_number}`}
                 aria-label={`Match ${match.match_number}: ${match.round_name}, ${statusConfig.ariaText}`}
-                className={`p-3.5 sm:p-4 bg-[#141416] rounded-xl border relative flex flex-col justify-between transition-all hover:border-[#00f2ff]/40 shadow-sm ${statusConfig.cardBorder} ${
+                className={`p-3.5 sm:p-4 bg-[#141416] rounded-none border relative flex flex-col justify-between transition-all hover:border-[#00f2ff]/40 shadow-sm ${statusConfig.cardBorder} ${
                   isLive
                     ? 'ring-1 ring-emerald-500/40'
                     : isNextUp
@@ -370,12 +370,12 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
                         MATCH {match.match_number}
                       </span>
                       {isLive && (
-                        <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-headline font-extrabold uppercase tracking-wider border border-emerald-500/40">
+                        <span className="px-1.5 py-0.5 rounded-none bg-emerald-500/20 text-emerald-400 text-[9px] font-headline font-extrabold uppercase tracking-wider border border-emerald-500/40">
                           LIVE
                         </span>
                       )}
                       {isNextUp && (
-                        <span className="px-1.5 py-0.5 rounded bg-cyan-500/20 text-[#00f2ff] text-[9px] font-headline font-extrabold uppercase tracking-wider border border-cyan-500/40">
+                        <span className="px-1.5 py-0.5 rounded-none bg-cyan-500/20 text-[#00f2ff] text-[9px] font-headline font-extrabold uppercase tracking-wider border border-cyan-500/40">
                           NEXT UP
                         </span>
                       )}
@@ -383,7 +383,7 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
 
                     {/* Status Badge */}
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-headline font-bold uppercase tracking-wide border ${statusConfig.badgeClass}`}
+                      className={`inline-flex items-center px-2 py-0.5 rounded-none text-[10px] sm:text-[11px] font-headline font-bold uppercase tracking-wide border ${statusConfig.badgeClass}`}
                     >
                       {statusConfig.indicator}
                       <span>{statusConfig.label}</span>
@@ -397,7 +397,7 @@ export default function PlayerMatchSchedule({ tournamentId, tournament, initialM
                 </div>
 
                 {/* Match Metadata Bento */}
-                <div className="p-2.5 sm:p-3 bg-[#1c1b1c] rounded-lg border border-[#27272a] space-y-2">
+                <div className="p-2.5 sm:p-3 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-2">
                   {/* Map & Match Type */}
                   <div className="flex items-center justify-between text-xs text-[#849495] font-body">
                     <span className="flex items-center gap-1.5 text-white font-medium truncate">

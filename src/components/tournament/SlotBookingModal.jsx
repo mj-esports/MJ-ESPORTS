@@ -995,7 +995,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#131315] border border-[#2A2A30] rounded-lg max-w-[620px] w-full shadow-2xl relative max-h-[90vh] flex flex-col my-auto overflow-hidden text-white"
+        className="bg-[#131315] border border-[#2A2A30] rounded-none max-w-[620px] w-full shadow-2xl relative max-h-[90vh] flex flex-col my-auto overflow-hidden text-white"
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#2A2A30] bg-[#0E0E10] shrink-0">
@@ -1010,7 +1010,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded flex items-center justify-center text-[#8E8E98] hover:text-white hover:bg-[#18181B] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-none flex items-center justify-center text-[#8E8E98] hover:text-white hover:bg-[#18181B] transition-colors cursor-pointer"
             aria-label="Close Registration Modal"
           >
             <X className="w-5 h-5" />
@@ -1027,7 +1027,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
           {/* SEC-05: Guest Authentication Notification Banner */}
           {!user?.id && (
-            <div className="m-5 p-3.5 bg-[#00f2ff]/10 border border-[#00f2ff]/30 rounded flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="m-5 p-3.5 bg-[#00f2ff]/10 border border-[#00f2ff]/30 rounded-none flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2 text-white">
                 <AlertTriangle className="w-4 h-4 text-[#00f2ff] shrink-0" />
                 <span>You must be logged in to register for a tournament.</span>
@@ -1038,7 +1038,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   onClose?.()
                   navigate('/login')
                 }}
-                className="h-8 px-4 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white rounded transition-colors shrink-0 whitespace-nowrap cursor-pointer"
+                className="h-8 px-4 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white rounded-none transition-colors shrink-0 whitespace-nowrap cursor-pointer"
               >
                 Sign In to Register
               </button>
@@ -1057,7 +1057,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               </div>
 
               {/* Essential Info Grid */}
-              <div className="p-4 bg-[#0E0E10] border border-[#2A2A30] rounded space-y-3 font-mono text-xs text-left">
+              <div className="p-4 bg-[#0E0E10] border border-[#2A2A30] rounded-none space-y-3 font-mono text-xs text-left">
                 <div className="flex items-center justify-between py-1 border-b border-[#222228]">
                   <span className="text-[#8E8E98] font-sans text-xs">Reference ID</span>
                   <div className="flex items-center gap-1.5 text-white font-bold tracking-wide">
@@ -1065,7 +1065,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     <button
                       type="button"
                       onClick={handleCopyRef}
-                      className="p-1 rounded hover:bg-[#18181B] text-[#8E8E98] hover:text-[#00f2ff] transition-colors cursor-pointer"
+                      className="p-1 rounded-none hover:bg-[#18181B] text-[#8E8E98] hover:text-[#00f2ff] transition-colors cursor-pointer"
                       title="Copy Reference ID"
                     >
                       <Copy className="w-3.5 h-3.5" />
@@ -1100,8 +1100,8 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
                 <div className="flex items-center justify-between py-1">
                   <span className="text-[#8E8E98] font-sans text-xs">Status</span>
-                  <span className="inline-flex items-center gap-1.5 text-[#10B981] font-bold uppercase tracking-wider text-[11px] bg-[#10B981]/10 px-2 py-0.5 rounded border border-[#10B981]/30">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+                  <span className="inline-flex items-center gap-1.5 text-[#10B981] font-bold uppercase tracking-wider text-[11px] bg-[#10B981]/10 px-2 py-0.5 rounded-none border border-[#10B981]/30">
+                    <span className="w-1.5 h-1.5 rounded-none bg-[#10B981]"></span>
                     {registrationSummary.status || 'APPROVED'}
                   </span>
                 </div>
@@ -1112,7 +1112,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded-none shadow-sm flex items-center justify-center gap-2 cursor-pointer"
                 >
                   Done & Return
                 </button>
@@ -1122,10 +1122,10 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
             <form onSubmit={handleSubmit} noValidate className="p-5 sm:p-6 space-y-4">
               {/* N3.5: POPULATED ROSTER REVIEW CARD (Duo/Squad only) */}
               {populatedTeamInfo && !isSolo && (
-                <div className="p-3 bg-[#0E0E10] border border-[#10B981]/40 rounded space-y-2">
+                <div className="p-3 bg-[#0E0E10] border border-[#10B981]/40 rounded-none space-y-2">
                   <div className="flex items-center justify-between border-b border-[#2A2A30] pb-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded border border-[#10B981]/30 uppercase tracking-wider">
+                      <span className="text-[10px] font-mono font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded-none border border-[#10B981]/30 uppercase tracking-wider">
                         YOUR TEAM
                       </span>
                       <span className="font-bold text-white text-xs">{populatedTeamInfo.name}</span>
@@ -1142,7 +1142,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     </button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
-                    <div className="p-2 rounded bg-[#18181B] border border-[#2A2A30] flex items-center justify-between">
+                    <div className="p-2 rounded-none bg-[#18181B] border border-[#2A2A30] flex items-center justify-between">
                       <div>
                         <span className="text-[10px] text-[#fed83a] block font-bold uppercase">Captain</span>
                         <span className="text-white font-bold">{populatedTeamInfo.captain}</span>
@@ -1150,7 +1150,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       <span className="text-[#8E8E98] text-[11px]">UID: {populatedTeamInfo.captainUid || 'N/A'}</span>
                     </div>
                     {populatedTeamInfo.members.map((m, idx) => (
-                      <div key={`pop-member-${idx}`} className="p-2 rounded bg-[#18181B] border border-[#2A2A30] flex items-center justify-between">
+                      <div key={`pop-member-${idx}`} className="p-2 rounded-none bg-[#18181B] border border-[#2A2A30] flex items-center justify-between">
                         <div>
                           <span className="text-[10px] text-[#00f2ff] block font-bold uppercase">{m.role || 'Member'}</span>
                           <span className="text-white font-bold">{m.name}</span>
@@ -1246,7 +1246,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                             type="button"
                             onClick={handleUseMyTeamClick}
                             disabled={isTeamLoading}
-                            className="text-[11px] font-mono uppercase font-bold text-[#00f2ff] hover:text-white bg-[#18181B] border border-[#2A2A30] hover:border-[#00f2ff] px-2.5 py-1 rounded transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                            className="text-[11px] font-mono uppercase font-bold text-[#00f2ff] hover:text-white bg-[#18181B] border border-[#2A2A30] hover:border-[#00f2ff] px-2.5 py-1 rounded-none transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                           >
                             <Sparkles className="w-3 h-3" />
                             <span>{isTeamLoading ? 'Loading Squad...' : 'Use My Team'}</span>
@@ -1332,14 +1332,14 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                 <label className="block text-xs font-semibold text-white/90 mb-1.5 font-sans">
                   FREE FIRE PROFILE SCREENSHOT <span className="text-[#00f2ff]">*</span>
                 </label>
-                <div className={`flex items-center gap-3 p-3 bg-[#1F1F23] border border-dashed rounded transition-colors ${
+                <div className={`flex items-center gap-3 p-3 bg-[#1F1F23] border border-dashed rounded-none transition-colors ${
                   fieldErrors.proofFile
                     ? 'border-[#ef4444]'
                     : proofFile || proofPreview
                     ? 'border-[#10B981]/60'
                     : 'border-[#2A2A30] hover:border-[#00f2ff]/60'
                 }`}>
-                  <label className="h-9 px-4 text-xs font-semibold uppercase tracking-wider bg-[#18181B] border border-[#2A2A30] rounded text-[#00f2ff] hover:bg-[#00f2ff] hover:text-black hover:border-[#00f2ff] transition-all flex items-center gap-2 cursor-pointer shrink-0">
+                  <label className="h-9 px-4 text-xs font-semibold uppercase tracking-wider bg-[#18181B] border border-[#2A2A30] rounded-none text-[#00f2ff] hover:bg-[#00f2ff] hover:text-black hover:border-[#00f2ff] transition-all flex items-center gap-2 cursor-pointer shrink-0">
                     <Upload className="w-4 h-4" />
                     <span>ATTACH PROFILE SCREENSHOT</span>
                     <input
@@ -1393,7 +1393,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     <span className="text-[11px] font-mono text-[#8E8E98]">2/2</span>
                   </div>
 
-                  <div className="p-3 bg-[#0E0E10] border border-[#2A2A30] rounded space-y-2">
+                  <div className="p-3 bg-[#0E0E10] border border-[#2A2A30] rounded-none space-y-2">
                     <div className="text-[11px] font-bold text-white/80 uppercase font-mono">
                       TEAMMATE #1
                     </div>
@@ -1438,7 +1438,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   {[0, 1, 2].map((idx) => (
                     <div
                       key={`squad-teammate-${idx}`}
-                      className="p-3 bg-[#0E0E10] border border-[#2A2A30] rounded space-y-2"
+                      className="p-3 bg-[#0E0E10] border border-[#2A2A30] rounded-none space-y-2"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold text-white/80 uppercase font-mono">
@@ -1490,7 +1490,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     checked={formData.acceptRules}
                     onChange={handleChange}
                     required
-                    className="mt-0.5 w-4 h-4 rounded border-[#2A2A30] bg-[#1F1F23] text-[#00F2FF] focus:ring-0 focus:outline-none accent-[#00F2FF] cursor-pointer"
+                    className="mt-0.5 w-4 h-4 rounded-none border-[#2A2A30] bg-[#1F1F23] text-[#00F2FF] focus:ring-0 focus:outline-none accent-[#00F2FF] cursor-pointer"
                   />
                   <span className="text-xs text-[#8E8E98] group-hover:text-white transition-colors leading-snug">
                     I agree to the{' '}
@@ -1517,7 +1517,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
               {/* Phase 9.3: Wallet Entry Fee & Balance Card for Paid Tournaments */}
               {!isFreeTournament && (
-                <div className="p-3 bg-[#0E0E10] rounded border border-[#2A2A30] space-y-2.5">
+                <div className="p-3 bg-[#0E0E10] rounded-none border border-[#2A2A30] space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Wallet className="w-4 h-4 text-[#00f2ff]" />
@@ -1530,7 +1530,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2.5 bg-[#18181B] rounded border border-[#2A2A30]">
+                  <div className="flex items-center justify-between p-2.5 bg-[#18181B] rounded-none border border-[#2A2A30]">
                     <span className="text-xs text-[#8E8E98] font-medium">Available MJ Wallet Balance:</span>
                     <span className="font-mono text-xs font-bold text-white">
                       {walletLoading ? 'Checking...' : `₹${userWalletBalance.toFixed(2)}`}
@@ -1538,12 +1538,12 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   </div>
 
                   {hasSufficientWalletBalance ? (
-                    <div className="flex items-center gap-2 p-2 bg-[#10B981]/10 border border-[#10B981]/30 rounded text-[11px] text-[#10B981]">
+                    <div className="flex items-center gap-2 p-2 bg-[#10B981]/10 border border-[#10B981]/30 rounded-none text-[11px] text-[#10B981]">
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
                       <span>Wallet balance is sufficient. You can pay directly from your wallet with zero gateway charges.</span>
                     </div>
                   ) : (
-                    <div className="space-y-1.5 p-2 bg-[#ef4444]/10 border border-[#ef4444]/30 rounded">
+                    <div className="space-y-1.5 p-2 bg-[#ef4444]/10 border border-[#ef4444]/30 rounded-none">
                       <div className="flex items-center justify-between text-[11px] text-[#ef4444] font-semibold">
                         <div className="flex items-center gap-1.5">
                           <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
@@ -1576,7 +1576,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   type="button"
                   onClick={onClose}
                   disabled={isSubmitting}
-                  className="h-10 px-5 text-xs font-bold uppercase tracking-wider text-[#8E8E98] bg-transparent hover:text-white hover:bg-[#18181B] border border-[#2A2A30] rounded transition-colors disabled:opacity-50 cursor-pointer"
+                  className="h-10 px-5 text-xs font-bold uppercase tracking-wider text-[#8E8E98] bg-transparent hover:text-white hover:bg-[#18181B] border border-[#2A2A30] rounded-none transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1588,7 +1588,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       onClose?.()
                       navigate('/login')
                     }}
-                    className="h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded shadow-sm flex items-center gap-2 cursor-pointer"
+                    className="h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded-none shadow-sm flex items-center gap-2 cursor-pointer"
                   >
                     Sign In to Register
                   </button>
@@ -1598,7 +1598,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     loading={isSubmitting}
                     loadingText={submittingStep || 'Registering...'}
                     disabled={!isFormValid || isSubmitting}
-                    className="h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded shadow-sm flex items-center gap-2 cursor-pointer"
+                    className="h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded-none shadow-sm flex items-center gap-2 cursor-pointer"
                   >
                     Complete Registration
                   </LoadingButton>
@@ -1610,7 +1610,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       loading={isSubmitting && submittingStep.includes('Wallet')}
                       loadingText={submittingStep || 'Debiting Wallet...'}
                       disabled={!isFormValid || isSubmitting}
-                      className="h-10 px-5 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded shadow-sm flex items-center gap-2 cursor-pointer"
+                      className="h-10 px-5 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded-none shadow-sm flex items-center gap-2 cursor-pointer"
                     >
                       {`Pay ₹${numericEntryFee.toFixed(2)} from Wallet`}
                     </LoadingButton>
@@ -1620,7 +1620,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       loading={isSubmitting && !submittingStep.includes('Wallet')}
                       loadingText={submittingStep || 'Opening Razorpay...'}
                       disabled={!isFormValid || isSubmitting}
-                      className="h-10 px-4 text-xs font-bold uppercase tracking-wider text-[#8E8E98] hover:text-white bg-transparent hover:bg-[#18181B] border border-[#2A2A30] rounded transition-colors cursor-pointer"
+                      className="h-10 px-4 text-xs font-bold uppercase tracking-wider text-[#8E8E98] hover:text-white bg-transparent hover:bg-[#18181B] border border-[#2A2A30] rounded-none transition-colors cursor-pointer"
                     >
                       Pay via Razorpay
                     </LoadingButton>
@@ -1631,7 +1631,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     loading={isSubmitting}
                     loadingText={submittingStep || 'Processing Payment...'}
                     disabled={!isFormValid || isSubmitting}
-                    className="h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded shadow-sm flex items-center gap-2 cursor-pointer"
+                    className="h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded-none shadow-sm flex items-center gap-2 cursor-pointer"
                   >
                     {`Pay ₹${numericEntryFee.toFixed(2)} via Razorpay`}
                   </LoadingButton>
@@ -1652,7 +1652,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-[#151a21] border border-[#3a494b] rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl"
+            className="bg-[#151a21] border border-[#3a494b] rounded-none max-w-md w-full p-5 space-y-4 shadow-2xl"
           >
             <div className="flex items-center gap-3 text-amber-400">
               <AlertTriangle className="w-5 h-5 shrink-0" />
@@ -1667,7 +1667,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               <button
                 type="button"
                 onClick={() => setShowNoTeamModal(false)}
-                className="px-3.5 py-2 text-xs font-bold text-[#8e9dae] hover:text-white rounded-xl bg-[#07090c] border border-[#3a494b] transition-colors cursor-pointer uppercase"
+                className="px-3.5 py-2 text-xs font-bold text-[#8e9dae] hover:text-white rounded-none bg-[#07090c] border border-[#3a494b] transition-colors cursor-pointer uppercase"
               >
                 Close
               </button>
@@ -1697,7 +1697,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-[#151a21] border border-[#00f2ff]/40 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-[0_0_30px_rgba(0,242,255,0.2)]"
+            className="bg-[#151a21] border border-[#00f2ff]/40 rounded-none max-w-md w-full p-5 space-y-4 shadow-[0_0_30px_rgba(0,242,255,0.2)]"
           >
             <div className="flex items-center gap-3 text-[#00f2ff]">
               <AlertTriangle className="w-5 h-5 shrink-0" />
@@ -1712,7 +1712,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               <button
                 type="button"
                 onClick={() => setPendingTeamToApply(null)}
-                className="px-3.5 py-2 text-xs font-bold text-[#8e9dae] hover:text-white rounded-xl bg-[#07090c] border border-[#3a494b] transition-colors cursor-pointer uppercase"
+                className="px-3.5 py-2 text-xs font-bold text-[#8e9dae] hover:text-white rounded-none bg-[#07090c] border border-[#3a494b] transition-colors cursor-pointer uppercase"
               >
                 Cancel
               </button>
@@ -1742,12 +1742,12 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-[#151a21] border border-[#00f2ff]/40 rounded-2xl max-w-xl w-full p-5 sm:p-6 space-y-4 shadow-[0_0_50px_rgba(0,242,255,0.2)] relative max-h-[85vh] overflow-y-auto"
+            className="bg-[#151a21] border border-[#00f2ff]/40 rounded-none max-w-xl w-full p-5 sm:p-6 space-y-4 shadow-[0_0_50px_rgba(0,242,255,0.2)] relative max-h-[85vh] overflow-y-auto"
           >
             <button
               type="button"
               onClick={() => setShowRulebook(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-xl bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] cursor-pointer transition-colors"
+              className="absolute top-4 right-4 p-1.5 rounded-none bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] cursor-pointer transition-colors"
               aria-label="Close Rulebook"
             >
               <X className="w-4 h-4" />
@@ -1769,9 +1769,9 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               {OFFICIAL_MJ_RULES.map((ruleText, idx) => (
                 <div
                   key={`rule-${idx}`}
-                  className="flex items-start gap-2.5 p-2.5 bg-[#07090c] border border-[#3a494b]/60 rounded-xl"
+                  className="flex items-start gap-2.5 p-2.5 bg-[#07090c] border border-[#3a494b]/60 rounded-none"
                 >
-                  <span className="w-5 h-5 rounded-lg bg-[#151a21] border border-[#00f2ff]/40 flex items-center justify-center font-mono font-bold text-[10px] text-[#00f2ff] shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-none bg-[#151a21] border border-[#00f2ff]/40 flex items-center justify-center font-mono font-bold text-[10px] text-[#00f2ff] shrink-0 mt-0.5">
                     {idx + 1}
                   </span>
                   <span className="text-xs text-white font-medium leading-relaxed">
@@ -1789,7 +1789,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               <button
                 type="button"
                 onClick={() => setShowRulebook(false)}
-                className="px-4 py-2 bg-[#00f2ff] hover:bg-[#00d0dd] text-black font-extrabold text-xs uppercase rounded-xl transition-all cursor-pointer"
+                className="px-4 py-2 bg-[#00f2ff] hover:bg-[#00d0dd] text-black font-extrabold text-xs uppercase rounded-none transition-all cursor-pointer"
               >
                 Close
               </button>

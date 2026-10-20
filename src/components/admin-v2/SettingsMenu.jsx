@@ -17,26 +17,26 @@ export default function SettingsMenu() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Navigation / Tabs */}
         <div className="space-y-2">
-          <button className="w-full text-left px-4 py-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-xs font-bold flex items-center gap-3">
+          <button className="w-full text-left px-4 py-3 rounded-none bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-xs font-bold flex items-center gap-3">
             <Globe className="w-4 h-4" />
             General Platform Settings
           </button>
-          <button className="w-full text-left px-4 py-3 rounded-xl bg-slate-900/60 text-slate-400 border border-slate-800/80 text-xs font-semibold hover:text-white flex items-center gap-3">
+          <button className="w-full text-left px-4 py-3 rounded-none bg-slate-900/60 text-slate-400 border border-slate-800/80 text-xs font-semibold hover:text-white flex items-center gap-3">
             <Shield className="w-4 h-4" />
             Security & Access Control
           </button>
-          <button className="w-full text-left px-4 py-3 rounded-xl bg-slate-900/60 text-slate-400 border border-slate-800/80 text-xs font-semibold hover:text-white flex items-center gap-3">
+          <button className="w-full text-left px-4 py-3 rounded-none bg-slate-900/60 text-slate-400 border border-slate-800/80 text-xs font-semibold hover:text-white flex items-center gap-3">
             <Bell className="w-4 h-4" />
             Notification Rules
           </button>
-          <button className="w-full text-left px-4 py-3 rounded-xl bg-slate-900/60 text-slate-400 border border-slate-800/80 text-xs font-semibold hover:text-white flex items-center gap-3">
+          <button className="w-full text-left px-4 py-3 rounded-none bg-slate-900/60 text-slate-400 border border-slate-800/80 text-xs font-semibold hover:text-white flex items-center gap-3">
             <Database className="w-4 h-4" />
             Database & Maintenance
           </button>
         </div>
 
         {/* Content Panel Mockup */}
-        <div className="lg:col-span-2 p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-5">
+        <div className="lg:col-span-2 p-6 rounded-none bg-slate-900/60 border border-slate-800/80 space-y-5">
           <h3 className="text-sm font-bold text-white border-b border-slate-800 pb-3">
             Platform Configuration
           </h3>
@@ -47,7 +47,7 @@ export default function SettingsMenu() {
               <input
                 type="text"
                 defaultValue="MJ ESPORTS Official Portal"
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-cyan-500/50"
+                className="w-full bg-slate-950/80 border border-slate-800 rounded-none px-3.5 py-2 text-white focus:outline-none focus:border-cyan-500/50"
               />
             </div>
 
@@ -56,7 +56,7 @@ export default function SettingsMenu() {
               <input
                 type="email"
                 defaultValue="support@mjesports.gg"
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-cyan-500/50"
+                className="w-full bg-slate-950/80 border border-slate-800 rounded-none px-3.5 py-2 text-white focus:outline-none focus:border-cyan-500/50"
               />
             </div>
 
@@ -67,12 +67,12 @@ export default function SettingsMenu() {
                   Temporarily disable player tournament registration
                 </span>
               </div>
-              <input type="checkbox" className="w-4 h-4 accent-cyan-500 rounded cursor-pointer" />
+              <input type="checkbox" className="w-4 h-4 accent-cyan-500 rounded-none cursor-pointer" />
             </div>
           </div>
 
           <div className="pt-4 border-t border-slate-800 flex justify-end">
-            <button className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 flex items-center gap-2">
+            <button className="px-5 py-2 rounded-none bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 flex items-center gap-2">
               <Save className="w-4 h-4" />
               Save Configuration V2
             </button>

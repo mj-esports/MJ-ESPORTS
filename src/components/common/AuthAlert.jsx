@@ -10,7 +10,7 @@ export default function AuthAlert({ type = 'error', message }) {
     <div
       role={isError ? 'alert' : 'status'}
       aria-live={isError ? 'assertive' : 'polite'}
-      className={`p-3.5 rounded-xl border text-xs flex items-start gap-3 transition-all ${
+      className={`p-3.5 rounded-none border text-xs flex items-start gap-3 transition-all ${
         isError
           ? 'bg-red-950/60 border-red-800/60 text-red-300'
           : isSuccess

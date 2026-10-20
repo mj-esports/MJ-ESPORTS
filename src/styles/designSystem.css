@@ -1,69 +1,72 @@
 /* 
-  MJ ESPORTS — Google Stitch UI-1 Design System
-  Project: MJ Esports Design System Shell
+  MJ ESPORTS — Free Fire MAX Stitch Design System
   Unified Design Tokens, Color Palette, Elevation & Components
 */
 
 :root {
-  /* Surfaces & Canvas Elevation (Stitch Tonal Depth) */
-  --color-background-deep: #131314;
-  --color-surface: #131314;
-  --color-surface-dim: #131314;
-  --color-surface-bright: #3a393a;
-  --color-surface-container-lowest: #0e0e0f;
-  --color-surface-container-low: #1c1b1c;
-  --color-surface-container: #201f20;
-  --color-surface-container-high: #2a2a2b;
-  --color-surface-container-highest: #353436;
-  --color-surface-elevated: #141416;
-  --color-surface-stroke: #27272a;
+  /* Surfaces & Canvas Elevation (Free Fire MAX Depth) */
+  --color-background-deep: #000000;
+  --color-surface: #111318;
+  --color-surface-dim: #0a0b0e;
+  --color-surface-bright: #22252e;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low: #0c0d11;
+  --color-surface-container: #111318;
+  --color-surface-container-high: #1b1b1f;
+  --color-surface-container-highest: #26272e;
+  --color-surface-elevated: #1b1b1f;
+  --color-surface-stroke: #2a2a30;
 
-  /* Primary Brand Accent (Cyan #00F2FF) */
-  --color-primary: #e1fdff;
-  --color-on-primary: #00363a;
-  --color-primary-container: #00f2ff;
-  --color-on-primary-container: #006a71;
-  --color-primary-fixed: #74f5ff;
-  --color-primary-fixed-dim: #00dbe7;
+  /* Primary Brand Accent (Amber #FFB900) */
+  --color-primary: #ffb900;
+  --color-on-primary: #000000;
+  --color-primary-container: #ffb900;
+  --color-on-primary-container: #3d2c00;
+  --color-primary-fixed: #ffc933;
+  --color-primary-fixed-dim: #e6a700;
 
-  /* Secondary Brand Accent (Vibrant Action Orange #FF5E07) */
-  --color-secondary: #ffb59a;
-  --color-on-secondary: #5a1b00;
-  --color-secondary-container: #ff5e07;
-  --color-on-secondary-container: #531900;
-  --color-action-orange: #ff5e07;
+  /* Secondary Brand Accent (Fire Orange #FF6200) */
+  --color-secondary: #ff6200;
+  --color-on-secondary: #000000;
+  --color-secondary-container: #ff6200;
+  --color-on-secondary-container: #471900;
+  --color-action-orange: #ff6200;
 
   /* Status & Functional Accents */
-  --color-tertiary: #fff6e4;
-  --color-tertiary-container: #fed83a;
+  --color-tertiary: #ff9100;
+  --color-tertiary-container: #ff9100;
   --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-error-container: #93000a;
+  --color-warning: #ffb900;
+  --color-error: #ff0000;
+  --color-error-container: #7f0000;
 
   /* Neutrals & Borders */
-  --color-on-surface: #e5e2e3;
-  --color-on-surface-variant: #b9cacb;
-  --color-outline: #849495;
-  --color-outline-variant: #3a494b;
+  --color-on-surface: #ffffff;
+  --color-on-surface-variant: #a3a3a3;
+  --color-outline: #525252;
+  --color-outline-variant: #262626;
 
   /* Typography Fonts */
   --font-headline: 'Hanken Grotesk', 'Geist', system-ui, -apple-system, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
   --font-label: 'Inter', 'Geist', system-ui, -apple-system, sans-serif;
 
-  /* Radius Scale (Stitch Precision 4px Radii) */
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 16px;
-  --radius-full: 9999px;
+  /* Radius Scale (Global Sharp 0px Policy) */
+  --radius-none: 0px;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-full: 0px;
+  --radius: 0px;
 
   /* Ambient Shadows & Glows */
-  --shadow-ambient: 0px 8px 24px rgba(0, 0, 0, 0.6);
-  --shadow-cyan-glow: 0px 0px 16px rgba(0, 242, 255, 0.35);
-  --shadow-orange-glow: 0px 0px 16px rgba(255, 94, 7, 0.35);
+  --shadow-ambient: 0px 8px 24px rgba(0, 0, 0, 0.8);
+  --shadow-amber-glow: 0px 0px 16px rgba(255, 185, 0, 0.35);
+  --shadow-orange-glow: 0px 0px 16px rgba(255, 98, 0, 0.35);
 
   /* Micro-animations & Easing */
   --ease-stitch: cubic-bezier(0.16, 1, 0.3, 1);
@@ -197,22 +200,22 @@ body {
 
 /* Glassmorphism & Elevation Panels */
 .glass-nav {
-  background: rgba(17, 20, 23, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--color-outline-variant);
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-surface-stroke);
 }
 
 .glass-bottom-bar {
-  background: rgba(17, 20, 23, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--color-outline-variant);
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--color-surface-stroke);
 }
 
 .surface-card {
-  background-color: var(--color-surface-elevated);
-  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  border-radius: 0px !important;
   box-shadow: var(--shadow-ambient);
   transition: transform var(--duration-fast) var(--ease-stitch), border-color var(--duration-fast) var(--ease-stitch);
 }
@@ -230,10 +233,10 @@ body {
   font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  border-radius: var(--radius-md);
+  border-radius: 0px !important;
   padding: 0.625rem 1.25rem;
   transition: all var(--duration-fast) var(--ease-stitch);
-  box-shadow: var(--shadow-cyan-glow);
+  box-shadow: var(--shadow-amber-glow);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -245,18 +248,18 @@ body {
 .btn-stitch-primary:hover:not(:disabled) {
   background-color: var(--color-primary-fixed);
   transform: translateY(-1px);
-  box-shadow: 0 0 24px rgba(0, 242, 255, 0.5);
+  box-shadow: 0 0 24px rgba(255, 185, 0, 0.5);
 }
 
 .btn-stitch-secondary {
   background-color: var(--color-action-orange);
-  color: #170700;
+  color: #000000;
   font-family: var(--font-headline);
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  border-radius: var(--radius-md);
+  border-radius: 0px !important;
   padding: 0.625rem 1.25rem;
   transition: all var(--duration-fast) var(--ease-stitch);
   box-shadow: var(--shadow-orange-glow);
@@ -269,21 +272,21 @@ body {
 }
 
 .btn-stitch-secondary:hover:not(:disabled) {
-  background-color: #ff8533;
+  background-color: #ff7d2b;
   transform: translateY(-1px);
-  box-shadow: 0 0 24px rgba(254, 107, 0, 0.5);
+  box-shadow: 0 0 24px rgba(255, 98, 0, 0.5);
 }
 
 .btn-stitch-outline {
-  background-color: var(--color-surface-container);
+  background-color: var(--color-surface);
   color: var(--color-on-surface);
   font-family: var(--font-headline);
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--color-surface-stroke);
+  border-radius: 0px !important;
   padding: 0.625rem 1.25rem;
   transition: all var(--duration-fast) var(--ease-stitch);
   display: inline-flex;
@@ -309,7 +312,7 @@ body {
   font-size: 13px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  border-radius: var(--radius-md);
+  border-radius: 0px !important;
   padding: 0.625rem 1.25rem;
   transition: all var(--duration-fast) var(--ease-stitch);
   display: inline-flex;
@@ -321,18 +324,18 @@ body {
 }
 
 .btn-stitch-ghost:hover:not(:disabled) {
-  background-color: rgba(0, 242, 255, 0.1);
+  background-color: rgba(255, 185, 0, 0.1);
   color: var(--color-primary-fixed);
 }
 
 /* Inputs */
 .input-stitch {
-  background-color: var(--color-surface-container);
-  border: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-surface-stroke);
   color: var(--color-on-surface);
   font-family: var(--font-body);
   font-size: 14px;
-  border-radius: var(--radius-md);
+  border-radius: 0px !important;
   padding: 0.625rem 1rem;
   outline: none;
   transition: all var(--duration-fast) var(--ease-stitch);
@@ -342,7 +345,7 @@ body {
 
 .input-stitch:focus {
   border-color: var(--color-primary-container);
-  box-shadow: 0 0 12px rgba(0, 242, 255, 0.25);
+  box-shadow: 0 0 12px rgba(255, 185, 0, 0.25);
 }
 
 .input-stitch::placeholder {
@@ -383,7 +386,7 @@ input[type="time"] {
 
 .skeleton-stitch {
   animation: skeletonPulse 1.8s ease-in-out infinite;
-  border-radius: var(--radius-md);
+  border-radius: 0px !important;
 }
 
 /* Custom Scrollbar */
@@ -398,9 +401,21 @@ input[type="time"] {
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-outline-variant);
-  border-radius: 3px;
+  border-radius: 0px !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary-container);
+}
+
+/* Sharp-Edge UI Policy — Targeted Component Surface Invariants */
+.surface-card,
+.surface-elevated,
+.btn-stitch-primary,
+.btn-stitch-secondary,
+.btn-stitch-outline,
+.btn-stitch-ghost,
+.input-stitch,
+.skeleton-stitch {
+  border-radius: 0px;
 }

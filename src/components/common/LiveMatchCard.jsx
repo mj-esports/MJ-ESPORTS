@@ -43,12 +43,12 @@ export default function LiveMatchCard({
       <div className="flex justify-between items-center pb-3.5 border-b border-[#272b2f] text-[10px] font-extrabold tracking-[1.5px]">
         {isLive ? (
           <div className="flex items-center gap-1.5 text-[#ff6b00]">
-            <span className="w-[7px] h-[7px] rounded-full bg-[#ff6b00] shadow-[0_0_10px_rgba(255,107,0,0.8)] animate-pulse" />
+            <span className="w-[7px] h-[7px] rounded-none bg-[#ff6b00] shadow-[0_0_10px_rgba(255,107,0,0.8)] animate-pulse" />
             <span>LIVE</span>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 text-[#8e9dae]">
-            <span className="w-[7px] h-[7px] rounded-full bg-[#8e9dae]" />
+            <span className="w-[7px] h-[7px] rounded-none bg-[#8e9dae]" />
             <span>UPCOMING</span>
           </div>
         )}
@@ -76,7 +76,7 @@ export default function LiveMatchCard({
         
         {/* TEAM 1 (CYAN) */}
         <div className="text-center">
-          <div className="w-[62px] h-[62px] mx-auto flex items-center justify-center font-black italic text-[22px] rounded-[7px] -skew-x-[7deg] text-[#00e5ff] bg-[#00e5ff]/[0.07] border border-[#00e5ff]/70 shadow-[inset_0_0_20px_rgba(0,229,255,0.04),0_0_15px_rgba(0,229,255,0.08)] transition-transform duration-300 group-hover:scale-105">
+          <div className="w-[62px] h-[62px] mx-auto flex items-center justify-center font-black italic text-[22px] rounded-none -skew-x-[7deg] text-[#00e5ff] bg-[#00e5ff]/[0.07] border border-[#00e5ff]/70 shadow-[inset_0_0_20px_rgba(0,229,255,0.04),0_0_15px_rgba(0,229,255,0.08)] transition-transform duration-300 group-hover:scale-105">
             {team1.shortName}
           </div>
           <span className="block mt-2 text-[#60676d] text-[7px] font-extrabold tracking-[2px] uppercase">
@@ -101,7 +101,7 @@ export default function LiveMatchCard({
 
         {/* TEAM 2 (ORANGE) */}
         <div className="text-center">
-          <div className="w-[62px] h-[62px] mx-auto flex items-center justify-center font-black italic text-[22px] rounded-[7px] -skew-x-[7deg] text-[#ff6b00] bg-[#ff6b00]/[0.07] border border-[#ff6b00]/70 shadow-[inset_0_0_20px_rgba(255,107,0,0.04),0_0_15px_rgba(255,107,0,0.08)] transition-transform duration-300 group-hover:scale-105">
+          <div className="w-[62px] h-[62px] mx-auto flex items-center justify-center font-black italic text-[22px] rounded-none -skew-x-[7deg] text-[#ff6b00] bg-[#ff6b00]/[0.07] border border-[#ff6b00]/70 shadow-[inset_0_0_20px_rgba(255,107,0,0.04),0_0_15px_rgba(255,107,0,0.08)] transition-transform duration-300 group-hover:scale-105">
             {team2.shortName}
           </div>
           <span className="block mt-2 text-[#60676d] text-[7px] font-extrabold tracking-[2px] uppercase">

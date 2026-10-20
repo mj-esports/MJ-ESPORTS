@@ -32,7 +32,7 @@ export default function CreateTournamentWizardModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 lg:p-6 bg-black/85 backdrop-blur-md overflow-hidden animate-fadeIn">
       {/* Modal Card / Responsive Full Screen Shell */}
-      <div className="w-full max-w-7xl h-full md:h-[94vh] max-h-screen bg-[#131315] border-0 md:border border-[#27272a] rounded-none md:rounded-2xl flex flex-col shadow-2xl overflow-hidden relative">
+      <div className="w-full max-w-7xl h-full md:h-[94vh] max-h-screen bg-[#131315] border-0 md:border border-[#27272a] rounded-none md:rounded-none flex flex-col shadow-2xl overflow-hidden relative">
         {/* Sticky Header */}
         <WizardStepperHeader
           currentStep={currentStep}

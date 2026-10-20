@@ -53,7 +53,7 @@ export default function TournamentEligibilityAuditor({ users = [], tournaments =
     <div className="space-y-4 font-mono">
 
       {/* Header */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl flex items-center justify-between">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 shadow-xl flex items-center justify-between">
         <div>
           <h3 className="font-headline text-sm font-bold text-white uppercase tracking-wide flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#00f2ff]" />
@@ -63,13 +63,13 @@ export default function TournamentEligibilityAuditor({ users = [], tournaments =
             Automated compliance check for Verified Game Identity and Tournament Registrations.
           </p>
         </div>
-        <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
+        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
           READ-ONLY AUDIT
         </span>
       </div>
 
       {/* Search Bar */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 shadow-xl">
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -77,13 +77,13 @@ export default function TournamentEligibilityAuditor({ users = [], tournaments =
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Audit Player Username or Game UID..."
-            className="w-full bg-[#07090c] border border-[#3a494b] rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none"
+            className="w-full bg-[#07090c] border border-[#3a494b] rounded-none pl-9 pr-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none"
           />
         </div>
       </div>
 
       {/* Audit Results Table */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl overflow-hidden shadow-xl">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-[#07090c] border-b border-[#3a494b]/60 text-[#8e9dae] uppercase text-[10px]">
@@ -153,11 +153,11 @@ export default function TournamentEligibilityAuditor({ users = [], tournaments =
 
                     <td className="p-3 text-right">
                       {p.isFullyEligible ? (
-                        <span className="px-2.5 py-1 bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 rounded font-bold text-[10px] uppercase">
+                        <span className="px-2.5 py-1 bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 rounded-none font-bold text-[10px] uppercase">
                           ELIGIBLE ✓
                         </span>
                       ) : (
-                        <span className="px-2.5 py-1 bg-red-950 text-red-400 border border-red-500/40 rounded font-bold text-[10px] uppercase">
+                        <span className="px-2.5 py-1 bg-red-950 text-red-400 border border-red-500/40 rounded-none font-bold text-[10px] uppercase">
                           NOT ELIGIBLE ✕
                         </span>
                       )}

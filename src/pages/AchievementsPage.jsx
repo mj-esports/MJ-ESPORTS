@@ -275,17 +275,17 @@ export default function AchievementsPage() {
     return (
       <div className="bg-[#050508] text-white min-h-screen pb-24 antialiased font-mono">
         <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
-          <div className="h-6 w-36 bg-[#12141c] rounded animate-pulse" />
-          <div className="h-28 bg-[#0d0e15] border border-[#1f2230] rounded-2xl animate-pulse" />
+          <div className="h-6 w-36 bg-[#12141c] rounded-none animate-pulse" />
+          <div className="h-28 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
+            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="h-36 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
-            <div className="h-36 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse" />
+            <div className="h-36 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+            <div className="h-36 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
           </div>
         </main>
       </div>
@@ -296,7 +296,7 @@ export default function AchievementsPage() {
   if (!Array.isArray(tournaments)) {
     return (
       <div className="bg-[#050508] text-white min-h-screen pb-24 antialiased font-mono flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center p-8 bg-[#0d0e15] border border-[#ff4655]/30 rounded-2xl space-y-4">
+        <div className="max-w-md w-full text-center p-8 bg-[#0d0e15] border border-[#ff4655]/30 rounded-none space-y-4">
           <AlertCircle className="w-10 h-10 text-[#ff4655] mx-auto" />
           <h2 className="text-sm font-bold uppercase tracking-wider text-white">
             ACHIEVEMENTS TEMPORARILY UNAVAILABLE
@@ -306,7 +306,7 @@ export default function AchievementsPage() {
           </p>
           <Link
             to="/profile"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#141620] border border-[#222638] text-xs font-bold text-[#00f2ff] hover:bg-[#1a1d29] transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-none bg-[#141620] border border-[#222638] text-xs font-bold text-[#00f2ff] hover:bg-[#1a1d29] transition-all"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Profile</span>
@@ -332,7 +332,7 @@ export default function AchievementsPage() {
             <span>Return to Profile</span>
           </Link>
 
-          <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-widest bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/20">
+          <span className="px-2 py-0.5 rounded-none text-[10px] font-extrabold uppercase tracking-widest bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/20">
             FREE FIRE MAX
           </span>
         </div>
@@ -342,11 +342,11 @@ export default function AchievementsPage() {
         {/* ================================================== */}
         <header
           aria-label="Trophy Cabinet Header"
-          className="p-5 rounded-2xl bg-gradient-to-b from-[#0e1017] to-[#08090d] border border-[#1f2230] relative overflow-hidden shadow-[0_0_25px_rgba(0,0,0,0.4)]"
+          className="p-5 rounded-none bg-gradient-to-b from-[#0e1017] to-[#08090d] border border-[#1f2230] relative overflow-hidden shadow-[0_0_25px_rgba(0,0,0,0.4)]"
         >
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <div className="relative w-12 h-12 rounded-xl bg-[#141620] border border-[#222638] flex items-center justify-center overflow-hidden shrink-0">
+              <div className="relative w-12 h-12 rounded-none bg-[#141620] border border-[#222638] flex items-center justify-center overflow-hidden shrink-0">
                 <img
                   src={avatarUrl}
                   alt={displayName}
@@ -362,7 +362,7 @@ export default function AchievementsPage() {
                   {isVerified && (
                     <span
                       title="Authoritatively Verified Player"
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30"
                     >
                       <ShieldCheck className="w-3 h-3 text-[#00f2ff]" />
                       <span>VERIFIED</span>
@@ -377,8 +377,8 @@ export default function AchievementsPage() {
             </div>
 
             {/* Free Fire MAX Identity Pill */}
-            <div className="flex items-center gap-2 bg-[#12141c] border border-[#1f2230] rounded-xl px-3 py-2 text-xs shrink-0">
-              <div className="w-2 h-2 rounded-full bg-[#00f2ff] shadow-[0_0_8px_#00f2ff]" />
+            <div className="flex items-center gap-2 bg-[#12141c] border border-[#1f2230] rounded-none px-3 py-2 text-xs shrink-0">
+              <div className="w-2 h-2 rounded-none bg-[#00f2ff] shadow-[0_0_8px_#00f2ff]" />
               <div className="flex flex-col">
                 <span className="text-[9px] text-[#717a8e] uppercase font-bold tracking-wider">
                   FF MAX UID
@@ -410,7 +410,7 @@ export default function AchievementsPage() {
           className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5"
         >
           {/* UNLOCKED TROPHIES */}
-          <div className="p-3 sm:p-4 rounded-xl bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#fbbf24]/30 transition-all">
+          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#fbbf24]/30 transition-all">
             <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>UNLOCKED TROPHIES</span>
               <Award className="w-3.5 h-3.5 text-[#fbbf24]" />
@@ -424,7 +424,7 @@ export default function AchievementsPage() {
           </div>
 
           {/* COMPLETION % */}
-          <div className="p-3 sm:p-4 rounded-xl bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#00f2ff]/30 transition-all">
+          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#00f2ff]/30 transition-all">
             <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>COMPLETION</span>
               <Sparkles className="w-3.5 h-3.5 text-[#00f2ff]" />
@@ -438,7 +438,7 @@ export default function AchievementsPage() {
           </div>
 
           {/* CHAMPIONSHIPS */}
-          <div className="p-3 sm:p-4 rounded-xl bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#fbbf24]/30 transition-all">
+          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#fbbf24]/30 transition-all">
             <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>CHAMPIONSHIPS</span>
               <Trophy className="w-3.5 h-3.5 text-[#fbbf24]" />
@@ -452,7 +452,7 @@ export default function AchievementsPage() {
           </div>
 
           {/* PODIUM FINISHES */}
-          <div className="p-3 sm:p-4 rounded-xl bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#ff8c00]/30 transition-all">
+          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#ff8c00]/30 transition-all">
             <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>PODIUM FINISHES</span>
               <Trophy className="w-3.5 h-3.5 text-[#ff8c00]" />
@@ -478,9 +478,9 @@ export default function AchievementsPage() {
           </div>
 
           {latestUnlockedCrown ? (
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-[#141620] via-[#0d0e15] to-[#0a0b10] border border-[#fbbf24]/30 shadow-[0_0_20px_rgba(251,191,36,0.08)] flex items-center justify-between gap-4 flex-wrap">
+            <div className="p-4 rounded-none bg-gradient-to-r from-[#141620] via-[#0d0e15] to-[#0a0b10] border border-[#fbbf24]/30 shadow-[0_0_20px_rgba(251,191,36,0.08)] flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-xl bg-[#fbbf24]/10 border border-[#fbbf24]/40 flex items-center justify-center text-[#fbbf24] shrink-0 shadow-[0_0_12px_rgba(251,191,36,0.15)]">
+                <div className="w-12 h-12 rounded-none bg-[#fbbf24]/10 border border-[#fbbf24]/40 flex items-center justify-center text-[#fbbf24] shrink-0 shadow-[0_0_12px_rgba(251,191,36,0.15)]">
                   <latestUnlockedCrown.icon className="w-6 h-6" />
                 </div>
                 <div className="space-y-0.5">
@@ -488,7 +488,7 @@ export default function AchievementsPage() {
                     <h3 className="font-bold text-sm text-white uppercase tracking-wide">
                       {latestUnlockedCrown.title}
                     </h3>
-                    <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[9px] font-bold bg-[#fbbf24]/15 text-[#fbbf24] border border-[#fbbf24]/30 uppercase">
+                    <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-none text-[9px] font-bold bg-[#fbbf24]/15 text-[#fbbf24] border border-[#fbbf24]/30 uppercase">
                       <Unlock className="w-2.5 h-2.5" />
                       <span>Unlocked</span>
                     </span>
@@ -500,13 +500,13 @@ export default function AchievementsPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-lg text-xs font-black font-mono bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/30">
+                <span className="px-2.5 py-1 rounded-none text-xs font-black font-mono bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/30">
                   +{latestUnlockedCrown.points} XP
                 </span>
               </div>
             </div>
           ) : (
-            <div className="p-5 text-center rounded-2xl bg-[#0d0e15] border border-[#1f2230] space-y-1.5">
+            <div className="p-5 text-center rounded-none bg-[#0d0e15] border border-[#1f2230] space-y-1.5">
               <Award className="w-8 h-8 text-[#525866] mx-auto" />
               <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                 NO CROWNS EARNED YET
@@ -521,12 +521,12 @@ export default function AchievementsPage() {
         {/* ================================================== */}
         {/* 5. FILTER TABS (ALL | UNLOCKED | LOCKED)           */}
         {/* ================================================== */}
-        <div className="flex items-center justify-start bg-[#0d0e15] p-1 rounded-xl border border-[#1f2230] text-xs font-bold w-fit">
+        <div className="flex items-center justify-start bg-[#0d0e15] p-1 rounded-none border border-[#1f2230] text-xs font-bold w-fit">
           <button
             role="tab"
             aria-selected={filterTab === 'ALL'}
             onClick={() => setFilterTab('ALL')}
-            className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer uppercase tracking-wider ${
+            className={`px-3.5 py-1.5 rounded-none transition-all cursor-pointer uppercase tracking-wider ${
               filterTab === 'ALL'
                 ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                 : 'text-[#8e95a5] hover:text-white'
@@ -538,7 +538,7 @@ export default function AchievementsPage() {
             role="tab"
             aria-selected={filterTab === 'UNLOCKED'}
             onClick={() => setFilterTab('UNLOCKED')}
-            className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer uppercase tracking-wider ${
+            className={`px-3.5 py-1.5 rounded-none transition-all cursor-pointer uppercase tracking-wider ${
               filterTab === 'UNLOCKED'
                 ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                 : 'text-[#8e95a5] hover:text-white'
@@ -550,7 +550,7 @@ export default function AchievementsPage() {
             role="tab"
             aria-selected={filterTab === 'LOCKED'}
             onClick={() => setFilterTab('LOCKED')}
-            className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer uppercase tracking-wider ${
+            className={`px-3.5 py-1.5 rounded-none transition-all cursor-pointer uppercase tracking-wider ${
               filterTab === 'LOCKED'
                 ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                 : 'text-[#8e95a5] hover:text-white'
@@ -566,7 +566,7 @@ export default function AchievementsPage() {
         {filteredAchievements.length === 0 ? (
           <div
             aria-label="Empty Achievements Filter"
-            className="py-16 text-center border border-[#1f2230] bg-[#0d0e15] rounded-2xl p-6 space-y-3 font-mono"
+            className="py-16 text-center border border-[#1f2230] bg-[#0d0e15] rounded-none p-6 space-y-3 font-mono"
           >
             <Award className="w-10 h-10 text-[#525866] mx-auto" />
             <h2 className="text-sm font-bold text-white uppercase tracking-wider">
@@ -586,7 +586,7 @@ export default function AchievementsPage() {
                 <button
                   type="button"
                   onClick={() => setFilterTab('ALL')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#141620] border border-[#222638] text-xs font-bold text-[#00f2ff] hover:bg-[#1a1d29] transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#141620] border border-[#222638] text-xs font-bold text-[#00f2ff] hover:bg-[#1a1d29] transition-all cursor-pointer"
                 >
                   <span>View All Badges</span>
                 </button>
@@ -605,7 +605,7 @@ export default function AchievementsPage() {
               return (
                 <article
                   key={badge.id}
-                  className={`p-4 rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between min-h-[160px] font-mono ${
+                  className={`p-4 rounded-none border transition-all relative overflow-hidden flex flex-col justify-between min-h-[160px] font-mono ${
                     isUnlocked
                       ? 'bg-[#0d0e15] border-[#1f2230] hover:border-[#00f2ff]/40 shadow-[0_4px_20px_rgba(0,0,0,0.25)]'
                       : 'bg-[#0a0b10] border-[#181a24] opacity-70'
@@ -615,7 +615,7 @@ export default function AchievementsPage() {
                     {/* Top Row: Icon & Status Badge */}
                     <div className="flex justify-between items-start">
                       <div
-                        className={`w-10 h-10 rounded-xl border flex items-center justify-center ${
+                        className={`w-10 h-10 rounded-none border flex items-center justify-center ${
                           isUnlocked
                             ? badge.color
                             : 'text-[#525866] border-[#222638] bg-[#141620]'
@@ -626,12 +626,12 @@ export default function AchievementsPage() {
 
                       <div className="flex items-center gap-1.5">
                         {isUnlocked ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
                             <Unlock className="w-2.5 h-2.5" />
                             <span>UNLOCKED</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-[#141620] text-[#717a8e] border border-[#222638]">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#141620] text-[#717a8e] border border-[#222638]">
                             <Lock className="w-2.5 h-2.5" />
                             <span>LOCKED</span>
                           </span>
@@ -659,7 +659,7 @@ export default function AchievementsPage() {
                     </div>
 
                     <span
-                      className={`font-black px-2 py-0.5 rounded font-mono ${
+                      className={`font-black px-2 py-0.5 rounded-none font-mono ${
                         isUnlocked
                           ? 'bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/30'
                           : 'bg-[#141620] text-[#717a8e] border border-[#222638]'

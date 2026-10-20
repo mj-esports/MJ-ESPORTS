@@ -818,26 +818,26 @@ export default function FinanceDashboardView({ tournaments = [] }) {
     <div className="space-y-8 font-mono text-xs">
       
       {/* 1. SAFETY LOCK & TEST MODE BANNER */}
-      <div className="bg-[#151a21] border-2 border-[#fe6b00]/60 rounded-xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#fe6b00]/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="bg-[#151a21] border-2 border-[#fe6b00]/60 rounded-none p-4 sm:p-5 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#fe6b00]/10 rounded-none blur-2xl pointer-events-none"></div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
           <div className="flex items-start sm:items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#fe6b00]/20 border border-[#fe6b00]/50 flex items-center justify-center text-[#fe6b00] shrink-0 shadow-[0_0_15px_rgba(254,107,0,0.3)]">
+            <div className="w-10 h-10 rounded-none bg-[#fe6b00]/20 border border-[#fe6b00]/50 flex items-center justify-center text-[#fe6b00] shrink-0 shadow-[0_0_15px_rgba(254,107,0,0.3)]">
               <Lock className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#fe6b00]/20 text-[#fe6b00] border border-[#fe6b00]/40 tracking-wider">
+                <span className="px-2.5 py-0.5 rounded-none text-[10px] font-extrabold uppercase bg-[#fe6b00]/20 text-[#fe6b00] border border-[#fe6b00]/40 tracking-wider">
                   FINANCE V5.1-A REMEDIATED SAFETY LOCK
                 </span>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#07090c] text-[#00f2ff] border border-[#3a494b]">
+                <span className="px-2 py-0.5 rounded-none text-[10px] font-bold uppercase bg-[#07090c] text-[#00f2ff] border border-[#3a494b]">
                   COLLECTION MODE: TEST
                 </span>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#07090c] text-[#ff3366] border border-[#ff3366]/40">
+                <span className="px-2 py-0.5 rounded-none text-[10px] font-bold uppercase bg-[#07090c] text-[#ff3366] border border-[#ff3366]/40">
                   REAL PAYOUTS: DISABLED
                 </span>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border flex items-center gap-1 ${
+                <span className={`px-2 py-0.5 rounded-none text-[10px] font-extrabold uppercase border flex items-center gap-1 ${
                   isOwnerSession
                     ? 'bg-[#00ff9d]/20 text-[#00ff9d] border-[#00ff9d]/40'
                     : 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40'
@@ -855,14 +855,14 @@ export default function FinanceDashboardView({ tournaments = [] }) {
           <div className="flex items-center gap-2">
             <button
               onClick={fetchFinanceData}
-              className="px-3.5 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#00f2ff] rounded text-xs font-bold uppercase transition-colors flex items-center gap-1.5 min-h-[38px]"
+              className="px-3.5 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#00f2ff] rounded-none text-xs font-bold uppercase transition-colors flex items-center gap-1.5 min-h-[38px]"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>Refresh Ledger</span>
             </button>
             <button
               onClick={handleExportCSV}
-              className="px-3.5 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-white hover:text-[#00f2ff] rounded text-xs font-bold uppercase transition-colors flex items-center gap-1.5 min-h-[38px]"
+              className="px-3.5 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-white hover:text-[#00f2ff] rounded-none text-xs font-bold uppercase transition-colors flex items-center gap-1.5 min-h-[38px]"
             >
               <FileText className="w-3.5 h-3.5 text-[#00f2ff]" />
               <span>Export CSV</span>
@@ -887,7 +887,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
             <button
               key={`v2-fin-tab-${tab.id}`}
               onClick={() => setV2Tab(tab.id)}
-              className={`px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all flex items-center gap-2 whitespace-nowrap min-h-[42px] cursor-pointer ${
+              className={`px-4 py-2.5 rounded-none text-xs font-bold uppercase transition-all flex items-center gap-2 whitespace-nowrap min-h-[42px] cursor-pointer ${
                 isActive
                   ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_15px_rgba(0,242,255,0.35)]'
                   : 'text-[#8e9dae] hover:text-white bg-[#151a21] hover:bg-[#1d232c] border border-[#3a494b]/40'
@@ -896,7 +896,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
               <Icon className="w-4 h-4" />
               <span>{tab.label}</span>
               {tab.count !== undefined && tab.count > 0 && (
-                <span className={`px-2 py-0.2 rounded-full text-[9px] font-mono ${
+                <span className={`px-2 py-0.2 rounded-none text-[9px] font-mono ${
                   isActive ? 'bg-[#00363a] text-[#00f2ff]' : 'bg-[#fe6b00]/20 text-[#fe6b00] border border-[#fe6b00]/40'
                 }`}>
                   {tab.count}
@@ -916,7 +916,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
             <div className="space-y-8">
               {/* Executive Metric Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2 shadow-xl border-l-4 border-l-[#00f2ff]">
+                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-2 shadow-xl border-l-4 border-l-[#00f2ff]">
                   <span className="text-[10px] text-[#8e9dae] uppercase tracking-widest block font-bold">GROSS COLLECTION</span>
                   <div className="text-2xl font-extrabold text-[#00f2ff]">
                     ₹{metrics.totalRev.toLocaleString()}
@@ -927,7 +927,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   </span>
                 </div>
 
-                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2 shadow-xl border-l-4 border-l-[#fe6b00]">
+                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-2 shadow-xl border-l-4 border-l-[#fe6b00]">
                   <span className="text-[10px] text-[#8e9dae] uppercase tracking-widest block font-bold">24H VOLUME</span>
                   <div className="text-2xl font-extrabold text-[#ffb693]">
                     ₹{metrics.todayRev.toLocaleString()}
@@ -935,7 +935,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   <span className="text-[11px] text-[#8e9dae]">Current Day Entry Fees</span>
                 </div>
 
-                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2 shadow-xl border-l-4 border-l-[#ffe173]">
+                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-2 shadow-xl border-l-4 border-l-[#ffe173]">
                   <span className="text-[10px] text-[#8e9dae] uppercase tracking-widest block font-bold">PRIZE POOL LIABILITIES</span>
                   <div className="text-2xl font-extrabold text-[#ffe173]">
                     ₹{tournaments.reduce((acc, t) => acc + (parseInt((t.prizePool || t.prize_pool || '0').replace(/[^0-9]/g, ''), 10) || 0), 0).toLocaleString()}
@@ -943,7 +943,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   <span className="text-[11px] text-[#fe6b00] font-semibold">Total Prize Liability Commitment</span>
                 </div>
 
-                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-2 shadow-xl border-l-4 border-l-[#00ff9d]">
+                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-2 shadow-xl border-l-4 border-l-[#00ff9d]">
                   <span className="text-[10px] text-[#8e9dae] uppercase tracking-widest block font-bold">NET ESTIMATED PLATFORM PROFIT</span>
                   <div className="text-2xl font-extrabold text-[#00ff9d]">
                     ₹{tournamentRevenueList.reduce((acc, t) => acc + t.estimatedProfit, 0).toLocaleString()}
@@ -954,27 +954,27 @@ export default function FinanceDashboardView({ tournaments = [] }) {
 
               {/* Status Chips Row */}
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-                <div className="bg-[#151a21] p-3 rounded-lg border border-[#3a494b]/60 text-center">
+                <div className="bg-[#151a21] p-3 rounded-none border border-[#3a494b]/60 text-center">
                   <span className="text-[10px] text-[#8e9dae] block">VERIFIED PAYMENTS</span>
                   <span className="font-extrabold text-[#00ff9d] text-base">{metrics.successCount}</span>
                 </div>
-                <div className="bg-[#151a21] p-3 rounded-lg border border-[#3a494b]/60 text-center">
+                <div className="bg-[#151a21] p-3 rounded-none border border-[#3a494b]/60 text-center">
                   <span className="text-[10px] text-[#8e9dae] block">PENDING VERIFICATION</span>
                   <span className="font-extrabold text-[#00f2ff] text-base">{metrics.pendingCount}</span>
                 </div>
-                <div className="bg-[#151a21] p-3 rounded-lg border border-[#3a494b]/60 text-center">
+                <div className="bg-[#151a21] p-3 rounded-none border border-[#3a494b]/60 text-center">
                   <span className="text-[10px] text-[#8e9dae] block">REJECTED / FAILED</span>
                   <span className="font-extrabold text-[#ff3366] text-base">{metrics.failedCount}</span>
                 </div>
-                <div className="bg-[#151a21] p-3 rounded-lg border border-[#3a494b]/60 text-center">
+                <div className="bg-[#151a21] p-3 rounded-none border border-[#3a494b]/60 text-center">
                   <span className="text-[10px] text-[#8e9dae] block">PRIZE CREDITED</span>
                   <span className="font-extrabold text-[#ffe173] text-base">₹{metrics.totalPrizeCredited.toLocaleString()}</span>
                 </div>
-                <div className="bg-[#151a21] p-3 rounded-lg border border-[#3a494b]/60 text-center">
+                <div className="bg-[#151a21] p-3 rounded-none border border-[#3a494b]/60 text-center">
                   <span className="text-[10px] text-[#8e9dae] block">PENDING WITHDRAWALS</span>
                   <span className="font-extrabold text-[#fe6b00] text-base">₹{metrics.totalPendingWithdrawals.toLocaleString()}</span>
                 </div>
-                <div className="bg-[#151a21] p-3 rounded-lg border border-[#3a494b]/60 text-center">
+                <div className="bg-[#151a21] p-3 rounded-none border border-[#3a494b]/60 text-center">
                   <span className="text-[10px] text-[#8e9dae] block">ACTIVE COMPETITIONS</span>
                   <span className="font-extrabold text-white text-base">{metrics.totalTournamentsCount}</span>
                 </div>
@@ -982,7 +982,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
 
               {/* Game Breakdown & Fee Audit Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
+                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-4 shadow-xl">
                   <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
                     <h3 className="text-sm font-extrabold text-white uppercase flex items-center gap-2">
                       <PieChart className="w-4 h-4 text-[#00f2ff]" />
@@ -996,7 +996,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                         <span className="text-[#00f2ff]">Free Fire MAX</span>
                         <span className="text-[#00f2ff]">₹{gameBreakdown.ffRev.toLocaleString()} ({gameBreakdown.ffPct}%)</span>
                       </div>
-                      <div className="w-full h-2 bg-[#07090c] rounded-full overflow-hidden border border-[#3a494b]/40">
+                      <div className="w-full h-2 bg-[#07090c] rounded-none overflow-hidden border border-[#3a494b]/40">
                         <div className="h-full bg-[#00f2ff]" style={{ width: `${gameBreakdown.ffPct}%` }} />
                       </div>
                     </div>
@@ -1006,14 +1006,14 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                         <span className="text-[#fe6b00]">BGMI Mobile</span>
                         <span className="text-[#ffb693]">₹{gameBreakdown.bgmiRev.toLocaleString()} ({gameBreakdown.bgmiPct}%)</span>
                       </div>
-                      <div className="w-full h-2 bg-[#07090c] rounded-full overflow-hidden border border-[#3a494b]/40">
+                      <div className="w-full h-2 bg-[#07090c] rounded-none overflow-hidden border border-[#3a494b]/40">
                         <div className="h-full bg-[#fe6b00]" style={{ width: `${gameBreakdown.bgmiPct}%` }} />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
+                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-4 shadow-xl">
                   <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
                     <h3 className="text-sm font-extrabold text-white uppercase flex items-center gap-2">
                       <BarChart2 className="w-4 h-4 text-[#00ff9d]" />
@@ -1030,7 +1030,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                           <span className="text-3xl font-extrabold text-[#00ff9d]">{successPct}%</span>
                           <span className="text-xs text-[#8e9dae]">{metrics.successCount} / {totalTx} Verified</span>
                         </div>
-                        <div className="w-full h-3 bg-[#07090c] rounded-full overflow-hidden border border-[#3a494b]/40">
+                        <div className="w-full h-3 bg-[#07090c] rounded-none overflow-hidden border border-[#3a494b]/40">
                           <div className="h-full bg-[#00ff9d]" style={{ width: `${successPct}%` }} />
                         </div>
                         <p className="text-[11px] text-[#8e9dae]">Manual admin audit pipeline active</p>
@@ -1039,7 +1039,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   })()}
                 </div>
 
-                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
+                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-4 shadow-xl">
                   <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
                     <h3 className="text-sm font-extrabold text-white uppercase flex items-center gap-2">
                       <Percent className="w-4 h-4 text-[#ffe173]" />
@@ -1071,7 +1071,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
               </div>
 
               {/* Recent Transactions List Preview */}
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 sm:p-6 space-y-5 shadow-2xl">
+              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 sm:p-6 space-y-5 shadow-2xl">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
                   <div className="flex items-center gap-2">
                     <CreditCard className="w-5 h-5 text-[#00f2ff]" />
@@ -1094,7 +1094,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                         setCurrentPage(1)
                       }}
                       placeholder="Search by Payment ID, Player, Email..."
-                      className="w-full pl-9 pr-3 py-2 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
+                      className="w-full pl-9 pr-3 py-2 bg-[#07090c] border border-[#3a494b] rounded-none text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
                     />
                   </div>
 
@@ -1104,7 +1104,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                       setGameFilter(e.target.value)
                       setCurrentPage(1)
                     }}
-                    className="bg-[#07090c] border border-[#3a494b] text-white text-xs py-2 px-3 rounded focus:outline-none focus:border-[#00f2ff] uppercase"
+                    className="bg-[#07090c] border border-[#3a494b] text-white text-xs py-2 px-3 rounded-none focus:outline-none focus:border-[#00f2ff] uppercase"
                   >
                     <option value="ALL">ALL GAMES</option>
                     <option value="FREE FIRE">FREE FIRE MAX</option>
@@ -1117,7 +1117,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                       setStatusFilter(e.target.value)
                       setCurrentPage(1)
                     }}
-                    className="bg-[#07090c] border border-[#3a494b] text-white text-xs py-2 px-3 rounded focus:outline-none focus:border-[#00f2ff] uppercase"
+                    className="bg-[#07090c] border border-[#3a494b] text-white text-xs py-2 px-3 rounded-none focus:outline-none focus:border-[#00f2ff] uppercase"
                   >
                     <option value="ALL">ALL STATUSES</option>
                     <option value="SUCCESS">SUCCESS / APPROVED</option>
@@ -1159,7 +1159,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                           <td className="p-3 text-[#8e9dae]">{tx.paymentMethod}</td>
                           <td className="p-3 text-center">
                             <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
+                              className={`px-2 py-0.5 rounded-none text-[10px] font-extrabold uppercase ${
                                 ['SUCCESS', 'PAID', 'APPROVED', 'VERIFIED'].includes(tx.paymentStatus)
                                   ? 'bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40'
                                   : tx.paymentStatus === 'PENDING'
@@ -1185,7 +1185,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
           {/* TAB 2: TOURNAMENT FINANCIAL SNAPSHOT & PRIZE POOL MODEL */}
           {v2Tab === 'tournaments' && (
             <div className="space-y-6">
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
+              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-4 shadow-xl">
                 <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
                   <div>
                     <h2 className="text-base font-extrabold text-white uppercase flex items-center gap-2">
@@ -1196,7 +1196,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                       Comprehensive financial ledger per tournament detailing gross entry collections, estimated gateway fees, prize pool commitments, and platform profit.
                     </p>
                   </div>
-                  <span className="px-3 py-1 bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] rounded font-bold text-xs">
+                  <span className="px-3 py-1 bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] rounded-none font-bold text-xs">
                     {tournamentRevenueList.length} Tournaments Tracked
                   </span>
                 </div>
@@ -1247,24 +1247,24 @@ export default function FinanceDashboardView({ tournaments = [] }) {
 
               {/* Prize Pool Architecture Breakdown */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-3 shadow-xl">
+                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-3 shadow-xl">
                   <h3 className="text-sm font-extrabold text-white uppercase flex items-center gap-2 border-b border-[#3a494b]/60 pb-3">
                     <Database className="w-4 h-4 text-[#00f2ff]" />
                     <span>Prize Pool Business Model Architecture</span>
                   </h3>
                   <div className="space-y-2 text-xs font-sans text-[#8e9dae]">
-                    <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-1">
+                    <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-1">
                       <span className="font-bold text-white font-mono block">1. FIXED PRIZE POOL</span>
                       <p>Guaranteed prize amount regardless of total registrations. Platform absorbs financial deficit if slots do not fill.</p>
                     </div>
-                    <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-1">
+                    <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-1">
                       <span className="font-bold text-[#00f2ff] font-mono block">2. ENTRY-FEE-DERIVED POOL</span>
                       <p>Prize pool dynamically calculated based on total paid registrations minus platform fee %.</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-3 shadow-xl">
+                <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-3 shadow-xl">
                   <h3 className="text-sm font-extrabold text-white uppercase flex items-center gap-2 border-b border-[#3a494b]/60 pb-3">
                     <AlertTriangle className="w-4 h-4 text-[#ffe173]" />
                     <span>Schema Gap Analysis & Required DB Fields</span>
@@ -1286,7 +1286,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
           {/* TAB 3: WINNER → PAYOUT QUEUE & OWNER APPROVAL PIPELINE */}
           {v2Tab === 'payouts' && (
             <div className="space-y-6">
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
+              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-4 shadow-xl">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
                   <div>
                     <h2 className="text-base font-extrabold text-white uppercase flex items-center gap-2">
@@ -1298,7 +1298,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded bg-[#fe6b00]/10 border border-[#fe6b00]/40 text-[#fe6b00] font-bold text-xs uppercase flex items-center gap-1">
+                    <span className="px-3 py-1 rounded-none bg-[#fe6b00]/10 border border-[#fe6b00]/40 text-[#fe6b00] font-bold text-xs uppercase flex items-center gap-1">
                       <Crown className="w-3.5 h-3.5 text-[#fe6b00]" />
                       <span>OWNER APPROVAL GATE ACTIVE</span>
                     </span>
@@ -1307,22 +1307,22 @@ export default function FinanceDashboardView({ tournaments = [] }) {
 
                 {/* Canonical Pipeline Workflow Representation */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center text-[10px] font-bold font-mono">
-                  <div className="p-2.5 bg-[#07090c] rounded border border-[#3a494b] text-[#8e9dae]">
+                  <div className="p-2.5 bg-[#07090c] rounded-none border border-[#3a494b] text-[#8e9dae]">
                     1. VERIFIED SCORECARD
                   </div>
-                  <div className="p-2.5 bg-[#07090c] rounded border border-[#3a494b] text-[#8e9dae]">
+                  <div className="p-2.5 bg-[#07090c] rounded-none border border-[#3a494b] text-[#8e9dae]">
                     2. PENDING_REVIEW QUEUE
                   </div>
-                  <div className="p-2.5 bg-[#07090c] rounded border border-[#fe6b00] text-[#fe6b00]">
+                  <div className="p-2.5 bg-[#07090c] rounded-none border border-[#fe6b00] text-[#fe6b00]">
                     3. AWAITING OWNER APPROVAL
                   </div>
-                  <div className="p-2.5 bg-[#07090c] rounded border border-[#00f2ff] text-[#00f2ff]">
+                  <div className="p-2.5 bg-[#07090c] rounded-none border border-[#00f2ff] text-[#00f2ff]">
                     4. APPROVED (READY FOR EXECUTION)
                   </div>
-                  <div className="p-2.5 bg-[#07090c] rounded border border-[#3a494b] text-[#8e9dae]">
+                  <div className="p-2.5 bg-[#07090c] rounded-none border border-[#3a494b] text-[#8e9dae]">
                     5. PROCESSING (LOCKED)
                   </div>
-                  <div className="p-2.5 bg-[#07090c] rounded border border-[#00ff9d] text-[#00ff9d]">
+                  <div className="p-2.5 bg-[#07090c] rounded-none border border-[#00ff9d] text-[#00ff9d]">
                     6. COMPLETED LEDGER
                   </div>
                 </div>
@@ -1362,7 +1362,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                             </td>
                             <td className="p-3 text-center">
                               <span
-                                className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
+                                className={`px-2 py-0.5 rounded-none text-[9px] font-extrabold uppercase border ${
                                   item.status === 'READY_FOR_EXECUTION' || item.status === 'APPROVED'
                                     ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                                     : item.status === 'AWAITING_OWNER_APPROVAL'
@@ -1378,7 +1378,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                             <td className="p-3 text-right pr-4">
                               <button
                                 onClick={() => setSelectedPayoutItem(item)}
-                                className="px-3 py-1.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#00f2ff] hover:text-white rounded text-[10px] font-bold uppercase transition-colors"
+                                className="px-3 py-1.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#00f2ff] hover:text-white rounded-none text-[10px] font-bold uppercase transition-colors"
                               >
                                 Review Proposal
                               </button>
@@ -1392,21 +1392,21 @@ export default function FinanceDashboardView({ tournaments = [] }) {
               </div>
 
               {/* Recipient Data & Identity Verification Requirements */}
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-3 shadow-xl">
+              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-3 shadow-xl">
                 <h3 className="text-sm font-extrabold text-white uppercase flex items-center gap-2 border-b border-[#3a494b]/60 pb-3">
                   <Key className="w-4 h-4 text-[#00f2ff]" />
                   <span>Payout Recipient Data Security Policy</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-sans text-[#8e9dae]">
-                  <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-1">
+                  <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-1">
                     <span className="font-bold text-white font-mono block">1. IDENTITY VERIFICATION</span>
                     <p>Winner identity must match registered game character UID & captain email prior to payout release.</p>
                   </div>
-                  <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-1">
+                  <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-1">
                     <span className="font-bold text-[#00f2ff] font-mono block">2. ZERO EXCESS SENSITIVE STORAGE</span>
                     <p>Bank account and UPI details are collected at time of payout request only and never stored unencrypted.</p>
                   </div>
-                  <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-1">
+                  <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-1">
                     <span className="font-bold text-[#fe6b00] font-mono block">3. NO FRONTEND MONEY TRUST</span>
                     <p>Payout execution is strictly executed inside PostgreSQL SECURITY DEFINER RPC with service-role boundaries.</p>
                   </div>
@@ -1418,7 +1418,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
           {/* TAB 4: USER WALLET WITHDRAWALS vs TOURNAMENT PAYOUTS */}
           {v2Tab === 'withdrawals' && (
             <div className="space-y-6">
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
+              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-4 shadow-xl">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
                   <div>
                     <h2 className="text-base font-extrabold text-white uppercase flex items-center gap-2">
@@ -1430,13 +1430,13 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-[#fe6b00]/10 border border-[#fe6b00]/40 text-[#fe6b00] rounded font-bold text-xs uppercase">
+                    <span className="px-3 py-1 bg-[#fe6b00]/10 border border-[#fe6b00]/40 text-[#fe6b00] rounded-none font-bold text-xs uppercase">
                       SECURE RPC GATE
                     </span>
                     <button
                       onClick={fetchFinanceData}
                       disabled={loading}
-                      className="p-1.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] rounded transition-colors"
+                      className="p-1.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#8e9dae] hover:text-[#00f2ff] rounded-none transition-colors"
                       title="Refresh Queue"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#00f2ff]' : ''}`} />
@@ -1446,23 +1446,23 @@ export default function FinanceDashboardView({ tournaments = [] }) {
 
                 {/* Live Queue Overview KPI Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-                  <div className="p-3 bg-[#07090c] border border-[#3a494b]/60 rounded-lg">
+                  <div className="p-3 bg-[#07090c] border border-[#3a494b]/60 rounded-none">
                     <span className="text-[#8e9dae] text-[10px] uppercase block">Total Requests</span>
                     <span className="text-lg font-black text-white">{adminWithdrawals.length}</span>
                   </div>
-                  <div className="p-3 bg-[#07090c] border border-[#fbbf24]/40 rounded-lg">
+                  <div className="p-3 bg-[#07090c] border border-[#fbbf24]/40 rounded-none">
                     <span className="text-[#fbbf24] text-[10px] uppercase block">Pending Review</span>
                     <span className="text-lg font-black text-[#fbbf24]">
                       {adminWithdrawals.filter((w) => w.status === 'PENDING').length}
                     </span>
                   </div>
-                  <div className="p-3 bg-[#07090c] border border-[#00f2ff]/40 rounded-lg">
+                  <div className="p-3 bg-[#07090c] border border-[#00f2ff]/40 rounded-none">
                     <span className="text-[#00f2ff] text-[10px] uppercase block">Awaiting Disbursement</span>
                     <span className="text-lg font-black text-[#00f2ff]">
                       {adminWithdrawals.filter((w) => w.status === 'APPROVED').length}
                     </span>
                   </div>
-                  <div className="p-3 bg-[#07090c] border border-[#00ff9d]/40 rounded-lg">
+                  <div className="p-3 bg-[#07090c] border border-[#00ff9d]/40 rounded-none">
                     <span className="text-[#00ff9d] text-[10px] uppercase block">Total Disbursed (Paid)</span>
                     <span className="text-lg font-black text-[#00ff9d]">
                       ₹{adminWithdrawals
@@ -1504,7 +1504,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                             </td>
                             <td className="p-3 text-white">{w.user_id?.slice(0, 8)}...</td>
                             <td className="p-3">
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#141620] border border-[#222638] text-[#8e9dae]">
+                              <span className="px-2 py-0.5 rounded-none text-[10px] font-bold uppercase bg-[#141620] border border-[#222638] text-[#8e9dae]">
                                 {w.payout_method === 'BANK_TRANSFER' ? 'BANK' : 'UPI'}
                               </span>
                             </td>
@@ -1515,7 +1515,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                               ₹{Number(w.amount).toFixed(2)}
                             </td>
                             <td className="p-3 text-center">
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                              <span className={`px-2 py-0.5 rounded-none text-[10px] font-bold uppercase border ${
                                 w.status === 'PAID'
                                   ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                                   : w.status === 'APPROVED'
@@ -1545,7 +1545,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                                   <button
                                     onClick={() => handleAdminApprove(w)}
                                     disabled={isProcessingWithdrawal}
-                                    className="px-2.5 py-1 bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 rounded text-[10px] font-bold uppercase cursor-pointer disabled:opacity-50"
+                                    className="px-2.5 py-1 bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 rounded-none text-[10px] font-bold uppercase cursor-pointer disabled:opacity-50"
                                   >
                                     Approve
                                   </button>
@@ -1555,7 +1555,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                                       setShowAdminRejectModal(true)
                                     }}
                                     disabled={isProcessingWithdrawal}
-                                    className="px-2.5 py-1 bg-red-950/60 hover:bg-red-900/60 text-[#ff3366] border border-red-800 rounded text-[10px] font-bold uppercase cursor-pointer disabled:opacity-50"
+                                    className="px-2.5 py-1 bg-red-950/60 hover:bg-red-900/60 text-[#ff3366] border border-red-800 rounded-none text-[10px] font-bold uppercase cursor-pointer disabled:opacity-50"
                                   >
                                     Reject
                                   </button>
@@ -1570,7 +1570,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                                       setShowAdminMarkPaidModal(true)
                                     }}
                                     disabled={isProcessingWithdrawal}
-                                    className="px-2.5 py-1 bg-[#00ff9d] hover:bg-[#00ff9d]/90 text-black font-extrabold rounded text-[10px] uppercase cursor-pointer disabled:opacity-50 shadow-[0_0_10px_rgba(0,255,157,0.3)]"
+                                    className="px-2.5 py-1 bg-[#00ff9d] hover:bg-[#00ff9d]/90 text-black font-extrabold rounded-none text-[10px] uppercase cursor-pointer disabled:opacity-50 shadow-[0_0_10px_rgba(0,255,157,0.3)]"
                                   >
                                     Mark Paid
                                   </button>
@@ -1580,7 +1580,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                                       setShowAdminRejectModal(true)
                                     }}
                                     disabled={isProcessingWithdrawal}
-                                    className="px-2 py-1 bg-red-950/60 hover:bg-red-900/60 text-[#ff3366] border border-red-800 rounded text-[10px] font-bold uppercase cursor-pointer disabled:opacity-50"
+                                    className="px-2 py-1 bg-red-950/60 hover:bg-red-900/60 text-[#ff3366] border border-red-800 rounded-none text-[10px] font-bold uppercase cursor-pointer disabled:opacity-50"
                                   >
                                     Reject
                                   </button>
@@ -1604,7 +1604,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
           {/* TAB 5: RECONCILIATION & ANOMALY DETECTION */}
           {v2Tab === 'reconciliation' && (
             <div className="space-y-6">
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
+              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-4 shadow-xl">
                 <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
                   <div>
                     <h2 className="text-base font-extrabold text-white uppercase flex items-center gap-2">
@@ -1615,7 +1615,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                       Automated cross-check: Registrations ↔ Payments ↔ Wallet Transactions ↔ Prize Pools ↔ Payout Queue.
                     </p>
                   </div>
-                  <span className={`px-3 py-1 rounded font-bold text-xs ${
+                  <span className={`px-3 py-1 rounded-none font-bold text-xs ${
                     reconciliationWarnings.length === 0
                       ? 'bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40'
                       : 'bg-[#fe6b00]/20 text-[#fe6b00] border border-[#fe6b00]/40'
@@ -1625,7 +1625,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                 </div>
 
                 {reconciliationWarnings.length === 0 ? (
-                  <div className="p-8 text-center bg-[#07090c] rounded-xl border border-[#3a494b]/40 space-y-2">
+                  <div className="p-8 text-center bg-[#07090c] rounded-none border border-[#3a494b]/40 space-y-2">
                     <CheckCircle2 className="w-8 h-8 text-[#00ff9d] mx-auto" />
                     <h3 className="text-sm font-bold text-white uppercase">All Ledger Entries Reconciled</h3>
                     <p className="text-xs text-[#8e9dae] max-w-md mx-auto font-sans">
@@ -1635,10 +1635,10 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                 ) : (
                   <div className="space-y-3">
                     {reconciliationWarnings.map((warn) => (
-                      <div key={warn.id} className="p-4 bg-[#07090c] border border-[#fe6b00]/40 rounded-xl flex items-start justify-between gap-4">
+                      <div key={warn.id} className="p-4 bg-[#07090c] border border-[#fe6b00]/40 rounded-none flex items-start justify-between gap-4">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded text-[9px] font-extrabold bg-[#fe6b00]/20 text-[#fe6b00] border border-[#fe6b00]/40">
+                            <span className="px-2 py-0.5 rounded-none text-[9px] font-extrabold bg-[#fe6b00]/20 text-[#fe6b00] border border-[#fe6b00]/40">
                               {warn.severity} SEVERITY
                             </span>
                             <h4 className="font-bold text-white text-xs">{warn.title}</h4>
@@ -1655,21 +1655,21 @@ export default function FinanceDashboardView({ tournaments = [] }) {
               </div>
 
               {/* Idempotency & Double Payment Strategy */}
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-3 shadow-xl">
+              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-3 shadow-xl">
                 <h3 className="text-sm font-extrabold text-white uppercase flex items-center gap-2 border-b border-[#3a494b]/60 pb-3">
                   <Cpu className="w-4 h-4 text-[#00f2ff]" />
                   <span>Idempotency & Double Payment Prevention Strategy</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-sans text-[#8e9dae]">
-                  <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-1">
+                  <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-1">
                     <span className="font-bold text-white font-mono block">1. DEDICATED IDEMPOTENCY KEY COLUMN</span>
                     <p>Database table `payout_queue` enforces UNIQUE index constraint on `idempotency_key` column.</p>
                   </div>
-                  <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-1">
+                  <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-1">
                     <span className="font-bold text-[#00f2ff] font-mono block">2. ROW-LEVEL FOR UPDATE LOCKS</span>
                     <p>PostgreSQL FOR UPDATE locks prevent race conditions during concurrent admin approval attempts.</p>
                   </div>
-                  <div className="p-3 bg-[#07090c] rounded border border-[#00ff9d] font-mono block">
+                  <div className="p-3 bg-[#07090c] rounded-none border border-[#00ff9d] font-mono block">
                     <span className="font-bold text-[#00ff9d] block">3. IMMUTABLE APPROVED AMOUNTS</span>
                     <p>Approved payout amounts cannot be modified. Any alteration requires cancellation & re-creation.</p>
                   </div>
@@ -1681,7 +1681,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
           {/* TAB 6: TRANSACTION LEDGER & SECURITY AUDIT */}
           {v2Tab === 'audit' && (
             <div className="space-y-6">
-              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
+              <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 space-y-4 shadow-xl">
                 <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
                   <div>
                     <h2 className="text-base font-extrabold text-white uppercase flex items-center gap-2">
@@ -1692,13 +1692,13 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                       Immutable wallet_transactions & payout_queue table audit with PostgreSQL RLS security verification.
                     </p>
                   </div>
-                  <span className="px-3 py-1 bg-[#00ff9d]/10 border border-[#00ff9d]/40 text-[#00ff9d] rounded font-bold text-xs">
+                  <span className="px-3 py-1 bg-[#00ff9d]/10 border border-[#00ff9d]/40 text-[#00ff9d] rounded-none font-bold text-xs">
                     RLS ENFORCED
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans">
-                  <div className="p-4 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-2">
+                  <div className="p-4 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-2">
                     <h4 className="font-bold text-white font-mono uppercase flex items-center gap-2">
                       <Lock className="w-4 h-4 text-[#00f2ff]" />
                       <span>PostgreSQL RLS Policies Summary</span>
@@ -1723,7 +1723,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-2">
+                  <div className="p-4 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-2">
                     <h4 className="font-bold text-white font-mono uppercase flex items-center gap-2">
                       <Database className="w-4 h-4 text-[#fe6b00]" />
                       <span>SECURITY DEFINER RPC Inventory</span>
@@ -1781,7 +1781,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                               ₹{Number(tx.amount).toFixed(2)}
                             </td>
                             <td className="p-3 text-center">
-                              <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40">
+                              <span className="px-2 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40">
                                 {tx.status}
                               </span>
                             </td>
@@ -1803,10 +1803,10 @@ export default function FinanceDashboardView({ tournaments = [] }) {
       {/* 3. MODAL FOR REVIEWING / APPROVING PAYOUT PROPOSALS */}
       {selectedPayoutItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-          <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-none max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
             <button
               onClick={() => setSelectedPayoutItem(null)}
-              className="absolute top-5 right-5 p-2 rounded bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
+              className="absolute top-5 right-5 p-2 rounded-none bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1817,7 +1817,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
             </h3>
 
             <div className="space-y-3 font-mono text-xs">
-              <div className="p-3 bg-[#07090c] rounded border border-[#3a494b]/60 space-y-1">
+              <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-1">
                 <p className="text-[#8e9dae]">Tournament: <span className="text-white font-bold">{selectedPayoutItem.tournamentTitle}</span></p>
                 <p className="text-[#8e9dae]">Winner Team / IGN: <span className="text-[#00f2ff] font-bold">{selectedPayoutItem.winnerTeam}</span></p>
                 <p className="text-[#8e9dae]">Winner Game UID: <span className="text-white font-bold">{selectedPayoutItem.winnerGameUid}</span></p>
@@ -1832,7 +1832,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   <button
                     onClick={() => handleCreateProposal(selectedPayoutItem)}
                     disabled={isProcessingAction}
-                    className="w-full py-3 bg-[#00f2ff] hover:bg-cyan-300 text-black font-bold uppercase rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full py-3 bg-[#00f2ff] hover:bg-cyan-300 text-black font-bold uppercase rounded-none transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     <Send className="w-4 h-4" />
                     <span>Create Payout Queue Entry (PENDING_REVIEW)</span>
@@ -1843,7 +1843,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   <button
                     onClick={() => handleRequestOwnerApproval(selectedPayoutItem.id)}
                     disabled={isProcessingAction}
-                    className="w-full py-3 bg-[#fe6b00] hover:bg-orange-600 text-white font-bold uppercase rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full py-3 bg-[#fe6b00] hover:bg-orange-600 text-white font-bold uppercase rounded-none transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     <Lock className="w-4 h-4" />
                     <span>Request Owner Approval (Lock Amount)</span>
@@ -1855,13 +1855,13 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                     <button
                       onClick={() => handleApprovePayout(selectedPayoutItem.id, selectedPayoutItem.approvalRequestId)}
                       disabled={isProcessingAction}
-                      className="w-full py-3 bg-[#00ff9d] hover:bg-emerald-400 text-black font-extrabold uppercase rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-[0_0_15px_rgba(0,255,157,0.3)]"
+                      className="w-full py-3 bg-[#00ff9d] hover:bg-emerald-400 text-black font-extrabold uppercase rounded-none transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-[0_0_15px_rgba(0,255,157,0.3)]"
                     >
                       <Crown className="w-4 h-4" />
                       <span>Approve Payout (Owner Role Only)</span>
                     </button>
                   ) : (
-                    <div className="p-3 bg-orange-950/40 border border-[#fe6b00]/50 rounded text-center space-y-1">
+                    <div className="p-3 bg-orange-950/40 border border-[#fe6b00]/50 rounded-none text-center space-y-1">
                       <span className="text-[#fe6b00] font-bold block uppercase flex items-center justify-center gap-1">
                         <Lock className="w-3.5 h-3.5" />
                         OWNER APPROVAL REQUIRED
@@ -1877,7 +1877,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   <button
                     onClick={() => setShowRejectModal(true)}
                     disabled={isProcessingAction}
-                    className="w-full py-2.5 bg-red-950/60 hover:bg-red-900/60 text-[#ff3366] border border-red-800 font-bold uppercase rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full py-2.5 bg-red-950/60 hover:bg-red-900/60 text-[#ff3366] border border-red-800 font-bold uppercase rounded-none transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     <Ban className="w-4 h-4" />
                     <span>Reject / Cancel Payout Proposal</span>
@@ -1886,7 +1886,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
 
                 <button
                   onClick={() => setSelectedPayoutItem(null)}
-                  className="w-full py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded text-xs font-bold uppercase transition-colors"
+                  className="w-full py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded-none text-xs font-bold uppercase transition-colors"
                 >
                   Close Review
                 </button>
@@ -1899,7 +1899,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
       {/* 4. MODAL FOR REJECTING PAYOUT PROPOSAL */}
       {showRejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-          <div className="bg-[#151a21] border border-red-800 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+          <div className="bg-[#151a21] border border-red-800 rounded-none max-w-md w-full p-6 space-y-4 shadow-2xl relative">
             <h3 className="text-base font-extrabold text-[#ff3366] uppercase flex items-center gap-2 border-b border-[#3a494b]/60 pb-3">
               <Ban className="w-5 h-5" />
               <span>Reject Payout Proposal</span>
@@ -1911,20 +1911,20 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                 value={rejectionReasonInput}
                 onChange={(e) => setRejectionReasonInput(e.target.value)}
                 placeholder="Reason for rejection (e.g. Disqualified for cheating, incorrect UID, invalid placement)..."
-                className="w-full bg-[#07090c] border border-[#3a494b] rounded p-3 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-red-500 min-h-[90px]"
+                className="w-full bg-[#07090c] border border-[#3a494b] rounded-none p-3 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-red-500 min-h-[90px]"
               />
 
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setShowRejectModal(false)}
-                  className="flex-1 py-2.5 bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded text-xs font-bold uppercase"
+                  className="flex-1 py-2.5 bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded-none text-xs font-bold uppercase"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleRejectPayoutSubmit}
                   disabled={isProcessingAction}
-                  className="flex-1 py-2.5 bg-red-950 hover:bg-red-900 text-[#ff3366] border border-red-800 rounded text-xs font-extrabold uppercase shadow-lg disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-red-950 hover:bg-red-900 text-[#ff3366] border border-red-800 rounded-none text-xs font-extrabold uppercase shadow-lg disabled:opacity-50"
                 >
                   Confirm Rejection
                 </button>
@@ -1937,7 +1937,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
       {/* 5. MODAL FOR REJECTING PLAYER WALLET WITHDRAWAL (PHASE 10.2) */}
       {showAdminRejectModal && selectedWithdrawalForAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md font-mono">
-          <div className="bg-[#151a21] border border-red-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+          <div className="bg-[#151a21] border border-red-800 rounded-none max-w-md w-full p-6 space-y-4 shadow-2xl relative">
             <button
               onClick={() => {
                 setShowAdminRejectModal(false)
@@ -1945,7 +1945,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                 setAdminRejectReasonInput('')
               }}
               disabled={isProcessingWithdrawal}
-              className="absolute top-4 right-4 p-1.5 text-[#8e9dae] hover:text-white rounded-lg bg-[#07090c] border border-[#3a494b] transition-colors"
+              className="absolute top-4 right-4 p-1.5 text-[#8e9dae] hover:text-white rounded-none bg-[#07090c] border border-[#3a494b] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1956,14 +1956,14 @@ export default function FinanceDashboardView({ tournaments = [] }) {
             </h3>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-1">
+              <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-1">
                 <p className="text-[#8e9dae]">Request ID: <span className="text-white font-bold">{selectedWithdrawalForAction.id}</span></p>
                 <p className="text-[#8e9dae]">Amount: <span className="text-[#fe6b00] font-bold text-sm">₹{Number(selectedWithdrawalForAction.amount).toFixed(2)}</span></p>
                 <p className="text-[#8e9dae]">Channel: <span className="text-white uppercase font-bold">{selectedWithdrawalForAction.payout_method}</span></p>
                 <p className="text-[#8e9dae]">Details: <span className="text-white font-sans">{formatAdminPayoutDetails(selectedWithdrawalForAction.payout_method, selectedWithdrawalForAction.payout_details)}</span></p>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-red-950/40 border border-red-900/50 text-[#ff3366] text-[11px] font-sans">
+              <div className="p-2.5 rounded-none bg-red-950/40 border border-red-900/50 text-[#ff3366] text-[11px] font-sans">
                 <strong>ATOMIC REVERSAL:</strong> Rejection will immediately reverse the withdrawal debit and credit the full amount back to the player's wallet balance.
               </div>
 
@@ -1976,7 +1976,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   onChange={(e) => setAdminRejectReasonInput(e.target.value)}
                   placeholder="e.g. Invalid UPI VPA, Bank account verification failed, Suspicious activity..."
                   required
-                  className="w-full bg-[#07090c] border border-[#3a494b] rounded-xl p-3 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-red-500 min-h-[80px]"
+                  className="w-full bg-[#07090c] border border-[#3a494b] rounded-none p-3 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-red-500 min-h-[80px]"
                 />
               </div>
 
@@ -1989,7 +1989,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                     setAdminRejectReasonInput('')
                   }}
                   disabled={isProcessingWithdrawal}
-                  className="flex-1 py-2.5 bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded-xl text-xs font-bold uppercase transition-colors cursor-pointer"
+                  className="flex-1 py-2.5 bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded-none text-xs font-bold uppercase transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1997,7 +1997,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   type="button"
                   onClick={handleAdminRejectSubmit}
                   disabled={isProcessingWithdrawal || !adminRejectReasonInput.trim()}
-                  className="flex-1 py-2.5 bg-red-950 hover:bg-red-900 text-[#ff3366] border border-red-800 rounded-xl text-xs font-extrabold uppercase shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2.5 bg-red-950 hover:bg-red-900 text-[#ff3366] border border-red-800 rounded-none text-xs font-extrabold uppercase shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   {isProcessingWithdrawal ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -2014,7 +2014,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
       {/* 6. MODAL FOR MARKING WITHDRAWAL AS PAID (UTR REQUIRED, PHASE 10.2) */}
       {showAdminMarkPaidModal && selectedWithdrawalForAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md font-mono">
-          <div className="bg-[#151a21] border border-[#00ff9d]/50 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+          <div className="bg-[#151a21] border border-[#00ff9d]/50 rounded-none max-w-md w-full p-6 space-y-4 shadow-2xl relative">
             <button
               onClick={() => {
                 setShowAdminMarkPaidModal(false)
@@ -2023,7 +2023,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                 setAdminNotesInput('')
               }}
               disabled={isProcessingWithdrawal}
-              className="absolute top-4 right-4 p-1.5 text-[#8e9dae] hover:text-white rounded-lg bg-[#07090c] border border-[#3a494b] transition-colors"
+              className="absolute top-4 right-4 p-1.5 text-[#8e9dae] hover:text-white rounded-none bg-[#07090c] border border-[#3a494b] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -2034,14 +2034,14 @@ export default function FinanceDashboardView({ tournaments = [] }) {
             </h3>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 bg-[#07090c] rounded-xl border border-[#3a494b]/60 space-y-1">
+              <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 space-y-1">
                 <p className="text-[#8e9dae]">Request ID: <span className="text-white font-bold">{selectedWithdrawalForAction.id}</span></p>
                 <p className="text-[#8e9dae]">Payable Amount: <span className="text-[#00ff9d] font-bold text-sm">₹{Number(selectedWithdrawalForAction.amount).toFixed(2)}</span></p>
                 <p className="text-[#8e9dae]">Channel: <span className="text-white uppercase font-bold">{selectedWithdrawalForAction.payout_method}</span></p>
                 <p className="text-[#8e9dae]">Destination: <span className="text-white font-sans">{formatAdminPayoutDetails(selectedWithdrawalForAction.payout_method, selectedWithdrawalForAction.payout_details)}</span></p>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-[#00ff9d]/10 border border-[#00ff9d]/30 text-[#00ff9d] text-[11px] font-sans">
+              <div className="p-2.5 rounded-none bg-[#00ff9d]/10 border border-[#00ff9d]/30 text-[#00ff9d] text-[11px] font-sans">
                 <strong>EXTERNAL SETTLEMENT:</strong> Confirm that the manual bank transfer or UPI payment has succeeded in your banking portal before recording the UTR reference.
               </div>
 
@@ -2055,7 +2055,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   onChange={(e) => setAdminPaymentRefInput(e.target.value)}
                   placeholder="e.g. UTR492819284918, CMS2918239"
                   required
-                  className="w-full bg-[#07090c] border border-[#3a494b] rounded-xl px-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00ff9d] font-mono"
+                  className="w-full bg-[#07090c] border border-[#3a494b] rounded-none px-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00ff9d] font-mono"
                 />
               </div>
 
@@ -2068,7 +2068,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   value={adminNotesInput}
                   onChange={(e) => setAdminNotesInput(e.target.value)}
                   placeholder="e.g. Processed via HDFC Corporate NetBanking"
-                  className="w-full bg-[#07090c] border border-[#3a494b] rounded-xl px-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00ff9d] font-sans"
+                  className="w-full bg-[#07090c] border border-[#3a494b] rounded-none px-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00ff9d] font-sans"
                 />
               </div>
 
@@ -2082,7 +2082,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                     setAdminNotesInput('')
                   }}
                   disabled={isProcessingWithdrawal}
-                  className="flex-1 py-2.5 bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded-xl text-xs font-bold uppercase transition-colors cursor-pointer"
+                  className="flex-1 py-2.5 bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded-none text-xs font-bold uppercase transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -2090,7 +2090,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   type="button"
                   onClick={handleAdminMarkPaidSubmit}
                   disabled={isProcessingWithdrawal || !adminPaymentRefInput.trim()}
-                  className="flex-1 py-2.5 bg-[#00ff9d] hover:bg-emerald-400 text-black font-black uppercase rounded-xl text-xs shadow-[0_0_15px_rgba(0,255,157,0.3)] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2.5 bg-[#00ff9d] hover:bg-emerald-400 text-black font-black uppercase rounded-none text-xs shadow-[0_0_15px_rgba(0,255,157,0.3)] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   {isProcessingWithdrawal ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />

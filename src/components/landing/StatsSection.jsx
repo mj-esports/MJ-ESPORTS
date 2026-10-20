@@ -36,7 +36,7 @@ export default function StatsSection() {
             const Icon = stat.icon
             return (
               <div key={idx} className="text-center space-y-2">
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-950 border border-slate-800 mb-2">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-none bg-slate-950 border border-slate-800 mb-2">
                   <Icon className={`w-5 h-5 ${stat.color}`} />
                 </div>
                 <div className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${stat.color}`}>

@@ -126,7 +126,7 @@ export default function EntryPrizeSystem({
 
   if (readOnly) {
     return (
-      <div className="bg-[#07090c] border border-[#3a494b]/60 rounded-2xl p-6 space-y-4 text-white font-mono text-xs shadow-xl">
+      <div className="bg-[#07090c] border border-[#3a494b]/60 rounded-none p-6 space-y-4 text-white font-mono text-xs shadow-xl">
         <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-3">
           <div className="flex items-center gap-2 text-[#00f2ff]">
             <Trophy className="w-5 h-5 text-[#ffd700]" />
@@ -134,20 +134,20 @@ export default function EntryPrizeSystem({
               Registration, Payment & Prize Overview
             </h3>
           </div>
-          <span className="px-3 py-1 rounded-full text-[10px] font-black bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
+          <span className="px-3 py-1 rounded-none text-[10px] font-black bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase">
             {localPaymentEnabled ? 'Paid Entry' : 'Free Entry'}
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-1">
+          <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-none space-y-1">
             <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Entry Fee</span>
             <span className="text-[#00f2ff] font-bold text-sm block">
               {!localPaymentEnabled || localEntryFee === 0 ? 'Free' : `₹${localEntryFee}`}
             </span>
           </div>
 
-          <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-1">
+          <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-none space-y-1">
             <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Capacity</span>
             <span className="text-white font-bold text-sm block">
               {localSlots} {defaultCap.teamUnit}
@@ -157,14 +157,14 @@ export default function EntryPrizeSystem({
             </span>
           </div>
 
-          <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-1">
+          <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-none space-y-1">
             <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Prize Type</span>
             <span className="text-[#fe6b00] font-bold text-xs block uppercase">
               {localPrizeType.replace('_', ' ')}
             </span>
           </div>
 
-          <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-xl space-y-1">
+          <div className="p-3 bg-[#151a21] border border-[#3a494b]/60 rounded-none space-y-1">
             <span className="text-[10px] text-[#8e9dae] uppercase font-bold block">Est. Total Prize</span>
             <span className="text-[#00ff9d] font-extrabold text-sm block">₹{estimatedTotalPrize.toLocaleString()}</span>
           </div>
@@ -176,13 +176,13 @@ export default function EntryPrizeSystem({
   return (
     <div className="space-y-6 text-white font-mono text-xs">
       {/* SECTION 1: REGISTRATION & SLOTS */}
-      <div className="p-5 bg-[#07090c] border border-[#00f2ff]/30 rounded-2xl space-y-4 shadow-inner">
+      <div className="p-5 bg-[#07090c] border border-[#00f2ff]/30 rounded-none space-y-4 shadow-inner">
         <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2.5">
           <span className="text-xs font-bold text-[#00f2ff] uppercase flex items-center gap-2 font-headline">
             <Users className="w-4 h-4 text-[#00f2ff]" />
             <span>Section 1: Registration, Slots & Approvals</span>
           </span>
-          <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase font-mono">
+          <span className="px-2 py-0.5 rounded-none text-[9px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 uppercase font-mono">
             {defaultCap.roomCap} Max Room
           </span>
         </div>
@@ -198,7 +198,7 @@ export default function EntryPrizeSystem({
               disabled={!localPaymentEnabled}
               value={localPaymentEnabled ? (localEntryFee === 0 ? '' : localEntryFee) : 'Free Entry'}
               onChange={(e) => setLocalEntryFee(parseNum(e.target.value, 0))}
-              className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
+              className={`w-full bg-[#151a21] border rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none ${
                 !localPaymentEnabled
                   ? 'opacity-60 cursor-not-allowed border-[#3a494b]'
                   : errors.entryFee ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#00f2ff]'
@@ -224,12 +224,12 @@ export default function EntryPrizeSystem({
               max="500"
               value={localSlots}
               onChange={(e) => setLocalSlots(Math.max(1, parseNum(e.target.value, defaultCap.maxTeams)))}
-              className={`w-full bg-[#151a21] border rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none ${
+              className={`w-full bg-[#151a21] border rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none ${
                 errors.maxTeams ? 'border-red-500 bg-red-500/10' : 'border-[#3a494b] focus:border-[#00ff9d]'
               }`}
             />
             {/* Live Capacity Info Banner */}
-            <div className="p-2.5 bg-[#151a21] border border-[#3a494b]/60 rounded-lg flex items-center justify-between text-[10px] font-mono">
+            <div className="p-2.5 bg-[#151a21] border border-[#3a494b]/60 rounded-none flex items-center justify-between text-[10px] font-mono">
               <span className="text-[#8e9dae] flex items-center gap-1">
                 <Users className="w-3 h-3 text-[#00f2ff]" />
                 <span>{localSlots} Complete {defaultCap.teamUnit}</span>
@@ -250,7 +250,7 @@ export default function EntryPrizeSystem({
               <button
                 type="button"
                 onClick={() => setLocalApproval('Automatic')}
-                className={`py-2.5 px-3 rounded-xl border text-xs font-bold uppercase transition-all cursor-pointer ${
+                className={`py-2.5 px-3 rounded-none border text-xs font-bold uppercase transition-all cursor-pointer ${
                   localApproval === 'Automatic'
                     ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff]'
                     : 'bg-[#151a21] text-[#8e9dae] border-[#3a494b]'
@@ -261,7 +261,7 @@ export default function EntryPrizeSystem({
               <button
                 type="button"
                 onClick={() => setLocalApproval('Manual')}
-                className={`py-2.5 px-3 rounded-xl border text-xs font-bold uppercase transition-all cursor-pointer ${
+                className={`py-2.5 px-3 rounded-none border text-xs font-bold uppercase transition-all cursor-pointer ${
                   localApproval === 'Manual'
                     ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff]'
                     : 'bg-[#151a21] text-[#8e9dae] border-[#3a494b]'
@@ -273,7 +273,7 @@ export default function EntryPrizeSystem({
           </div>
 
           {/* Allow Waitlist Toggle */}
-          <div className="space-y-1.5 sm:col-span-2 lg:col-span-3 flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[#151a21] border border-[#3a494b]/60 rounded-xl gap-3">
+          <div className="space-y-1.5 sm:col-span-2 lg:col-span-3 flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[#151a21] border border-[#3a494b]/60 rounded-none gap-3">
             <div>
               <span className="text-xs font-bold text-white uppercase tracking-wide block">Allow Waitlist</span>
               <span className="text-[10px] text-[#8e9dae] block">Automatically queue teams when total slots are full.</span>
@@ -281,7 +281,7 @@ export default function EntryPrizeSystem({
             <button
               type="button"
               onClick={() => setLocalAllowWaitlist(!localAllowWaitlist)}
-              className={`px-4 py-2 rounded-xl border text-xs font-extrabold uppercase transition-all cursor-pointer flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-none border text-xs font-extrabold uppercase transition-all cursor-pointer flex items-center gap-2 ${
                 localAllowWaitlist
                   ? 'bg-[#00ff9d]/20 text-[#00ff9d] border-[#00ff9d]'
                   : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b]'
@@ -304,7 +304,7 @@ export default function EntryPrizeSystem({
                 max="100"
                 value={localMaxWaitlist}
                 onChange={(e) => setLocalMaxWaitlist(Math.max(1, parseNum(e.target.value, 10)))}
-                className="w-full bg-[#151a21] border border-[#00ff9d]/40 rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none focus:border-[#00ff9d]"
+                className="w-full bg-[#151a21] border border-[#00ff9d]/40 rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none focus:border-[#00ff9d]"
                 placeholder="e.g. 10"
               />
             </div>
@@ -314,7 +314,7 @@ export default function EntryPrizeSystem({
       </div>
 
       {/* SECTION 2: PAYMENT SETTINGS */}
-      <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
+      <div className="bg-[#0b0e14] p-5 rounded-none border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
         <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-3">
           <div className="flex items-center gap-2 text-[#00f2ff]">
             <CreditCard className="w-4.5 h-4.5" />
@@ -326,7 +326,7 @@ export default function EntryPrizeSystem({
         </div>
 
         {/* Large Toggle: Payment Enabled */}
-        <div className="p-4 bg-[#151a21] border border-[#3a494b]/60 rounded-xl flex items-center justify-between">
+        <div className="p-4 bg-[#151a21] border border-[#3a494b]/60 rounded-none flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-white uppercase tracking-wide block">Payment Status</span>
             <span className="text-[10px] text-[#8e9dae] block">
@@ -340,7 +340,7 @@ export default function EntryPrizeSystem({
               setLocalPaymentEnabled(nextState)
               if (!nextState) setLocalEntryFee(0)
             }}
-            className={`px-5 py-2.5 rounded-xl border text-xs font-extrabold uppercase transition-all cursor-pointer flex items-center gap-2 min-h-[44px] ${
+            className={`px-5 py-2.5 rounded-none border text-xs font-extrabold uppercase transition-all cursor-pointer flex items-center gap-2 min-h-[44px] ${
               localPaymentEnabled
                 ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff] shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                 : 'bg-[#07090c] text-[#8e9dae] border-[#3a494b]'
@@ -353,14 +353,14 @@ export default function EntryPrizeSystem({
 
         {/* Payment Gateway Options (Visible when Payment Enabled is ON) */}
         {localPaymentEnabled && (
-          <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-xl space-y-2">
+          <div className="p-4 bg-[#07090c] border border-[#00f2ff]/30 rounded-none space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-[11px] font-bold text-[#00f2ff] uppercase block">
                 Payment Gateway
               </label>
               <span className="text-[10px] text-[#8e9dae]">Razorpay Active</span>
             </div>
-            <div className="p-3 bg-[#151a21] border border-[#00f2ff]/40 rounded-xl flex items-center justify-between text-xs text-white">
+            <div className="p-3 bg-[#151a21] border border-[#00f2ff]/40 rounded-none flex items-center justify-between text-xs text-white">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#00f2ff]" />
                 <span className="font-bold">Razorpay UPI & Cards</span>
@@ -375,7 +375,7 @@ export default function EntryPrizeSystem({
       </div>
 
       {/* SECTION 3: PRIZE TYPE (RADIO CARDS) */}
-      <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
+      <div className="bg-[#0b0e14] p-5 rounded-none border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
         <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-3">
           <div className="flex items-center gap-2 text-[#00f2ff]">
             <Trophy className="w-4.5 h-4.5 text-[#ffd700]" />
@@ -396,7 +396,7 @@ export default function EntryPrizeSystem({
                 key={`prize-type-${pt.id}`}
                 type="button"
                 onClick={() => setLocalPrizeType(pt.id)}
-                className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-3.5 ${
+                className={`p-4 rounded-none border text-left transition-all cursor-pointer flex flex-col justify-between space-y-3.5 ${
                   isSelected
                     ? 'bg-[#00f2ff]/10 border-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.2)]'
                     : 'bg-[#151a21] border-[#3a494b] hover:border-[#00f2ff]/40'
@@ -404,10 +404,10 @@ export default function EntryPrizeSystem({
               >
                 <div className="flex items-center justify-between">
                   <Icon className={`w-5 h-5 ${isSelected ? 'text-[#00f2ff]' : 'text-[#8e9dae]'}`} />
-                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                  <div className={`w-4 h-4 rounded-none border flex items-center justify-center ${
                     isSelected ? 'border-[#00f2ff] bg-[#00f2ff]' : 'border-[#3a494b]'
                   }`}>
-                    {isSelected && <div className="w-2 h-2 rounded-full bg-black" />}
+                    {isSelected && <div className="w-2 h-2 rounded-none bg-black" />}
                   </div>
                 </div>
 
@@ -426,7 +426,7 @@ export default function EntryPrizeSystem({
       </div>
 
       {/* SECTION 4: PRIZE CONFIGURATION */}
-      <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
+      <div className="bg-[#0b0e14] p-5 rounded-none border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-4">
         <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-3">
           <div className="flex items-center gap-2 text-[#00f2ff]">
             <Trophy className="w-4 h-4" />
@@ -450,7 +450,7 @@ export default function EntryPrizeSystem({
                 min="1"
                 value={localPrizes.winnerPrize}
                 onChange={(e) => setLocalPrizes((p) => ({ ...p, winnerPrize: parseNum(e.target.value, 0) }))}
-                className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#ffd700] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#ffd700] rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none"
               />
             </div>
           )}
@@ -466,7 +466,7 @@ export default function EntryPrizeSystem({
                 min="1"
                 value={localPerKill}
                 onChange={(e) => setLocalPerKill(parseNum(e.target.value, 0))}
-                className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#fe6b00] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#fe6b00] rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none"
               />
             </div>
           )}
@@ -484,7 +484,7 @@ export default function EntryPrizeSystem({
                     min="1"
                     value={localPerKill}
                     onChange={(e) => setLocalPerKill(parseNum(e.target.value, 0))}
-                    className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#fe6b00] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                    className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#fe6b00] rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none"
                   />
                 </div>
               )}
@@ -499,7 +499,7 @@ export default function EntryPrizeSystem({
                   min="1"
                   value={localPrizes.firstPrize}
                   onChange={(e) => setLocalPrizes((p) => ({ ...p, firstPrize: parseNum(e.target.value, 0) }))}
-                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#ffd700] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#ffd700] rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none"
                 />
               </div>
 
@@ -513,7 +513,7 @@ export default function EntryPrizeSystem({
                   min="0"
                   value={localPrizes.secondPrize}
                   onChange={(e) => setLocalPrizes((p) => ({ ...p, secondPrize: parseNum(e.target.value, 0) }))}
-                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#c0c0c0] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#c0c0c0] rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none"
                 />
               </div>
 
@@ -527,7 +527,7 @@ export default function EntryPrizeSystem({
                   min="0"
                   value={localPrizes.thirdPrize}
                   onChange={(e) => setLocalPrizes((p) => ({ ...p, thirdPrize: parseNum(e.target.value, 0) }))}
-                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#cd7f32] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#cd7f32] rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none"
                 />
               </div>
 
@@ -541,7 +541,7 @@ export default function EntryPrizeSystem({
                   min="0"
                   value={localPrizes.fourthPrize}
                   onChange={(e) => setLocalPrizes((p) => ({ ...p, fourthPrize: parseNum(e.target.value, 0) }))}
-                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#00f2ff] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#00f2ff] rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none"
                 />
               </div>
 
@@ -555,7 +555,7 @@ export default function EntryPrizeSystem({
                   min="0"
                   value={localPrizes.fifthPrize}
                   onChange={(e) => setLocalPrizes((p) => ({ ...p, fifthPrize: parseNum(e.target.value, 0) }))}
-                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#00f2ff] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                  className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#00f2ff] rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none"
                 />
               </div>
 
@@ -570,7 +570,7 @@ export default function EntryPrizeSystem({
                     min="0"
                     value={localPrizes.mvpBonus}
                     onChange={(e) => setLocalPrizes((p) => ({ ...p, mvpBonus: parseNum(e.target.value, 0) }))}
-                    className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#00ff9d] rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none"
+                    className="w-full bg-[#151a21] border border-[#3a494b] focus:border-[#00ff9d] rounded-none px-3.5 py-2.5 text-white text-xs focus:outline-none"
                   />
                 </div>
               )}
@@ -581,7 +581,7 @@ export default function EntryPrizeSystem({
       </div>
 
       {/* SECTION 5: LIVE SUMMARY */}
-      <div className="bg-[#0b0e14] p-5 rounded-2xl border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-3">
+      <div className="bg-[#0b0e14] p-5 rounded-none border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.05)] space-y-3">
         <div className="flex items-center justify-between border-b border-[#3a494b]/50 pb-2.5">
           <span className="font-headline text-xs font-black uppercase text-[#00f2ff] flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#00f2ff]" />
@@ -609,7 +609,7 @@ export default function EntryPrizeSystem({
             </strong>
           </div>
 
-          <div className="col-span-2 sm:col-span-3 lg:col-span-4 p-3 bg-[#151a21] border border-[#00ff9d]/30 rounded-xl flex items-center justify-between mt-1">
+          <div className="col-span-2 sm:col-span-3 lg:col-span-4 p-3 bg-[#151a21] border border-[#00ff9d]/30 rounded-none flex items-center justify-between mt-1">
             <span className="text-xs text-[#8e9dae] uppercase font-bold">Estimated Total Prize Pool</span>
             <span className="text-base font-black text-[#00ff9d]">₹{estimatedTotalPrize.toLocaleString()}</span>
           </div>

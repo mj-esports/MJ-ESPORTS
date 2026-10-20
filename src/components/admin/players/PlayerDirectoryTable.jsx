@@ -44,7 +44,7 @@ export default function PlayerDirectoryTable({ users = [], onSelectPlayer, onUpd
     <div className="space-y-4 font-mono">
 
       {/* Search & Filter Controls */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 shadow-xl flex flex-col md:flex-row items-center justify-between gap-3">
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -52,12 +52,12 @@ export default function PlayerDirectoryTable({ users = [], onSelectPlayer, onUpd
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search Username, Email, Game UID..."
-            className="w-full bg-[#07090c] border border-[#3a494b] rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:border-[#00f2ff] focus:outline-none"
+            className="w-full bg-[#07090c] border border-[#3a494b] rounded-none pl-9 pr-3 py-2 text-xs text-white placeholder-[#8e9dae] focus:border-[#00f2ff] focus:outline-none"
           />
         </div>
 
         <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
-          <div className="flex items-center gap-1 bg-[#07090c] border border-[#3a494b] rounded-lg px-3 py-1.5 text-xs text-white">
+          <div className="flex items-center gap-1 bg-[#07090c] border border-[#3a494b] rounded-none px-3 py-1.5 text-xs text-white">
             <Gamepad2 className="w-3.5 h-3.5 text-[#00f2ff]" />
             <select
               value={gameFilter}
@@ -70,7 +70,7 @@ export default function PlayerDirectoryTable({ users = [], onSelectPlayer, onUpd
             </select>
           </div>
 
-          <div className="flex items-center gap-1 bg-[#07090c] border border-[#3a494b] rounded-lg px-3 py-1.5 text-xs text-white">
+          <div className="flex items-center gap-1 bg-[#07090c] border border-[#3a494b] rounded-none px-3 py-1.5 text-xs text-white">
             <Filter className="w-3.5 h-3.5 text-[#00f2ff]" />
             <select
               value={statusFilter}
@@ -89,7 +89,7 @@ export default function PlayerDirectoryTable({ users = [], onSelectPlayer, onUpd
       </div>
 
       {/* Directory Table */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl overflow-hidden shadow-xl">
+      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-[#07090c] border-b border-[#3a494b]/60 text-[#8e9dae] uppercase text-[10px] tracking-wider">
@@ -125,7 +125,7 @@ export default function PlayerDirectoryTable({ users = [], onSelectPlayer, onUpd
                     <tr key={u.id} className="hover:bg-[#07090c]/50 transition-colors">
                       <td className="p-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-[#07090c] border border-[#3a494b] flex items-center justify-center text-[#00f2ff] font-bold">
+                          <div className="w-7 h-7 rounded-none bg-[#07090c] border border-[#3a494b] flex items-center justify-center text-[#00f2ff] font-bold">
                             {(u.username || 'P')[0].toUpperCase()}
                           </div>
                           <div>
@@ -145,7 +145,7 @@ export default function PlayerDirectoryTable({ users = [], onSelectPlayer, onUpd
                       </td>
 
                       <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${statusColor}`}>
+                        <span className={`px-2 py-0.5 rounded-none text-[9px] font-bold border ${statusColor}`}>
                           {status}
                         </span>
                       </td>
@@ -157,7 +157,7 @@ export default function PlayerDirectoryTable({ users = [], onSelectPlayer, onUpd
                       <td className="p-3 text-right">
                         <button
                           onClick={() => onSelectPlayer(u)}
-                          className="px-2.5 py-1 bg-[#07090c] hover:bg-[#00f2ff] text-[#00f2ff] hover:text-black border border-[#00f2ff]/30 rounded text-[10px] font-bold uppercase transition-all"
+                          className="px-2.5 py-1 bg-[#07090c] hover:bg-[#00f2ff] text-[#00f2ff] hover:text-black border border-[#00f2ff]/30 rounded-none text-[10px] font-bold uppercase transition-all"
                         >
                           INSPECT
                         </button>

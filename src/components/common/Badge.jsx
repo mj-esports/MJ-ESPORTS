@@ -17,24 +17,24 @@ export default function Badge({
   }
 
   const variantStyles = {
-    live: 'bg-[#ff5e07]/15 text-[#ff5e07] border border-[#ff5e07]/40 font-headline',
-    primary: 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30',
-    secondary: 'bg-[#ff5e07]/10 text-[#ff5e07] border border-[#ff5e07]/30',
+    live: 'bg-[#FF6200]/15 text-[#FF6200] border border-[#FF6200]/40 font-headline',
+    primary: 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30',
+    secondary: 'bg-[#FF6200]/10 text-[#FF6200] border border-[#FF6200]/30',
     success: 'bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30',
-    warning: 'bg-[#fed83a]/10 text-[#fed83a] border border-[#fed83a]/30',
-    danger: 'bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30',
-    outline: 'bg-[#141416] text-[#b9cacb] border border-[#27272a]',
-    default: 'bg-[#201f20] text-[#e5e2e3] border border-[#27272a]'
+    warning: 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30',
+    danger: 'bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30',
+    outline: 'bg-[#111318] text-[#A3A3A3] border border-[#2A2A30]',
+    default: 'bg-[#1B1B1F] text-[#FFFFFF] border border-[#2A2A30]'
   }
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-bold uppercase rounded font-label-bold transition-colors ${
+      className={`inline-flex items-center gap-1.5 font-bold uppercase rounded-none font-label-bold transition-colors ${
         sizeStyles[size] || sizeStyles.md
       } ${variantStyles[variant] || variantStyles.default} ${className}`}
     >
       {variant === 'live' && (
-        <span className="w-1.5 h-1.5 rounded-full bg-[#ff5e07] animate-ping" />
+        <span className="w-1.5 h-1.5 rounded-none bg-[#FF6200] animate-ping" />
       )}
       {Icon && <Icon className="w-3 h-3" />}
       {children}

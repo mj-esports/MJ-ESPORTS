@@ -32,29 +32,29 @@ export default function FormInput({
     <div className="space-y-1.5 text-left">
       <div className="flex items-center justify-between">
         {label && (
-          <label htmlFor={inputId} className="block font-label-md text-[11px] font-bold text-[#b9cacb] uppercase tracking-wider">
-            {label} {required && <span className="text-[#00f2ff]">*</span>}
+          <label htmlFor={inputId} className="block font-label-md text-[11px] font-bold text-[#A3A3A3] uppercase tracking-wider">
+            {label} {required && <span className="text-[#FFB900]">*</span>}
           </label>
         )}
         {showCount && maxLength && (
           <span className={`text-[10px] font-mono font-bold tracking-wider ${
-            currentLength === maxLength ? 'text-[#00f2ff]' : 'text-[#849495]'
+            currentLength === maxLength ? 'text-[#FFB900]' : 'text-[#A3A3A3]'
           }`}>
             {currentLength}/{maxLength}
           </span>
         )}
       </div>
 
-      <div className="relative rounded-md shadow-sm flex items-stretch">
+      <div className="relative rounded-none shadow-sm flex items-stretch">
         {prefix && (
-          <div className="flex items-center justify-center px-3 bg-[#1c1b1c] border-y border-l border-[#27272a] rounded-l text-xs font-mono font-bold text-[#00f2ff] select-none shrink-0">
+          <div className="flex items-center justify-center px-3 bg-[#1B1B1F] border-y border-l border-[#2A2A30] rounded-none text-xs font-mono font-bold text-[#FFB900] select-none shrink-0">
             {prefix}
           </div>
         )}
 
         <div className="relative flex-1">
           {Icon && (
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#849495]">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#A3A3A3]">
               <Icon className="w-4 h-4" />
             </div>
           )}
@@ -79,12 +79,10 @@ export default function FormInput({
               Icon ? 'pl-10' : 'pl-4'
             } ${
               isPassword ? 'pr-10' : 'pr-4'
-            } ${
-              prefix ? 'rounded-r rounded-l-none' : 'rounded'
-            } bg-[#141416] border ${
-              error ? 'border-[#ef4444] focus:border-[#ef4444] focus:ring-2 focus:ring-[#ef4444]/40' : 'border-[#27272a] focus:border-[#00f2ff] focus:ring-2 focus:ring-[#00f2ff]/25'
-            } text-sm text-[#e5e2e3] placeholder-[#b9cacb]/60 focus:outline-none transition-all ${
-              disabled ? 'opacity-60 cursor-not-allowed bg-[#1c1b1c]' : ''
+            } rounded-none bg-[#111318] border ${
+              error ? 'border-[#FF0000] focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/40' : 'border-[#2A2A30] focus:border-[#FFB900] focus:ring-2 focus:ring-[#FFB900]/25'
+            } text-sm text-[#FFFFFF] placeholder-[#A3A3A3]/60 focus:outline-none transition-all ${
+              disabled ? 'opacity-60 cursor-not-allowed bg-[#1B1B1F]' : ''
             }`}
           />
 
@@ -93,7 +91,7 @@ export default function FormInput({
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               disabled={disabled}
-              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#849495] hover:text-[#00f2ff] focus:outline-none disabled:opacity-50 min-h-[44px] min-w-[44px] justify-center"
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#A3A3A3] hover:text-[#FFB900] focus:outline-none disabled:opacity-50 min-h-[44px] min-w-[44px] justify-center"
               tabIndex={disabled ? -1 : 0}
               aria-label={showPassword ? 'Hide Password' : 'Show Password'}
             >
@@ -104,7 +102,7 @@ export default function FormInput({
       </div>
 
       {error && (
-        <p id={errorId} className="text-xs text-[#ef4444] font-medium pl-1" role="alert">
+        <p id={errorId} className="text-xs text-[#FF0000] font-medium pl-1" role="alert">
           {error}
         </p>
       )}

@@ -3,7 +3,7 @@ import { Zap } from 'lucide-react'
 
 export default function QuickActionGrid({ actions = [] }) {
   return (
-    <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-5 space-y-4 shadow-xl">
+    <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-5 space-y-4 shadow-xl">
       <h3 className="font-headline text-sm font-bold text-[#00f2ff] uppercase tracking-wider flex items-center gap-2">
         <Zap className="w-4 h-4 text-[#ffb800] animate-pulse" />
         <span>Admin Command Center Quick Actions</span>
@@ -16,7 +16,7 @@ export default function QuickActionGrid({ actions = [] }) {
             <button
               key={index}
               onClick={act.onClick}
-              className={`flex items-center justify-between p-4 bg-[#09090b] border border-[#27272a] rounded-xl transition-all text-left group cursor-pointer ${act.hoverColorClass || 'hover:border-[#00f2ff]/60'}`}
+              className={`flex items-center justify-between p-4 bg-[#09090b] border border-[#27272a] rounded-none transition-all text-left group cursor-pointer ${act.hoverColorClass || 'hover:border-[#00f2ff]/60'}`}
             >
               <div className="space-y-1">
                 <span className="block text-xs font-bold text-white uppercase font-headline">{act.title}</span>

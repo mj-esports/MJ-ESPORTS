@@ -513,11 +513,11 @@ export default function WalletPage() {
             </Link>
 
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00ff9d] animate-pulse"></span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30">
+                <span className="w-1.5 h-1.5 rounded-none bg-[#00ff9d] animate-pulse"></span>
                 <span>WALLET STATUS: LIVE</span>
               </span>
-              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#141620] text-[#00f2ff] border border-[#00f2ff]/20">
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#141620] text-[#00f2ff] border border-[#00f2ff]/20">
                 <ShieldCheck className="w-3 h-3 text-[#00f2ff]" />
                 <span>SECURE WALLET</span>
               </span>
@@ -534,7 +534,7 @@ export default function WalletPage() {
               </p>
             </div>
 
-            <span className="self-start sm:self-auto px-2.5 py-1 rounded bg-[#141620] border border-[#222638] text-[10px] font-bold text-[#fe6b00] tracking-wider uppercase">
+            <span className="self-start sm:self-auto px-2.5 py-1 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-bold text-[#fe6b00] tracking-wider uppercase">
               FREE FIRE MAX ONLY
             </span>
           </div>
@@ -542,7 +542,7 @@ export default function WalletPage() {
 
         {/* Global Error Banner */}
         {walletError && (
-          <div className="p-4 rounded-xl border border-red-900/50 bg-red-950/20 text-red-400 flex items-center justify-between gap-3 font-sans">
+          <div className="p-4 rounded-none border border-red-900/50 bg-red-950/20 text-red-400 flex items-center justify-between gap-3 font-sans">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
               <div>
@@ -552,7 +552,7 @@ export default function WalletPage() {
             </div>
             <button
               onClick={handleRefreshBalance}
-              className="px-3 py-1.5 rounded bg-red-900/40 hover:bg-red-900/60 text-xs font-mono font-bold text-white border border-red-700/50 cursor-pointer"
+              className="px-3 py-1.5 rounded-none bg-red-900/40 hover:bg-red-900/60 text-xs font-mono font-bold text-white border border-red-700/50 cursor-pointer"
             >
               Retry
             </button>
@@ -565,12 +565,12 @@ export default function WalletPage() {
         <section aria-label="Available Balance Overview" className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
 
           {/* Primary Balance Card */}
-          <article className="md:col-span-7 bg-[#0d0e15] border border-[#1f2230] rounded-2xl p-5 sm:p-7 relative overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.35)] flex flex-col justify-between">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f2ff]/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+          <article className="md:col-span-7 bg-[#0d0e15] border border-[#1f2230] rounded-none p-5 sm:p-7 relative overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.35)] flex flex-col justify-between">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f2ff]/5 rounded-none blur-3xl pointer-events-none -z-10"></div>
 
             <div>
               <div className="flex items-center justify-between mb-4">
-                <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#00f2ff] uppercase tracking-wider bg-[#00f2ff]/10 px-2.5 py-1 rounded-lg border border-[#00f2ff]/20">
+                <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#00f2ff] uppercase tracking-wider bg-[#00f2ff]/10 px-2.5 py-1 rounded-none border border-[#00f2ff]/20">
                   <Wallet className="w-3.5 h-3.5 shrink-0" />
                   <span>AVAILABLE BALANCE</span>
                 </div>
@@ -579,7 +579,7 @@ export default function WalletPage() {
                   type="button"
                   onClick={handleRefreshBalance}
                   disabled={isRefreshing}
-                  className="p-2 rounded-lg bg-[#141620] border border-[#222638] text-[#8e95a5] hover:text-[#00f2ff] hover:border-[#00f2ff]/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                  className="p-2 rounded-none bg-[#141620] border border-[#222638] text-[#8e95a5] hover:text-[#00f2ff] hover:border-[#00f2ff]/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center"
                   title="Synchronize Wallet Balance"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#00f2ff]' : ''}`} />
@@ -588,7 +588,7 @@ export default function WalletPage() {
 
               <div className="space-y-1 my-2">
                 {isPageLoading ? (
-                  <div className="h-12 w-40 bg-[#141620] animate-pulse rounded-lg my-1"></div>
+                  <div className="h-12 w-40 bg-[#141620] animate-pulse rounded-none my-1"></div>
                 ) : walletError ? (
                   <span className="text-xl sm:text-2xl font-bold text-red-400 block tracking-tight">
                     BALANCE UNAVAILABLE
@@ -614,7 +614,7 @@ export default function WalletPage() {
                   setAmountInput('')
                   setIsDepositModalOpen(true)
                 }}
-                className="py-3 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black uppercase tracking-wider rounded-xl text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(0,242,255,0.25)] flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+                className="py-3 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black uppercase tracking-wider rounded-none text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(0,242,255,0.25)] flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
               >
                 <PlusCircle className="w-4 h-4 shrink-0" />
                 <span>ADD MONEY</span>
@@ -634,7 +634,7 @@ export default function WalletPage() {
                   setWithdrawalIdempotencyKey(null)
                   setIsWithdrawModalOpen(true)
                 }}
-                className="py-3 bg-[#141620] hover:bg-[#1a1d29] text-white hover:text-[#00f2ff] border border-[#222638] hover:border-[#00f2ff]/40 font-bold uppercase tracking-wider rounded-xl text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+                className="py-3 bg-[#141620] hover:bg-[#1a1d29] text-white hover:text-[#00f2ff] border border-[#222638] hover:border-[#00f2ff]/40 font-bold uppercase tracking-wider rounded-none text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
               >
                 <ArrowUpRight className="w-4 h-4 shrink-0" />
                 <span>WITHDRAW</span>
@@ -643,18 +643,18 @@ export default function WalletPage() {
           </article>
 
           {/* Single Authoritative Prize Earnings Metric Card */}
-          <article className="md:col-span-5 bg-[#0d0e15] border border-[#1f2230] rounded-2xl p-5 sm:p-7 relative overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.35)] flex flex-col justify-between">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-[#fbbf24]/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+          <article className="md:col-span-5 bg-[#0d0e15] border border-[#1f2230] rounded-none p-5 sm:p-7 relative overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.35)] flex flex-col justify-between">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#fbbf24]/5 rounded-none blur-3xl pointer-events-none -z-10"></div>
 
             <div>
-              <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#fbbf24] uppercase tracking-wider bg-[#fbbf24]/10 px-2.5 py-1 rounded-lg border border-[#fbbf24]/20 mb-4">
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#fbbf24] uppercase tracking-wider bg-[#fbbf24]/10 px-2.5 py-1 rounded-none border border-[#fbbf24]/20 mb-4">
                 <Trophy className="w-3.5 h-3.5 shrink-0" />
                 <span>PRIZE EARNINGS</span>
               </div>
 
               <div className="space-y-1 my-2">
                 {loadingPrizeEarnings ? (
-                  <div className="h-10 w-32 bg-[#141620] animate-pulse rounded-lg my-1"></div>
+                  <div className="h-10 w-32 bg-[#141620] animate-pulse rounded-none my-1"></div>
                 ) : (
                   <span className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-[#fbbf24] block">
                     {prizeEarnings !== null && prizeEarnings > 0
@@ -688,7 +688,7 @@ export default function WalletPage() {
                 <ArrowUpRight className="w-4 h-4 text-[#fe6b00]" />
                 <span>WITHDRAWAL REQUESTS</span>
               </h2>
-              <span className="px-2 py-0.5 rounded-full bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#fe6b00]">
+              <span className="px-2 py-0.5 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#fe6b00]">
                 {userWithdrawals.length} {userWithdrawals.length === 1 ? 'Request' : 'Requests'}
               </span>
             </div>
@@ -701,11 +701,11 @@ export default function WalletPage() {
           {loadingWithdrawals ? (
             <div className="space-y-3">
               {[1, 2].map((n) => (
-                <div key={n} className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse"></div>
+                <div key={n} className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse"></div>
               ))}
             </div>
           ) : userWithdrawals.length === 0 ? (
-            <div className="py-10 text-center border border-[#1f2230] bg-[#0d0e15] rounded-2xl p-6 space-y-2">
+            <div className="py-10 text-center border border-[#1f2230] bg-[#0d0e15] rounded-none p-6 space-y-2">
               <ArrowUpRight className="w-8 h-8 text-[#525866] mx-auto" />
               <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                 NO WITHDRAWAL REQUESTS YET
@@ -731,16 +731,16 @@ export default function WalletPage() {
                 return (
                   <article
                     key={w.id}
-                    className="p-4 sm:p-5 rounded-2xl bg-[#0d0e15] border border-[#1f2230] hover:border-[#fe6b00]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_2px_15px_rgba(0,0,0,0.25)]"
+                    className="p-4 sm:p-5 rounded-none bg-[#0d0e15] border border-[#1f2230] hover:border-[#fe6b00]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_2px_15px_rgba(0,0,0,0.25)]"
                   >
                     <div className="flex items-start gap-3.5 min-w-0">
-                      <div className="w-10 h-10 rounded-xl border border-[#fe6b00]/30 bg-[#fe6b00]/10 text-[#fe6b00] flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-10 h-10 rounded-none border border-[#fe6b00]/30 bg-[#fe6b00]/10 text-[#fe6b00] flex items-center justify-center shrink-0 mt-0.5">
                         <ArrowUpRight className="w-5 h-5" />
                       </div>
 
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/30">
+                          <span className="px-2 py-0.5 rounded-none text-[10px] font-black uppercase tracking-wider border bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/30">
                             {w.payout_method === 'BANK_TRANSFER' ? 'BANK TRANSFER' : 'UPI TRANSFER'}
                           </span>
 
@@ -778,25 +778,25 @@ export default function WalletPage() {
 
                       <div className="mt-1">
                         {w.status === 'PENDING' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9.5px] font-bold text-[#fbbf24] bg-[#fbbf24]/10 border border-[#fbbf24]/30 uppercase">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#fbbf24] bg-[#fbbf24]/10 border border-[#fbbf24]/30 uppercase">
                             <Clock className="w-3 h-3" />
                             <span>PENDING REVIEW</span>
                           </span>
                         )}
                         {w.status === 'APPROVED' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9.5px] font-bold text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/30 uppercase">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/30 uppercase">
                             <CheckCircle2 className="w-3 h-3" />
                             <span>APPROVED - PROCESSING</span>
                           </span>
                         )}
                         {w.status === 'PAID' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9.5px] font-bold text-[#00ff9d] bg-[#00ff9d]/10 border border-[#00ff9d]/30 uppercase">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#00ff9d] bg-[#00ff9d]/10 border border-[#00ff9d]/30 uppercase">
                             <CheckCircle2 className="w-3 h-3" />
                             <span>PAID</span>
                           </span>
                         )}
                         {w.status === 'REJECTED' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9.5px] font-bold text-[#f87171] bg-red-950/40 border border-red-900/50 uppercase">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#f87171] bg-red-950/40 border border-red-900/50 uppercase">
                             <AlertCircle className="w-3 h-3" />
                             <span>REJECTED (REFUNDED)</span>
                           </span>
@@ -821,18 +821,18 @@ export default function WalletPage() {
               <h2 className="text-base sm:text-lg font-bold text-white uppercase tracking-wider">
                 TRANSACTION HISTORY
               </h2>
-              <span className="px-2 py-0.5 rounded-full bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#00f2ff]">
+              <span className="px-2 py-0.5 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#00f2ff]">
                 {filteredTransactions.length} {filteredTransactions.length === 1 ? 'Record' : 'Records'}
               </span>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
               {/* Filter Tabs: ALL, CREDITS (+), DEBITS (-) */}
-              <div className="flex items-center p-1 bg-[#0d0e15] border border-[#1f2230] rounded-xl text-[11px] font-mono font-bold">
+              <div className="flex items-center p-1 bg-[#0d0e15] border border-[#1f2230] rounded-none text-[11px] font-mono font-bold">
                 <button
                   type="button"
                   onClick={() => setActiveFilter('ALL')}
-                  className={`px-3 py-1.5 rounded-lg uppercase transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-none uppercase transition-all cursor-pointer ${
                     activeFilter === 'ALL'
                       ? 'bg-[#00f2ff] text-[#08080a] shadow-[0_0_10px_rgba(0,242,255,0.3)]'
                       : 'text-[#8e95a5] hover:text-white'
@@ -843,7 +843,7 @@ export default function WalletPage() {
                 <button
                   type="button"
                   onClick={() => setActiveFilter('CREDITS')}
-                  className={`px-3 py-1.5 rounded-lg uppercase transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-none uppercase transition-all cursor-pointer ${
                     activeFilter === 'CREDITS'
                       ? 'bg-[#00ff9d] text-[#08080a] shadow-[0_0_10px_rgba(0,255,157,0.3)]'
                       : 'text-[#8e95a5] hover:text-white'
@@ -854,7 +854,7 @@ export default function WalletPage() {
                 <button
                   type="button"
                   onClick={() => setActiveFilter('DEBITS')}
-                  className={`px-3 py-1.5 rounded-lg uppercase transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-none uppercase transition-all cursor-pointer ${
                     activeFilter === 'DEBITS'
                       ? 'bg-[#f87171] text-[#08080a] shadow-[0_0_10px_rgba(248,113,113,0.3)]'
                       : 'text-[#8e95a5] hover:text-white'
@@ -872,7 +872,7 @@ export default function WalletPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search statement..."
-                  className="w-full sm:w-48 bg-[#0d0e15] border border-[#1f2230] rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder-[#525866] focus:border-[#00f2ff] focus:outline-none transition-colors h-[38px] font-sans"
+                  className="w-full sm:w-48 bg-[#0d0e15] border border-[#1f2230] rounded-none pl-9 pr-3 py-1.5 text-xs text-white placeholder-[#525866] focus:border-[#00f2ff] focus:outline-none transition-colors h-[38px] font-sans"
                 />
               </div>
             </div>
@@ -882,12 +882,12 @@ export default function WalletPage() {
           {isPageLoading ? (
             <div className="space-y-3">
               {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-xl animate-pulse"></div>
+                <div key={n} className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse"></div>
               ))}
             </div>
           ) : transactions.length === 0 ? (
             /* Empty State: No Transactions Yet */
-            <div className="py-16 text-center border border-[#1f2230] bg-[#0d0e15] rounded-2xl p-6 space-y-3">
+            <div className="py-16 text-center border border-[#1f2230] bg-[#0d0e15] rounded-none p-6 space-y-3">
               <Wallet className="w-10 h-10 text-[#525866] mx-auto" />
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                 NO TRANSACTIONS YET
@@ -898,7 +898,7 @@ export default function WalletPage() {
             </div>
           ) : filteredTransactions.length === 0 ? (
             /* Filter/Search Empty State */
-            <div className="py-14 text-center border border-[#1f2230] bg-[#0d0e15] rounded-2xl p-6 space-y-2.5">
+            <div className="py-14 text-center border border-[#1f2230] bg-[#0d0e15] rounded-none p-6 space-y-2.5">
               <AlertCircle className="w-8 h-8 text-[#525866] mx-auto" />
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                 NO MATCHING TRANSACTIONS
@@ -917,11 +917,11 @@ export default function WalletPage() {
                 return (
                   <article
                     key={tx.id}
-                    className="p-4 sm:p-5 rounded-2xl bg-[#0d0e15] border border-[#1f2230] hover:border-[#00f2ff]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_2px_15px_rgba(0,0,0,0.25)]"
+                    className="p-4 sm:p-5 rounded-none bg-[#0d0e15] border border-[#1f2230] hover:border-[#00f2ff]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_2px_15px_rgba(0,0,0,0.25)]"
                   >
                     <div className="flex items-start gap-3.5 min-w-0">
                       <div
-                        className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 mt-0.5 ${
+                        className={`w-10 h-10 rounded-none border flex items-center justify-center shrink-0 mt-0.5 ${
                           isCredit
                             ? isPrize
                               ? 'bg-[#fbbf24]/10 text-[#fbbf24] border-[#fbbf24]/30'
@@ -939,7 +939,7 @@ export default function WalletPage() {
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border ${
+                            className={`px-2 py-0.5 rounded-none text-[10px] font-black uppercase tracking-wider border ${
                               isCredit
                                 ? isPrize
                                   ? 'bg-[#fbbf24]/10 text-[#fbbf24] border-[#fbbf24]/30'
@@ -999,7 +999,7 @@ export default function WalletPage() {
       {/* ================================================== */}
       {isDepositModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md font-mono">
-          <div className="w-full max-w-md bg-[#0d0e15] border border-[#1f2230] rounded-2xl p-6 space-y-5 shadow-2xl relative">
+          <div className="w-full max-w-md bg-[#0d0e15] border border-[#1f2230] rounded-none p-6 space-y-5 shadow-2xl relative">
             <button
               type="button"
               onClick={() => {
@@ -1009,7 +1009,7 @@ export default function WalletPage() {
                 setTopupStatus(null)
               }}
               disabled={isSubmittingTopup}
-              className="absolute top-4 right-4 p-1.5 text-[#8e95a5] hover:text-white rounded-lg bg-[#141620] border border-[#222638] transition-colors disabled:opacity-40 cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 text-[#8e95a5] hover:text-white rounded-none bg-[#141620] border border-[#222638] transition-colors disabled:opacity-40 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1042,7 +1042,7 @@ export default function WalletPage() {
                         setAmountInput(preset.toString())
                         setTopupIdempotencyKey(null)
                       }}
-                      className={`py-2 rounded-xl text-xs font-bold font-mono transition-all border cursor-pointer disabled:opacity-50 ${
+                      className={`py-2 rounded-none text-xs font-bold font-mono transition-all border cursor-pointer disabled:opacity-50 ${
                         amountInput === preset.toString()
                           ? 'bg-[#00f2ff]/15 border-[#00f2ff] text-[#00f2ff]'
                           : 'bg-[#141620] border-[#222638] text-white hover:border-[#00f2ff]/40'
@@ -1082,7 +1082,7 @@ export default function WalletPage() {
                     }}
                     placeholder="Enter amount (1-200)"
                     required
-                    className="w-full bg-[#141620] border border-[#222638] rounded-xl pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                    className="w-full bg-[#141620] border border-[#222638] rounded-none pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -1099,7 +1099,7 @@ export default function WalletPage() {
                       type="button"
                       onClick={() => setPaymentMethod(method)}
                       disabled={isSubmittingTopup}
-                      className={`py-2 text-[10px] font-bold uppercase rounded-xl border transition-all cursor-pointer disabled:opacity-50 ${
+                      className={`py-2 text-[10px] font-bold uppercase rounded-none border transition-all cursor-pointer disabled:opacity-50 ${
                         paymentMethod === method
                           ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]'
                           : 'bg-[#141620] border-[#222638] text-[#8e95a5] hover:text-white'
@@ -1113,14 +1113,14 @@ export default function WalletPage() {
 
               {/* Status Indicator during Payment */}
               {topupStatus === 'PROCESSING' && (
-                <div className="p-2.5 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-xs flex items-center gap-2 font-sans">
+                <div className="p-2.5 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-xs flex items-center gap-2 font-sans">
                   <RefreshCw className="w-4 h-4 animate-spin shrink-0" />
                   <span>PAYMENT PROCESSING: Authoritative ledger verification in progress...</span>
                 </div>
               )}
 
               {topupStatus === 'FAILED' && (
-                <div className="p-2.5 rounded-lg bg-red-950/30 border border-red-900/40 text-red-400 text-xs flex items-center gap-2 font-sans">
+                <div className="p-2.5 rounded-none bg-red-950/30 border border-red-900/40 text-red-400 text-xs flex items-center gap-2 font-sans">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>PAYMENT FAILED: Transaction was not credited.</span>
                 </div>
@@ -1137,14 +1137,14 @@ export default function WalletPage() {
                     setTopupStatus(null)
                   }}
                   disabled={isSubmittingTopup}
-                  className="flex-1 py-2.5 bg-[#141620] border border-[#222638] hover:border-red-500 hover:text-red-400 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-[#141620] border border-[#222638] hover:border-red-500 hover:text-red-400 rounded-none text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingTopup || !amountInput}
-                  className="flex-1 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] rounded-xl text-xs font-black uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] rounded-none text-xs font-black uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isSubmittingTopup ? (
                     <>
@@ -1166,7 +1166,7 @@ export default function WalletPage() {
       {/* ================================================== */}
       {isWithdrawModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md font-mono">
-          <div className="w-full max-w-lg bg-[#0d0e15] border border-[#1f2230] rounded-2xl p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-lg bg-[#0d0e15] border border-[#1f2230] rounded-none p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button
               type="button"
               onClick={() => {
@@ -1175,7 +1175,7 @@ export default function WalletPage() {
                 }
               }}
               disabled={isSubmittingWithdrawal}
-              className="absolute top-4 right-4 p-1.5 text-[#8e95a5] hover:text-white rounded-lg bg-[#141620] border border-[#222638] transition-colors cursor-pointer disabled:opacity-40"
+              className="absolute top-4 right-4 p-1.5 text-[#8e95a5] hover:text-white rounded-none bg-[#141620] border border-[#222638] transition-colors cursor-pointer disabled:opacity-40"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1203,7 +1203,7 @@ export default function WalletPage() {
                   type="button"
                   onClick={() => setWithdrawalPayoutMethod('UPI')}
                   disabled={isSubmittingWithdrawal}
-                  className={`py-2.5 px-3 rounded-xl border text-xs font-bold font-mono uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  className={`py-2.5 px-3 rounded-none border text-xs font-bold font-mono uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     withdrawalPayoutMethod === 'UPI'
                       ? 'bg-[#00f2ff]/15 border-[#00f2ff] text-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.2)]'
                       : 'bg-[#141620] border-[#222638] text-[#8e95a5] hover:text-white'
@@ -1217,7 +1217,7 @@ export default function WalletPage() {
                   type="button"
                   onClick={() => setWithdrawalPayoutMethod('BANK_TRANSFER')}
                   disabled={isSubmittingWithdrawal}
-                  className={`py-2.5 px-3 rounded-xl border text-xs font-bold font-mono uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  className={`py-2.5 px-3 rounded-none border text-xs font-bold font-mono uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     withdrawalPayoutMethod === 'BANK_TRANSFER'
                       ? 'bg-[#00f2ff]/15 border-[#00f2ff] text-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.2)]'
                       : 'bg-[#141620] border-[#222638] text-[#8e95a5] hover:text-white'
@@ -1257,7 +1257,7 @@ export default function WalletPage() {
                     }}
                     placeholder="Enter whole rupee amount (min 100)"
                     required
-                    className="w-full bg-[#141620] border border-[#222638] rounded-xl pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                    className="w-full bg-[#141620] border border-[#222638] rounded-none pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -1275,7 +1275,7 @@ export default function WalletPage() {
                     onChange={(e) => setUpiIdInput(e.target.value)}
                     placeholder="e.g. username@okhdfcbank or 9876543210@ybl"
                     required
-                    className="w-full bg-[#141620] border border-[#222638] rounded-xl px-4 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                    className="w-full bg-[#141620] border border-[#222638] rounded-none px-4 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
                   />
                   <p className="text-[10px] text-[#525866] font-sans">
                     Must be registered with BHIM, Google Pay, PhonePe, Paytm, or your banking app.
@@ -1298,7 +1298,7 @@ export default function WalletPage() {
                         onChange={(e) => setBankName(e.target.value)}
                         placeholder="e.g. HDFC Bank, SBI"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-xl px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                        className="w-full bg-[#141620] border border-[#222638] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
                       />
                     </div>
 
@@ -1313,7 +1313,7 @@ export default function WalletPage() {
                         onChange={(e) => setBankAccountHolder(e.target.value)}
                         placeholder="As on bank passbook"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-xl px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                        className="w-full bg-[#141620] border border-[#222638] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
                       />
                     </div>
                   </div>
@@ -1330,7 +1330,7 @@ export default function WalletPage() {
                         onChange={(e) => setBankAccountNumber(e.target.value.replace(/[^0-9]/g, ''))}
                         placeholder="Enter account number"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-xl px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                        className="w-full bg-[#141620] border border-[#222638] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
                       />
                     </div>
 
@@ -1345,7 +1345,7 @@ export default function WalletPage() {
                         onChange={(e) => setBankAccountConfirm(e.target.value.replace(/[^0-9]/g, ''))}
                         placeholder="Re-enter account number"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-xl px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                        className="w-full bg-[#141620] border border-[#222638] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
                       />
                     </div>
                   </div>
@@ -1362,14 +1362,14 @@ export default function WalletPage() {
                       onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
                       placeholder="e.g. HDFC0001234, SBIN0004567"
                       required
-                      className="w-full bg-[#141620] border border-[#222638] rounded-xl px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono uppercase disabled:opacity-50"
+                      className="w-full bg-[#141620] border border-[#222638] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono uppercase disabled:opacity-50"
                     />
                   </div>
                 </div>
               )}
 
               {/* Zero-Trust Security Note */}
-              <div className="p-3 rounded-xl bg-[#141620] border border-[#222638] space-y-1 text-[11px] font-sans text-[#8e95a5]">
+              <div className="p-3 rounded-none bg-[#141620] border border-[#222638] space-y-1 text-[11px] font-sans text-[#8e95a5]">
                 <div className="flex items-center gap-1.5 text-[#00f2ff] font-mono font-bold text-[10px] uppercase">
                   <Lock className="w-3 h-3 text-[#00f2ff]" />
                   <span>Zero-Trust Payout Security</span>
@@ -1385,14 +1385,14 @@ export default function WalletPage() {
                   type="button"
                   onClick={() => setIsWithdrawModalOpen(false)}
                   disabled={isSubmittingWithdrawal}
-                  className="flex-1 py-2.5 bg-[#141620] border border-[#222638] hover:border-red-500 hover:text-red-400 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-[#141620] border border-[#222638] hover:border-red-500 hover:text-red-400 rounded-none text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingWithdrawal || !withdrawAmountInput || parseInt(withdrawAmountInput, 10) < 100 || parseInt(withdrawAmountInput, 10) > authoritativeBalance}
-                  className="flex-1 py-2.5 bg-[#fe6b00] hover:bg-[#ff7d1a] text-white rounded-xl text-xs font-black uppercase transition-all shadow-[0_0_15px_rgba(254,107,0,0.3)] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 bg-[#fe6b00] hover:bg-[#ff7d1a] text-white rounded-none text-xs font-black uppercase transition-all shadow-[0_0_15px_rgba(254,107,0,0.3)] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isSubmittingWithdrawal ? (
                     <>

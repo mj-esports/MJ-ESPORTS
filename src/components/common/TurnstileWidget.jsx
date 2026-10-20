@@ -65,7 +65,7 @@ export default function TurnstileWidget({
     <div className={`my-3 flex flex-col items-center justify-center ${className}`}>
       <div
         ref={containerRef}
-        className="min-h-[65px] flex items-center justify-center rounded overflow-hidden"
+        className="min-h-[65px] flex items-center justify-center rounded-none overflow-hidden"
       />
     </div>
   )

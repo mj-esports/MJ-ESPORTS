@@ -38,7 +38,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
           <img
             src="/mj-esports-logo.png"
             alt="MJ ESPORTS"
-            className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full object-contain border border-[#00f2ff]/40 shadow-[0_0_25px_rgba(0,242,255,0.3)]"
+            className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-none object-contain border border-[#00f2ff]/40 shadow-[0_0_25px_rgba(0,242,255,0.3)]"
           />
         </div>
         <h1 className="font-display-lg text-2xl sm:text-4xl md:text-5xl font-extrabold text-white uppercase tracking-tight">
@@ -58,7 +58,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
             <button
               key={`about-tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-3.5 py-2.5 rounded border transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] cursor-pointer ${
+              className={`px-3.5 py-2.5 rounded-none border transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] cursor-pointer ${
                 isActive
                   ? 'border-[#00f2ff] text-[#00363a] bg-[#00f2ff] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                   : 'border-[#27272a] bg-[#141416] text-[#8e9dae] hover:text-white hover:border-[#3f3f46]'
@@ -75,24 +75,24 @@ export default function AboutPage({ defaultTab = 'about' }) {
       <div className="max-w-4xl mx-auto pt-2">
         {activeTab === 'about' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 text-left">
-            <div className="bg-[#141416] border border-[#27272a] rounded p-5 sm:p-6 space-y-3 shadow-xl">
-              <div className="w-10 h-10 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+            <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-3 shadow-xl">
+              <div className="w-10 h-10 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
                 <Trophy className="w-5 h-5" />
               </div>
               <h3 className="font-headline text-base font-bold text-white uppercase">Pro Tournaments</h3>
               <p className="text-xs text-[#8e9dae] leading-relaxed">Daily and weekly competitive Free Fire MAX matches with real prize pools.</p>
             </div>
 
-            <div className="bg-[#141416] border border-[#27272a] rounded p-5 sm:p-6 space-y-3 shadow-xl">
-              <div className="w-10 h-10 rounded bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center text-[#ff5e07]">
+            <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-3 shadow-xl">
+              <div className="w-10 h-10 rounded-none bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center text-[#ff5e07]">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <h3 className="font-headline text-base font-bold text-white uppercase">Fair Play Engine</h3>
               <p className="text-xs text-[#8e9dae] leading-relaxed">Strict anti-cheat verification, character UID tracking, and verified organizer match moderation.</p>
             </div>
 
-            <div className="bg-[#141416] border border-[#27272a] rounded p-5 sm:p-6 space-y-3 shadow-xl">
-              <div className="w-10 h-10 rounded bg-[#10b981]/10 border border-[#10b981]/30 flex items-center justify-center text-[#10b981]">
+            <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-3 shadow-xl">
+              <div className="w-10 h-10 rounded-none bg-[#10b981]/10 border border-[#10b981]/30 flex items-center justify-center text-[#10b981]">
                 <Users className="w-5 h-5" />
               </div>
               <h3 className="font-headline text-base font-bold text-white uppercase">Squad Management</h3>
@@ -102,7 +102,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
         )}
 
         {activeTab === 'privacy' && (
-          <div className="bg-[#141416] border border-[#27272a] rounded p-5 sm:p-8 space-y-6 text-xs sm:text-sm text-[#e1e2e7] leading-relaxed text-left shadow-xl break-words">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-8 space-y-6 text-xs sm:text-sm text-[#e1e2e7] leading-relaxed text-left shadow-xl break-words">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#27272a] pb-4">
               <h2 className="font-headline text-lg sm:text-xl font-bold uppercase text-[#00f2ff] tracking-tight">
                 PRIVACY POLICY
@@ -171,7 +171,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                 To maintain competitive transparency in esports, certain details are displayed publicly on tournament rosters and leaderboards:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-                <div className="p-3.5 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1">
+                <div className="p-3.5 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1">
                   <span className="text-[11px] font-headline font-bold text-[#00f2ff] uppercase block">
                     Publicly Visible Details:
                   </span>
@@ -183,7 +183,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                     <li>Platform leaderboards & winner announcements</li>
                   </ul>
                 </div>
-                <div className="p-3.5 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1">
+                <div className="p-3.5 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1">
                   <span className="text-[11px] font-headline font-bold text-[#10b981] uppercase block">
                     Strictly Private Details:
                   </span>
@@ -281,7 +281,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
               <p className="text-[#8e9dae]">
                 Players may update their profile information directly via the platform's profile settings. For privacy inquiries, account data verification, or data deletion requests, you may contact our administration team at:
               </p>
-              <div className="p-3 bg-[#1c1b1c] rounded border border-[#27272a] inline-block">
+              <div className="p-3 bg-[#1c1b1c] rounded-none border border-[#27272a] inline-block">
                 <span className="text-[10px] uppercase font-bold text-[#8e9dae] block">Official Privacy & Support Contact:</span>
                 <a
                   href="mailto:support.mjesports@gmail.com?subject=MJ%20ESPORTS%20Privacy%20Request"
@@ -295,7 +295,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
         )}
 
         {activeTab === 'terms' && (
-          <div className="bg-[#141416] border border-[#27272a] rounded p-5 sm:p-8 space-y-6 text-xs sm:text-sm text-[#e1e2e7] leading-relaxed text-left shadow-xl break-words">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-8 space-y-6 text-xs sm:text-sm text-[#e1e2e7] leading-relaxed text-left shadow-xl break-words">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#27272a] pb-4">
               <h2 className="font-headline text-lg sm:text-xl font-bold uppercase text-[#00f2ff] tracking-tight">
                 TERMS OF SERVICE
@@ -385,7 +385,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                 Refunds and tournament cancellations are governed strictly by the platform's authoritative transaction and database rules:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-                <div className="p-3.5 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1.5">
+                <div className="p-3.5 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1.5">
                   <span className="text-[11px] font-headline font-bold text-[#10b981] uppercase block">
                     When Refunds Are Available:
                   </span>
@@ -402,7 +402,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                   </ul>
                 </div>
 
-                <div className="p-3.5 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1.5">
+                <div className="p-3.5 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1.5">
                   <span className="text-[11px] font-headline font-bold text-[#ff5e07] uppercase block">
                     Non-Refundable Circumstances:
                   </span>
@@ -667,7 +667,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
               <p className="text-[#8e9dae]">
                 For assistance regarding account management, payment confirmation, tournament disputes, result verification, or privacy questions, players may contact our official support team at:
               </p>
-              <div className="p-3.5 bg-[#1c1b1c] rounded border border-[#27272a] inline-block space-y-1">
+              <div className="p-3.5 bg-[#1c1b1c] rounded-none border border-[#27272a] inline-block space-y-1">
                 <span className="text-[10px] uppercase font-bold text-[#8e9dae] block">Official Support & Disputes Contact:</span>
                 <a
                   href="mailto:support.mjesports@gmail.com?subject=MJ%20ESPORTS%20Support%20or%20Dispute"
@@ -704,19 +704,19 @@ export default function AboutPage({ defaultTab = 'about' }) {
         )}
 
         {activeTab === 'contact' && (
-          <div className="bg-[#141416] border border-[#27272a] rounded p-5 sm:p-8 space-y-6 text-xs sm:text-sm text-[#e1e2e7] text-left shadow-xl break-words">
+          <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-8 space-y-6 text-xs sm:text-sm text-[#e1e2e7] text-left shadow-xl break-words">
             <h2 className="font-headline text-lg sm:text-xl font-bold text-white uppercase border-b border-[#27272a] pb-3 text-[#00f2ff]">
               OFFICIAL SUPPORT & CONTACT
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-4 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1">
+              <div className="p-4 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1">
                 <span className="text-[#8e9dae] font-bold uppercase text-[10px] block">Support Email</span>
                 <a href="mailto:support.mjesports@gmail.com?subject=MJ%20ESPORTS%20Support%20Request" className="text-[#00f2ff] font-mono font-bold hover:underline break-all">
                   support.mjesports@gmail.com
                 </a>
               </div>
 
-              <div className="p-4 bg-[#1c1b1c] rounded border border-[#27272a] space-y-1">
+              <div className="p-4 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1">
                 <span className="text-[#8e9dae] font-bold uppercase text-[10px] block">Community & Disputes</span>
                 <a href="mailto:support.mjesports@gmail.com?subject=MJ%20ESPORTS%20Match%20Dispute" className="text-[#00f2ff] font-mono font-bold hover:underline break-all">
                   support.mjesports@gmail.com

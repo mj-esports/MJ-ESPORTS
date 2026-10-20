@@ -77,12 +77,12 @@ export default function PublicTeamProfileModal({ team, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-3xl bg-[#151a21] border border-[#3a494b] rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl my-8">
+      <div className="relative w-full max-w-3xl bg-[#151a21] border border-[#3a494b] rounded-none p-6 sm:p-8 space-y-6 shadow-2xl my-8">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-[#8e9dae] hover:text-white rounded-lg bg-[#07090c] border border-[#3a494b] transition-colors"
+          className="absolute top-4 right-4 p-2 text-[#8e9dae] hover:text-white rounded-none bg-[#07090c] border border-[#3a494b] transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -90,7 +90,7 @@ export default function PublicTeamProfileModal({ team, onClose }) {
         {/* 1. SQUAD HERO HEADER */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 border-b border-[#3a494b]/60 pb-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#00f2ff]/10 border-2 border-[#00f2ff] flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(0,242,255,0.3)] overflow-hidden">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none bg-[#00f2ff]/10 border-2 border-[#00f2ff] flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(0,242,255,0.3)] overflow-hidden">
               {logoUrl ? (
                 <img src={logoUrl} alt={teamName} className="w-full h-full object-cover" />
               ) : (
@@ -100,7 +100,7 @@ export default function PublicTeamProfileModal({ team, onClose }) {
 
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-extrabold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 uppercase">
+                <span className="px-2 py-0.5 rounded-none text-[10px] font-mono font-extrabold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 uppercase">
                   [{teamTag}]
                 </span>
                 <h2 className="font-display-lg text-xl sm:text-3xl font-extrabold text-white uppercase tracking-tight">
@@ -115,7 +115,7 @@ export default function PublicTeamProfileModal({ team, onClose }) {
             </div>
           </div>
 
-          <div className="px-4 py-2 bg-[#07090c] rounded-xl border border-[#3a494b] text-center space-y-0.5 shrink-0">
+          <div className="px-4 py-2 bg-[#07090c] rounded-none border border-[#3a494b] text-center space-y-0.5 shrink-0">
             <span className="text-[9px] font-mono text-[#8e9dae] uppercase font-bold block">GLOBAL RANK</span>
             <span className="font-display-lg text-sm sm:text-base font-extrabold text-[#fe6b00] block">{stats.rank}</span>
           </div>
@@ -123,27 +123,27 @@ export default function PublicTeamProfileModal({ team, onClose }) {
 
         {/* 2. STATS HEADER GRID */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 font-mono text-xs">
-          <div className="bg-[#07090c] p-3 rounded-lg border border-[#3a494b]/60 text-center space-y-0.5">
+          <div className="bg-[#07090c] p-3 rounded-none border border-[#3a494b]/60 text-center space-y-0.5">
             <span className="text-[9px] text-[#8e9dae] uppercase block">Matches</span>
             <span className="font-bold text-white text-base block">{stats.matchesPlayed}</span>
           </div>
 
-          <div className="bg-[#07090c] p-3 rounded-lg border border-[#3a494b]/60 text-center space-y-0.5">
+          <div className="bg-[#07090c] p-3 rounded-none border border-[#3a494b]/60 text-center space-y-0.5">
             <span className="text-[9px] text-[#8e9dae] uppercase block">Wins</span>
             <span className="font-bold text-[#00ff9d] text-base block">{stats.wins}</span>
           </div>
 
-          <div className="bg-[#07090c] p-3 rounded-lg border border-[#3a494b]/60 text-center space-y-0.5">
+          <div className="bg-[#07090c] p-3 rounded-none border border-[#3a494b]/60 text-center space-y-0.5">
             <span className="text-[9px] text-[#8e9dae] uppercase block">Total Points</span>
             <span className="font-bold text-[#00f2ff] text-base block">{stats.points}</span>
           </div>
 
-          <div className="bg-[#07090c] p-3 rounded-lg border border-[#3a494b]/60 text-center space-y-0.5">
+          <div className="bg-[#07090c] p-3 rounded-none border border-[#3a494b]/60 text-center space-y-0.5">
             <span className="text-[9px] text-[#8e9dae] uppercase block">Win Rate</span>
             <span className="font-bold text-[#00f2ff] text-base block">{stats.winRate}</span>
           </div>
 
-          <div className="col-span-2 sm:col-span-1 bg-[#07090c] p-3 rounded-lg border border-[#3a494b]/60 text-center space-y-0.5">
+          <div className="col-span-2 sm:col-span-1 bg-[#07090c] p-3 rounded-none border border-[#3a494b]/60 text-center space-y-0.5">
             <span className="text-[9px] text-[#8e9dae] uppercase block">Prize Winnings</span>
             <span className="font-bold text-[#ffb693] text-base block">{stats.earnings}</span>
           </div>
@@ -159,7 +159,7 @@ export default function PublicTeamProfileModal({ team, onClose }) {
             {achievements.map((ach, idx) => {
               const Icon = ach.icon
               return (
-                <div key={`squad-ach-${idx}`} className={`p-2.5 rounded-lg border text-xs font-bold font-mono flex items-center gap-2 ${ach.color}`}>
+                <div key={`squad-ach-${idx}`} className={`p-2.5 rounded-none border text-xs font-bold font-mono flex items-center gap-2 ${ach.color}`}>
                   <Icon className="w-4 h-4 shrink-0" />
                   <span>{ach.title}</span>
                 </div>
@@ -176,9 +176,9 @@ export default function PublicTeamProfileModal({ team, onClose }) {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {rosterMembers.map((m, idx) => (
-              <div key={`m-roster-${idx}`} className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/60 flex items-center justify-between text-xs">
+              <div key={`m-roster-${idx}`} className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-[#151a21] border border-[#3a494b] flex items-center justify-center text-[#00f2ff] font-bold">
+                  <div className="w-7 h-7 rounded-none bg-[#151a21] border border-[#3a494b] flex items-center justify-center text-[#00f2ff] font-bold">
                     <User className="w-3.5 h-3.5" />
                   </div>
                   <div>
@@ -186,7 +186,7 @@ export default function PublicTeamProfileModal({ team, onClose }) {
                     <span className="font-mono text-[10px] text-[#8e9dae]">UID: {m.freeFireUid}</span>
                   </div>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-extrabold uppercase border ${
+                <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-extrabold uppercase border ${
                   m.role === 'Captain' ? 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40' : 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40'
                 }`}>
                   {m.role}
@@ -204,7 +204,7 @@ export default function PublicTeamProfileModal({ team, onClose }) {
           </h3>
           <div className="space-y-2 font-mono text-xs">
             {recentMatches.map((match) => (
-              <div key={`rec-m-${match.id}`} className="p-3 bg-[#07090c] rounded-lg border border-[#3a494b]/60 flex items-center justify-between">
+              <div key={`rec-m-${match.id}`} className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/60 flex items-center justify-between">
                 <div>
                   <span className="font-bold text-white block">{match.title}</span>
                   <span className="text-[10px] text-[#8e9dae]">{match.date} &bull; {match.mode}</span>

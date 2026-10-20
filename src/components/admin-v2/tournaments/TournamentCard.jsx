@@ -37,11 +37,11 @@ export default function TournamentCard({ tournament }) {
   const progressPercent = calculateSlotFillPercentage(tournament)
 
   return (
-    <div className="rounded-2xl bg-slate-900/60 border border-slate-800/80 p-5 flex flex-col justify-between hover:border-slate-700 transition-all duration-200 group relative overflow-hidden">
+    <div className="rounded-none bg-slate-900/60 border border-slate-800/80 p-5 flex flex-col justify-between hover:border-slate-700 transition-all duration-200 group relative overflow-hidden">
       {/* Header Info */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+          <div className="p-2 rounded-none bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
             <Trophy className="w-4 h-4" />
           </div>
           <div>
@@ -55,7 +55,7 @@ export default function TournamentCard({ tournament }) {
         </div>
 
         <span
-          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${
+          className={`px-2.5 py-0.5 rounded-none text-[10px] font-bold border shrink-0 ${
             status === 'Registration Open'
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
               : status === 'Live Now' || status === 'Live'
@@ -68,7 +68,7 @@ export default function TournamentCard({ tournament }) {
       </div>
 
       {/* Field Details */}
-      <div className="grid grid-cols-2 gap-2 my-3 text-xs bg-slate-950/60 p-3 rounded-xl border border-slate-800/60">
+      <div className="grid grid-cols-2 gap-2 my-3 text-xs bg-slate-950/60 p-3 rounded-none border border-slate-800/60">
         <div>
           <span className="text-[10px] text-slate-400 uppercase font-semibold">Format</span>
           <p className="font-mono font-bold text-slate-200 mt-0.5">{format || 'SQUAD (4P)'}</p>
@@ -105,9 +105,9 @@ export default function TournamentCard({ tournament }) {
             {filledPlayers} / {totalPlayers} Players ({regVal} / {maxVal} {modeInfo.teamUnit})
           </span>
         </div>
-        <div className="w-full h-1.5 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
+        <div className="w-full h-1.5 rounded-none bg-slate-950 overflow-hidden border border-slate-800">
           <div
-            className="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 rounded-full transition-all duration-300"
+            className="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 rounded-none transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

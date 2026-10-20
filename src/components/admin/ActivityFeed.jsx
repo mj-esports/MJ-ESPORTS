@@ -3,7 +3,7 @@ import { Clock } from 'lucide-react'
 
 export default function ActivityFeed({ activities = [] }) {
   return (
-    <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-2xl p-5 space-y-4 shadow-xl">
+    <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-5 space-y-4 shadow-xl">
       <div className="flex items-center gap-2 border-b border-[#27272a] pb-3">
         <Clock className="w-4 h-4 text-[#00f2ff]" />
         <h3 className="font-headline text-sm font-bold text-white uppercase tracking-wider">
@@ -21,7 +21,7 @@ export default function ActivityFeed({ activities = [] }) {
             const Icon = act.icon || Clock
             return (
               <div key={act.id} className="relative group">
-                <div className={`absolute -left-[30px] top-1 w-6 h-6 rounded-full flex items-center justify-center border ${act.bgColor} ${act.borderColor} ${act.color} group-hover:scale-110 transition-transform`}>
+                <div className={`absolute -left-[30px] top-1 w-6 h-6 rounded-none flex items-center justify-center border ${act.bgColor} ${act.borderColor} ${act.color} group-hover:scale-110 transition-transform`}>
                   <Icon className="w-3.5 h-3.5" />
                 </div>
                 

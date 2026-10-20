@@ -149,7 +149,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
 
         <button
           onClick={fetchPaymentRecords}
-          className="px-3.5 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] rounded text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] transition-all flex items-center gap-1.5 uppercase min-h-[44px]"
+          className="px-3.5 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] rounded-none text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] transition-all flex items-center gap-1.5 uppercase min-h-[44px]"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-[#00f2ff] ${loading ? 'animate-spin' : ''}`} />
           <span>Sync Transactions</span>
@@ -165,7 +165,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
             <button
               key={`pay-tab-${tab}`}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded text-xs font-bold uppercase transition-all whitespace-nowrap min-h-[38px] ${
+              className={`px-4 py-2 rounded-none text-xs font-bold uppercase transition-all whitespace-nowrap min-h-[38px] ${
                 activeTab === tab
                   ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
                   : 'text-[#8e9dae] hover:text-white bg-[#151a21] hover:bg-[#1d232c]'
@@ -176,7 +176,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
           ))}
         </div>
 
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 shadow-xl">
+        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 shadow-xl">
           <div className="relative">
             <Search className="w-4 h-4 text-[#8e9dae] absolute left-3 top-3.5" />
             <input
@@ -184,14 +184,14 @@ export default function PaymentVerificationView({ tournaments = [] }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search team name, captain, or UPI Ref ID..."
-              className="w-full pl-9 pr-3 py-2.5 bg-[#07090c] border border-[#3a494b] rounded text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
+              className="w-full pl-9 pr-3 py-2.5 bg-[#07090c] border border-[#3a494b] rounded-none text-xs text-white placeholder-[#8e9dae] focus:outline-none focus:border-[#00f2ff]"
             />
           </div>
         </div>
       </div>
 
       {/* PAYMENTS TABLE (DESKTOP) */}
-      <div className="hidden lg:block bg-[#151a21] border border-[#3a494b]/60 rounded-xl overflow-hidden shadow-xl">
+      <div className="hidden lg:block bg-[#151a21] border border-[#3a494b]/60 rounded-none overflow-hidden shadow-xl">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
@@ -207,7 +207,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
             {loading ? (
               <tr>
                 <td colSpan={6} className="p-8 text-center text-[#8e9dae]">
-                  <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                  <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-none animate-spin mx-auto mb-2"></div>
                   <span>Fetching payment logs...</span>
                 </td>
               </tr>
@@ -229,7 +229,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
                   </td>
                   <td className="p-3.5 font-mono text-[#ffb693] font-extrabold">{p.entryFee}</td>
                   <td className="p-3.5 text-center">
-                    <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
+                    <span className={`px-2.5 py-0.5 rounded-none text-[10px] font-extrabold uppercase border ${
                       p.status === 'Verified'
                         ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                         : p.status === 'Pending'
@@ -244,7 +244,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
                       {p.screenshotUrl && (
                         <button
                           onClick={() => setSelectedScreenshot(p.screenshotUrl)}
-                          className="p-1.5 rounded bg-[#07090c] hover:bg-[#1d232c] text-[#00f2ff] border border-[#3a494b]"
+                          className="p-1.5 rounded-none bg-[#07090c] hover:bg-[#1d232c] text-[#00f2ff] border border-[#3a494b]"
                           title="View Payment Screenshot"
                         >
                           <FileImage className="w-3.5 h-3.5" />
@@ -255,11 +255,11 @@ export default function PaymentVerificationView({ tournaments = [] }) {
                         <button
                           onClick={() => handleUpdatePaymentStatus(p.id, 'Verified')}
                           disabled={verifyingId === p.id}
-                          className="p-1.5 rounded bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 disabled:opacity-40"
+                          className="p-1.5 rounded-none bg-[#00ff9d]/10 hover:bg-[#00ff9d]/20 text-[#00ff9d] border border-[#00ff9d]/40 disabled:opacity-40"
                           title="Mark Verified"
                         >
                           {verifyingId === p.id ? (
-                            <div className="w-3.5 h-3.5 border-2 border-[#00ff9d] border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-3.5 h-3.5 border-2 border-[#00ff9d] border-t-transparent rounded-none animate-spin"></div>
                           ) : (
                             <CheckCircle2 className="w-3.5 h-3.5" />
                           )}
@@ -270,11 +270,11 @@ export default function PaymentVerificationView({ tournaments = [] }) {
                         <button
                           onClick={() => handleUpdatePaymentStatus(p.id, 'Rejected')}
                           disabled={verifyingId === p.id}
-                          className="p-1.5 rounded bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border border-red-800 disabled:opacity-40"
+                          className="p-1.5 rounded-none bg-red-950/50 hover:bg-red-900/60 text-[#ff3366] border border-red-800 disabled:opacity-40"
                           title="Reject Payment"
                         >
                           {verifyingId === p.id ? (
-                            <div className="w-3.5 h-3.5 border-2 border-[#ff3366] border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-3.5 h-3.5 border-2 border-[#ff3366] border-t-transparent rounded-none animate-spin"></div>
                           ) : (
                             <XCircle className="w-3.5 h-3.5" />
                           )}
@@ -292,10 +292,10 @@ export default function PaymentVerificationView({ tournaments = [] }) {
       {/* MOBILE PAYMENT CARDS (< 1024px) */}
       <div className="block lg:hidden space-y-3">
         {filteredPayments.map((p) => (
-          <div key={`m-pay-${p.id}`} className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-4 space-y-3 shadow-md text-xs">
+          <div key={`m-pay-${p.id}`} className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 space-y-3 shadow-md text-xs">
             <div className="flex items-center justify-between">
               <span className="font-mono text-[#00f2ff] font-bold">{p.transactionId}</span>
-              <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
+              <span className={`px-2 py-0.5 rounded-none text-[9px] font-extrabold uppercase border ${
                 p.status === 'Verified'
                   ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
                   : p.status === 'Pending'
@@ -311,7 +311,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
               <p className="text-[11px] text-[#8e9dae]">{p.tournamentTitle}</p>
             </div>
 
-            <div className="bg-[#07090c] p-2.5 rounded border border-[#3a494b]/60 space-y-1 font-mono text-[11px]">
+            <div className="bg-[#07090c] p-2.5 rounded-none border border-[#3a494b]/60 space-y-1 font-mono text-[11px]">
               <p>Captain: <span className="text-white font-bold">{p.captainName}</span></p>
               <p>Free Fire UID: <span className="text-[#00f2ff] font-bold">{p.freeFireUid}</span></p>
               <p>Fee: <span className="text-[#ffb693] font-bold">{p.entryFee}</span></p>
@@ -321,7 +321,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
               {p.status !== 'Verified' && (
                 <button
                   onClick={() => handleUpdatePaymentStatus(p.id, 'Verified')}
-                  className="flex-1 py-2 bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 rounded font-bold uppercase text-[10px]"
+                  className="flex-1 py-2 bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/40 rounded-none font-bold uppercase text-[10px]"
                 >
                   Verify
                 </button>
@@ -329,7 +329,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
               {p.status !== 'Rejected' && (
                 <button
                   onClick={() => handleUpdatePaymentStatus(p.id, 'Rejected')}
-                  className="flex-1 py-2 bg-red-950/40 text-[#ff3366] border border-red-800 rounded font-bold uppercase text-[10px]"
+                  className="flex-1 py-2 bg-red-950/40 text-[#ff3366] border border-red-800 rounded-none font-bold uppercase text-[10px]"
                 >
                   Reject
                 </button>
@@ -342,10 +342,10 @@ export default function PaymentVerificationView({ tournaments = [] }) {
       {/* SCREENSHOT PREVIEW MODAL */}
       {selectedScreenshot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-          <div className="bg-[#151a21] border border-[#3a494b] rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+          <div className="bg-[#151a21] border border-[#3a494b] rounded-none max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
             <button
               onClick={() => setSelectedScreenshot(null)}
-              className="absolute top-5 right-5 p-2 rounded bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
+              className="absolute top-5 right-5 p-2 rounded-none bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
@@ -355,7 +355,7 @@ export default function PaymentVerificationView({ tournaments = [] }) {
               <span>Payment Proof Screenshot</span>
             </h3>
 
-            <div className="max-h-[60vh] overflow-hidden rounded border border-[#3a494b]/60 flex items-center justify-center bg-[#07090c]">
+            <div className="max-h-[60vh] overflow-hidden rounded-none border border-[#3a494b]/60 flex items-center justify-center bg-[#07090c]">
               <img src={selectedScreenshot} alt="Payment Screenshot Proof" className="max-h-full max-w-full object-contain" />
             </div>
 

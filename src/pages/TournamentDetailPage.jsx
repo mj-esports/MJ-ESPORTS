@@ -209,11 +209,11 @@ export default function TournamentDetailPage() {
   if (!tournament) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center space-y-4 bg-[#111111] p-8 rounded-xl border border-[#333333]">
+        <div className="max-w-md w-full text-center space-y-4 bg-[#111111] p-8 rounded-none border border-[#333333]">
           <Trophy className="w-12 h-12 text-[#a3a3a3] mx-auto opacity-50" />
           <h2 className="font-headline text-2xl font-bold text-white uppercase">Tournament Not Found</h2>
           <p className="text-xs text-[#a3a3a3]">The tournament ID you requested does not exist or has been removed.</p>
-          <Link to="/tournaments" className="inline-flex px-6 py-2.5 bg-[#f97316] text-white font-headline font-bold rounded-lg hover:bg-orange-600 transition-colors">
+          <Link to="/tournaments" className="inline-flex px-6 py-2.5 bg-[#f97316] text-white font-headline font-bold rounded-none hover:bg-orange-600 transition-colors">
             Back to Tournaments
           </Link>
         </div>
@@ -269,7 +269,7 @@ export default function TournamentDetailPage() {
   ]
 
   const renderRegistrationSummaryCard = () => (
-    <div className="bg-[#141416] rounded-xl border border-[#27272a] hover:border-[#00f2ff]/40 p-4 sm:p-5 shadow-xl flex flex-col gap-3.5 sm:gap-4 relative transition-colors">
+    <div className="bg-[#141416] rounded-none border border-[#27272a] hover:border-[#00f2ff]/40 p-4 sm:p-5 shadow-xl flex flex-col gap-3.5 sm:gap-4 relative transition-colors">
       <div>
         <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-[#27272a] mb-3">
           <div className="flex items-center gap-2">
@@ -278,34 +278,34 @@ export default function TournamentDetailPage() {
               Registration Summary
             </h3>
           </div>
-          <span className="text-[10px] font-mono font-bold text-[#00f2ff] px-2 py-0.5 rounded bg-[#00f2ff]/10 border border-[#00f2ff]/30 uppercase">
+          <span className="text-[10px] font-mono font-bold text-[#00f2ff] px-2 py-0.5 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 uppercase">
             {tournament.status || 'Instant Slot'}
           </span>
         </div>
 
         {/* Key Metrics Grid (2x2) */}
         <div className="grid grid-cols-2 gap-2 font-body text-xs mb-3">
-          <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+          <div className="bg-[#1c1b1c] p-2.5 rounded-none border border-[#27272a]">
             <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">Entry Fee</span>
             <span className="font-mono text-sm sm:text-base font-bold text-[#00f2ff]">
               {tournament.entryFee || 'Free'} <span className="font-body text-[10px] text-[#849495] font-normal">/ {modeInfo.teamUnit || 'Squad'}</span>
             </span>
           </div>
-          <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+          <div className="bg-[#1c1b1c] p-2.5 rounded-none border border-[#27272a]">
             <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">Platform</span>
             <span className="font-semibold text-white">Mobile <span className="text-[9px] text-[#849495] font-normal">(No PC)</span></span>
           </div>
-          <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+          <div className="bg-[#1c1b1c] p-2.5 rounded-none border border-[#27272a]">
             <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">Format</span>
             <span className="font-semibold text-white">{tournament.format || `${modeInfo.mode} Mode`}</span>
           </div>
-          <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+          <div className="bg-[#1c1b1c] p-2.5 rounded-none border border-[#27272a]">
             <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">Registration Ends</span>
             <span className="font-semibold text-red-400 truncate block">{tournament.startDate || tournament.registrationEnd || 'Before Kickoff'}</span>
           </div>
         </div>
 
-        <div className="bg-[#1c1b1c] px-3 py-1.5 rounded-lg border border-[#27272a] flex items-center justify-between">
+        <div className="bg-[#1c1b1c] px-3 py-1.5 rounded-none border border-[#27272a] flex items-center justify-between">
           <span className="font-label text-[10px] text-[#849495] uppercase tracking-wider">Prize Pool Target</span>
           <span className="font-mono text-xs font-bold text-[#ff5e07]">{formatTournamentPrize(tournament)} Total Purse</span>
         </div>
@@ -322,7 +322,7 @@ export default function TournamentDetailPage() {
         {authLoading || (isAuthenticated && isCheckingRegistration && !isAlreadyRegistered) ? (
           <button
             disabled
-            className="w-full bg-[#1c1b1c] text-[#849495] border border-[#27272a] font-headline font-bold text-xs sm:text-base py-3 sm:py-3.5 rounded-lg flex items-center justify-center gap-2 cursor-wait animate-pulse min-h-[44px]"
+            className="w-full bg-[#1c1b1c] text-[#849495] border border-[#27272a] font-headline font-bold text-xs sm:text-base py-3 sm:py-3.5 rounded-none flex items-center justify-center gap-2 cursor-wait animate-pulse min-h-[44px]"
           >
             <Clock className="w-4 h-4 text-[#ff5e07] animate-spin" />
             <span>Verifying Registration...</span>
@@ -331,13 +331,13 @@ export default function TournamentDetailPage() {
           <div className="space-y-3">
             <button
               disabled
-              className="w-full bg-red-950/50 text-red-400 border border-red-500/40 font-headline font-bold text-xs sm:text-base py-3 sm:py-3.5 rounded-lg flex items-center justify-center gap-2 cursor-not-allowed select-none min-h-[44px]"
+              className="w-full bg-red-950/50 text-red-400 border border-red-500/40 font-headline font-bold text-xs sm:text-base py-3 sm:py-3.5 rounded-none flex items-center justify-center gap-2 cursor-not-allowed select-none min-h-[44px]"
             >
               <Ban className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
               <span>Tournament Cancelled</span>
             </button>
             {isAlreadyRegistered && (
-              <div className="p-3 bg-[#0e0e0f] border border-emerald-500/30 rounded-lg space-y-2 text-xs font-mono">
+              <div className="p-3 bg-[#0e0e0f] border border-emerald-500/30 rounded-none space-y-2 text-xs font-mono">
                 <div className="flex justify-between items-center text-white">
                   <span className="text-[#b9cacb]">Refund Status:</span>
                   <span className="text-[#10b981] font-bold uppercase flex items-center gap-1">
@@ -362,7 +362,7 @@ export default function TournamentDetailPage() {
           <div className="space-y-3">
             <button
               disabled
-              className="w-full bg-emerald-950/60 text-[#10b981] border border-[#10b981]/50 font-headline font-bold text-xs sm:text-base py-3 sm:py-3.5 rounded-lg shadow-[0_0_16px_rgba(16,185,129,0.2)] flex items-center justify-center gap-2 cursor-default select-none min-h-[44px]"
+              className="w-full bg-emerald-950/60 text-[#10b981] border border-[#10b981]/50 font-headline font-bold text-xs sm:text-base py-3 sm:py-3.5 rounded-none shadow-[0_0_16px_rgba(16,185,129,0.2)] flex items-center justify-center gap-2 cursor-default select-none min-h-[44px]"
             >
               <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#10b981]" />
               <span>
@@ -374,7 +374,7 @@ export default function TournamentDetailPage() {
               </span>
             </button>
 
-            <div className="p-3 bg-[#0e0e0f] border border-[#10b981]/30 rounded-lg space-y-2 text-xs font-mono">
+            <div className="p-3 bg-[#0e0e0f] border border-[#10b981]/30 rounded-none space-y-2 text-xs font-mono">
               <div className="flex justify-between items-center text-white">
                 <span className="text-[#b9cacb]">Roster Status:</span>
                 <span className="text-[#10b981] font-bold uppercase flex items-center gap-1">
@@ -406,7 +406,7 @@ export default function TournamentDetailPage() {
           <button
             onClick={handleRegisterClick}
             disabled={isRegistrationDisabled}
-            className="w-full bg-[#ff5e07] hover:bg-[#e05204] text-white font-headline font-bold text-xs sm:text-sm uppercase tracking-wider py-3 sm:py-3.5 rounded-lg shadow-[0_0_16px_rgba(255,94,7,0.35)] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 min-h-[44px]"
+            className="w-full bg-[#ff5e07] hover:bg-[#e05204] text-white font-headline font-bold text-xs sm:text-sm uppercase tracking-wider py-3 sm:py-3.5 rounded-none shadow-[0_0_16px_rgba(255,94,7,0.35)] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 min-h-[44px]"
           >
             <Gamepad2 className="w-4 h-4" />
             <span>
@@ -430,14 +430,14 @@ export default function TournamentDetailPage() {
       <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#27272a]">
         <button
           onClick={() => handleCopy(window.location.href, 'Tournament Link')}
-          className="h-8 bg-[#1c1b1c] hover:bg-[#27272a] text-[#b9cacb] hover:text-white font-label text-[11px] uppercase rounded-lg border border-[#27272a] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+          className="h-8 bg-[#1c1b1c] hover:bg-[#27272a] text-[#b9cacb] hover:text-white font-label text-[11px] uppercase rounded-none border border-[#27272a] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
         >
           <Share2 className="w-3.5 h-3.5 text-[#849495]" />
           <span>Share Link</span>
         </button>
         <button
           onClick={() => handleCopy(window.location.href, 'Tournament Bookmarked')}
-          className="h-8 bg-[#1c1b1c] hover:bg-[#27272a] text-[#b9cacb] hover:text-white font-label text-[11px] uppercase rounded-lg border border-[#27272a] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+          className="h-8 bg-[#1c1b1c] hover:bg-[#27272a] text-[#b9cacb] hover:text-white font-label text-[11px] uppercase rounded-none border border-[#27272a] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
         >
           <Bookmark className="w-3.5 h-3.5 text-[#849495]" />
           <span>Save Scrim</span>
@@ -458,7 +458,7 @@ export default function TournamentDetailPage() {
           <span className="font-bold uppercase tracking-wider text-[11px]">Tournaments</span>
         </Link>
         <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${isCancelled ? 'bg-red-500' : 'bg-[#10b981] animate-pulse'}`}></span>
+          <span className={`w-2 h-2 rounded-none ${isCancelled ? 'bg-red-500' : 'bg-[#10b981] animate-pulse'}`}></span>
           <span className="font-mono text-[11px] text-[#849495] uppercase font-bold">
             {tournament.status || 'Live'}
           </span>
@@ -475,8 +475,8 @@ export default function TournamentDetailPage() {
         ></div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#131314] via-[#131314]/70 to-transparent"></div>
         <div className="relative z-10 w-full pt-6 sm:pt-8 md:p-12 pb-3.5 sm:pb-6 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col justify-end">
-          <div className="inline-flex items-center gap-2 bg-[#141416]/80 backdrop-blur-md border border-[#27272a] px-3 py-1 rounded-full w-max mb-2 sm:mb-3">
-            <span className={`w-2 h-2 rounded-full ${isCancelled ? 'bg-red-500' : 'bg-[#10b981] animate-pulse'}`}></span>
+          <div className="inline-flex items-center gap-2 bg-[#141416]/80 backdrop-blur-md border border-[#27272a] px-3 py-1 rounded-none w-max mb-2 sm:mb-3">
+            <span className={`w-2 h-2 rounded-none ${isCancelled ? 'bg-red-500' : 'bg-[#10b981] animate-pulse'}`}></span>
             <span className={`text-[10px] xs:text-xs font-label uppercase tracking-wider font-bold ${isCancelled ? 'text-red-400' : 'text-[#b9cacb]'}`}>
               {tournament.status || 'Registration Open'}
             </span>
@@ -485,15 +485,15 @@ export default function TournamentDetailPage() {
             {tournament.title}
           </h1>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs md:text-sm font-label text-[#b9cacb]">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#141416]/70 border border-[#27272a]">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-[#141416]/70 border border-[#27272a]">
               <Gamepad2 className="w-3.5 h-3.5 text-[#ff5e07]" />
               <span className="font-semibold text-[#e5e2e3]">{tournament.game}</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#141416]/70 border border-[#27272a]">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-[#141416]/70 border border-[#27272a]">
               <Users className="w-3.5 h-3.5 text-[#ff5e07]" />
               <span className="font-semibold text-[#e5e2e3]">{tournament.format || 'Squad'} Mode</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#141416]/70 border border-[#27272a]">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-[#141416]/70 border border-[#27272a]">
               <MapPin className="w-3.5 h-3.5 text-[#ff5e07]" />
               <span className="font-semibold text-[#e5e2e3]">{tournament.map || 'Bermuda'}</span>
             </span>
@@ -504,7 +504,7 @@ export default function TournamentDetailPage() {
       {/* 2. MAIN CONTENT AREA (2 COLS: OVERVIEW & STICKY SIDEBAR) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 sm:py-8 md:py-12">
         {isCancelled && (
-          <div className="mb-6 p-4 sm:p-5 bg-red-950/40 border border-red-500/40 rounded-xl flex items-start gap-3.5">
+          <div className="mb-6 p-4 sm:p-5 bg-red-950/40 border border-red-500/40 rounded-none flex items-start gap-3.5">
             <Ban className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
             <div className="space-y-1 text-xs font-body">
               <h4 className="font-headline font-bold text-sm uppercase text-red-300">
@@ -514,7 +514,7 @@ export default function TournamentDetailPage() {
                 This tournament has been cancelled. All registered players who paid entry fees have received a full (100%) refund directly into their authoritative MJ ESPORTS wallet.
               </p>
               {isUserRefunded && (
-                <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-950/60 border border-emerald-500/40 rounded text-emerald-400 font-headline font-bold uppercase text-[11px]">
+                <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-950/60 border border-emerald-500/40 rounded-none text-emerald-400 font-headline font-bold uppercase text-[11px]">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Your entry fee has been credited back to your wallet</span>
                 </div>
@@ -540,7 +540,7 @@ export default function TournamentDetailPage() {
                   <button
                     key={`detail-tab-${tab.id}`}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`font-headline text-xs xs:text-sm sm:text-base md:text-lg py-2.5 sm:py-3.5 px-3 sm:px-2 transition-all shrink-0 whitespace-nowrap focus:outline-none focus-visible:ring-1 focus-visible:ring-[#00f2ff] rounded-t-lg ${
+                    className={`font-headline text-xs xs:text-sm sm:text-base md:text-lg py-2.5 sm:py-3.5 px-3 sm:px-2 transition-all shrink-0 whitespace-nowrap focus:outline-none focus-visible:ring-1 focus-visible:ring-[#00f2ff] rounded-none ${
                       activeTab === tab.id
                         ? 'font-bold text-[#ff5e07] border-b-2 border-[#ff5e07] bg-[#ff5e07]/5 sm:bg-transparent'
                         : 'font-medium text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c]/40'
@@ -556,13 +556,13 @@ export default function TournamentDetailPage() {
             {activeTab === 'overview' && (
               <section className="space-y-4 sm:space-y-6">
                 {/* 1. PRIZE POOL & ALLOCATION */}
-                <div className="bg-[#141416] p-4 sm:p-5 rounded-xl border border-[#ff5e07]/40 relative overflow-hidden space-y-3 shadow-lg">
+                <div className="bg-[#141416] p-4 sm:p-5 rounded-none border border-[#ff5e07]/40 relative overflow-hidden space-y-3 shadow-lg">
                   <div className="flex items-center justify-between pb-2 border-b border-[#27272a]">
                     <div className="flex items-center gap-2">
                       <Award className="w-4 h-4 text-[#ff5e07]" />
                       <h3 className="font-headline text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Prize Pool & Allocation</h3>
                     </div>
-                    <span className="font-mono text-[10px] text-[#10b981] bg-[#10b981]/10 border border-[#10b981]/30 px-2 py-0.5 rounded font-bold uppercase">
+                    <span className="font-mono text-[10px] text-[#10b981] bg-[#10b981]/10 border border-[#10b981]/30 px-2 py-0.5 rounded-none font-bold uppercase">
                       Escrow Secured
                     </span>
                   </div>
@@ -579,7 +579,7 @@ export default function TournamentDetailPage() {
                     </div>
                   </div>
                   {/* Tier Breakdown Mini-Strip */}
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 py-2 px-1 bg-[#1c1b1c] rounded-lg border border-[#27272a] text-center font-mono">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 py-2 px-1 bg-[#1c1b1c] rounded-none border border-[#27272a] text-center font-mono">
                     <div className="border-r border-[#27272a] pr-1">
                       <span className="text-[9px] text-[#ff5e07] font-bold block uppercase">1ST PLACE</span>
                       <span className="text-xs font-bold text-white">50%</span>
@@ -602,7 +602,7 @@ export default function TournamentDetailPage() {
                     </div>
                   </div>
                   {/* 4px Height Compact Gradient Progress Indicator */}
-                  <div className="w-full bg-[#201f20] h-1.5 rounded-full overflow-hidden flex border border-[#27272a]/50">
+                  <div className="w-full bg-[#201f20] h-1.5 rounded-none overflow-hidden flex border border-[#27272a]/50">
                     <div className="h-full bg-[#ff5e07]" style={{ width: '50%' }}></div>
                     <div className="h-full bg-[#ffb59a]" style={{ width: '30%' }}></div>
                     <div className="h-full bg-[#849495]" style={{ width: '20%' }}></div>
@@ -610,13 +610,13 @@ export default function TournamentDetailPage() {
                 </div>
 
                 {/* 2. DATE & TIME SPECIFICATION */}
-                <div className="bg-[#141416] p-4 sm:p-5 rounded-xl border border-[#27272a] space-y-3 shadow-lg">
+                <div className="bg-[#141416] p-4 sm:p-5 rounded-none border border-[#27272a] space-y-3 shadow-lg">
                   <div className="flex items-center justify-between pb-2 border-b border-[#27272a]/60">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-[#00f2ff]" />
                       <h3 className="font-headline text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Date & Time Specification</h3>
                     </div>
-                    <span className="font-mono text-[10px] text-[#849495] px-1.5 py-0.5 rounded bg-[#1c1b1c] border border-[#27272a]">
+                    <span className="font-mono text-[10px] text-[#849495] px-1.5 py-0.5 rounded-none bg-[#1c1b1c] border border-[#27272a]">
                       IST (UTC+05:30)
                     </span>
                   </div>
@@ -634,19 +634,19 @@ export default function TournamentDetailPage() {
                     </div>
                   </div>
                   {/* Mini Timeline Pill */}
-                  <div className="bg-[#1c1b1c] p-2 rounded-lg border border-[#27272a] flex items-center justify-between font-mono text-[10px] text-[#b9cacb]">
+                  <div className="bg-[#1c1b1c] p-2 rounded-none border border-[#27272a] flex items-center justify-between font-mono text-[10px] text-[#b9cacb]">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                      <span className="w-1.5 h-1.5 rounded-none bg-red-400"></span>
                       <span>Reg Closes: <strong className="text-white">{tournament.registrationEnd || tournament.startDate || '05:00 PM'}</strong></span>
                     </div>
                     <span className="text-[#849495]">•</span>
                     <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#ff5e07]"></span>
+                      <span className="w-1.5 h-1.5 rounded-none bg-[#ff5e07]"></span>
                       <span>Check-in: <strong className="text-white">{tournament.checkInTime || '05:15 PM'}</strong></span>
                     </div>
                     <span className="text-[#849495]">•</span>
                     <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00f2ff]"></span>
+                      <span className="w-1.5 h-1.5 rounded-none bg-[#00f2ff]"></span>
                       <span>Kickoff: <strong className="text-white">{tournament.startTime || '06:00 PM'}</strong></span>
                     </div>
                   </div>
@@ -658,7 +658,7 @@ export default function TournamentDetailPage() {
                 </div>
 
                 {/* 4. REGISTERED SQUADS / COMBATANTS */}
-                <div className="bg-[#141416] p-4 sm:p-5 rounded-xl border border-[#27272a] space-y-3 shadow-lg">
+                <div className="bg-[#141416] p-4 sm:p-5 rounded-none border border-[#27272a] space-y-3 shadow-lg">
                   <div className="flex items-center justify-between pb-2 border-b border-[#27272a]/60">
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-[#00f2ff]" />
@@ -668,19 +668,19 @@ export default function TournamentDetailPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-[10px] text-[#849495] uppercase hidden xs:inline">Slot Capacity Metrics</span>
-                      <span className="font-mono text-[10px] text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/30 px-2 py-0.5 rounded font-bold">
+                      <span className="font-mono text-[10px] text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/30 px-2 py-0.5 rounded-none font-bold">
                         {fillPercentage}% FILLED
                       </span>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+                    <div className="bg-[#1c1b1c] p-2.5 rounded-none border border-[#27272a]">
                       <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">REGISTERED SQUADS</span>
                       <span className="font-mono text-sm font-bold text-white">
                         {regTeams} / {maxTeams} <span className="text-[10px] text-[#849495]">{modeInfo.teamUnit || 'Squads'}</span>
                       </span>
                     </div>
-                    <div className="bg-[#1c1b1c] p-2.5 rounded-lg border border-[#27272a]">
+                    <div className="bg-[#1c1b1c] p-2.5 rounded-none border border-[#27272a]">
                       <span className="font-label text-[9px] uppercase tracking-wider text-[#849495] block">COMBATANTS LOGGED</span>
                       <span className="font-mono text-sm font-bold text-white">
                         {filledPlayerSlots} / {totalPlayerSlots} <span className="text-[10px] text-[#849495]">Players</span>
@@ -688,16 +688,16 @@ export default function TournamentDetailPage() {
                     </div>
                   </div>
                   <div className="space-y-1.5 pt-1">
-                    <div className="w-full bg-[#201f20] rounded-full h-2.5 overflow-hidden border border-[#27272a]/50">
+                    <div className="w-full bg-[#201f20] rounded-none h-2.5 overflow-hidden border border-[#27272a]/50">
                       <div
-                        className="bg-gradient-to-r from-[#00f2ff] to-[#ff5e07] h-2.5 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(0,242,255,0.4)]"
+                        className="bg-gradient-to-r from-[#00f2ff] to-[#ff5e07] h-2.5 rounded-none transition-all duration-500 shadow-[0_0_8px_rgba(0,242,255,0.4)]"
                         style={{ width: `${fillPercentage}%` }}
                       ></div>
                     </div>
                     <div className="flex items-center justify-between font-mono text-[10px] pt-0.5">
                       <span className="text-[#849495]">SLOTS RESERVED: {regTeams}</span>
                       <span className="text-[#ff5e07] font-bold flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#ff5e07]"></span>
+                        <span className="w-1.5 h-1.5 rounded-none bg-[#ff5e07]"></span>
                         {Math.max(0, maxTeams - regTeams)} {modeInfo.teamUnit || 'Squad'} Slots Remaining
                       </span>
                     </div>
@@ -707,7 +707,7 @@ export default function TournamentDetailPage() {
                 {/* 5. MATCH ROOM CREDENTIALS */}
                 {tournament.roomStatus === 'Published' ? (
                   !isAuthenticated ? (
-                    <div className="bg-[#141416] border border-[#27272a] rounded-xl p-4 sm:p-6 space-y-3 shadow-lg">
+                    <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 sm:p-6 space-y-3 shadow-lg">
                       <div className="flex items-center gap-2 text-[#00f2ff] font-headline font-bold text-sm uppercase">
                         <Lock className="w-4 h-4 text-[#849495]" />
                         <span>Match Room Credentials</span>
@@ -717,35 +717,35 @@ export default function TournamentDetailPage() {
                       </p>
                       <Link
                         to="/login"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/40 text-[#00f2ff] font-label font-extrabold text-xs uppercase hover:bg-[#00f2ff]/20 transition-all"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/40 text-[#00f2ff] font-label font-extrabold text-xs uppercase hover:bg-[#00f2ff]/20 transition-all"
                       >
                         Sign In to View
                       </Link>
                     </div>
                   ) : (isAlreadyRegistered || isAdmin) ? (
                     secureRoomDetails?.roomId ? (
-                      <div className="bg-[#141416] border border-[#00f2ff]/50 rounded-xl p-4 sm:p-6 space-y-4 shadow-[0_0_20px_rgba(0,255,255,0.15)] relative overflow-hidden">
+                      <div className="bg-[#141416] border border-[#00f2ff]/50 rounded-none p-4 sm:p-6 space-y-4 shadow-[0_0_20px_rgba(0,255,255,0.15)] relative overflow-hidden">
                         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#27272a] pb-3">
                           <div className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#ff5e07] animate-pulse"></span>
+                            <span className="w-2.5 h-2.5 rounded-none bg-[#ff5e07] animate-pulse"></span>
                             <h3 className="font-headline text-sm sm:text-base font-bold text-white flex items-center gap-2 uppercase tracking-wider">
                               <Key className="w-4 h-4 text-[#00f2ff]" />
                               <span>MATCH ROOM LIVE</span>
                             </h3>
                           </div>
-                          <span className="px-2.5 py-1 rounded bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-xs font-mono font-bold uppercase tracking-wider">
+                          <span className="px-2.5 py-1 rounded-none bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-xs font-mono font-bold uppercase tracking-wider">
                             Room Status: Published
                           </span>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {/* ROOM ID CARD */}
-                          <div className="bg-[#1c1b1c] p-3.5 sm:p-4 rounded-lg border border-[#27272a] space-y-2">
+                          <div className="bg-[#1c1b1c] p-3.5 sm:p-4 rounded-none border border-[#27272a] space-y-2">
                             <div className="flex justify-between items-center">
                               <span className="text-[10px] font-extrabold text-[#849495] uppercase font-label tracking-wider">ROOM ID</span>
                               <button
                                 onClick={() => handleCopy(secureRoomDetails.roomId, 'Room ID')}
-                                className="px-2.5 py-1 rounded bg-[#201f20] hover:bg-[#00f2ff]/20 border border-[#27272a] hover:border-[#00f2ff]/50 text-[#00f2ff] text-xs font-bold font-label flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer min-h-[32px]"
+                                className="px-2.5 py-1 rounded-none bg-[#201f20] hover:bg-[#00f2ff]/20 border border-[#27272a] hover:border-[#00f2ff]/50 text-[#00f2ff] text-xs font-bold font-label flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer min-h-[32px]"
                               >
                                 <Copy className="w-3.5 h-3.5" />
                                 <span>COPY ID</span>
@@ -757,20 +757,20 @@ export default function TournamentDetailPage() {
                           </div>
 
                           {/* ROOM PASSWORD CARD */}
-                          <div className="bg-[#1c1b1c] p-3.5 sm:p-4 rounded-lg border border-[#27272a] space-y-2">
+                          <div className="bg-[#1c1b1c] p-3.5 sm:p-4 rounded-none border border-[#27272a] space-y-2">
                             <div className="flex justify-between items-center gap-2">
                               <span className="text-[10px] font-extrabold text-[#849495] uppercase font-label tracking-wider">PASSWORD</span>
                               <div className="flex items-center gap-1.5">
                                 <button
                                   onClick={() => setShowPassword((prev) => !prev)}
-                                  className="p-1.5 rounded hover:bg-[#201f20] text-[#849495] hover:text-white transition-colors"
+                                  className="p-1.5 rounded-none hover:bg-[#201f20] text-[#849495] hover:text-white transition-colors"
                                   title={showPassword ? 'Hide Password' : 'Show Password'}
                                 >
                                   {showPassword ? <EyeOff className="w-4 h-4 text-[#00f2ff]" /> : <Eye className="w-4 h-4" />}
                                 </button>
                                 <button
                                   onClick={() => handleCopy(secureRoomDetails.roomPassword, 'Password')}
-                                  className="px-2.5 py-1 rounded bg-[#201f20] hover:bg-[#00f2ff]/20 border border-[#27272a] hover:border-[#00f2ff]/50 text-white hover:text-[#00f2ff] text-xs font-bold font-label flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer min-h-[32px]"
+                                  className="px-2.5 py-1 rounded-none bg-[#201f20] hover:bg-[#00f2ff]/20 border border-[#27272a] hover:border-[#00f2ff]/50 text-white hover:text-[#00f2ff] text-xs font-bold font-label flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer min-h-[32px]"
                                 >
                                   <Copy className="w-3.5 h-3.5" />
                                   <span>COPY PASSWORD</span>
@@ -787,7 +787,7 @@ export default function TournamentDetailPage() {
                         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#27272a]">
                           <button
                             onClick={() => handleCopyCredentials(tournament?.title, secureRoomDetails.roomId, secureRoomDetails.roomPassword)}
-                            className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-[#00f2ff] text-black font-headline font-black text-xs uppercase tracking-wider hover:bg-[#00dbe7] transition-all flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(0,242,255,0.25)] active:scale-98 cursor-pointer min-h-[40px]"
+                            className="w-full sm:w-auto px-6 py-2.5 rounded-none bg-[#00f2ff] text-black font-headline font-black text-xs uppercase tracking-wider hover:bg-[#00dbe7] transition-all flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(0,242,255,0.25)] active:scale-98 cursor-pointer min-h-[40px]"
                           >
                             <Copy className="w-4 h-4" />
                             <span>COPY CREDENTIALS</span>
@@ -799,7 +799,7 @@ export default function TournamentDetailPage() {
                         </div>
                       </div>
                     ) : roomLoading ? (
-                      <div className="bg-[#141416] border border-[#00f2ff]/30 rounded-xl p-4 sm:p-6 space-y-2 animate-pulse">
+                      <div className="bg-[#141416] border border-[#00f2ff]/30 rounded-none p-4 sm:p-6 space-y-2 animate-pulse">
                         <div className="flex items-center gap-2 text-[#00f2ff] font-headline font-bold text-sm uppercase">
                           <Key className="w-4 h-4 text-[#00f2ff]" />
                           <span>Verifying Match Room Credentials...</span>
@@ -809,7 +809,7 @@ export default function TournamentDetailPage() {
                         </p>
                       </div>
                     ) : (
-                      <div className="bg-[#141416] border border-[#00f2ff]/40 rounded-xl p-4 sm:p-6 space-y-2">
+                      <div className="bg-[#141416] border border-[#00f2ff]/40 rounded-none p-4 sm:p-6 space-y-2">
                         <div className="flex items-center gap-2 text-[#00f2ff] font-headline font-bold text-sm uppercase">
                           <Key className="w-4 h-4 text-[#00f2ff]" />
                           <span>Match Room Credentials</span>
@@ -820,7 +820,7 @@ export default function TournamentDetailPage() {
                       </div>
                     )
                   ) : (
-                    <div className="bg-[#141416] border border-[#27272a] rounded-xl p-4 sm:p-6 space-y-2">
+                    <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 sm:p-6 space-y-2">
                       <div className="flex items-center gap-2 text-[#00f2ff] font-headline font-bold text-sm uppercase">
                         <Lock className="w-4 h-4 text-[#849495]" />
                         <span>Match Room Credentials</span>
@@ -831,7 +831,7 @@ export default function TournamentDetailPage() {
                     </div>
                   )
                 ) : (
-                  <div className="bg-[#141416] border border-[#27272a] rounded-xl p-4 sm:p-6 space-y-2">
+                  <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 sm:p-6 space-y-2">
                     <div className="flex items-center gap-2 text-[#00f2ff] font-headline font-bold text-sm uppercase">
                       <Key className="w-4 h-4 text-[#849495]" />
                       <span>Match Room Credentials</span>
@@ -844,7 +844,7 @@ export default function TournamentDetailPage() {
 
                 {/* Tactical Map Banner (Render only when map image content exists) */}
                 {(tournament.mapImage || tournament.map_image) && (
-                  <div className="mt-8 rounded-xl overflow-hidden border border-[#27272a] shadow-lg">
+                  <div className="mt-8 rounded-none overflow-hidden border border-[#27272a] shadow-lg">
                     <div
                       className="bg-cover bg-center w-full h-48 sm:h-64"
                       style={{
@@ -912,7 +912,7 @@ export default function TournamentDetailPage() {
                   {/* Header Bar */}
                   <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 border-b border-[#27272a] pb-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
+                      <div className="w-8 h-8 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0">
                         <Users className="w-4 h-4 text-[#00f2ff]" />
                       </div>
                       <div>
@@ -923,13 +923,13 @@ export default function TournamentDetailPage() {
                           Confirmed Battle Roster
                         </span>
                       </div>
-                      <span className="text-[10px] sm:text-[11px] font-mono font-bold px-2.5 py-0.5 rounded bg-[#1c1b1c] text-[#00f2ff] border border-[#00f2ff]/30 uppercase tracking-wider shrink-0">
+                      <span className="text-[10px] sm:text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-none bg-[#1c1b1c] text-[#00f2ff] border border-[#00f2ff]/30 uppercase tracking-wider shrink-0">
                         {registeredSquads.length} / {maxTeams} {modeInfo.teamUnit || 'Squads'}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold uppercase tracking-wider">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold uppercase tracking-wider">
                         <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                         <span>Roster Verified</span>
                       </span>
@@ -940,9 +940,9 @@ export default function TournamentDetailPage() {
                   {registeredSquads.length === 0 ? (
                     <div
                       data-testid="squads-empty-state"
-                      className="bg-[#141416] border border-[#27272a] rounded-xl p-6 sm:p-8 text-center space-y-3.5 shadow-md max-w-full"
+                      className="bg-[#141416] border border-[#27272a] rounded-none p-6 sm:p-8 text-center space-y-3.5 shadow-md max-w-full"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-[#1c1b1c] border border-[#27272a] flex items-center justify-center mx-auto text-[#00f2ff]">
+                      <div className="w-12 h-12 rounded-none bg-[#1c1b1c] border border-[#27272a] flex items-center justify-center mx-auto text-[#00f2ff]">
                         <Users className="w-6 h-6 text-[#00f2ff]/70" />
                       </div>
                       <div className="space-y-1">
@@ -958,13 +958,13 @@ export default function TournamentDetailPage() {
                           <button
                             type="button"
                             onClick={handleRegisterClick}
-                            className="px-5 py-2.5 bg-[#ff5e07] hover:bg-[#e05206] text-white font-headline font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_0_15px_rgba(255,94,7,0.3)] active:scale-98 cursor-pointer min-h-[44px] flex items-center gap-2"
+                            className="px-5 py-2.5 bg-[#ff5e07] hover:bg-[#e05206] text-white font-headline font-extrabold text-xs uppercase tracking-wider rounded-none transition-all shadow-[0_0_15px_rgba(255,94,7,0.3)] active:scale-98 cursor-pointer min-h-[44px] flex items-center gap-2"
                           >
                             <Trophy className="w-4 h-4" />
                             <span>Claim First Slot</span>
                           </button>
                         )}
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1c1b1c] border border-[#27272a] text-[10px] sm:text-[11px] font-mono text-[#00f2ff]">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[10px] sm:text-[11px] font-mono text-[#00f2ff]">
                           <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                           <span>{maxTeams} {modeInfo.teamUnit || 'Squad'} Slots Vacant</span>
                         </span>
@@ -985,19 +985,19 @@ export default function TournamentDetailPage() {
                           <div
                             key={`squad-${idx}`}
                             data-testid={`squad-card-${idx}`}
-                            className="p-3.5 sm:p-4 bg-[#141416] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-xl space-y-3 transition-colors shadow-sm relative flex flex-col justify-between"
+                            className="p-3.5 sm:p-4 bg-[#141416] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-none space-y-3 transition-colors shadow-sm relative flex flex-col justify-between"
                           >
                             {/* Top Row: Slot Number, Team Name & Status */}
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex items-center gap-2 min-w-0">
-                                <span className="px-2 py-0.5 rounded bg-[#1c1b1c] border border-[#27272a] text-[10px] sm:text-[11px] font-mono font-bold text-[#00f2ff] shrink-0">
+                                <span className="px-2 py-0.5 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[10px] sm:text-[11px] font-mono font-bold text-[#00f2ff] shrink-0">
                                   SLOT #{String(idx + 1).padStart(2, '0')}
                                 </span>
                                 <h4 className="font-headline font-bold text-white text-xs sm:text-sm tracking-wide truncate">
                                   {teamName}
                                 </h4>
                               </div>
-                              <span className={`px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 border ${
+                              <span className={`px-2 py-0.5 rounded-none text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 border ${
                                 isConfirmed
                                   ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40'
                                   : 'bg-amber-950/60 text-amber-400 border-amber-500/40'
@@ -1007,7 +1007,7 @@ export default function TournamentDetailPage() {
                             </div>
 
                             {/* Details Bento Box */}
-                            <div className="p-2.5 bg-[#1c1b1c] rounded-lg border border-[#27272a] space-y-1.5 text-xs font-mono">
+                            <div className="p-2.5 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1.5 text-xs font-mono">
                               <div className="flex items-center justify-between text-xs">
                                 <span className="text-[10px] text-[#849495] uppercase font-bold tracking-wider">CAPTAIN</span>
                                 <span className="text-white font-semibold truncate max-w-[160px] text-[11px] sm:text-xs">
@@ -1030,7 +1030,7 @@ export default function TournamentDetailPage() {
 
                   {/* Promoted Mobile Registration Prompt if slots remain */}
                   {registeredSquads.length > 0 && !isRegistrationDisabled && (
-                    <div className="p-3.5 sm:p-4 bg-[#141416] border border-[#27272a] rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-sm">
+                    <div className="p-3.5 sm:p-4 bg-[#141416] border border-[#27272a] rounded-none flex flex-wrap items-center justify-between gap-3 shadow-sm">
                       <div className="space-y-0.5">
                         <span className="font-headline text-xs sm:text-sm font-bold text-white uppercase tracking-wider block">
                           Slots Remaining: {Math.max(0, maxTeams - registeredSquads.length)} {modeInfo.teamUnit || 'Squads'}
@@ -1042,7 +1042,7 @@ export default function TournamentDetailPage() {
                       <button
                         type="button"
                         onClick={handleRegisterClick}
-                        className="px-5 py-2.5 bg-[#ff5e07] hover:bg-[#e05206] text-white font-headline font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_0_12px_rgba(255,94,7,0.3)] active:scale-98 cursor-pointer min-h-[44px]"
+                        className="px-5 py-2.5 bg-[#ff5e07] hover:bg-[#e05206] text-white font-headline font-extrabold text-xs uppercase tracking-wider rounded-none transition-all shadow-[0_0_12px_rgba(255,94,7,0.3)] active:scale-98 cursor-pointer min-h-[44px]"
                       >
                         Claim Slot
                       </button>
@@ -1056,7 +1056,7 @@ export default function TournamentDetailPage() {
             {activeTab === 'faqs' && (
               <section className="space-y-3.5 sm:space-y-4 max-w-full">
                 {/* Header & Category Banner */}
-                <div className="bg-[#141416] p-4 sm:p-5 rounded-xl border border-[#27272a] shadow-lg space-y-2">
+                <div className="bg-[#141416] p-4 sm:p-5 rounded-none border border-[#27272a] shadow-lg space-y-2">
                   <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#27272a]/60">
                     <div className="flex items-center gap-2 min-w-0">
                       <HelpCircle className="w-4 h-4 text-[#00f2ff] shrink-0" />
@@ -1064,7 +1064,7 @@ export default function TournamentDetailPage() {
                         Frequently Asked Questions
                       </h2>
                     </div>
-                    <span className="font-mono text-[10px] text-[#00f2ff] px-2 py-0.5 rounded bg-[#1c1b1c] border border-[#00f2ff]/30 uppercase tracking-wider shrink-0">
+                    <span className="font-mono text-[10px] text-[#00f2ff] px-2 py-0.5 rounded-none bg-[#1c1b1c] border border-[#00f2ff]/30 uppercase tracking-wider shrink-0">
                       Arbiter Guide
                     </span>
                   </div>
@@ -1081,7 +1081,7 @@ export default function TournamentDetailPage() {
                       <div
                         key={`faq-${idx}`}
                         data-testid={`faq-item-${idx}`}
-                        className={`rounded-xl border transition-all duration-200 overflow-hidden ${
+                        className={`rounded-none border transition-all duration-200 overflow-hidden ${
                           isOpen
                             ? 'bg-[#1c1b1c] border-[#00f2ff]/40 shadow-[0_0_12px_rgba(0,242,255,0.06)]'
                             : 'bg-[#141416] border-[#27272a] hover:border-[#27272a]/90 hover:bg-[#1a191a]'
@@ -1096,7 +1096,7 @@ export default function TournamentDetailPage() {
                           className="w-full p-3.5 sm:p-4 text-left flex items-center justify-between gap-3 cursor-pointer select-none transition-colors min-h-[44px] group"
                         >
                           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold shrink-0 border transition-colors ${
+                            <span className={`px-2 py-0.5 rounded-none text-[10px] font-mono font-bold shrink-0 border transition-colors ${
                               isOpen
                                 ? 'bg-[#ff5e07]/10 text-[#ff5e07] border-[#ff5e07]/30'
                                 : 'bg-[#1c1b1c] text-[#849495] border-[#27272a] group-hover:text-[#00f2ff]'
@@ -1109,7 +1109,7 @@ export default function TournamentDetailPage() {
                               {faq.q}
                             </span>
                           </div>
-                          <div className={`w-6 h-6 rounded-md flex items-center justify-center border transition-all shrink-0 ${
+                          <div className={`w-6 h-6 rounded-none flex items-center justify-center border transition-all shrink-0 ${
                             isOpen
                               ? 'bg-[#ff5e07]/15 border-[#ff5e07]/40 text-[#ff5e07]'
                               : 'bg-[#1c1b1c] border-[#27272a] text-[#849495] group-hover:text-white'
@@ -1130,7 +1130,7 @@ export default function TournamentDetailPage() {
                             data-testid={`faq-answer-${idx}`}
                             className="px-3.5 pb-3.5 sm:px-4 sm:pb-4 pt-0"
                           >
-                            <div className="p-3 rounded-lg bg-[#141416] border border-[#27272a]/70 text-xs text-[#b9cacb] font-body leading-relaxed space-y-1.5">
+                            <div className="p-3 rounded-none bg-[#141416] border border-[#27272a]/70 text-xs text-[#b9cacb] font-body leading-relaxed space-y-1.5">
                               <p>{faq.a}</p>
                               <div className="pt-1 border-t border-[#27272a]/50 flex items-center justify-between text-[10px] font-mono text-[#849495]">
                                 <span>STANDARD PROCEDURE</span>
@@ -1148,7 +1148,7 @@ export default function TournamentDetailPage() {
                 </div>
 
                 {/* Arbitration & Support Contact Notice */}
-                <div className="p-3.5 sm:p-4 bg-[#141416] border border-[#27272a] rounded-xl flex items-center justify-between gap-3 text-xs">
+                <div className="p-3.5 sm:p-4 bg-[#141416] border border-[#27272a] rounded-none flex items-center justify-between gap-3 text-xs">
                   <div className="space-y-0.5">
                     <span className="font-headline font-bold text-white uppercase tracking-wider block text-xs">
                       Need Immediate Match Support?
@@ -1159,7 +1159,7 @@ export default function TournamentDetailPage() {
                   </div>
                   <Link
                     to="/about"
-                    className="px-3.5 py-2 rounded-lg bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 text-[#00f2ff] font-mono text-[11px] font-bold uppercase tracking-wider transition-colors shrink-0 min-h-[36px] flex items-center"
+                    className="px-3.5 py-2 rounded-none bg-[#1c1b1c] border border-[#27272a] hover:border-[#00f2ff]/40 text-[#00f2ff] font-mono text-[11px] font-bold uppercase tracking-wider transition-colors shrink-0 min-h-[36px] flex items-center"
                   >
                     Support Desk
                   </Link>

@@ -42,13 +42,13 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) 
             <img
               src="/mj-esports-logo.png"
               alt="MJ ESPORTS"
-              className="h-10 w-10 rounded-full object-contain shrink-0 shadow-[0_0_12px_rgba(0,242,255,0.25)]"
+              className="h-10 w-10 rounded-none object-contain shrink-0 shadow-[0_0_12px_rgba(0,242,255,0.25)]"
             />
             <div>
               <h1 className="font-extrabold text-lg text-white tracking-wider font-mono">
                 MJ <span className="text-cyan-400">ESPORTS</span>
               </h1>
-              <span className="text-[10px] font-semibold tracking-widest text-cyan-400/80 uppercase bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">
+              <span className="text-[10px] font-semibold tracking-widest text-cyan-400/80 uppercase bg-cyan-950/60 px-2 py-0.5 rounded-none border border-cyan-800/40">
                 Admin Panel V2
               </span>
             </div>
@@ -56,7 +56,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) 
 
           <button
             onClick={() => setIsOpen(false)}
-            className="lg:hidden text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800/60"
+            className="lg:hidden text-slate-400 hover:text-white p-1 rounded-none hover:bg-slate-800/60"
           >
             <X className="w-5 h-5" />
           </button>
@@ -78,7 +78,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) 
                   setActiveTab(item.id)
                   setIsOpen(false)
                 }}
-                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-none text-sm font-medium transition-all duration-200 group ${
                   isActive
                     ? 'bg-gradient-to-r from-cyan-500/15 to-transparent text-cyan-400 border border-cyan-500/30 shadow-lg shadow-cyan-500/10'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
@@ -96,7 +96,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) 
                 <div className="flex items-center gap-2">
                   {item.badge && (
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-none ${
                         isActive
                           ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                           : 'bg-slate-800 text-slate-400'
@@ -114,9 +114,9 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) 
 
         {/* User Footer Profile */}
         <div className="p-4 border-t border-slate-800/60 bg-slate-950/60">
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/60">
+          <div className="flex items-center justify-between p-2.5 rounded-none bg-slate-900/60 border border-slate-800/60">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center font-bold text-white shadow-md">
+              <div className="w-9 h-9 rounded-none bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center font-bold text-white shadow-md">
                 AD
               </div>
               <div className="flex flex-col">
@@ -126,7 +126,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) 
             </div>
             <button
               title="Logout"
-              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800/60 rounded-lg transition-colors"
+              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800/60 rounded-none transition-colors"
             >
               <LogOut className="w-4 h-4" />
             </button>

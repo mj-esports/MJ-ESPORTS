@@ -22,7 +22,7 @@ export const AnnouncementsSection = () => {
   }, [tournaments])
 
   return (
-    <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-3.5 sm:p-4 space-y-2.5 shadow-md">
+    <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-3.5 sm:p-4 space-y-2.5 shadow-md">
       <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-2">
         <div className="flex items-center gap-2">
           <Bell className="w-4 h-4 text-[#00f2ff]" />
@@ -39,14 +39,14 @@ export const AnnouncementsSection = () => {
       </div>
 
       {!latestAnnouncement ? (
-        <div className="p-3 bg-[#07090c] border border-[#3a494b]/40 rounded-lg flex items-center justify-center gap-2 text-center text-[11px] text-[#8e9dae] font-mono">
+        <div className="p-3 bg-[#07090c] border border-[#3a494b]/40 rounded-none flex items-center justify-center gap-2 text-center text-[11px] text-[#8e9dae] font-mono">
           <CheckCircle2 className="w-3.5 h-3.5 text-[#00ff9d]" />
           <span>No official arena announcements published at this time.</span>
         </div>
       ) : (
         <Link
           to={`/tournaments/${latestAnnouncement.tournamentId}`}
-          className="p-2.5 bg-[#07090c] border border-[#3a494b]/40 rounded-lg flex items-center justify-between gap-2 hover:border-[#00f2ff] transition-all group block"
+          className="p-2.5 bg-[#07090c] border border-[#3a494b]/40 rounded-none flex items-center justify-between gap-2 hover:border-[#00f2ff] transition-all group block"
         >
           <div className="flex items-center gap-2">
             {latestAnnouncement.urgent ? (

@@ -8,8 +8,8 @@ export default function EmptyState({
   onCreate
 }) {
   return (
-    <div className="p-12 text-center rounded-2xl bg-slate-900/40 border border-slate-800/80 flex flex-col items-center justify-center max-w-md mx-auto my-8 space-y-4">
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shadow-xl shadow-cyan-500/5">
+    <div className="p-12 text-center rounded-none bg-slate-900/40 border border-slate-800/80 flex flex-col items-center justify-center max-w-md mx-auto my-8 space-y-4">
+      <div className="w-16 h-16 rounded-none bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shadow-xl shadow-cyan-500/5">
         <Trophy className="w-8 h-8 animate-pulse" />
       </div>
 
@@ -24,7 +24,7 @@ export default function EmptyState({
         {onReset && (
           <button
             onClick={onReset}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition-colors flex items-center gap-2"
+            className="px-3.5 py-2 rounded-none bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition-colors flex items-center gap-2"
           >
             <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
             Reset Filters
@@ -34,7 +34,7 @@ export default function EmptyState({
         {onCreate && (
           <button
             onClick={onCreate}
-            className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-1.5"
+            className="px-4 py-2 rounded-none bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
             Create Tournament

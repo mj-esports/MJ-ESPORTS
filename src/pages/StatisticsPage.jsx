@@ -301,14 +301,14 @@ export default function StatisticsPage() {
     return (
       <div className="bg-[#07080b] text-white font-body min-h-screen pb-20 antialiased font-mono">
         <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-6 animate-pulse">
-          <div className="h-6 w-36 bg-[#0d0e15] rounded border border-[#1f2230]"></div>
-          <div className="h-28 bg-[#0d0e15] rounded-2xl border border-[#1f2230]"></div>
+          <div className="h-6 w-36 bg-[#0d0e15] rounded-none border border-[#1f2230]"></div>
+          <div className="h-28 bg-[#0d0e15] rounded-none border border-[#1f2230]"></div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-24 bg-[#0d0e15] rounded-xl border border-[#1f2230]"></div>
+              <div key={i} className="h-24 bg-[#0d0e15] rounded-none border border-[#1f2230]"></div>
             ))}
           </div>
-          <div className="h-48 bg-[#0d0e15] rounded-2xl border border-[#1f2230]"></div>
+          <div className="h-48 bg-[#0d0e15] rounded-none border border-[#1f2230]"></div>
         </main>
       </div>
     )
@@ -330,7 +330,7 @@ export default function StatisticsPage() {
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             <span>Return to Profile</span>
           </Link>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-mono font-bold uppercase tracking-widest">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-mono font-bold uppercase tracking-widest">
             <Gamepad2 className="w-3 h-3 text-[#00f2ff]" />
             <span>FREE FIRE MAX</span>
           </span>
@@ -341,7 +341,7 @@ export default function StatisticsPage() {
         {/* ================================================== */}
         <section
           aria-label="Player Performance Console"
-          className="relative rounded-2xl bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] p-4 sm:p-5 shadow-[0_4px_30px_rgba(0,0,0,0.6)] overflow-hidden"
+          className="relative rounded-none bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] p-4 sm:p-5 shadow-[0_4px_30px_rgba(0,0,0,0.6)] overflow-hidden"
         >
           <div
             className="absolute inset-0 pointer-events-none opacity-20"
@@ -350,7 +350,7 @@ export default function StatisticsPage() {
               backgroundSize: '24px 24px',
             }}
           ></div>
-          <div className="absolute top-0 right-0 w-64 h-32 bg-[#00f2ff]/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-64 h-32 bg-[#00f2ff]/5 rounded-none blur-3xl pointer-events-none"></div>
 
           <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
@@ -358,10 +358,10 @@ export default function StatisticsPage() {
                 <img
                   src={avatarUrl}
                   alt={displayName}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover ring-2 ring-[#00f2ff]/30 ring-offset-2 ring-offset-[#0d0e15]"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-none object-cover ring-2 ring-[#00f2ff]/30 ring-offset-2 ring-offset-[#0d0e15]"
                 />
                 {isPro && (
-                  <div className="absolute -bottom-1 -right-1 bg-[#00f2ff] text-black text-[8px] font-black font-headline px-1.5 py-0.5 rounded uppercase tracking-wider border border-[#0a0b10]">
+                  <div className="absolute -bottom-1 -right-1 bg-[#00f2ff] text-black text-[8px] font-black font-headline px-1.5 py-0.5 rounded-none uppercase tracking-wider border border-[#0a0b10]">
                     PRO
                   </div>
                 )}
@@ -375,7 +375,7 @@ export default function StatisticsPage() {
                   {isVerified && (
                     <span
                       id="stats-verified-badge"
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#00ff9d]/10 border border-[#00ff9d]/30 text-[#00ff9d] text-[9px] font-mono font-bold uppercase tracking-widest"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none bg-[#00ff9d]/10 border border-[#00ff9d]/30 text-[#00ff9d] text-[9px] font-mono font-bold uppercase tracking-widest"
                     >
                       <CheckCircle2 className="w-2.5 h-2.5 text-[#00ff9d]" />
                       <span>VERIFIED</span>
@@ -417,7 +417,7 @@ export default function StatisticsPage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {/* 1. Completed Tournaments (Accurately describes completed tournament participations) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-xl p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00f2ff]/40 transition-all group">
+            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00f2ff]/40 transition-all group">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
                 Completed Tournaments
               </span>
@@ -430,7 +430,7 @@ export default function StatisticsPage() {
             </div>
 
             {/* 2. Wins (First-place finishes in completed tournaments) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-xl p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#ff5e07]/40 transition-all group">
+            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#ff5e07]/40 transition-all group">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
                 Wins
               </span>
@@ -443,7 +443,7 @@ export default function StatisticsPage() {
             </div>
 
             {/* 3. Total Kills (Confirmed eliminations in completed tournament results) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-xl p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00f2ff]/40 transition-all group">
+            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00f2ff]/40 transition-all group">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
                 Total Kills
               </span>
@@ -456,7 +456,7 @@ export default function StatisticsPage() {
             </div>
 
             {/* 4. Win Rate (Calculated percentage of completed tournaments won) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-xl p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00ff9d]/40 transition-all group">
+            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00ff9d]/40 transition-all group">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
                 Win Rate
               </span>
@@ -469,7 +469,7 @@ export default function StatisticsPage() {
             </div>
 
             {/* 5. Kills / Tourney (Confirmed eliminations per completed tournament) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-xl p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00f2ff]/40 transition-all group">
+            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00f2ff]/40 transition-all group">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
                 Kills / Tourney
               </span>
@@ -482,7 +482,7 @@ export default function StatisticsPage() {
             </div>
 
             {/* 6. Earnings (Authoritative prize credits from wallet_ledger — single source of truth) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-xl p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00ff9d]/40 transition-all group">
+            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00ff9d]/40 transition-all group">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
                 Earnings
               </span>
@@ -504,7 +504,7 @@ export default function StatisticsPage() {
           {/* Left: Placement Distribution */}
           <section
             aria-label="Placement Distribution"
-            className="md:col-span-7 rounded-2xl bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] p-4 sm:p-5 space-y-4"
+            className="md:col-span-7 rounded-none bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] p-4 sm:p-5 space-y-4"
           >
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-white flex items-center gap-2">
@@ -517,7 +517,7 @@ export default function StatisticsPage() {
             </div>
 
             {completedTournamentsCount === 0 ? (
-              <div className="py-8 text-center border border-dashed border-[#1f2230] rounded-xl p-4 space-y-1.5">
+              <div className="py-8 text-center border border-dashed border-[#1f2230] rounded-none p-4 space-y-1.5">
                 <BarChart3 className="w-8 h-8 text-[#525866] mx-auto" />
                 <p className="text-xs font-mono font-semibold text-white uppercase">
                   No Placements Logged Yet
@@ -536,7 +536,7 @@ export default function StatisticsPage() {
                       {placementDistribution.first} ({completedTournamentsCount > 0 ? Math.round((placementDistribution.first / completedTournamentsCount) * 100) : 0}%)
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-[#141620] rounded-full overflow-hidden border border-[#222638]">
+                  <div className="h-2 w-full bg-[#141620] rounded-none overflow-hidden border border-[#222638]">
                     <div
                       className="h-full bg-[#fbbf24] transition-all duration-500"
                       style={{ width: `${completedTournamentsCount > 0 ? (placementDistribution.first / completedTournamentsCount) * 100 : 0}%` }}
@@ -552,7 +552,7 @@ export default function StatisticsPage() {
                       {placementDistribution.second} ({completedTournamentsCount > 0 ? Math.round((placementDistribution.second / completedTournamentsCount) * 100) : 0}%)
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-[#141620] rounded-full overflow-hidden border border-[#222638]">
+                  <div className="h-2 w-full bg-[#141620] rounded-none overflow-hidden border border-[#222638]">
                     <div
                       className="h-full bg-slate-300 transition-all duration-500"
                       style={{ width: `${completedTournamentsCount > 0 ? (placementDistribution.second / completedTournamentsCount) * 100 : 0}%` }}
@@ -568,7 +568,7 @@ export default function StatisticsPage() {
                       {placementDistribution.third} ({completedTournamentsCount > 0 ? Math.round((placementDistribution.third / completedTournamentsCount) * 100) : 0}%)
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-[#141620] rounded-full overflow-hidden border border-[#222638]">
+                  <div className="h-2 w-full bg-[#141620] rounded-none overflow-hidden border border-[#222638]">
                     <div
                       className="h-full bg-[#d97706] transition-all duration-500"
                       style={{ width: `${completedTournamentsCount > 0 ? (placementDistribution.third / completedTournamentsCount) * 100 : 0}%` }}
@@ -584,7 +584,7 @@ export default function StatisticsPage() {
                       {placementDistribution.fourthFifth} ({completedTournamentsCount > 0 ? Math.round((placementDistribution.fourthFifth / completedTournamentsCount) * 100) : 0}%)
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-[#141620] rounded-full overflow-hidden border border-[#222638]">
+                  <div className="h-2 w-full bg-[#141620] rounded-none overflow-hidden border border-[#222638]">
                     <div
                       className="h-full bg-[#00f2ff] transition-all duration-500"
                       style={{ width: `${completedTournamentsCount > 0 ? (placementDistribution.fourthFifth / completedTournamentsCount) * 100 : 0}%` }}
@@ -600,7 +600,7 @@ export default function StatisticsPage() {
                       {placementDistribution.sixthPlus} ({completedTournamentsCount > 0 ? Math.round((placementDistribution.sixthPlus / completedTournamentsCount) * 100) : 0}%)
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-[#141620] rounded-full overflow-hidden border border-[#222638]">
+                  <div className="h-2 w-full bg-[#141620] rounded-none overflow-hidden border border-[#222638]">
                     <div
                       className="h-full bg-[#717a8e] transition-all duration-500"
                       style={{ width: `${completedTournamentsCount > 0 ? (placementDistribution.sixthPlus / completedTournamentsCount) * 100 : 0}%` }}
@@ -614,7 +614,7 @@ export default function StatisticsPage() {
           {/* Right: Best Verified Performance */}
           <section
             aria-label="Best Verified Performance"
-            className="md:col-span-5 rounded-2xl bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] p-4 sm:p-5 flex flex-col justify-between space-y-4"
+            className="md:col-span-5 rounded-none bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] p-4 sm:p-5 flex flex-col justify-between space-y-4"
           >
             <div>
               <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-white flex items-center gap-2 mb-3">
@@ -623,22 +623,22 @@ export default function StatisticsPage() {
               </h3>
 
               <div className="space-y-2.5 font-mono">
-                <div className="p-3 bg-[#12141c] border border-[#1f2230] rounded-xl flex items-center justify-between">
+                <div className="p-3 bg-[#12141c] border border-[#1f2230] rounded-none flex items-center justify-between">
                   <span className="text-[11px] text-[#8e95a5] uppercase">Best Placement</span>
                   <span className="text-sm font-black text-[#00f2ff]">{bestPlacement}</span>
                 </div>
 
-                <div className="p-3 bg-[#12141c] border border-[#1f2230] rounded-xl flex items-center justify-between">
+                <div className="p-3 bg-[#12141c] border border-[#1f2230] rounded-none flex items-center justify-between">
                   <span className="text-[11px] text-[#8e95a5] uppercase">Highest Tourney Kills</span>
                   <span className="text-sm font-black text-white">{highestTournamentKills}</span>
                 </div>
 
-                <div className="p-3 bg-[#12141c] border border-[#1f2230] rounded-xl flex items-center justify-between">
+                <div className="p-3 bg-[#12141c] border border-[#1f2230] rounded-none flex items-center justify-between">
                   <span className="text-[11px] text-[#8e95a5] uppercase">Avg Kills / Tourney</span>
                   <span className="text-sm font-black text-[#00ff9d]">{avgKills}</span>
                 </div>
 
-                <div className="p-3 bg-[#12141c] border border-[#1f2230] rounded-xl flex items-center justify-between">
+                <div className="p-3 bg-[#12141c] border border-[#1f2230] rounded-none flex items-center justify-between">
                   <span className="text-[11px] text-[#8e95a5] uppercase">Highest Confirmed Prize</span>
                   <span className="text-sm font-black text-white">
                     {highestConfirmedPrize !== null ? `₹${highestConfirmedPrize}` : '—'}
@@ -668,7 +668,7 @@ export default function StatisticsPage() {
           </div>
 
           {recentCompletedTournaments.length === 0 ? (
-            <div className="py-12 text-center rounded-2xl bg-[#0d0e15] border border-[#1f2230] p-6 space-y-2">
+            <div className="py-12 text-center rounded-none bg-[#0d0e15] border border-[#1f2230] p-6 space-y-2">
               <Activity className="w-8 h-8 text-[#525866] mx-auto" />
               <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">
                 No Completed Tournament Records
@@ -682,11 +682,11 @@ export default function StatisticsPage() {
               {recentCompletedTournaments.map((m) => (
                 <div
                   key={m.id}
-                  className="flex items-center justify-between p-3.5 rounded-xl bg-gradient-to-r from-[#0d0e15] to-[#0a0b10] border border-[#1f2230] hover:border-[#00f2ff]/30 transition-all font-mono"
+                  className="flex items-center justify-between p-3.5 rounded-none bg-gradient-to-r from-[#0d0e15] to-[#0a0b10] border border-[#1f2230] hover:border-[#00f2ff]/30 transition-all font-mono"
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs border ${
+                      className={`w-9 h-9 rounded-none flex items-center justify-center font-bold text-xs border ${
                         m.isWinner
                           ? 'bg-[#fbbf24]/10 text-[#fbbf24] border-[#fbbf24]/30'
                           : 'bg-[#141620] text-white border-[#222638]'

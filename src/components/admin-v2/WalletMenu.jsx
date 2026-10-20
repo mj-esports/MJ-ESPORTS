@@ -42,23 +42,23 @@ export default function WalletMenu() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-slate-900/60 border border-emerald-500/30">
+        <div className="p-5 rounded-none bg-slate-900/60 border border-emerald-500/30">
           <span className="text-xs text-slate-400 font-semibold">Total Escrow Balance</span>
           <div className="text-2xl font-black text-white mt-1">₹3,42,800</div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900/60 border border-cyan-500/30">
+        <div className="p-5 rounded-none bg-slate-900/60 border border-cyan-500/30">
           <span className="text-xs text-slate-400 font-semibold">Today's Deposits</span>
           <div className="text-2xl font-black text-cyan-400 mt-1">₹18,500</div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900/60 border border-amber-500/30">
+        <div className="p-5 rounded-none bg-slate-900/60 border border-amber-500/30">
           <span className="text-xs text-slate-400 font-semibold">Pending Approvals</span>
           <div className="text-2xl font-black text-amber-400 mt-1">8 Requests</div>
         </div>
       </div>
 
-      <div className="rounded-2xl bg-slate-900/60 border border-slate-800/80 overflow-hidden">
+      <div className="rounded-none bg-slate-900/60 border border-slate-800/80 overflow-hidden">
         <div className="p-4 border-b border-slate-800/80 font-bold text-sm text-white">
           Recent Wallet Transactions
         </div>
@@ -84,7 +84,7 @@ export default function WalletMenu() {
                   <td className="px-4 py-4 font-mono text-slate-400">{tx.date}</td>
                   <td className="px-4 py-4">
                     <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                      className={`px-2.5 py-1 rounded-none text-[10px] font-bold border ${
                         tx.status === 'Completed'
                           ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                           : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
