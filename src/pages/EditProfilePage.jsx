@@ -351,18 +351,31 @@ export default function EditProfilePage() {
 
     try {
       if (isSupabaseConfigured && user) {
-        // Check username uniqueness via public_profiles view
-        const { data: existingProfiles, error: checkError } = await supabase
-          .from('public_profiles')
-          .select('id, username')
-          .ilike('username', cleanUsername.replace(/[%_\\]/g, '\\$&'))
-          .neq('id', user.id)
+        // Check username uniqueness via check_username_available RPC with fallback to profiles table
+        let isUsernameTaken = false
+        try {
+          const { data: isAvailable, error: rpcError } = await supabase.rpc('check_username_available', {
+            p_username: cleanUsername,
+            p_exclude_user_id: user.id
+          })
+          if (!rpcError && typeof isAvailable === 'boolean') {
+            isUsernameTaken = !isAvailable
+          } else {
+            const { data: existingProfiles } = await supabase
+              .from('profiles')
+              .select('id, username')
+              .ilike('username', cleanUsername.replace(/[%_\\]/g, '\\$&'))
+              .neq('id', user.id)
 
-        if (checkError) {
-          console.warn('[Username Check Warning]:', checkError)
+            if (existingProfiles && existingProfiles.length > 0) {
+              isUsernameTaken = true
+            }
+          }
+        } catch {
+          // Fallback check error handled gracefully
         }
 
-        if (existingProfiles && existingProfiles.length > 0) {
+        if (isUsernameTaken) {
           setErrors((prev) => ({
             ...prev,
             username: 'This username is already taken by another player.',
@@ -399,26 +412,25 @@ export default function EditProfilePage() {
           showInfo('Game UID / Display Name modified. Re-verification required.', 'Identity Reset')
         }
 
-        // Update profiles table
+        // Update profiles table (only actual database columns on public.profiles)
+        const profilePayload = {
+          id: user.id,
+          username: cleanUsername,
+          game_uid: cleanFreeFireUid,
+          avatar_url: avatarUrl,
+          updated_at: new Date().toISOString(),
+        }
+
         const { error: profileError } = await supabase
           .from('profiles')
-          .upsert({
-            id: user.id,
-            username: cleanUsername,
-            game_uid: cleanFreeFireUid,
-            phone: cleanPhone,
-            instagram_handle: cleanInstagram,
-            bio: cleanBio,
-            avatar_url: avatarUrl,
-            updated_at: new Date().toISOString(),
-          })
+          .upsert(profilePayload, { onConflict: 'id' })
 
         if (profileError) {
-          console.warn('[Profiles Table Update Notice]:', profileError.message)
+          throw new Error(profileError.message || 'Failed to update database profile record.')
         }
       }
 
-      updateProfile({
+      await updateProfile({
         username: cleanUsername,
         freeFireUid: cleanFreeFireUid,
         phone: cleanPhone,

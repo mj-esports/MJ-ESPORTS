@@ -238,6 +238,16 @@ export function AuthProvider({ children }) {
         setUser(authData.user)
         userRef.current = authData.user
       }
+
+      setProfile((prev) => ({
+        ...(prev || {}),
+        username: sanitizedProfileData.username !== undefined ? sanitizedProfileData.username : prev?.username,
+        game_uid: sanitizedProfileData.freeFireUid !== undefined
+          ? sanitizedProfileData.freeFireUid
+          : (sanitizedProfileData.game_uid !== undefined ? sanitizedProfileData.game_uid : prev?.game_uid),
+        avatar_url: sanitizedProfileData.avatar_url !== undefined ? sanitizedProfileData.avatar_url : prev?.avatar_url,
+      }))
+
       return authData
     } else {
       const updatedMetadata = {
@@ -259,6 +269,14 @@ export function AuthProvider({ children }) {
       setUser(updatedUser)
       userRef.current = updatedUser
       setSession(updatedSession)
+      setProfile((prev) => ({
+        ...(prev || {}),
+        username: sanitizedProfileData.username !== undefined ? sanitizedProfileData.username : prev?.username,
+        game_uid: sanitizedProfileData.freeFireUid !== undefined
+          ? sanitizedProfileData.freeFireUid
+          : (sanitizedProfileData.game_uid !== undefined ? sanitizedProfileData.game_uid : prev?.game_uid),
+        avatar_url: sanitizedProfileData.avatar_url !== undefined ? sanitizedProfileData.avatar_url : prev?.avatar_url,
+      }))
       return { user: updatedUser, session: updatedSession }
     }
   }

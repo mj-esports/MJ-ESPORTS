@@ -95,6 +95,7 @@ export default function Navbar() {
   const dropdownRef = useRef(null)
   const notifRef = useRef(null)
   const [profileAvatar, setProfileAvatar] = useState(null)
+  const [profileUsername, setProfileUsername] = useState(null)
 
   // Phase 9.4: Authoritative public.wallets.balance Synchronization
   const [navWalletBalance, setNavWalletBalance] = useState(getAuthoritativeWalletBalance())
@@ -140,7 +141,7 @@ export default function Navbar() {
     }
   }, [isAuthenticated, user?.id, location.pathname])
 
-  // Fetch live profile avatar from profiles table
+  // Fetch live profile avatar and username from profiles table
   useEffect(() => {
     if (isAuthenticated && user?.id && isSupabaseConfigured) {
       supabase
@@ -152,10 +153,14 @@ export default function Navbar() {
           if (data?.avatar_url) {
             setProfileAvatar(data.avatar_url)
           }
+          if (data?.username) {
+            setProfileUsername(data.username)
+          }
         })
         .catch((err) => console.warn('[Navbar profile fetch warn]:', err))
     } else {
       setProfileAvatar(null)
+      setProfileUsername(null)
     }
   }, [isAuthenticated, user?.id])
 
@@ -315,7 +320,7 @@ export default function Navbar() {
     }
   }
 
-  const userDisplayName = profile?.username || user?.user_metadata?.username || user?.email?.split('@')[0] || 'Player'
+  const userDisplayName = user?.user_metadata?.username || profile?.username || profileUsername || user?.email?.split('@')[0] || 'Player'
   const userAvatarUrl = profile?.avatar_url || profileAvatar || user?.user_metadata?.avatar_url || user?.user_metadata?.avatarUrl || ''
   const userInitial = (userDisplayName || 'M').charAt(0).toUpperCase()
   const unreadNotificationsCount = notifications.filter((n) => !n.is_read).length

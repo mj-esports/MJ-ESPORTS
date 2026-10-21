@@ -17,7 +17,7 @@ import {
 const PublicTeamProfileModal = lazy(() => import('../components/team/PublicTeamProfileModal.jsx'))
 
 export default function LeaderboardPage() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [tournamentsList, setTournamentsList] = useState([])
   const [profilesList, setProfilesList] = useState([])
   const [publicAvatarsList, setPublicAvatarsList] = useState([])
@@ -191,6 +191,50 @@ export default function LeaderboardPage() {
     return map
   }, [publicAvatarsList, profilesList, registrationsList])
 
+  // Fast authoritative lookup map for player display names
+  const playerNameMap = useMemo(() => {
+    const map = {}
+
+    // 1. Database profiles data (public.profiles)
+    if (Array.isArray(profilesList)) {
+      profilesList.forEach((p) => {
+        if (!p || !p.username) return
+        const cleanName = p.username.trim()
+        if (cleanName) {
+          if (p.id) map[String(p.id).trim()] = cleanName
+          if (p.game_uid) map[String(p.game_uid).trim()] = cleanName
+          if (p.email) map[p.email.toLowerCase().trim()] = cleanName
+        }
+      })
+    }
+
+    // 2. Tournament registrations data
+    if (Array.isArray(registrationsList)) {
+      registrationsList.forEach((r) => {
+        if (!r) return
+        const cap = r.captain_name ? r.captain_name.trim() : ''
+        if (cap) {
+          if (r.user_id && !map[String(r.user_id).trim()]) map[String(r.user_id).trim()] = cap
+          if (r.free_fire_uid && !map[String(r.free_fire_uid).trim()]) map[String(r.free_fire_uid).trim()] = cap
+          if (r.email && !map[r.email.toLowerCase().trim()]) map[r.email.toLowerCase().trim()] = cap
+        }
+      })
+    }
+
+    // 3. Current authenticated user state from AuthContext (highest precedence for active session)
+    if (user?.id) {
+      const activeName = (user?.user_metadata?.username || profile?.username || '').trim()
+      if (activeName) {
+        map[String(user.id).trim()] = activeName
+        const userUid = user?.user_metadata?.freeFireUid || user?.user_metadata?.game_uid || profile?.game_uid
+        if (userUid) map[String(userUid).trim()] = activeName
+        if (user.email) map[user.email.toLowerCase().trim()] = activeName
+      }
+    }
+
+    return map
+  }, [profilesList, registrationsList, user, profile])
+
   // Currently active/selected tournament (auto-prefers tournament with scored results if available)
   const activeTournament = useMemo(() => {
     if (selectedTournamentId) {
@@ -325,10 +369,12 @@ export default function LeaderboardPage() {
       ? activeTournament.teamsList
       : []
 
+    const isSoloTournament = activeTournament.format === 'Solo' || activeTournament.mode === 'Solo' || activeTournament.game === 'Solo'
+
     teams.forEach((team) => {
       if (!team) return
-      const name = team.team || team.teamName || team.team_name || team.name || team.captain || 'Team Apex'
-      const player = team.captain || team.captain_name || team.player || team.name || 'Player'
+      const rawName = team.team || team.teamName || team.team_name || team.name || team.captain || 'Team Apex'
+      const rawPlayer = team.captain || team.captain_name || team.player || team.name || 'Player'
 
       const userId =
         team.userId ||
@@ -348,20 +394,37 @@ export default function LeaderboardPage() {
         (Array.isArray(team.roster) && team.roster[0]?.uid ? team.roster[0].uid : null) ||
         null
 
+      const teamEmail = team.email ? String(team.email).toLowerCase().trim() : ''
+
+      const userIdKey = userId ? String(userId).trim() : ''
+      const uidKey = captainUid ? String(captainUid).trim() : ''
+
+      // Authoritative live display name resolution from profiles/user/registrations
+      const resolvedPlayer =
+        (userIdKey && playerNameMap[userIdKey]) ||
+        (uidKey && playerNameMap[uidKey]) ||
+        (teamEmail && playerNameMap[teamEmail]) ||
+        rawPlayer
+
+      const isPlayerAsTeam = !team.team || team.team === team.captain || rawName === rawPlayer || isSoloTournament
+      const resolvedTeamName = isPlayerAsTeam ? resolvedPlayer : rawName
+
       const kills = Math.max(0, Number(team.kills || team.finishes || 0))
       const points = Number(team.points || team.score || 0)
       const isWinner = team.rank === 1 || team.position === 1
 
-      const userIdKey = userId ? String(userId).trim() : ''
-      const uidKey = captainUid ? String(captainUid).trim() : ''
-      const playerKey = player ? player.toLowerCase().trim() : ''
-      const teamKey = name ? name.toLowerCase().trim() : ''
+      const playerKey = resolvedPlayer ? resolvedPlayer.toLowerCase().trim() : ''
+      const teamKey = resolvedTeamName ? resolvedTeamName.toLowerCase().trim() : ''
+      const rawPlayerKey = rawPlayer ? rawPlayer.toLowerCase().trim() : ''
+      const rawTeamKey = rawName ? rawName.toLowerCase().trim() : ''
 
       const resolvedAvatar =
         (userIdKey && profileMap[userIdKey] ? profileMap[userIdKey] : null) ||
         (uidKey && profileMap[uidKey] ? profileMap[uidKey] : null) ||
         (playerKey && profileMap[playerKey] ? profileMap[playerKey] : null) ||
         (teamKey && profileMap[teamKey] ? profileMap[teamKey] : null) ||
+        (rawPlayerKey && profileMap[rawPlayerKey] ? profileMap[rawPlayerKey] : null) ||
+        (rawTeamKey && profileMap[rawTeamKey] ? profileMap[rawTeamKey] : null) ||
         team.avatar_url ||
         team.avatar ||
         team.avatarUrl ||
@@ -369,10 +432,12 @@ export default function LeaderboardPage() {
         team.logo_url ||
         null
 
-      if (!statsMap[name]) {
-        statsMap[name] = {
-          team: name,
-          player: player,
+      const groupKey = userIdKey || (teamKey || 'team-apex')
+
+      if (!statsMap[groupKey]) {
+        statsMap[groupKey] = {
+          team: resolvedTeamName,
+          player: resolvedPlayer,
           userId: userId,
           gameUid: captainUid,
           matches: 0,
@@ -382,12 +447,12 @@ export default function LeaderboardPage() {
           avatar: resolvedAvatar,
         }
       }
-      statsMap[name].matches += 1
-      if (isWinner) statsMap[name].wins += 1
-      statsMap[name].points += points
-      statsMap[name].kills += kills
+      statsMap[groupKey].matches += 1
+      if (isWinner) statsMap[groupKey].wins += 1
+      statsMap[groupKey].points += points
+      statsMap[groupKey].kills += kills
       if (resolvedAvatar) {
-        statsMap[name].avatar = resolvedAvatar
+        statsMap[groupKey].avatar = resolvedAvatar
       }
     })
 
@@ -408,7 +473,7 @@ export default function LeaderboardPage() {
         killPayout: payoutResult.killPayout || 0,
       }
     })
-  }, [activeTournament, prizePoolSummary, profileMap])
+  }, [activeTournament, prizePoolSummary, profileMap, playerNameMap])
 
   const championTeam = standings[0] || null
 
