@@ -28,7 +28,8 @@ import {
   Lock,
   Phone,
   Shield,
-  FileText
+  FileText,
+  Sparkles
 } from 'lucide-react'
 import FormInput from '../components/common/FormInput'
 import AuthAlert from '../components/common/AuthAlert'

@@ -3,6 +3,16 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase.js'
 // Active channel cache to prevent duplicate subscription channels per user
 const activeNotificationChannels = new Map()
 
+// Tracks if public.notifications is not present in Supabase PostgREST schema cache (PGRST205)
+let isNotificationsTableMissing = false
+
+/**
+ * Resets table availability check (useful for tests or after migrations).
+ */
+export function resetNotificationTableAvailability() {
+  isNotificationsTableMissing = false
+}
+
 /**
  * Fetches recent notifications for a user, ordered newest-first with a sensible limit.
  *
@@ -12,7 +22,7 @@ const activeNotificationChannels = new Map()
  * @returns {Promise<Array>} List of notification records
  */
 export async function fetchUserNotifications(userId, options = {}) {
-  if (!isSupabaseConfigured || !userId) return []
+  if (!isSupabaseConfigured || !userId || isNotificationsTableMissing) return []
   const limit = options?.limit || 30
 
   try {
@@ -24,6 +34,11 @@ export async function fetchUserNotifications(userId, options = {}) {
       .limit(limit)
 
     if (error) {
+      if (error.code === 'PGRST205' || error.message?.includes('schema cache')) {
+        isNotificationsTableMissing = true
+        console.warn('[notificationService] Table "notifications" is not deployed in Supabase schema cache (PGRST205). Execute supabase_phase10_setup.sql in Supabase SQL editor to enable in-app notifications.')
+        return []
+      }
       console.error('[notificationService] fetch error:', error)
       return []
     }
@@ -41,7 +56,7 @@ export async function fetchUserNotifications(userId, options = {}) {
  * @returns {Promise<number>} Unread notification count
  */
 export async function getUnreadNotificationCount(userId) {
-  if (!isSupabaseConfigured || !userId) return 0
+  if (!isSupabaseConfigured || !userId || isNotificationsTableMissing) return 0
 
   try {
     const { count, error } = await supabase
@@ -51,6 +66,10 @@ export async function getUnreadNotificationCount(userId) {
       .eq('is_read', false)
 
     if (error) {
+      if (error.code === 'PGRST205' || error.message?.includes('schema cache')) {
+        isNotificationsTableMissing = true
+        return 0
+      }
       console.warn('[notificationService] count error:', error.message)
       return 0
     }

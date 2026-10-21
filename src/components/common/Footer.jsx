@@ -1,5 +1,16 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Headphones, ShieldCheck } from 'lucide-react'
+import { useToast } from '../../contexts/ToastContext'
+import { getInstagramUrl, getWhatsAppUrl } from '../../utils/socialLinks'
+
+function useSafeToast() {
+  try {
+    return useToast()
+  } catch {
+    return null
+  }
+}
 
 /**
  * MJ ESPORTS — Compact Official Esports Platform Footer
@@ -8,6 +19,26 @@ import { Headphones, ShieldCheck } from 'lucide-react'
  * secondary orange game accents, social controls, rulebook/support links, and mobile safe-area spacing.
  */
 export default function Footer() {
+  const toast = useSafeToast()
+  const [instagramUrl, setInstagramUrl] = useState(() => getInstagramUrl())
+  const [whatsappUrl, setWhatsappUrl] = useState(() => getWhatsAppUrl())
+
+  useEffect(() => {
+    const refreshLinks = () => {
+      setInstagramUrl(getInstagramUrl())
+      setWhatsappUrl(getWhatsAppUrl())
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', refreshLinks)
+      window.addEventListener('focus', refreshLinks)
+      return () => {
+        window.removeEventListener('storage', refreshLinks)
+        window.removeEventListener('focus', refreshLinks)
+      }
+    }
+  }, [])
+
   return (
     <footer
       className="bg-[#000000] border-t border-[#1B1B1F] pt-5 sm:pt-6 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-6 text-[#A3A3A3] relative select-none"
@@ -55,11 +86,31 @@ export default function Footer() {
           <div className="flex items-center gap-3 shrink-0">
             {/* Instagram */}
             <a
-              href="https://instagram.com"
+              href={instagramUrl || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="MJ ESPORTS Instagram"
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-none bg-[#111318] border border-[#2A2A30] hover:border-[#FFB900]/80 hover:shadow-[0_0_12px_rgba(255,185,0,0.3)] transition-all flex items-center justify-center group active:scale-95"
+              aria-label={
+                instagramUrl
+                  ? 'MJ ESPORTS Official Instagram Profile'
+                  : 'MJ ESPORTS Instagram (Configuration Required)'
+              }
+              title={
+                instagramUrl
+                  ? 'Open MJ ESPORTS Official Instagram'
+                  : 'Instagram profile URL is not configured. Set VITE_INSTAGRAM_URL or configure in Admin Settings.'
+              }
+              onClick={(e) => {
+                if (!instagramUrl) {
+                  e.preventDefault()
+                  if (toast?.showInfo) {
+                    toast.showInfo(
+                      'Official Instagram profile is not configured yet. Set VITE_INSTAGRAM_URL or configure in Admin Settings.',
+                      'Instagram Setup'
+                    )
+                  }
+                }
+              }}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-none bg-[#111318] border border-[#2A2A30] hover:border-[#FFB900]/80 hover:shadow-[0_0_12px_rgba(255,185,0,0.3)] focus:outline-none focus:ring-2 focus:ring-[#FFB900] transition-all flex items-center justify-center group active:scale-95"
             >
               <svg
                 className="w-5 h-5 transition-transform group-hover:scale-105"
@@ -84,11 +135,31 @@ export default function Footer() {
 
             {/* WhatsApp */}
             <a
-              href="https://whatsapp.com"
+              href={whatsappUrl || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="MJ ESPORTS WhatsApp Community"
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-none bg-[#111318] border border-[#2A2A30] hover:border-[#25D366] hover:shadow-[0_0_12px_rgba(37,211,102,0.3)] transition-all flex items-center justify-center group active:scale-95"
+              aria-label={
+                whatsappUrl
+                  ? 'MJ ESPORTS Official WhatsApp Community'
+                  : 'MJ ESPORTS WhatsApp Community (Configuration Required)'
+              }
+              title={
+                whatsappUrl
+                  ? 'Open MJ ESPORTS Official WhatsApp Community'
+                  : 'WhatsApp link is not configured. Set VITE_WHATSAPP_URL / VITE_WHATSAPP_NUMBER or configure in Admin Settings.'
+              }
+              onClick={(e) => {
+                if (!whatsappUrl) {
+                  e.preventDefault()
+                  if (toast?.showInfo) {
+                    toast.showInfo(
+                      'Official WhatsApp link is not configured yet. Set VITE_WHATSAPP_URL or configure in Admin Settings.',
+                      'WhatsApp Setup'
+                    )
+                  }
+                }
+              }}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-none bg-[#111318] border border-[#2A2A30] hover:border-[#25D366] hover:shadow-[0_0_12px_rgba(37,211,102,0.3)] focus:outline-none focus:ring-2 focus:ring-[#25D366] transition-all flex items-center justify-center group active:scale-95"
             >
               <svg
                 className="w-5 h-5 transition-transform group-hover:scale-105"

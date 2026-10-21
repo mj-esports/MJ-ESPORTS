@@ -245,6 +245,7 @@ export default function Navbar() {
     { name: 'Home', path: '/' },
     { name: 'Tournaments', path: '/tournaments' },
     { name: 'Leaderboard', path: '/leaderboard' },
+    ...(!isAuthenticated ? [{ name: 'Login', path: '/login' }] : []),
   ]
 
   const isActive = (path) => location.pathname === path
@@ -329,10 +330,14 @@ export default function Navbar() {
       </a>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+        <div className="flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] h-16 sm:h-20">
           
           {/* Logo (LEFT) */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink min-w-0 flex-1 max-w-[calc(100%-52px)]" aria-label="MJ ESPORTS Home">
+          <Link
+            to="/"
+            className="flex items-center gap-2 sm:gap-3 group shrink min-w-0 flex-1 max-w-[calc(100%-52px)] md:flex-initial md:max-w-none md:justify-self-start"
+            aria-label="MJ ESPORTS Home"
+          >
             <img
               src="/mj-esports-logo.png"
               alt="MJ ESPORTS"
@@ -349,7 +354,7 @@ export default function Navbar() {
           </Link>
 
           {/* Navigation Links (CENTER) */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center justify-center justify-self-center gap-6 lg:gap-8">
             {navLinks.map((link) => (
               <Link
                 key={`nav-desktop-${link.name}`}
@@ -366,7 +371,7 @@ export default function Navbar() {
           </div>
 
           {/* Action Bar (RIGHT) */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center justify-end justify-self-end gap-4">
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
                 
@@ -565,13 +570,7 @@ export default function Navbar() {
 
               </div>
             ) : (
-              <div className="flex items-center gap-3">
-                <Link
-                  to="/login"
-                  className="px-4 py-2 text-xs font-headline font-bold uppercase tracking-wider text-[#A3A3A3] hover:text-white hover:bg-[#111318] rounded-none border border-transparent hover:border-[#2A2A30] transition-all"
-                >
-                  Login
-                </Link>
+              <div className="flex items-center justify-end">
                 <Link
                   to="/register"
                   className="px-4 py-2 text-xs font-headline font-bold uppercase tracking-wider bg-[#FFB900] hover:bg-[#FFA500] text-[#000000] rounded-none transition-all shadow-[0_0_12px_rgba(255,185,0,0.35)] active:scale-95"
