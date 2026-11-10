@@ -601,7 +601,7 @@ export default function AllTournamentsView({
                     <li>Tournament status will transition to <strong className="text-white">Cancelled</strong>.</li>
                     <li>Eligible paid player registrations will receive their exact entry fee as <strong className="text-[#10b981]">authoritative wallet credit</strong>.</li>
                     <li>Refunds are processed <strong className="text-white">strictly once</strong> with immutable ledger tracking.</li>
-                    <li><strong className="text-white">Razorpay gateway refunds are NOT issued</strong>; payments remain historical evidence.</li>
+                    <li><strong className="text-white">Payment gateway refunds are NOT issued</strong> directly to bank accounts; refunds are credited to in-app wallet balance.</li>
                     <li>Players can immediately use their refunded wallet balance for another tournament or withdraw per platform rules.</li>
                   </ul>
                 </div>

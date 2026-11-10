@@ -1,0 +1,15 @@
+# Supabase Edge Functions Configuration
+# Controls API Gateway behavior for deployed Edge Functions
+
+[functions.create-famgateway-order]
+verify_jwt = true
+
+[functions.verify-famgateway-payment]
+verify_jwt = true
+
+[functions.reconcile-famgateway-payments]
+verify_jwt = true
+
+[functions.famgateway-webhook]
+verify_jwt = false
+

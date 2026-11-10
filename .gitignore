@@ -14,12 +14,17 @@ dist-ssr
 .env
 .env.*
 !.env.example
+!.env.staging.example
 
 # Temporary test scripts and diffs
 test_reg.mjs
 diff.txt
 *.tmp
 supabase/.temp/
+scratch/
+screenshot_*.png
+preview*.html
+src/preview-*.jsx
 
 # Editor directories and files
 .vscode/*

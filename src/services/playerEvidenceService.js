@@ -109,7 +109,7 @@ export async function uploadProfileProof(file, {
     const { error: uploadError } = await supabase.storage
       .from(bucketName)
       .upload(storagePath, file, {
-        upsert: true,
+        upsert: false,
         contentType: file.type || 'image/png',
       })
 

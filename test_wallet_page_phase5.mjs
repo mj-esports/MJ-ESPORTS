@@ -9,7 +9,7 @@
  * 5. No hard-coded balance
  * 6. No Stitch mock financial values (e.g. ₹2,450, ₹3,420, ₹1,200, 6 Records)
  * 7. No database names in player-facing UI
- * 8. Existing Razorpay top-up flow is preserved
+ * 8. Active Razorpay checkout is completely eliminated
  * 9. Minimum top-up = ₹1
  * 10. Maximum top-up = ₹200 per transaction
  * 11. Whole-rupee validation exists
@@ -116,11 +116,11 @@ assert(!content.includes('payout_queue'), '14. Does NOT add payout_queue to priz
 assert(content.includes('Math.floor(prizeEarnings)'), '15. Evaluates earnings strictly from prize credits, not balance')
 assert(content.includes(": '—'"), 'Displays "—" when no confirmed prize earnings exist')
 
-// Test 8, 9, 10, 11: Top-Up Amount UI & Razorpay Flow
-console.log('\n[SECTION 5] RAZORPAY TOP-UP FLOW & BOUNDS')
-assert(content.includes('loadRazorpayScript'), '8. Uses loadRazorpayScript')
-assert(content.includes('createWalletTopupOrder'), 'Uses server-side createWalletTopupOrder')
-assert(content.includes('verifyWalletTopup'), 'Uses server-side verifyWalletTopup')
+// Test 8, 9, 10, 11: Top-Up Amount UI & Decommissioned Razorpay Guard
+console.log('\n[SECTION 5] ONLINE TOP-UP BOUNDS & DECOMMISSIONED RAZORPAY GUARD')
+assert(!content.includes('loadRazorpayScript'), '8. Completely removes active loadRazorpayScript')
+assert(!content.includes('window.Razorpay'), 'Does not instantiate window.Razorpay')
+assert(!content.includes('new Razorpay'), 'Does not instantiate new Razorpay')
 assert(content.includes('generateTopupIdempotencyKey'), 'Preserves idempotency key across top-up attempts')
 assert(content.includes('num < 1'), '9. Minimum top-up = ₹1')
 assert(content.includes('num > 200'), '10. Maximum top-up = ₹200 per transaction')

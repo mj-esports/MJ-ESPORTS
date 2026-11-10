@@ -209,7 +209,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
             tournamentTitle: t.title || 'Tournament Match',
             game: (t.game || 'Free Fire MAX').includes('Free Fire') ? 'Free Fire MAX' : 'BGMI Mobile',
             amount: entryFeeNum,
-            paymentMethod: team.paymentMethod || (entryFeeNum === 0 ? 'Free Entry' : 'Razorpay'),
+            paymentMethod: team.paymentMethod || (entryFeeNum === 0 ? 'Free Entry' : 'Online Gateway'),
             paymentStatus: (team.paymentStatus || 'SUCCESS').toUpperCase(),
             refundStatus: team.refundStatus || 'N/A',
             createdAt: t.startDate || new Date().toISOString(),
@@ -222,16 +222,19 @@ export default function FinanceDashboardView({ tournaments = [] }) {
     return registrations.map((r, idx) => {
       const tourney = tournaments.find((t) => t.id === r.tournament_id)
       const feeNum = parseInt((tourney?.entryFee || tourney?.entry_fee || '0').replace(/[^0-9]/g, ''), 10) || 0
+      const paymentRef = r.provider_payment_id || r.payment_id || r.transaction_id || r.razorpay_payment_id || (feeNum === 0 ? 'FREE_ENTRY' : 'PENDING_PAYMENT')
       return {
         id: r.id || `reg_${idx}`,
-        razorpayPaymentId: r.payment_id || r.transaction_id || r.razorpay_payment_id || (feeNum === 0 ? 'FREE_ENTRY' : 'PENDING_PAYMENT'),
+        razorpayPaymentId: paymentRef,
+        providerPaymentId: r.provider_payment_id || r.payment_id || null,
+        provider: r.provider || (r.payment_method?.toUpperCase().includes('FAM') ? 'FAMGATEWAY' : 'RAZORPAY'),
         playerName: r.team_name || r.captain_name || r.user_email?.split('@')[0] || 'Player',
         playerEmail: r.user_email || r.email || 'player@example.com',
         tournamentId: r.tournament_id,
         tournamentTitle: tourney?.title || r.tournament_title || 'Tournament',
         game: (tourney?.game || r.game || 'Free Fire MAX').includes('Free Fire') ? 'Free Fire MAX' : 'BGMI Mobile',
         amount: Number(r.amount_paid || feeNum),
-        paymentMethod: r.payment_method || (feeNum === 0 ? 'Free Entry' : 'Razorpay'),
+        paymentMethod: r.payment_method || (feeNum === 0 ? 'Free Entry' : 'Online Gateway'),
         paymentStatus: (r.status || r.payment_status || 'SUCCESS').toUpperCase(),
         refundStatus: r.refund_status || 'N/A',
         createdAt: r.created_at || new Date().toISOString(),
@@ -1043,7 +1046,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                   <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
                     <h3 className="text-sm font-extrabold text-white uppercase flex items-center gap-2">
                       <Percent className="w-4 h-4 text-[#ffe173]" />
-                      <span>Razorpay 2% Charge Audit</span>
+                      <span>Gateway Processing Audit</span>
                     </h3>
                   </div>
 
@@ -1057,7 +1060,7 @@ export default function FinanceDashboardView({ tournaments = [] }) {
                           <span className="font-bold text-white">₹{metrics.totalRev.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
-                          <span className="text-[#8e9dae]">Razorpay 2% Estimate:</span>
+                          <span className="text-[#8e9dae]">Gateway Charge Buffer (2%):</span>
                           <span className="font-bold text-[#ff3366]">-₹{totalGatewayFees.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between py-1 pt-2 font-bold text-sm">

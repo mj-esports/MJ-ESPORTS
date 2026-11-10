@@ -80,7 +80,7 @@ export const PaymentAnalytics: React.FC<PaymentAnalyticsProps> = ({ transactions
           <div className="w-full h-3 bg-[#07090c] rounded-full overflow-hidden border border-[#3a494b]/40">
             <div className="h-full bg-[#00ff9d]" style={{ width: `${successRate}%` }} />
           </div>
-          <p className="text-[11px] text-[#8e9dae]">Razorpay automated webhook validation</p>
+          <p className="text-[11px] text-[#8e9dae]">Gateway & webhook validation active</p>
         </div>
       </div>
 

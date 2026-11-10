@@ -182,7 +182,7 @@ export default function ReviewSummaryStep({ form }) {
               <Trophy className="w-4 h-4 text-[#ffd700]" />
               <span>Financials & Squad Capacity</span>
             </span>
-            <span className="text-[10px] text-[#00ff9d] font-bold uppercase">Razorpay UPI</span>
+            <span className="text-[10px] text-[#00ff9d] font-bold uppercase">FamGateway UPI</span>
           </div>
 
           <div className="space-y-2 text-[11px] font-mono">
@@ -208,7 +208,7 @@ export default function ReviewSummaryStep({ form }) {
 
             <div className="flex justify-between py-1 border-b border-[#3a494b]/40">
               <span className="text-[#8e9dae]">Payment Gateway:</span>
-              <strong className="text-[#00ff9d] font-bold">Razorpay (Fixed)</strong>
+              <strong className="text-[#00ff9d] font-bold">FamGateway UPI (Instant)</strong>
             </div>
 
             <div className="flex justify-between py-1">

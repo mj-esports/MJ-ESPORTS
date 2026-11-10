@@ -1,6 +1,8 @@
 export interface TransactionRecord {
   id: string
   razorpayPaymentId: string
+  providerPaymentId?: string
+  provider?: string
   playerName: string
   playerEmail: string
   tournamentId: string

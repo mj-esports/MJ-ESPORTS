@@ -34,7 +34,7 @@ export default function EntryPrizeSystem({
   allowWaitlist = false,
   maxWaitlistSize = 10,
   paymentEnabled = false,
-  paymentGateway = 'Razorpay',
+  paymentGateway = 'FamGateway',
   prizeType = 'placement',
   perKillReward = 30,
   prizes = { firstPrize: 1000, secondPrize: 500, thirdPrize: 250, fourthPrize: 0, fifthPrize: 0, mvpBonus: 0, winnerPrize: 1500 },
@@ -98,7 +98,7 @@ export default function EntryPrizeSystem({
         registrationApproval: localApproval,
         allowWaitlist: localAllowWaitlist,
         maxWaitlistSize: localMaxWaitlist,
-        paymentGateway: localPaymentEnabled ? 'Razorpay' : 'None',
+        paymentGateway: localPaymentEnabled ? 'FamGateway' : 'None',
         prizeType: localPrizeType,
         perKillReward: localPerKill,
         prizes: localPrizes,
@@ -358,12 +358,12 @@ export default function EntryPrizeSystem({
               <label className="text-[11px] font-bold text-[#00f2ff] uppercase block">
                 Payment Gateway
               </label>
-              <span className="text-[10px] text-[#8e9dae]">Razorpay Active</span>
+              <span className="text-[10px] text-[#8e9dae]">FamGateway Active</span>
             </div>
             <div className="p-3 bg-[#151a21] border border-[#00f2ff]/40 rounded-none flex items-center justify-between text-xs text-white">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#00f2ff]" />
-                <span className="font-bold">Razorpay UPI & Cards</span>
+                <span className="font-bold">FamGateway UPI (Instant)</span>
               </div>
               <span className="text-[10px] text-[#00ff9d] font-bold uppercase">Supported</span>
             </div>
@@ -595,7 +595,7 @@ export default function EntryPrizeSystem({
           <div><span className="text-[#8e9dae] block">Mode:</span> <strong className="text-white">{mode.toUpperCase()}</strong></div>
           <div><span className="text-[#8e9dae] block">Entry Fee:</span> <strong className="text-[#00f2ff]">{!localPaymentEnabled || localEntryFee === 0 ? 'Free' : `₹${localEntryFee}`}</strong></div>
           <div><span className="text-[#8e9dae] block">Total Slots:</span> <strong className="text-white">{localSlots} Slots</strong></div>
-          <div><span className="text-[#8e9dae] block">Payment Status:</span> <strong className={localPaymentEnabled ? 'text-[#00f2ff]' : 'text-[#8e9dae]'}>{localPaymentEnabled ? 'Enabled (Razorpay)' : 'Disabled (Free Entry)'}</strong></div>
+          <div><span className="text-[#8e9dae] block">Payment Status:</span> <strong className={localPaymentEnabled ? 'text-[#00f2ff]' : 'text-[#8e9dae]'}>{localPaymentEnabled ? 'Enabled (FamGateway)' : 'Disabled (Free Entry)'}</strong></div>
           <div><span className="text-[#8e9dae] block">Prize Type:</span> <strong className="text-[#fe6b00] uppercase">{localPrizeType.replace('_', ' ')}</strong></div>
           
           <div className="col-span-2 sm:col-span-3 lg:col-span-2">

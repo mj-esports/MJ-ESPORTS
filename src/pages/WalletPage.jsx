@@ -32,7 +32,6 @@ import {
   getAuthoritativeWalletBalance,
   subscribeToWalletBalance,
 } from '../services/walletService'
-import { loadRazorpayScript } from '../services/tournamentPaymentService'
 
 export default function WalletPage() {
   const { user } = useAuth()
@@ -133,8 +132,8 @@ export default function WalletPage() {
 
         return {
           id: t.id,
-          tournament: t.description || 'Instant Wallet Top-up via Razorpay',
-          description: t.description || 'Instant Wallet Top-up via Razorpay',
+          tournament: t.description || 'Instant Wallet Top-up',
+          description: t.description || 'Instant Wallet Top-up',
           type: t.transaction_type,
           direction: t.direction,
           category: categoryLabel,
@@ -216,7 +215,7 @@ export default function WalletPage() {
     syncWalletData()
   }
 
-  // 4. Handle Add Money via Razorpay Checkout
+  // 4. Handle Add Money (Online Top-Up)
   const handleDepositSubmit = async (e) => {
     e.preventDefault()
 
@@ -250,88 +249,15 @@ export default function WalletPage() {
       setTopupIdempotencyKey(idempotencyKey)
     }
 
-    setIsSubmittingTopup(true)
-    setTopupStatus('PROCESSING')
-
-    try {
-      // Load Razorpay checkout script
-      const isScriptLoaded = await loadRazorpayScript()
-      if (!isScriptLoaded || typeof window === 'undefined' || !window.Razorpay) {
-        throw new Error('Unable to load payment gateway. Please check your network connection.')
-      }
-
-      // Create authoritative server-side Razorpay order
-      const orderRes = await createWalletTopupOrder(num, idempotencyKey)
-      if (!orderRes || !orderRes.success || !orderRes.order_id) {
-        throw new Error(orderRes?.message || orderRes?.error || 'Failed to initialize top-up order.')
-      }
-
-      // Open Razorpay Checkout modal
-      const options = {
-        key: orderRes.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID || '',
-        amount: orderRes.amount,
-        currency: orderRes.currency || 'INR',
-        name: 'MJ ESPORTS',
-        description: `Wallet Add Funds ₹${num}`,
-        order_id: orderRes.order_id,
-        handler: async (response) => {
-          try {
-            setIsSubmittingTopup(true)
-            setTopupStatus('PROCESSING')
-
-            const verifyRes = await verifyWalletTopup({
-              orderId: response.razorpay_order_id,
-              paymentId: response.razorpay_payment_id,
-              signature: response.razorpay_signature,
-            })
-
-            if (verifyRes && verifyRes.success) {
-              setTopupStatus('SUCCESS')
-              showSuccess(`₹${num} credited to your wallet!`, 'Deposit Successful')
-              setIsDepositModalOpen(false)
-              setAmountInput('')
-              setTopupIdempotencyKey(null)
-              await syncWalletData()
-            } else {
-              setTopupStatus('FAILED')
-              showError(verifyRes?.error || verifyRes?.message || 'Payment verification failed.', 'Verification Error')
-            }
-          } catch (verifyErr) {
-            setTopupStatus('FAILED')
-            showError(verifyErr.message || 'Payment verification failed.', 'Verification Error')
-          } finally {
-            setIsSubmittingTopup(false)
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setIsSubmittingTopup(false)
-            setTopupStatus(null)
-          },
-        },
-        prefill: {
-          name: user?.user_metadata?.full_name || user?.user_metadata?.username || 'MJ Esports Player',
-          email: user?.email || '',
-        },
-        theme: {
-          color: '#00f2ff',
-        },
-      }
-
-      const rzpInstance = new window.Razorpay(options)
-      rzpInstance.on('payment.failed', (resp) => {
-        console.error('[Razorpay Payment Failed]:', resp.error)
-        setTopupStatus('FAILED')
-        showError(resp.error?.description || 'Payment was declined.', 'Payment Failed')
-        setIsSubmittingTopup(false)
-      })
-      rzpInstance.open()
-    } catch (err) {
-      console.error('[Deposit Error]:', err)
-      setTopupStatus('FAILED')
-      showError(err.message || 'Deposit Failed', 'Deposit Failed')
-      setIsSubmittingTopup(false)
-    }
+    // Online wallet top-up is undergoing maintenance
+    // Players pay tournament entry fees directly via UPI (FamGateway) during slot booking
+    showError(
+      'Online wallet top-up is undergoing maintenance. Please pay entry fees directly via UPI (FamGateway) during tournament slot booking.',
+      'Top-Up Temporarily Unavailable'
+    )
+    setIsSubmittingTopup(false)
+    setTopupStatus(null)
+    return
   }
 
   // Helper functions for masking payout details securely
@@ -1016,7 +942,7 @@ export default function WalletPage() {
 
             <div className="space-y-1">
               <span className="text-[10px] font-bold text-[#00f2ff] uppercase tracking-wider">
-                RAZORPAY INSTANT CHECKOUT
+                ONLINE WALLET TOP-UP
               </span>
               <h3 className="text-lg font-black text-white uppercase tracking-wider">
                 ADD MONEY

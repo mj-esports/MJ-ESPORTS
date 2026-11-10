@@ -16,21 +16,24 @@ import {
   Upload,
   FileImage,
   Wallet,
-  AlertTriangle
+  AlertTriangle,
+  QrCode,
+  ExternalLink
 } from 'lucide-react'
 import { useTournaments } from '../../contexts/TournamentContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
-import { isSupabaseConfigured } from '../../lib/supabase'
+import { isSupabaseConfigured, supabase } from '../../lib/supabase'
 import { uploadProfileProof } from '../../services/playerEvidenceService'
 import {
   fetchUserWallet,
-  generateWalletRegistrationIdempotencyKey
+  generateWalletRegistrationIdempotencyKey,
+  notifyWalletBalanceUpdated,
 } from '../../services/walletService'
 import {
-  createTournamentOrder,
-  verifyTournamentPayment,
-  launchRazorpayCheckout,
+  createFamgatewayOrder,
+  verifyFamgatewayPayment,
+  triggerUpiIntent,
 } from '../../services/tournamentPaymentService'
 import { getMyTeamPortalData } from '../../services/teamService'
 import FormInput from '../common/FormInput'
@@ -63,24 +66,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const { user } = useAuth()
   const { showSuccess, showError } = useToast()
   const navigate = useNavigate()
-
-  // Profile Proof Attachment State
-  const [proofFile, setProofFile] = useState(null)
-  const [proofPreview, setProofPreview] = useState('')
-  const [showRulebook, setShowRulebook] = useState(false)
-
-  // Phase 9.3: Wallet Payment State
-  const [walletData, setWalletData] = useState(null)
-  const [walletLoading, setWalletLoading] = useState(false)
-  const [walletIdempotencyKey, setWalletIdempotencyKey] = useState(null)
-
-  // Lock body scrolling when modal is open
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [])
 
   const modeConfig = getTournamentMode(tournament)
 
@@ -148,6 +133,239 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const [pendingTeamToApply, setPendingTeamToApply] = useState(null)
   const [showNoTeamModal, setShowNoTeamModal] = useState(false)
   const [populatedTeamInfo, setPopulatedTeamInfo] = useState(null)
+
+
+  // Profile Proof Attachment State
+  const [proofFile, setProofFile] = useState(null)
+  const [proofPreview, setProofPreview] = useState('')
+  const [showRulebook, setShowRulebook] = useState(false)
+
+  // Phase 9.3: Wallet Payment State
+  const [walletData, setWalletData] = useState(null)
+  const [walletLoading, setWalletLoading] = useState(false)
+  const [walletIdempotencyKey, setWalletIdempotencyKey] = useState(null)
+
+  // FamGateway Checkout Session State (Exclusive Payment Gateway)
+  const [famgatewaySession, setFamgatewaySession] = useState(null)
+  const [isVerifyingFamgateway, setIsVerifyingFamgateway] = useState(false)
+  const [showQrFallback, setShowQrFallback] = useState(false)
+  const [famgatewayCountdown, setFamgatewayCountdown] = useState(600)
+  const [pendingRegistrationPayload, setPendingRegistrationPayload] = useState(null)
+  const [capacityRefundNotice, setCapacityRefundNotice] = useState(null)
+
+  // Automatic refund handler when verified payment encounters capacity saturation
+  const handleCapacitySaturationRefund = async (paymentId, amount, utr) => {
+    try {
+      if (!isSupabaseConfigured) return false
+      const { data: refundRes, error: refundErr } = await supabase.rpc(
+        'refund_unregistered_verified_payment',
+        { p_payment_id: paymentId, p_reason: 'Tournament Full Capacity' }
+      )
+      if (!refundErr && refundRes?.success) {
+        if (typeof refundRes.balance_after === 'number') {
+          notifyWalletBalanceUpdated(refundRes.balance_after)
+        }
+        setCapacityRefundNotice({
+          amount: refundRes.amount || amount,
+          utr: utr,
+          balanceAfter: refundRes.balance_after,
+          walletLedgerId: refundRes.wallet_ledger_id,
+        })
+        showError(
+          `Payment of ₹${refundRes.amount || amount} was received, but tournament slots filled up! Your entry fee has been automatically credited to your in-app wallet balance.`,
+          'Tournament Full — Refund Credited'
+        )
+        setFamgatewaySession(null)
+        setIsVerifyingFamgateway(false)
+        return true
+      }
+    } catch (refundEx) {
+      console.error('[Capacity Saturation Auto-Refund Exception]:', refundEx)
+    }
+    return false
+  }
+
+  // Lock body scrolling when modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [])
+
+  // Countdown timer for active FamGateway session
+  useEffect(() => {
+    if (!famgatewaySession) return
+    const timer = setInterval(() => {
+      setFamgatewayCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          setError('Payment session expired. Please start over.')
+          setFamgatewaySession(null)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [famgatewaySession])
+
+  // Background polling for FamGateway payment clearance
+  useEffect(() => {
+    if (!famgatewaySession?.orderId) return
+    let isMounted = true
+
+    const checkInterval = setInterval(async () => {
+      try {
+        const verifyRes = await verifyFamgatewayPayment({
+          orderId: famgatewaySession.orderId,
+          tournamentId: tournament.id,
+        })
+
+        if (!isMounted) return
+
+        if (verifyRes?.success && (verifyRes.status === 'VERIFIED' || verifyRes.already_consumed)) {
+          clearInterval(checkInterval)
+          setIsVerifyingFamgateway(true)
+          setSubmittingStep('Confirming Registration...')
+
+          let registeredRecord = null
+          if (verifyRes.already_consumed) {
+            registeredRecord = {
+              id: verifyRes.registration_id,
+              team_name: sanitizeString(formData.teamName),
+              captain_ign: toCanonicalIgn(formData.captainName),
+              captain_uid: sanitizeString(formData.freeFireUid),
+              captain_phone: sanitizeString(formData.whatsappNumber),
+              email: sanitizeString(formData.email),
+              mode,
+              registration_ref: pendingRegistrationPayload?.refId,
+            }
+          } else if (pendingRegistrationPayload) {
+            try {
+              registeredRecord = await registerTeam(tournament.id, {
+                ...pendingRegistrationPayload,
+                paymentId: verifyRes.payment_id,
+                razorpayPaymentId: verifyRes.utr || famgatewaySession.orderId,
+                status: 'Approved',
+                paymentStatus: 'Paid',
+              })
+            } catch (regErr) {
+              const errMsg = String(regErr?.message || '').toLowerCase()
+              if (errMsg.includes('tournament_full') || errMsg.includes('slots are full') || errMsg.includes('slots for this tournament are full') || errMsg.includes('tournament is full')) {
+                clearInterval(checkInterval)
+                const refunded = await handleCapacitySaturationRefund(verifyRes.payment_id, verifyRes.amount, verifyRes.utr)
+                if (refunded) return
+              }
+              throw regErr
+            }
+          }
+
+          showSuccess('Payment & Registration Confirmed', `Slot Confirmed • Ref: ${pendingRegistrationPayload?.refId || verifyRes.utr}`)
+          if (onRegistered) onRegistered(registeredRecord)
+
+          setRegistrationSummary({
+            refId: pendingRegistrationPayload?.refId || 'REG-CONFIRMED',
+            teamName: isSolo ? '' : sanitizeString(formData.teamName),
+            captain: toCanonicalIgn(formData.captainName),
+            mode,
+            freeFireUid: sanitizeString(formData.freeFireUid),
+            teammates: pendingRegistrationPayload?.teammates || [],
+            teammateIgns: pendingRegistrationPayload?.teammateIgns || [],
+            status: 'Approved',
+            paymentStatus: 'Paid',
+            paymentId: verifyRes.utr || famgatewaySession.orderId,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            registeredRecord,
+          })
+          setFamgatewaySession(null)
+          setIsVerifyingFamgateway(false)
+        } else if (verifyRes?.status === 'EXPIRED') {
+          clearInterval(checkInterval)
+          setError('Payment order expired. Please start over.')
+          setFamgatewaySession(null)
+        }
+      } catch (err) {
+        console.warn('[FamGateway Polling Check]:', err?.message)
+      }
+    }, 3500)
+
+    return () => {
+      isMounted = false
+      clearInterval(checkInterval)
+    }
+  }, [famgatewaySession, pendingRegistrationPayload, tournament.id, formData, isSolo, mode, registerTeam, onRegistered, showSuccess])
+
+  const handleManualStatusCheck = async () => {
+    if (!famgatewaySession?.orderId) return
+    setIsVerifyingFamgateway(true)
+    try {
+      const verifyRes = await verifyFamgatewayPayment({
+        orderId: famgatewaySession.orderId,
+        tournamentId: tournament.id,
+      })
+
+      if (verifyRes?.success && (verifyRes.status === 'VERIFIED' || verifyRes.already_consumed)) {
+        setSubmittingStep('Confirming Registration...')
+        let registeredRecord = null
+        if (verifyRes.already_consumed) {
+          registeredRecord = {
+            id: verifyRes.registration_id,
+            team_name: sanitizeString(formData.teamName),
+            captain_ign: toCanonicalIgn(formData.captainName),
+            captain_uid: sanitizeString(formData.freeFireUid),
+            captain_phone: sanitizeString(formData.whatsappNumber),
+            email: sanitizeString(formData.email),
+            mode,
+            registration_ref: pendingRegistrationPayload?.refId,
+          }
+        } else if (pendingRegistrationPayload) {
+          try {
+            registeredRecord = await registerTeam(tournament.id, {
+              ...pendingRegistrationPayload,
+              paymentId: verifyRes.payment_id,
+              razorpayPaymentId: verifyRes.utr || famgatewaySession.orderId,
+              status: 'Approved',
+              paymentStatus: 'Paid',
+            })
+          } catch (regErr) {
+            const errMsg = String(regErr?.message || '').toLowerCase()
+            if (errMsg.includes('tournament_full') || errMsg.includes('slots are full') || errMsg.includes('slots for this tournament are full') || errMsg.includes('tournament is full')) {
+              const refunded = await handleCapacitySaturationRefund(verifyRes.payment_id, verifyRes.amount, verifyRes.utr)
+              if (refunded) return
+            }
+            throw regErr
+          }
+        }
+
+        showSuccess('Payment & Registration Confirmed', `Slot Confirmed • Ref: ${pendingRegistrationPayload?.refId || verifyRes.utr}`)
+        if (onRegistered) onRegistered(registeredRecord)
+
+        setRegistrationSummary({
+          refId: pendingRegistrationPayload?.refId || 'REG-CONFIRMED',
+          teamName: isSolo ? '' : sanitizeString(formData.teamName),
+          captain: toCanonicalIgn(formData.captainName),
+          mode,
+          freeFireUid: sanitizeString(formData.freeFireUid),
+          teammates: pendingRegistrationPayload?.teammates || [],
+          teammateIgns: pendingRegistrationPayload?.teammateIgns || [],
+          status: 'Approved',
+          paymentStatus: 'Paid',
+          paymentId: verifyRes.utr || famgatewaySession.orderId,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          registeredRecord,
+        })
+        setFamgatewaySession(null)
+      } else {
+        showError('Payment is still pending clearance from your bank. If you already transferred, please wait a few seconds and try again.', 'Payment Pending')
+      }
+    } catch (err) {
+      showError(err?.message || 'Verification check failed.', 'Check Failed')
+    } finally {
+      setIsVerifyingFamgateway(false)
+    }
+  }
+
 
   /**
    * N3.5: Executes client-side form state auto-population from authoritative team portal data.
@@ -606,6 +824,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (isSubmitting || famgatewaySession) return
     setError(null)
 
     // SEC-05: Guard authentication before registration submission proceeds
@@ -730,102 +949,37 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
           teammates: activeTeammates,
           teammateIgns: activeTeammateIgns,
         }
-        const orderRes = await createTournamentOrder(tournament.id, registrationPayload)
-        if (!orderRes?.order_id) {
-          throw new Error(orderRes?.error || 'Failed to create payment order with server.')
+
+        // FamGateway API v2 Exclusive Integration (Mobile UPI Intent / Dynamic QR)
+        setSubmittingStep('Creating UPI Payment Order...')
+        try {
+          const fgOrder = await createFamgatewayOrder(tournament.id, registrationPayload)
+          if (fgOrder && fgOrder.success && fgOrder.order_id) {
+            setPendingRegistrationPayload(registrationPayload)
+            setFamgatewaySession({
+              orderId: fgOrder.order_id,
+              payableAmount: Number(fgOrder.payable_amount || fgOrder.amount || numericEntryFee),
+              amount: Number(fgOrder.amount || numericEntryFee),
+              upiIntent: fgOrder.upi_intent,
+              qrUrl: fgOrder.qr_url,
+              checkoutUrl: fgOrder.checkout_url,
+            })
+            setFamgatewayCountdown(600)
+
+            // Mobile-first auto intent trigger
+            if (typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && fgOrder.upi_intent) {
+              triggerUpiIntent(fgOrder.upi_intent)
+            }
+            return
+          } else {
+            throw new Error(fgOrder?.error || 'Unable to initialize FamGateway payment order.')
+          }
+        } catch (fgErr) {
+          const errMsg = fgErr?.message || 'Failed to initialize FamGateway UPI payment session.'
+          setError(errMsg)
+          showError(errMsg, 'UPI Initialization Failed')
+          return
         }
-
-        setSubmittingStep('Awaiting Payment...')
-        await new Promise((resolve, reject) => {
-          launchRazorpayCheckout({
-            orderData: orderRes,
-            tournament,
-            userInfo: {
-              name: sanitizeString(formData.captainName),
-              email: sanitizeString(formData.email),
-              contact: sanitizeString(formData.whatsappNumber),
-            },
-            onSuccess: async (payResponse) => {
-              try {
-                setSubmittingStep('Verifying Payment...')
-                const verifyRes = await verifyTournamentPayment({
-                  orderId: payResponse.orderId,
-                  paymentId: payResponse.paymentId,
-                  signature: payResponse.signature,
-                  tournamentId: tournament.id,
-                })
-
-                if (!verifyRes?.success) {
-                  throw new Error(verifyRes?.error || 'Server signature verification failed.')
-                }
-
-                let registeredRecord = null
-                if (verifyRes.already_consumed) {
-                  console.info('[SlotBookingModal] Payment was already processed by webhook background recovery.')
-                  registeredRecord = {
-                    id: verifyRes.registration_id,
-                    team_name: sanitizeString(formData.teamName),
-                    captain_ign: toCanonicalIgn(formData.captainName),
-                    captain_uid: sanitizeString(formData.freeFireUid),
-                    captain_phone: sanitizeString(formData.whatsappNumber),
-                    email: sanitizeString(formData.email),
-                    mode,
-                    registration_ref: refId,
-                  }
-                } else {
-                  setSubmittingStep('Confirming Registration...')
-                  registeredRecord = await registerTeam(tournament.id, {
-                    refId,
-                    name: sanitizeString(formData.teamName),
-                    captain: toCanonicalIgn(formData.captainName),
-                    email: sanitizeString(formData.email),
-                    freeFireUid: sanitizeString(formData.freeFireUid),
-                    whatsappNumber: sanitizeString(formData.whatsappNumber),
-                    mode,
-                    teammates: activeTeammates,
-                    teammateIgns: activeTeammateIgns,
-                    userId: user.id,
-                    paymentId: verifyRes.payment_id,
-                    razorpayPaymentId: verifyRes.razorpay_payment_id || payResponse.paymentId,
-                    status: 'Approved',
-                    paymentStatus: 'Paid',
-                  })
-                }
-
-                showSuccess('Payment & Registration Confirmed', `Slot Confirmed • ID: ${payResponse.paymentId}`)
-
-                if (onRegistered) {
-                  onRegistered(registeredRecord)
-                }
-
-                setRegistrationSummary({
-                  refId,
-                  teamName: isSolo ? '' : sanitizeString(formData.teamName),
-                  captain: toCanonicalIgn(formData.captainName),
-                  mode,
-                  freeFireUid: sanitizeString(formData.freeFireUid),
-                  teammates: activeTeammates,
-                  teammateIgns: activeTeammateIgns,
-                  status: 'Approved',
-                  paymentStatus: 'Paid',
-                  paymentId: payResponse.paymentId,
-                  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                  registeredRecord,
-                })
-
-                resolve()
-              } catch (verifyErr) {
-                reject(verifyErr)
-              }
-            },
-            onDismiss: () => {
-              reject(new Error('Payment window was closed. Registration was not booked.'))
-            },
-            onError: (payErr) => {
-              reject(payErr)
-            },
-          }).catch(reject)
-        })
       }
     } catch (err) {
       console.error('[Registration Submission Error]:', err)
@@ -845,6 +999,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   // Phase 9.3: Dedicated Wallet Payment Submission Handler
   const handleWalletPaymentSubmit = async (e) => {
     if (e) e.preventDefault()
+    if (isSubmitting || famgatewaySession) return
     setError(null)
 
     // SEC-05: Guard authentication before registration submission proceeds
@@ -1045,8 +1200,185 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
             </div>
           )}
 
-          {/* SUCCESS CONFIRMATION DIALOG */}
-          {registrationSummary ? (
+          {/* FAMGATEWAY ACTIVE PAYMENT SESSION VIEW */}
+          {famgatewaySession ? (
+            <div className="p-6 space-y-6">
+              <div className="flex items-center justify-between border-b border-[#2A2A30] pb-4">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#00f2ff] font-bold">
+                    UPI Fast Checkout
+                  </span>
+                  <h3 className="text-base font-bold text-white">
+                    {tournament.title}
+                  </h3>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] text-[#8E8E98] block">Payable Amount</span>
+                  <span className="text-xl font-mono font-bold text-[#00ff9d]">
+                    ₹{famgatewaySession.payableAmount.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Mobile Direct UPI Intent Button */}
+              <div className="p-4 bg-[#0E0E10] border border-[#00f2ff]/30 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#00f2ff]">
+                    <Smartphone className="w-4 h-4" />
+                    <span>DIRECT MOBILE UPI APPS</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 border border-[#10B981]/30">
+                    0% Gateway Fee
+                  </span>
+                </div>
+                <p className="text-xs text-[#8E8E98]">
+                  Tap below to launch Google Pay, PhonePe, Paytm, or BHIM directly:
+                </p>
+                {famgatewaySession.upiIntent ? (
+                  <button
+                    type="button"
+                    onClick={() => triggerUpiIntent(famgatewaySession.upiIntent)}
+                    className="w-full h-12 flex items-center justify-center gap-2.5 text-xs font-bold uppercase tracking-wider text-black bg-[#00ff9d] hover:bg-white transition-all shadow-[0_0_20px_rgba(0,255,157,0.3)] cursor-pointer"
+                  >
+                    <Smartphone className="w-4 h-4" />
+                    <span>Pay with Google Pay / PhonePe / Paytm</span>
+                  </button>
+                ) : null}
+                <div className="text-[10px] text-[#8E8E98] text-center font-mono">
+                  NPCI Universal UPI Intent • Direct App-to-App Redirection
+                </div>
+              </div>
+
+              {/* Desktop / QR Fallback Section */}
+              <div className="p-4 bg-[#0E0E10] border border-[#2A2A30] space-y-3 text-center">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <QrCode className="w-4 h-4 text-[#00f2ff]" />
+                    <span>Desktop Fallback Option</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowQrFallback(!showQrFallback)}
+                    className="text-[11px] font-mono text-[#00f2ff] hover:underline cursor-pointer"
+                  >
+                    {showQrFallback ? 'Hide QR Code' : 'Show Dynamic QR'}
+                  </button>
+                </div>
+
+                {showQrFallback && famgatewaySession.qrUrl && (
+                  <div className="py-2 space-y-2 animate-fadeIn">
+                    <img
+                      src={famgatewaySession.qrUrl}
+                      alt="Scan to pay entry fee"
+                      className="w-48 h-48 mx-auto p-2 bg-white border border-[#00f2ff]/40 shadow-[0_0_20px_rgba(0,242,255,0.2)]"
+                    />
+                    <p className="text-[11px] text-[#8E8E98]">
+                      Scan with any UPI app on your phone
+                    </p>
+                  </div>
+                )}
+
+                {famgatewaySession.checkoutUrl && (
+                  <div>
+                    <a
+                      href={famgatewaySession.checkoutUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-[#00f2ff] hover:text-white transition-colors"
+                    >
+                      <span>Open Hosted Payment Screen</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Status Poller & Action */}
+              <div className="p-3.5 bg-[#18181B] border border-[#2A2A30] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#00ff9d] animate-ping" />
+                  <span className="text-[#8E8E98]">
+                    Awaiting UPI confirmation... Session expires in{' '}
+                    <strong className="text-white font-mono">
+                      {Math.floor(famgatewayCountdown / 60)}:
+                      {String(famgatewayCountdown % 60).padStart(2, '0')}
+                    </strong>
+                  </span>
+                </div>
+
+                <LoadingButton
+                  type="button"
+                  loading={isVerifyingFamgateway}
+                  loadingText="Checking..."
+                  onClick={handleManualStatusCheck}
+                  className="h-8 px-4 text-[11px] font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors cursor-pointer"
+                >
+                  Check Status Now
+                </LoadingButton>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between border-t border-[#2A2A30]">
+                <button
+                  type="button"
+                  onClick={() => setFamgatewaySession(null)}
+                  className="h-9 px-4 text-xs font-bold uppercase tracking-wider text-[#8E8E98] hover:text-white border border-[#2A2A30] hover:bg-[#18181B] transition-colors cursor-pointer"
+                >
+                  Back to Form
+                </button>
+                <span className="text-[10px] text-[#8E8E98] font-mono">
+                  Order: {famgatewaySession.orderId}
+                </span>
+              </div>
+            </div>
+          ) : capacityRefundNotice ? (
+            <div className="p-6 space-y-5">
+              <div className="flex items-center gap-2.5">
+                <AlertTriangle className="w-5 h-5 text-[#ff3366] shrink-0" />
+                <h3 className="text-sm font-bold tracking-wider uppercase text-white font-mono">
+                  Tournament Capacity Reached
+                </h3>
+              </div>
+
+              <div className="p-4 bg-[#0E0E10] border border-[#ff3366]/40 rounded-none space-y-3 font-mono text-xs text-left">
+                <div className="flex items-center justify-between py-1 border-b border-[#222228]">
+                  <span className="text-[#8E8E98] font-sans text-xs">Payment Status</span>
+                  <span className="text-[#00ff9d] font-bold">VERIFIED &amp; REFUNDED</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-[#222228]">
+                  <span className="text-[#8E8E98] font-sans text-xs">Transaction / UTR</span>
+                  <span className="text-white font-bold">{capacityRefundNotice.utr || 'VERIFIED'}</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-[#222228]">
+                  <span className="text-[#8E8E98] font-sans text-xs">Wallet Credit Issued</span>
+                  <span className="text-[#00ff9d] font-bold">+₹{capacityRefundNotice.amount}</span>
+                </div>
+                {typeof capacityRefundNotice.balanceAfter === 'number' && (
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-[#8E8E98] font-sans text-xs">Updated Wallet Balance</span>
+                    <span className="text-[#00f2ff] font-bold">₹{capacityRefundNotice.balanceAfter}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-3 bg-[#181215] border-l-2 border-[#ff3366] text-xs text-[#8E8E98] leading-relaxed">
+                Your payment was successfully received, but another participant claimed the final tournament slot milliseconds before your registration submitted.
+                <strong className="text-white block mt-1">Your entire entry fee has been credited back to your in-app wallet balance.</strong>
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCapacityRefundNotice(null)
+                    onClose()
+                  }}
+                  className="h-10 px-6 bg-[#00f2ff] hover:bg-white text-black font-extrabold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Close &amp; View Tournaments
+                </button>
+              </div>
+            </div>
+          ) : registrationSummary ? (
             <div className="p-6 space-y-6">
               {/* Headline with subtle status icon */}
               <div className="flex items-center gap-2.5">
@@ -1552,10 +1884,24 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                         <span className="font-mono font-bold">₹{walletShortfall.toFixed(2)}</span>
                       </div>
                       <p className="text-[10px] text-[#8E8E98]">
-                        Your wallet has ₹{userWalletBalance.toFixed(2)}. Pay ₹{numericEntryFee.toFixed(2)} via Razorpay (UPI, Cards, NetBanking) or top up your wallet.
+                        Your wallet has ₹{userWalletBalance.toFixed(2)}. Pay ₹{numericEntryFee.toFixed(2)} via UPI (FamGateway) or top up your wallet.
                       </p>
                     </div>
                   )}
+
+                  {/* FamGateway UPI Notice */}
+                  <div className="pt-2 border-t border-[#2A2A30] flex items-center justify-between p-2 bg-[#18181B] border border-[#2A2A30]">
+                    <div className="flex items-center gap-2">
+                      <Smartphone className="w-4 h-4 text-[#00f2ff]" />
+                      <div>
+                        <span className="text-xs font-bold text-white block">UPI Direct Checkout</span>
+                        <span className="text-[10px] text-[#8E8E98]">GPay, PhonePe, Paytm, or Dynamic QR</span>
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-mono text-[#00ff9d] bg-[#00ff9d]/10 px-1.5 py-0.5 border border-[#00ff9d]/30 uppercase font-semibold">
+                      FamGateway
+                    </span>
+                  </div>
                 </div>
               )}
 
@@ -1618,22 +1964,22 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                     <LoadingButton
                       type="submit"
                       loading={isSubmitting && !submittingStep.includes('Wallet')}
-                      loadingText={submittingStep || 'Opening Razorpay...'}
+                      loadingText={submittingStep || 'Opening UPI Payment...'}
                       disabled={!isFormValid || isSubmitting}
                       className="h-10 px-4 text-xs font-bold uppercase tracking-wider text-[#8E8E98] hover:text-white bg-transparent hover:bg-[#18181B] border border-[#2A2A30] rounded-none transition-colors cursor-pointer"
                     >
-                      Pay via Razorpay
+                      Pay via UPI
                     </LoadingButton>
                   </>
                 ) : (
                   <LoadingButton
                     type="submit"
                     loading={isSubmitting}
-                    loadingText={submittingStep || 'Processing Payment...'}
+                    loadingText={submittingStep || 'Opening UPI Payment...'}
                     disabled={!isFormValid || isSubmitting}
                     className="h-10 px-6 text-xs font-bold uppercase tracking-wider text-black bg-[#00f2ff] hover:bg-white transition-colors rounded-none shadow-sm flex items-center gap-2 cursor-pointer"
                   >
-                    {`Pay ₹${numericEntryFee.toFixed(2)} via Razorpay`}
+                    {`Pay ₹${numericEntryFee.toFixed(2)} via UPI`}
                   </LoadingButton>
                 )}
               </div>

@@ -19,7 +19,7 @@ export const FinanceSummaryCards: React.FC<FinanceSummaryCardsProps> = ({ metric
           </div>
           <span className="text-[11px] text-[#00ff9d] font-semibold flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            Verified Razorpay Payments
+            Verified Gateway Payments
           </span>
         </div>
 

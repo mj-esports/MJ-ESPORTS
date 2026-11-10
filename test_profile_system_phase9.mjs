@@ -349,10 +349,9 @@ assert(
   'F47. Wallet balance synchronizes via fetchUserWallet and subscribeToWalletBalance'
 )
 assert(
-  walletSrc.includes('loadRazorpayScript') &&
-  walletSrc.includes('createWalletTopupOrder') &&
-  walletSrc.includes('verifyWalletTopup'),
-  'F48. Top-up flow operates via server-side Razorpay Edge Functions'
+  !walletSrc.includes('loadRazorpayScript') &&
+  !walletSrc.includes('window.Razorpay'),
+  'F48. Active Razorpay checkout loader and SDK modal eliminated from WalletPage'
 )
 assert(
   walletSrc.includes('min="1"') || walletSrc.includes('Math.max(1,'),

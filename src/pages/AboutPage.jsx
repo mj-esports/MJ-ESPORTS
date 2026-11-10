@@ -138,7 +138,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                   <strong className="text-white">Match Evidence & Scorecards:</strong> Post-match screenshot proof uploads, reported kill counts, finish placements, and referee verification records.
                 </li>
                 <li>
-                  <strong className="text-white">Financial & Wallet Records:</strong> Razorpay payment identifiers (Order ID, Payment ID, amount, status), in-app wallet balance, immutable transaction history (<code className="text-[#00f2ff]">wallet_ledger</code>), and user-provided withdrawal payout details (UPI ID or bank account number and IFSC code).
+                  <strong className="text-white">Financial & Wallet Records:</strong> Payment gateway identifiers (Order ID, Payment ID, UTR, amount, status), in-app wallet balance, immutable transaction history (<code className="text-[#00f2ff]">wallet_ledger</code>), and user-provided withdrawal payout details (UPI ID or bank account number and IFSC code).
                 </li>
               </ul>
             </div>
@@ -204,7 +204,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                 4. Payment Processing
               </h3>
               <p className="text-[#8e9dae]">
-                Online payments for paid tournaments and wallet top-ups are securely processed through <strong className="text-white">Razorpay</strong>. MJ ESPORTS does not collect, store, or process debit/credit card numbers, CVVs, net banking credentials, or UPI MPINs. All payment credential handling is executed directly by Razorpay's PCI-DSS compliant checkout interface. We store only standard transaction confirmation metadata (such as Razorpay Order ID, Payment ID, timestamp, and amount) for verification and refund processing.
+                Online payments for paid tournaments are securely processed through <strong className="text-white">FamGateway UPI</strong>. MJ ESPORTS does not collect, store, or process debit/credit card numbers, CVVs, net banking credentials, or UPI MPINs. All payment credential handling is executed directly by the payment gateway's secure checkout interface. We store only standard transaction confirmation metadata (such as Order ID, Payment ID, UTR, timestamp, and amount) for verification and refund processing.
               </p>
             </div>
 
@@ -221,7 +221,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                   <strong className="text-white">Supabase:</strong> Cloud database (PostgreSQL), user authentication, private storage buckets, and realtime WebSocket communication.
                 </li>
                 <li>
-                  <strong className="text-white">Razorpay:</strong> Regulated payment gateway for processing entry payments and top-ups in Indian Rupees (INR).
+                  <strong className="text-white">FamGateway:</strong> UPI payment gateway for processing tournament entry fee payments in Indian Rupees (INR).
                 </li>
                 <li>
                   <strong className="text-white">Vercel:</strong> Global content delivery network and cloud hosting platform for the frontend application.
@@ -365,13 +365,13 @@ export default function AboutPage({ defaultTab = 'about' }) {
               </p>
               <ul className="list-disc pl-5 space-y-1.5 text-[#8e9dae]">
                 <li>
-                  <strong className="text-white">Payment Methods:</strong> Entry fees may be paid using available in-app wallet balance or via our integrated online payment gateway, <strong className="text-white">Razorpay</strong> (supporting UPI, debit/credit cards, and net banking).
+                  <strong className="text-white">Payment Methods:</strong> Entry fees may be paid using available in-app wallet balance or via our integrated UPI payment gateway, <strong className="text-white">FamGateway</strong> (supporting UPI apps such as Google Pay, PhonePe, Paytm, and BHIM).
                 </li>
                 <li>
-                  <strong className="text-white">Payment Credential Security:</strong> All online payment processing is executed directly by Razorpay's PCI-DSS compliant interface. MJ ESPORTS does not collect, store, or process card numbers, CVVs, net banking credentials, or UPI MPINs.
+                  <strong className="text-white">Payment Credential Security:</strong> All online payment processing is executed directly by the payment gateway's secure interface. MJ ESPORTS does not collect, store, or process card numbers, CVVs, net banking credentials, or UPI MPINs.
                 </li>
                 <li>
-                  <strong className="text-white">Payment Confirmation:</strong> A tournament registration is considered successfully paid and confirmed only upon verified payment confirmation (cryptographically verified Razorpay webhook or atomic wallet debit ledger entry). Pending, abandoned, or unverified payment attempts do not reserve a tournament slot.
+                  <strong className="text-white">Payment Confirmation:</strong> A tournament registration is considered successfully paid and confirmed only upon verified payment confirmation (cryptographically verified FamGateway webhook or atomic wallet debit ledger entry). Pending, abandoned, or unverified payment attempts do not reserve a tournament slot.
                 </li>
               </ul>
             </div>
@@ -394,7 +394,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                       <strong className="text-white">Tournament Cancellation:</strong> If a tournament is cancelled by platform administrators prior to completion (due to operational issues or server disruptions), 100% of the verified paid entry fee is authoritatively refunded as an in-app wallet credit via the platform's atomic refund procedure.
                     </li>
                     <li>
-                      <strong className="text-white">Verified Paid Entries:</strong> Refunds apply strictly to registrations with confirmed payment evidence (<code className="text-[#00f2ff]">CONSUMED</code> Razorpay transaction or confirmed <code className="text-[#00f2ff]">ENTRY_FEE_DEBIT</code> wallet ledger record).
+                      <strong className="text-white">Verified Paid Entries:</strong> Refunds apply strictly to registrations with confirmed payment evidence (<code className="text-[#00f2ff]">CONSUMED</code> payment gateway transaction or confirmed <code className="text-[#00f2ff]">ENTRY_FEE_DEBIT</code> wallet ledger record).
                     </li>
                     <li>
                       <strong className="text-white">Wallet Credit Utility:</strong> Refunded wallet balances can be used immediately to enter other tournaments or requested for withdrawal subject to withdrawal policies.

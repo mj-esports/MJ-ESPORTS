@@ -803,7 +803,7 @@ export default function SettingsView() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-[#10b981] shrink-0 mt-0.5" />
-                      <span className="leading-relaxed">Razorpay secrets and Supabase service credentials remain server-side.</span>
+                      <span className="leading-relaxed">Payment gateway secrets and Supabase service credentials remain server-side.</span>
                     </li>
                   </ul>
                 </div>

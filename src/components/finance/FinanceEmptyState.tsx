@@ -11,7 +11,7 @@ export const FinanceEmptyState: React.FC<FinanceEmptyStateProps> = ({ message, s
     <EmptyState
       type="finance"
       title={message || 'No Payment Data Available Yet'}
-      subtitle={subtitle || 'Verified Razorpay tournament slot registrations will automatically populate here in real time.'}
+      subtitle={subtitle || 'Verified gateway tournament slot registrations will automatically populate here in real time.'}
     />
   )
 }
