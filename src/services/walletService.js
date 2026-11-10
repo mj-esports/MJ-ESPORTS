@@ -199,7 +199,7 @@ export function generateWalletRegistrationIdempotencyKey() {
 }
 
 /**
- * Phase 9.2: Create Razorpay order for wallet top-up via authoritative Edge Function
+ * Create order for wallet top-up via authoritative Edge Function
  */
 export async function createWalletTopupOrder(amount, clientIdempotencyKey) {
   if (!isSupabaseConfigured) {
@@ -227,7 +227,7 @@ export async function createWalletTopupOrder(amount, clientIdempotencyKey) {
 }
 
 /**
- * Phase 9.2: Verify Razorpay payment signature and execute atomic settlement via Edge Function
+ * Verify payment signature and execute atomic settlement via Edge Function
  */
 export async function verifyWalletTopup({ orderId, paymentId, signature }) {
   if (!isSupabaseConfigured) {

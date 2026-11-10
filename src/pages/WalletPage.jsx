@@ -26,8 +26,6 @@ import {
   fetchAllUserPrizeCredits,
   requestWithdrawal,
   fetchUserWithdrawals,
-  createWalletTopupOrder,
-  verifyWalletTopup,
   generateTopupIdempotencyKey,
   getAuthoritativeWalletBalance,
   subscribeToWalletBalance,
