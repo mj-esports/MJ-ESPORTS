@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense, Component } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   Trophy,
@@ -23,12 +23,14 @@ import {
   EyeOff,
   Ban,
   ShieldCheck,
+  AlertTriangle,
+  RefreshCw,
+  X,
 } from 'lucide-react'
 import { useTournaments } from '../contexts/TournamentContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { DetailSkeleton } from '../components/common/SkeletonLoader'
-import SlotBookingModal from '../components/tournament/SlotBookingModal'
 import { getTournamentImage } from '../utils/tournamentImageUtils'
 import { formatTournamentPrize } from '../utils/tournamentPrizeUtils'
 import {
@@ -46,17 +48,155 @@ import {
   subscribeToTournamentCheckins,
 } from '../services/matchCheckinService'
 
+/**
+ * Isolated error boundary for the dynamic SlotBookingModal chunk.
+ * Catches dynamic import failures (network drop, hash mismatch after redeploy)
+ * and displays a localized cyberpunk recovery dialog without breaking the page.
+ */
+class SlotModalErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('[SlotBookingModal] Chunk loading failed:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="bg-[#141416] border border-[#ff3366]/40 p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-[0_0_30px_rgba(255,51,102,0.2)] relative">
+            <button
+              onClick={this.props.onClose}
+              className="absolute top-4 right-4 text-[#849495] hover:text-white transition-colors p-1"
+              aria-label="Close dialog"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-12 h-12 bg-[#07090c] border border-[#ff3366]/60 flex items-center justify-center mx-auto text-[#ff3366] shadow-lg">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="font-mono text-base font-bold text-white uppercase tracking-wider">
+                Registration Module Offline
+              </h3>
+              <p className="text-[#849495] text-xs leading-relaxed max-w-sm mx-auto">
+                Unable to load the registration portal. This may be due to an intermittent network issue or a newly updated tournament release.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={this.props.onRetry}
+                className="flex-1 px-4 py-2.5 bg-[#ff3366] hover:bg-[#ff3366]/90 text-white font-mono text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Retry Loading</span>
+              </button>
+              <button
+                type="button"
+                onClick={this.props.onClose}
+                className="px-4 py-2.5 bg-[#1c1b1c] border border-[#27272a] hover:border-[#849495] text-[#849495] hover:text-white font-mono text-xs font-bold uppercase tracking-wider transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
+}
+
+/**
+ * Standardized loading placeholder shown while the SlotBookingModal chunk downloads.
+ * Matches cyberpunk modal aesthetic with backdrop blur and cyan spinner.
+ */
+function SlotModalFallback({ onClose }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Loading Registration Portal"
+    >
+      <div className="bg-[#141416] border border-[#27272a] p-6 max-w-sm w-full text-center space-y-4 shadow-2xl relative">
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 text-[#849495] hover:text-white transition-colors p-1"
+            aria-label="Close"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+        <div className="flex flex-col items-center gap-3 py-2">
+          <div className="w-8 h-8 border-2 border-[#00f2ff] border-t-transparent rounded-none animate-spin shadow-[0_0_15px_rgba(0,242,255,0.25)]" />
+          <div className="space-y-1">
+            <span className="font-mono text-xs font-bold text-white uppercase tracking-wider block">
+              Loading Registration...
+            </span>
+            <span className="text-[11px] font-mono text-[#849495] block">
+              Initializing secure booking engine
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function TournamentDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getTournamentById, isUserRegistered, getUserRegistration, fetchTournaments, getRoomCredentials, loading } = useTournaments()
+  const {
+    getTournamentById,
+    fetchTournamentById,
+    isUserRegistered,
+    getUserRegistration,
+    fetchTournaments,
+    getRoomCredentials,
+    loading
+  } = useTournaments()
   const { user, isAuthenticated, isAdmin, loading: authLoading } = useAuth()
   const { showSuccess, showError } = useToast()
 
   const tournament = getTournamentById(id)
 
+  // Ensure full tournament details (description, rules, teamsList) are loaded on-demand
+  useEffect(() => {
+    if (id && fetchTournamentById) {
+      fetchTournamentById(id)
+    }
+  }, [id, fetchTournamentById])
+
   const [activeTab, setActiveTab] = useState('overview')
   const [showSlotModal, setShowSlotModal] = useState(false)
+  const [modalRetryKey, setModalRetryKey] = useState(0)
+
+  // Lazy-load SlotBookingModal dynamically on demand when modal opens, with retry capability
+  const LazySlotBookingModal = useMemo(
+    () =>
+      lazy(() =>
+        import('../components/tournament/SlotBookingModal')
+      ),
+    [modalRetryKey]
+  )
   const [openFaqIndex, setOpenFaqIndex] = useState(0)
   const [secureRoomDetails, setSecureRoomDetails] = useState(null)
   const [showPassword, setShowPassword] = useState(false)
@@ -369,8 +509,8 @@ export default function TournamentDetailPage() {
                 {modeInfo.mode === 'Solo'
                   ? 'Player Registered'
                   : modeInfo.mode === 'Duo'
-                  ? 'Duo Registered'
-                  : 'Squad Registered'}
+                    ? 'Duo Registered'
+                    : 'Squad Registered'}
               </span>
             </button>
 
@@ -413,10 +553,10 @@ export default function TournamentDetailPage() {
               {!isAuthenticated
                 ? 'Sign In to Register'
                 : isFull
-                ? 'Registration Full'
-                : isClosed
-                ? 'Registration Closed'
-                : `Register ${modeInfo.mode} Now`}
+                  ? 'Registration Full'
+                  : isClosed
+                    ? 'Registration Closed'
+                    : `Register ${modeInfo.mode} Now`}
             </span>
           </button>
         )}
@@ -523,10 +663,10 @@ export default function TournamentDetailPage() {
           </div>
         )}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* LEFT COLUMN: DETAILS & TABS */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8 min-w-0 w-full">
-            
+
             {/* Tabs Header */}
             <div className="border-b border-[#27272a] overflow-x-auto w-full max-w-full min-w-0 hide-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden touch-pan-x overscroll-x-contain">
               <nav aria-label="Tabs" className="flex gap-2 sm:gap-6 min-w-max pb-0.5">
@@ -540,11 +680,10 @@ export default function TournamentDetailPage() {
                   <button
                     key={`detail-tab-${tab.id}`}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`font-headline text-xs xs:text-sm sm:text-base md:text-lg py-2.5 sm:py-3.5 px-3 sm:px-2 transition-all shrink-0 whitespace-nowrap focus:outline-none focus-visible:ring-1 focus-visible:ring-[#00f2ff] rounded-none ${
-                      activeTab === tab.id
+                    className={`font-headline text-xs xs:text-sm sm:text-base md:text-lg py-2.5 sm:py-3.5 px-3 sm:px-2 transition-all shrink-0 whitespace-nowrap focus:outline-none focus-visible:ring-1 focus-visible:ring-[#00f2ff] rounded-none ${activeTab === tab.id
                         ? 'font-bold text-[#ff5e07] border-b-2 border-[#ff5e07] bg-[#ff5e07]/5 sm:bg-transparent'
                         : 'font-medium text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c]/40'
-                    }`}
+                      }`}
                   >
                     {tab.label}
                   </button>
@@ -997,11 +1136,10 @@ export default function TournamentDetailPage() {
                                   {teamName}
                                 </h4>
                               </div>
-                              <span className={`px-2 py-0.5 rounded-none text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 border ${
-                                isConfirmed
+                              <span className={`px-2 py-0.5 rounded-none text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 border ${isConfirmed
                                   ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40'
                                   : 'bg-amber-950/60 text-amber-400 border-amber-500/40'
-                              }`}>
+                                }`}>
                                 {status}
                               </span>
                             </div>
@@ -1081,11 +1219,10 @@ export default function TournamentDetailPage() {
                       <div
                         key={`faq-${idx}`}
                         data-testid={`faq-item-${idx}`}
-                        className={`rounded-none border transition-all duration-200 overflow-hidden ${
-                          isOpen
+                        className={`rounded-none border transition-all duration-200 overflow-hidden ${isOpen
                             ? 'bg-[#1c1b1c] border-[#00f2ff]/40 shadow-[0_0_12px_rgba(0,242,255,0.06)]'
                             : 'bg-[#141416] border-[#27272a] hover:border-[#27272a]/90 hover:bg-[#1a191a]'
-                        }`}
+                          }`}
                       >
                         <button
                           type="button"
@@ -1096,24 +1233,21 @@ export default function TournamentDetailPage() {
                           className="w-full p-3.5 sm:p-4 text-left flex items-center justify-between gap-3 cursor-pointer select-none transition-colors min-h-[44px] group"
                         >
                           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                            <span className={`px-2 py-0.5 rounded-none text-[10px] font-mono font-bold shrink-0 border transition-colors ${
-                              isOpen
+                            <span className={`px-2 py-0.5 rounded-none text-[10px] font-mono font-bold shrink-0 border transition-colors ${isOpen
                                 ? 'bg-[#ff5e07]/10 text-[#ff5e07] border-[#ff5e07]/30'
                                 : 'bg-[#1c1b1c] text-[#849495] border-[#27272a] group-hover:text-[#00f2ff]'
-                            }`}>
+                              }`}>
                               0{idx + 1}
                             </span>
-                            <span className={`font-headline font-bold text-xs sm:text-sm tracking-wide transition-colors ${
-                              isOpen ? 'text-[#ff5e07]' : 'text-white group-hover:text-[#00f2ff]'
-                            }`}>
+                            <span className={`font-headline font-bold text-xs sm:text-sm tracking-wide transition-colors ${isOpen ? 'text-[#ff5e07]' : 'text-white group-hover:text-[#00f2ff]'
+                              }`}>
                               {faq.q}
                             </span>
                           </div>
-                          <div className={`w-6 h-6 rounded-none flex items-center justify-center border transition-all shrink-0 ${
-                            isOpen
+                          <div className={`w-6 h-6 rounded-none flex items-center justify-center border transition-all shrink-0 ${isOpen
                               ? 'bg-[#ff5e07]/15 border-[#ff5e07]/40 text-[#ff5e07]'
                               : 'bg-[#1c1b1c] border-[#27272a] text-[#849495] group-hover:text-white'
-                          }`}>
+                            }`}>
                             {isOpen ? (
                               <ChevronUp className="w-3.5 h-3.5" />
                             ) : (
@@ -1179,16 +1313,24 @@ export default function TournamentDetailPage() {
         </div>
       </div>
 
-      {/* Slot Booking Modal */}
+      {/* Lazy-Loaded Slot Booking Modal with Suspense & Resilience Boundary */}
       {showSlotModal && (
-        <SlotBookingModal
-          tournament={tournament}
+        <SlotModalErrorBoundary
+          key={modalRetryKey}
           onClose={() => setShowSlotModal(false)}
-          onRegistered={async () => {
-            await fetchRegistrationStatus()
-            if (fetchTournaments) await fetchTournaments()
-          }}
-        />
+          onRetry={() => setModalRetryKey((k) => k + 1)}
+        >
+          <Suspense fallback={<SlotModalFallback onClose={() => setShowSlotModal(false)} />}>
+            <LazySlotBookingModal
+              tournament={tournament}
+              onClose={() => setShowSlotModal(false)}
+              onRegistered={async () => {
+                await fetchRegistrationStatus()
+                if (fetchTournaments) await fetchTournaments()
+              }}
+            />
+          </Suspense>
+        </SlotModalErrorBoundary>
       )}
 
 

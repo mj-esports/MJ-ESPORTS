@@ -6,12 +6,8 @@ import AuthLayout from '../layouts/AuthLayout'
 import ProtectedRoute from './ProtectedRoute'
 import AdminRoute from './AdminRoute'
 
-// Core Pages (Eagerly Loaded)
+// Core Public Entrypoint (Eagerly Loaded for Immediate First Paint)
 import Home from '../pages/Home'
-import TournamentsPage from '../pages/TournamentsPage'
-import LoginPage from '../pages/LoginPage'
-import RegisterPage from '../pages/RegisterPage'
-import AccessDeniedPage from '../pages/AccessDeniedPage'
 
 /**
  * Resilient dynamic import wrapper for production SPA deployment stability.
@@ -51,7 +47,11 @@ function lazy(componentImport) {
 }
 
 // Lazy-Loaded Feature Pages with Post-Deployment Chunk Resiliency
+const TournamentsPage = lazy(() => import('../pages/TournamentsPage'))
 const TournamentDetailPage = lazy(() => import('../pages/TournamentDetailPage'))
+const LoginPage = lazy(() => import('../pages/LoginPage'))
+const RegisterPage = lazy(() => import('../pages/RegisterPage'))
+const AccessDeniedPage = lazy(() => import('../pages/AccessDeniedPage'))
 const LeaderboardPage = lazy(() => import('../pages/LeaderboardPage'))
 const AboutPage = lazy(() => import('../pages/AboutPage'))
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'))
@@ -69,16 +69,7 @@ const AdminFinancePage = lazy(() => import('../pages/AdminFinancePage'))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
 const ServerErrorPage = lazy(() => import('../pages/ServerErrorPage'))
 
-function PageFallback() {
-  return (
-    <div className="min-h-[60vh] flex items-center justify-center p-8 bg-[#000000]">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <div className="w-9 h-9 border-2 border-[#FFB900] border-t-transparent rounded-none animate-spin"></div>
-        <span className="font-label-caps text-xs text-[#A3A3A3] uppercase tracking-widest">Loading MJ ESPORTS...</span>
-      </div>
-    </div>
-  )
-}
+import PageFallback from '../components/common/PageFallback'
 
 export default function AppRoutes() {
   return (

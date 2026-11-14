@@ -15,7 +15,7 @@ import {
   Medal
 } from 'lucide-react'
 
-import { getTournamentImage } from '../utils/tournamentImageUtils'
+import { getTournamentImage, HERO_IMAGE_SRCSET, HERO_IMAGE_SIZES } from '../utils/tournamentImageUtils'
 import { formatTournamentPrize, extractPerKillAmount } from '../utils/tournamentPrizeUtils'
 import {
   calculateFilledPlayerSlots,
@@ -82,7 +82,7 @@ export default function Home() {
 
   return (
     <div className="flex-grow flex flex-col w-full bg-[#131314] text-white font-body antialiased selection:bg-[#00f2ff]/30 selection:text-[#00f2ff]">
-      
+
       {/* 1. HERO SECTION */}
       <section className="relative w-full min-h-[260px] sm:min-h-[300px] md:min-h-[340px] flex items-center justify-center overflow-hidden py-6 sm:py-8 md:py-10">
         <div className="absolute inset-0 z-0 transform-gpu">
@@ -92,9 +92,11 @@ export default function Home() {
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            width="2000"
-            height="1000"
+            width="1200"
+            height="800"
             src={getTournamentImage(upcomingTournaments[0])}
+            srcSet={HERO_IMAGE_SRCSET}
+            sizes={HERO_IMAGE_SIZES}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#131314] via-[#131314]/75 to-transparent transform-gpu"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-[#131314] via-transparent to-[#131314] hidden md:block transform-gpu"></div>
@@ -202,7 +204,7 @@ export default function Home() {
         ) : (
           /* Split Screen Container: Upcoming Tournaments & Compact Top 3 Leaderboard Widget (28-36px gap between sections) */
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-7 sm:gap-8 items-start">
-            
+
             {/* Upcoming Tournaments List */}
             <section className="lg:col-span-2 space-y-3 sm:space-y-4 min-w-0">
               <div className="flex items-center justify-between gap-2 min-w-0">

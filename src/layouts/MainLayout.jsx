@@ -1,7 +1,9 @@
+import { Suspense } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Navbar from '../components/common/Navbar'
 import Footer from '../components/common/Footer'
 import BottomNavigation from '../components/common/BottomNavigation'
+import PageFallback from '../components/common/PageFallback'
 
 export default function MainLayout() {
   const location = useLocation()
@@ -14,7 +16,9 @@ export default function MainLayout() {
 
       {/* Main Public Page Content */}
       <main id="main-content" tabIndex={-1} className={`flex-1 w-full overflow-x-hidden outline-none ${isProfilePage ? 'pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0' : ''}`}>
-        <Outlet />
+        <Suspense fallback={<PageFallback message="Loading Arena..." />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       {/* Public Footer (Hidden on Profile Page) */}

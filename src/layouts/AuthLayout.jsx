@@ -1,4 +1,6 @@
+import { Suspense } from 'react'
 import { Outlet, Link } from 'react-router-dom'
+import PageFallback from '../components/common/PageFallback'
 
 
 export default function AuthLayout() {
@@ -38,7 +40,9 @@ export default function AuthLayout() {
 
       {/* Main Authentication Arena Content */}
       <main className="flex-1 flex flex-col items-center justify-center w-full min-w-0 overflow-x-hidden px-4 py-6 sm:py-10">
-        <Outlet />
+        <Suspense fallback={<PageFallback message="Loading Authentication..." />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       {/* Standardized Auth Footer */}

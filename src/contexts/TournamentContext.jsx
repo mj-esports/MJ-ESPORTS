@@ -28,62 +28,201 @@ export {
 
 const TournamentContext = createContext(null)
 
+// Lightweight summary columns for tournament listings and cards (omits heavy description, rules, and teams_list)
+const TOURNAMENT_SUMMARY_COLUMNS =
+  'id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, room_status, room_last_updated, room_published_by, winner_team, winner_captain, created_at, updated_at'
+
+const CACHE_TTL_MS = 60 * 1000 // 60-second in-memory freshness window
 
 export function TournamentProvider({ children }) {
-  const { isAdmin } = useAuth()
+  const { user, isAdmin } = useAuth()
   const [tournaments, setTournaments] = useState(INITIAL_TOURNAMENTS)
   const [loading, setLoading] = useState(true)
-  const [userRegistrations, setUserRegistrations] = useState([])
+  const [userRegisteredIds, setUserRegisteredIds] = useState(new Set())
   const activeSubmissionsRef = useRef(new Set())
 
-  // Initial Fetch & Real-time Sync with Exponential Backoff
-  const fetchTournaments = useCallback(async (retries = 3) => {
+  // In-memory cache & request deduplication references
+  const cacheRef = useRef({
+    list: null,
+    listTimestamp: 0,
+    details: new Map(), // tournamentId -> { data, timestamp }
+    userRegistrations: new Map(), // `${tournamentId}_${userId}` -> { data, timestamp }
+  })
+  const inFlightListPromiseRef = useRef(null)
+  const inFlightDetailPromisesRef = useRef(new Map())
+
+  // Initial & On-Demand Lightweight Listing Fetch with Deduplication and In-Memory Caching
+  const fetchTournaments = useCallback(async (options = {}) => {
+    const force = typeof options === 'boolean' ? options : Boolean(options?.force)
+    const retries = typeof options?.retries === 'number' ? options.retries : 3
+
     if (!isSupabaseConfigured) {
       setTournaments(INITIAL_TOURNAMENTS)
       setLoading(false)
-      return
+      return INITIAL_TOURNAMENTS
     }
 
-    let attempt = 0
-    while (attempt <= retries) {
-      try {
-        const { data, error } = await supabase
-          .from('tournaments')
-          .select('id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, description, rules, teams_list, room_status, room_last_updated, room_published_by, winner_team, winner_captain, created_at, updated_at')
-          .order('created_at', { ascending: false })
+    // 1. Fast Path: In-memory cache hit if not expired and not forced
+    const now = Date.now()
+    if (!force && cacheRef.current.list && now - cacheRef.current.listTimestamp < CACHE_TTL_MS) {
+      setTournaments(cacheRef.current.list)
+      setLoading(false)
+      return cacheRef.current.list
+    }
 
-        if (error) {
-          console.error(`[fetchTournaments] Attempt ${attempt + 1} error:`, error)
+    // 2. In-flight request deduplication: reuse active promise
+    if (inFlightListPromiseRef.current) {
+      return inFlightListPromiseRef.current
+    }
+
+    const fetchPromise = (async () => {
+      let attempt = 0
+      while (attempt <= retries) {
+        try {
+          const { data, error } = await supabase
+            .from('tournaments')
+            .select(TOURNAMENT_SUMMARY_COLUMNS)
+            .order('created_at', { ascending: false })
+
+          if (error) {
+            console.error(`[fetchTournaments] Attempt ${attempt + 1} error:`, error)
+            if (attempt < retries) {
+              await new Promise((res) => setTimeout(res, 1000 * (attempt + 1)))
+              attempt++
+              continue
+            } else {
+              setTournaments((prev) => (prev.length > 0 ? prev : INITIAL_TOURNAMENTS))
+              return INITIAL_TOURNAMENTS
+            }
+          } else if (data && data.length > 0) {
+            const mappedList = data.map(mapTournamentFromDb)
+            // Seamlessly preserve any already-cached full details (description, rules, teamsList)
+            const mergedList = mappedList.map((item) => {
+              const cachedDetail = cacheRef.current.details.get(String(item.id))
+              if (cachedDetail?.data) {
+                return { ...item, ...cachedDetail.data }
+              }
+              return item
+            })
+
+            cacheRef.current.list = mergedList
+            cacheRef.current.listTimestamp = Date.now()
+            setTournaments(mergedList)
+            return mergedList
+          } else {
+            cacheRef.current.list = INITIAL_TOURNAMENTS
+            cacheRef.current.listTimestamp = Date.now()
+            setTournaments(INITIAL_TOURNAMENTS)
+            return INITIAL_TOURNAMENTS
+          }
+        } catch (err) {
+          console.error(`[fetchTournaments] Attempt ${attempt + 1} exception:`, err)
           if (attempt < retries) {
             await new Promise((res) => setTimeout(res, 1000 * (attempt + 1)))
             attempt++
             continue
           } else {
-            setTournaments(INITIAL_TOURNAMENTS)
+            setTournaments((prev) => (prev.length > 0 ? prev : INITIAL_TOURNAMENTS))
+            return INITIAL_TOURNAMENTS
           }
-        } else if (data && data.length > 0) {
-          setTournaments(data.map(mapTournamentFromDb))
-          break
-        } else {
-          setTournaments(INITIAL_TOURNAMENTS)
-          break
+        } finally {
+          setLoading(false)
         }
-      } catch (err) {
-        console.error(`[fetchTournaments] Attempt ${attempt + 1} exception:`, err)
-        if (attempt < retries) {
-          await new Promise((res) => setTimeout(res, 1000 * (attempt + 1)))
-          attempt++
-          continue
-        } else {
-          setTournaments(INITIAL_TOURNAMENTS)
-        }
-      } finally {
-        setLoading(false)
+        attempt++
       }
-      attempt++
-    }
+    })().finally(() => {
+      inFlightListPromiseRef.current = null
+    })
+
+    inFlightListPromiseRef.current = fetchPromise
+    return fetchPromise
   }, [])
 
+  // On-Demand Full Tournament Detail Query (Fetches description, rules, teams_list for selected ID)
+  const fetchTournamentById = useCallback(
+    async (tournamentId, options = {}) => {
+      const force = typeof options === 'boolean' ? options : Boolean(options?.force)
+      if (!tournamentId) return null
+
+      const idStr = String(tournamentId)
+      const now = Date.now()
+
+      // 1. In-memory detail cache hit check
+      const cachedEntry = cacheRef.current.details.get(idStr)
+      const existingInState = tournaments.find((t) => String(t.id) === idStr)
+
+      const isFullyLoaded =
+        existingInState &&
+        existingInState.description !== undefined &&
+        existingInState.rules !== undefined &&
+        Array.isArray(existingInState.rules) &&
+        existingInState.rules.length > 0
+
+      if (!force && cachedEntry?.data && now - cachedEntry.timestamp < CACHE_TTL_MS) {
+        return cachedEntry.data
+      }
+
+      if (!force && isFullyLoaded) {
+        cacheRef.current.details.set(idStr, { data: existingInState, timestamp: now })
+        return existingInState
+      }
+
+      if (!isSupabaseConfigured) {
+        return existingInState || null
+      }
+
+      // 2. In-flight detail request deduplication per tournament id
+      if (inFlightDetailPromisesRef.current.has(idStr)) {
+        return inFlightDetailPromisesRef.current.get(idStr)
+      }
+
+      const detailPromise = (async () => {
+        try {
+          const { data, error } = await supabase
+            .from('tournaments')
+            .select('*')
+            .eq('id', idStr)
+            .maybeSingle()
+
+          if (error) {
+            console.warn(`[fetchTournamentById] Error fetching tournament ${idStr}:`, error.message)
+            return existingInState || null
+          }
+
+          if (data) {
+            const mapped = mapTournamentFromDb(data)
+            cacheRef.current.details.set(idStr, { data: mapped, timestamp: Date.now() })
+
+            // Update in-memory state and listing cache
+            setTournaments((prev) => {
+              const idx = prev.findIndex((t) => String(t.id) === idStr)
+              if (idx >= 0) {
+                const updated = [...prev]
+                updated[idx] = { ...updated[idx], ...mapped }
+                return updated
+              }
+              return [mapped, ...prev]
+            })
+
+            return mapped
+          }
+
+          return existingInState || null
+        } catch (err) {
+          console.warn(`[fetchTournamentById] Exception fetching tournament ${idStr}:`, err)
+          return existingInState || null
+        } finally {
+          inFlightDetailPromisesRef.current.delete(idStr)
+        }
+      })()
+
+      inFlightDetailPromisesRef.current.set(idStr, detailPromise)
+      return detailPromise
+    },
+    [tournaments]
+  )
+
+  // Real-time synchronization: Target specific row changes without refetching the entire table
   useEffect(() => {
     fetchTournaments()
 
@@ -93,8 +232,46 @@ export function TournamentProvider({ children }) {
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'tournaments' },
-          () => {
-            fetchTournaments()
+          (payload) => {
+            const { eventType, new: newRow, old: oldRow } = payload
+
+            if (eventType === 'UPDATE' && newRow?.id) {
+              const mapped = mapTournamentFromDb(newRow)
+              const idStr = String(newRow.id)
+
+              // 1. Update detail cache if cached
+              const cached = cacheRef.current.details.get(idStr)
+              if (cached?.data) {
+                cacheRef.current.details.set(idStr, {
+                  data: { ...cached.data, ...mapped },
+                  timestamp: Date.now(),
+                })
+              }
+
+              // 2. Synchronize listing cache directly to prevent stale overwrite on subsequent navigation
+              if (cacheRef.current.list && Array.isArray(cacheRef.current.list)) {
+                cacheRef.current.list = cacheRef.current.list.map((t) =>
+                  String(t.id) === idStr ? { ...t, ...mapped } : t
+                )
+              }
+
+              // 3. Update React state directly (0 ms latency, zero full table queries)
+              setTournaments((prev) =>
+                prev.map((t) => (String(t.id) === idStr ? { ...t, ...mapped } : t))
+              )
+            } else if (eventType === 'INSERT' && newRow?.id) {
+              const mapped = mapTournamentFromDb(newRow)
+              cacheRef.current.list = null // Invalidate list cache so next view gets fresh order
+              setTournaments((prev) => [mapped, ...prev.filter((t) => String(t.id) !== String(newRow.id))])
+            } else if (eventType === 'DELETE' && oldRow?.id) {
+              const idStr = String(oldRow.id)
+              cacheRef.current.details.delete(idStr)
+              cacheRef.current.list = null
+              setTournaments((prev) => prev.filter((t) => String(t.id) !== idStr))
+            } else {
+              // Safety fallback: if event payload is missing or unhandled, trigger lightweight refresh
+              fetchTournaments({ force: true })
+            }
           }
         )
         .subscribe()
@@ -105,30 +282,84 @@ export function TournamentProvider({ children }) {
     }
   }, [fetchTournaments])
 
+  // Dedicated lightweight user registration check: O(1) in-memory registration verification & isolation
+  useEffect(() => {
+    // Clear user registration cache and reset IDs when user changes or logs out
+    cacheRef.current.userRegistrations.clear()
+
+    if (!isSupabaseConfigured || !user?.id) {
+      setUserRegisteredIds(new Set())
+      return
+    }
+
+    let isMounted = true
+    supabase
+      .from('tournament_registrations')
+      .select('tournament_id')
+      .eq('user_id', user.id)
+      .then(({ data, error }) => {
+        if (!isMounted) return
+        if (error) {
+          console.warn('[User Registrations Fetch Notice]:', error.message)
+          return
+        }
+        if (data && Array.isArray(data)) {
+          const idSet = new Set(data.map((r) => String(r.tournament_id)))
+          setUserRegisteredIds(idSet)
+        }
+      })
+      .catch((err) => console.warn('[User Registrations Fetch Exception]:', err))
+
+    return () => {
+      isMounted = false
+    }
+  }, [user?.id])
+
   const getTournamentById = (id) => {
     return tournaments.find((t) => String(t.id) === String(id))
   }
 
-  const isUserRegistered = useCallback((tournamentId, identifierOrUser) => {
-    if (!tournamentId || !identifierOrUser) return false
-    const target = tournaments.find((t) => String(t.id) === String(tournamentId))
-    if (!target) return false
+  const isUserRegistered = useCallback(
+    (tournamentId, identifierOrUser) => {
+      if (!tournamentId) return false
+      const idStr = String(tournamentId)
 
-    const userId = typeof identifierOrUser === 'object' ? identifierOrUser?.id : (typeof identifierOrUser === 'string' && identifierOrUser.length === 36 ? identifierOrUser : null)
-    const userEmail = typeof identifierOrUser === 'object' ? identifierOrUser?.email : (typeof identifierOrUser === 'string' && identifierOrUser.includes('@') ? identifierOrUser : null)
-    const rawStr = typeof identifierOrUser === 'string' ? identifierOrUser.toLowerCase().trim() : ''
+      // Fast-path: O(1) check against active user's registered tournaments set
+      if (userRegisteredIds.has(idStr)) {
+        return true
+      }
 
-    const teams = target.teamsList || target.teams_list || []
-    return teams.some((item) => {
-      if (!item) return false
-      if (userId && item.userId && String(item.userId) === String(userId)) return true
-      if (userEmail && item.email && String(item.email).toLowerCase() === userEmail.toLowerCase()) return true
-      if (rawStr && item.userId && String(item.userId).toLowerCase() === rawStr) return true
-      if (rawStr && item.email && String(item.email).toLowerCase() === rawStr) return true
-      if (rawStr && item.captain && String(item.captain).toLowerCase() === rawStr) return true
-      return false
-    })
-  }, [tournaments])
+      // Secondary check against tournament teamsList if available in memory
+      const target = tournaments.find((t) => String(t.id) === idStr)
+      if (!target) return false
+
+      const userId =
+        typeof identifierOrUser === 'object'
+          ? identifierOrUser?.id
+          : typeof identifierOrUser === 'string' && identifierOrUser.length === 36
+          ? identifierOrUser
+          : null
+      const userEmail =
+        typeof identifierOrUser === 'object'
+          ? identifierOrUser?.email
+          : typeof identifierOrUser === 'string' && identifierOrUser.includes('@')
+          ? identifierOrUser
+          : null
+      const rawStr = typeof identifierOrUser === 'string' ? identifierOrUser.toLowerCase().trim() : ''
+
+      const teams = target.teamsList || target.teams_list || []
+      return teams.some((item) => {
+        if (!item) return false
+        if (userId && item.userId && String(item.userId) === String(userId)) return true
+        if (userEmail && item.email && String(item.email).toLowerCase() === userEmail.toLowerCase()) return true
+        if (rawStr && item.userId && String(item.userId).toLowerCase() === rawStr) return true
+        if (rawStr && item.email && String(item.email).toLowerCase() === rawStr) return true
+        if (rawStr && item.captain && String(item.captain).toLowerCase() === rawStr) return true
+        return false
+      })
+    },
+    [tournaments, userRegisteredIds]
+  )
 
   const createTournament = async (tournamentData) => {
     if (!isSupabaseConfigured) {
@@ -365,7 +596,13 @@ export function TournamentProvider({ children }) {
           }
         }
 
-        await fetchTournaments()
+        // Invalidate in-memory caches and register locally
+        cacheRef.current.list = null
+        cacheRef.current.details.delete(String(tournamentId))
+        cacheRef.current.userRegistrations.clear()
+        setUserRegisteredIds((prev) => new Set([...prev, String(tournamentId)]))
+
+        await fetchTournaments({ force: true })
         return data.teamRecord || { ...teamInfo, id: refId, refId, status: regStatus }
       }
 
@@ -499,7 +736,13 @@ export function TournamentProvider({ children }) {
       if (data?.balance_after !== undefined) {
         notifyWalletBalanceUpdated(Number(data.balance_after))
       }
-      await fetchTournaments()
+      // Invalidate in-memory caches and register locally
+      cacheRef.current.list = null
+      cacheRef.current.details.delete(String(tournamentId))
+      cacheRef.current.userRegistrations.clear()
+      setUserRegisteredIds((prev) => new Set([...prev, String(tournamentId)]))
+
+      await fetchTournaments({ force: true })
       return data
     } finally {
       activeSubmissionsRef.current.delete(lockKey)
@@ -727,6 +970,13 @@ export function TournamentProvider({ children }) {
       }
       if (!targetUserId) return null
 
+      const cacheKey = `${tournamentId}_${targetUserId}`
+      const cached = cacheRef.current.userRegistrations.get(cacheKey)
+      const now = Date.now()
+      if (cached && now - cached.timestamp < 30000) {
+        return cached.data
+      }
+
       const { data, error } = await supabase
         .from('tournament_registrations')
         .select('id, tournament_id, team_name, captain_name, free_fire_uid, status, registered_at, user_id')
@@ -737,6 +987,10 @@ export function TournamentProvider({ children }) {
       if (error) {
         console.warn('[getUserRegistration Notice]:', error.message)
         return null
+      }
+
+      if (data) {
+        cacheRef.current.userRegistrations.set(cacheKey, { data, timestamp: now })
       }
       return data
     } catch (err) {
@@ -764,6 +1018,7 @@ export function TournamentProvider({ children }) {
     loading,
     fetchTournaments,
     getTournamentById,
+    fetchTournamentById,
     isUserRegistered,
     getUserRegistration,
     createTournament,
