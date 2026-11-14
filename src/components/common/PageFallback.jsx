@@ -1,6 +1,6 @@
 /**
  * MJ ESPORTS — Standardized Route Suspense Fallback
- * 
+ *
  * Lightweight, non-shifting loading placeholder that preserves the cyberpunk theme
  * (deep black background, 0px border radius, amber glow spinner, uppercase monospace label).
  */
@@ -20,4 +20,3 @@ export default function PageFallback({ message = 'Loading MJ ESPORTS...' }) {
     </div>
   )
 }
-
