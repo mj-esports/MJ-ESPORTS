@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   X,
@@ -153,37 +153,54 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   const [pendingRegistrationPayload, setPendingRegistrationPayload] = useState(null)
   const [capacityRefundNotice, setCapacityRefundNotice] = useState(null)
 
-  // Automatic refund handler when verified payment encounters capacity saturation
-  const handleCapacitySaturationRefund = async (paymentId, amount, utr) => {
-    try {
-      if (!isSupabaseConfigured) return false
-      const { data: refundRes, error: refundErr } = await supabase.rpc(
-        'refund_unregistered_verified_payment',
-        { p_payment_id: paymentId, p_reason: 'Tournament Full Capacity' }
-      )
-      if (!refundErr && refundRes?.success) {
-        if (typeof refundRes.balance_after === 'number') {
-          notifyWalletBalanceUpdated(refundRes.balance_after)
-        }
-        setCapacityRefundNotice({
-          amount: refundRes.amount || amount,
-          utr: utr,
-          balanceAfter: refundRes.balance_after,
-          walletLedgerId: refundRes.wallet_ledger_id,
-        })
-        showError(
-          `Payment of ₹${refundRes.amount || amount} was received, but tournament slots filled up! Your entry fee has been automatically credited to your in-app wallet balance.`,
-          'Tournament Full — Refund Credited'
+  // Supabase Realtime & Safe Polling refs for FamGateway payment lifecycle
+  const isPollingRef = useRef(false)
+  const pollTimeoutRef = useRef(null)
+  const realtimeChannelRef = useRef(null)
+  const activeOrderIdRef = useRef(null)
+  const isMountedRef = useRef(true)
+  const isTerminalRef = useRef(false)
+  const consecutivePollCountRef = useRef(0)
+  const recheckPendingRef = useRef(false)
+  const runVerificationRef = useRef(null)
+
+  // Automatic refund handler when verified payment encounters capacity saturation or duplicate registration
+  const handleCapacitySaturationRefund = useCallback(
+    async (paymentId, amount, utr, reason = 'Tournament Full Capacity') => {
+      try {
+        if (!isSupabaseConfigured) return false
+        const { data: refundRes, error: refundErr } = await supabase.rpc(
+          'refund_unregistered_verified_payment',
+          { p_payment_id: paymentId, p_reason: reason }
         )
-        setFamgatewaySession(null)
-        setIsVerifyingFamgateway(false)
-        return true
+        if (!refundErr && refundRes?.success) {
+          if (typeof refundRes.balance_after === 'number') {
+            notifyWalletBalanceUpdated(refundRes.balance_after)
+          }
+          setCapacityRefundNotice({
+            amount: refundRes.amount || amount,
+            utr: utr,
+            balanceAfter: refundRes.balance_after,
+            walletLedgerId: refundRes.wallet_ledger_id,
+          })
+          const isDuplicate = reason.toLowerCase().includes('duplicate')
+          showError(
+            isDuplicate
+              ? `You are already registered for this tournament! Your duplicate entry fee of ₹${refundRes.amount || amount} has been credited to your in-app wallet balance.`
+              : `Payment of ₹${refundRes.amount || amount} was received, but tournament slots filled up! Your entry fee has been automatically credited to your in-app wallet balance.`,
+            isDuplicate ? 'Already Registered — Refund Credited' : 'Tournament Full — Refund Credited'
+          )
+          setFamgatewaySession(null)
+          setIsVerifyingFamgateway(false)
+          return true
+        }
+      } catch (refundEx) {
+        console.error('[Capacity Saturation Auto-Refund Exception]:', refundEx)
       }
-    } catch (refundEx) {
-      console.error('[Capacity Saturation Auto-Refund Exception]:', refundEx)
-    }
-    return false
-  }
+      return false
+    },
+    [showError]
+  )
 
   // Lock body scrolling when modal is open
   useEffect(() => {
@@ -210,103 +227,44 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
     return () => clearInterval(timer)
   }, [famgatewaySession])
 
-  // Background polling for FamGateway payment clearance
-  useEffect(() => {
-    if (!famgatewaySession?.orderId) return
-    let isMounted = true
-
-    const checkInterval = setInterval(async () => {
-      try {
-        const verifyRes = await verifyFamgatewayPayment({
-          orderId: famgatewaySession.orderId,
-          tournamentId: tournament.id,
-        })
-
-        if (!isMounted) return
-
-        if (verifyRes?.success && (verifyRes.status === 'VERIFIED' || verifyRes.already_consumed)) {
-          clearInterval(checkInterval)
-          setIsVerifyingFamgateway(true)
-          setSubmittingStep('Confirming Registration...')
-
-          let registeredRecord = null
-          if (verifyRes.already_consumed) {
-            registeredRecord = {
-              id: verifyRes.registration_id,
-              team_name: sanitizeString(formData.teamName),
-              captain_ign: toCanonicalIgn(formData.captainName),
-              captain_uid: sanitizeString(formData.freeFireUid),
-              captain_phone: sanitizeString(formData.whatsappNumber),
-              email: sanitizeString(formData.email),
-              mode,
-              registration_ref: pendingRegistrationPayload?.refId,
-            }
-          } else if (pendingRegistrationPayload) {
-            try {
-              registeredRecord = await registerTeam(tournament.id, {
-                ...pendingRegistrationPayload,
-                paymentId: verifyRes.payment_id,
-                razorpayPaymentId: verifyRes.utr || famgatewaySession.orderId,
-                status: 'Approved',
-                paymentStatus: 'Paid',
-              })
-            } catch (regErr) {
-              const errMsg = String(regErr?.message || '').toLowerCase()
-              if (errMsg.includes('tournament_full') || errMsg.includes('slots are full') || errMsg.includes('slots for this tournament are full') || errMsg.includes('tournament is full')) {
-                clearInterval(checkInterval)
-                const refunded = await handleCapacitySaturationRefund(verifyRes.payment_id, verifyRes.amount, verifyRes.utr)
-                if (refunded) return
-              }
-              throw regErr
-            }
-          }
-
-          showSuccess('Payment & Registration Confirmed', `Slot Confirmed • Ref: ${pendingRegistrationPayload?.refId || verifyRes.utr}`)
-          if (onRegistered) onRegistered(registeredRecord)
-
-          setRegistrationSummary({
-            refId: pendingRegistrationPayload?.refId || 'REG-CONFIRMED',
-            teamName: isSolo ? '' : sanitizeString(formData.teamName),
-            captain: toCanonicalIgn(formData.captainName),
-            mode,
-            freeFireUid: sanitizeString(formData.freeFireUid),
-            teammates: pendingRegistrationPayload?.teammates || [],
-            teammateIgns: pendingRegistrationPayload?.teammateIgns || [],
-            status: 'Approved',
-            paymentStatus: 'Paid',
-            paymentId: verifyRes.utr || famgatewaySession.orderId,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            registeredRecord,
-          })
-          setFamgatewaySession(null)
-          setIsVerifyingFamgateway(false)
-        } else if (verifyRes?.status === 'EXPIRED') {
-          clearInterval(checkInterval)
-          setError('Payment order expired. Please start over.')
-          setFamgatewaySession(null)
-        }
-      } catch (err) {
-        console.warn('[FamGateway Polling Check]:', err?.message)
-      }
-    }, 3500)
-
-    return () => {
-      isMounted = false
-      clearInterval(checkInterval)
+  // Cleanup helper for payment timers and Realtime channels
+  const cleanupPaymentListeners = useCallback(() => {
+    if (pollTimeoutRef.current) {
+      clearTimeout(pollTimeoutRef.current)
+      pollTimeoutRef.current = null
     }
-  }, [famgatewaySession, pendingRegistrationPayload, tournament.id, formData, isSolo, mode, registerTeam, onRegistered, showSuccess])
+    if (realtimeChannelRef.current) {
+      try {
+        supabase.removeChannel(realtimeChannelRef.current)
+      } catch (e) {
+        console.warn('[Realtime Cleanup Notice]:', e?.message)
+      }
+      realtimeChannelRef.current = null
+    }
+  }, [])
 
-  const handleManualStatusCheck = async () => {
-    if (!famgatewaySession?.orderId) return
-    setIsVerifyingFamgateway(true)
-    try {
-      const verifyRes = await verifyFamgatewayPayment({
-        orderId: famgatewaySession.orderId,
-        tournamentId: tournament.id,
-      })
+  // Component unmount cleanup
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+      cleanupPaymentListeners()
+    }
+  }, [cleanupPaymentListeners])
+
+  // Process authoritative server verification result
+  const processVerificationResult = useCallback(
+    async (verifyRes, currentOrderId) => {
+      if (!isMountedRef.current || activeOrderIdRef.current !== currentOrderId) {
+        return false
+      }
 
       if (verifyRes?.success && (verifyRes.status === 'VERIFIED' || verifyRes.already_consumed)) {
+        isTerminalRef.current = true
+        cleanupPaymentListeners()
+        setIsVerifyingFamgateway(true)
         setSubmittingStep('Confirming Registration...')
+
         let registeredRecord = null
         if (verifyRes.already_consumed) {
           registeredRecord = {
@@ -324,21 +282,43 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
             registeredRecord = await registerTeam(tournament.id, {
               ...pendingRegistrationPayload,
               paymentId: verifyRes.payment_id,
-              razorpayPaymentId: verifyRes.utr || famgatewaySession.orderId,
+              razorpayPaymentId: verifyRes.utr || currentOrderId,
               status: 'Approved',
               paymentStatus: 'Paid',
             })
           } catch (regErr) {
             const errMsg = String(regErr?.message || '').toLowerCase()
-            if (errMsg.includes('tournament_full') || errMsg.includes('slots are full') || errMsg.includes('slots for this tournament are full') || errMsg.includes('tournament is full')) {
-              const refunded = await handleCapacitySaturationRefund(verifyRes.payment_id, verifyRes.amount, verifyRes.utr)
-              if (refunded) return
+            if (
+              errMsg.includes('tournament_full') ||
+              errMsg.includes('slots are full') ||
+              errMsg.includes('slots for this tournament are full') ||
+              errMsg.includes('tournament is full')
+            ) {
+              const refunded = await handleCapacitySaturationRefund(
+                verifyRes.payment_id,
+                verifyRes.amount,
+                verifyRes.utr,
+                'Tournament Full Capacity'
+              )
+              if (refunded) return true
+            }
+            if (errMsg.includes('already registered') || errMsg.includes('duplicate_user_account')) {
+              const refunded = await handleCapacitySaturationRefund(
+                verifyRes.payment_id,
+                verifyRes.amount,
+                verifyRes.utr,
+                'Duplicate Registration Refund'
+              )
+              if (refunded) return true
             }
             throw regErr
           }
         }
 
-        showSuccess('Payment & Registration Confirmed', `Slot Confirmed • Ref: ${pendingRegistrationPayload?.refId || verifyRes.utr}`)
+        showSuccess(
+          'Payment & Registration Confirmed',
+          `Slot Confirmed • Ref: ${pendingRegistrationPayload?.refId || verifyRes.utr || currentOrderId}`
+        )
         if (onRegistered) onRegistered(registeredRecord)
 
         setRegistrationSummary({
@@ -351,19 +331,241 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
           teammateIgns: pendingRegistrationPayload?.teammateIgns || [],
           status: 'Approved',
           paymentStatus: 'Paid',
-          paymentId: verifyRes.utr || famgatewaySession.orderId,
+          paymentId: verifyRes.utr || currentOrderId,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           registeredRecord,
         })
         setFamgatewaySession(null)
-      } else {
-        showError('Payment is still pending clearance from your bank. If you already transferred, please wait a few seconds and try again.', 'Payment Pending')
+        setIsVerifyingFamgateway(false)
+        return true
+      } else if (verifyRes?.status === 'EXPIRED' || verifyRes?.status === 'FAILED') {
+        isTerminalRef.current = true
+        cleanupPaymentListeners()
+        setError('Payment order expired or failed. Please start over.')
+        setFamgatewaySession(null)
+        setIsVerifyingFamgateway(false)
+        return true
+      } else if (verifyRes?.status === 'REFUNDED' || verifyRes?.already_refunded) {
+        isTerminalRef.current = true
+        cleanupPaymentListeners()
+        setCapacityRefundNotice({
+          amount: verifyRes.amount,
+          utr: verifyRes.utr || currentOrderId,
+        })
+        showError(
+          `Payment of ₹${verifyRes.amount || ''} was received, but tournament slots filled up! Your entry fee has been automatically credited to your in-app wallet balance.`,
+          'Tournament Full — Refund Credited'
+        )
+        setFamgatewaySession(null)
+        setIsVerifyingFamgateway(false)
+        return true
       }
-    } catch (err) {
-      showError(err?.message || 'Verification check failed.', 'Check Failed')
-    } finally {
-      setIsVerifyingFamgateway(false)
+
+      return false
+    },
+    [
+      cleanupPaymentListeners,
+      formData,
+      handleCapacitySaturationRefund,
+      isSolo,
+      mode,
+      onRegistered,
+      pendingRegistrationPayload,
+      registerTeam,
+      showError,
+      showSuccess,
+      tournament.id,
+    ]
+  )
+
+  // Core verification runner with concurrency guard and bounded exponential backoff
+  const runVerification = useCallback(
+    async (trigger = 'poll') => {
+      const currentOrderId = famgatewaySession?.orderId
+      if (!currentOrderId || !isMountedRef.current || isTerminalRef.current) {
+        return
+      }
+
+      // Concurrency lock: strictly prevent overlapping verification requests
+      if (isPollingRef.current) {
+        if (trigger === 'realtime') {
+          // If a poll is in-flight when Realtime signals an update, queue an immediate recheck
+          recheckPendingRef.current = true
+        }
+        return
+      }
+
+      isPollingRef.current = true
+      if (trigger === 'manual') {
+        setIsVerifyingFamgateway(true)
+      }
+
+      // Clear pending scheduled poll while active request executes
+      if (pollTimeoutRef.current) {
+        clearTimeout(pollTimeoutRef.current)
+        pollTimeoutRef.current = null
+      }
+
+      try {
+        const verifyRes = await verifyFamgatewayPayment({
+          orderId: currentOrderId,
+          tournamentId: tournament.id,
+        })
+
+        if (!isMountedRef.current || activeOrderIdRef.current !== currentOrderId) {
+          return
+        }
+
+        const isTerminal = await processVerificationResult(verifyRes, currentOrderId)
+
+        if (!isTerminal) {
+          if (trigger === 'manual') {
+            showError(
+              'Payment is still pending clearance from your bank. If you already transferred, please wait a few seconds and try again.',
+              'Payment Pending'
+            )
+          }
+
+          // Schedule next poll with bounded exponential backoff: 2s -> 3s -> 4.5s -> 6s max
+          consecutivePollCountRef.current += 1
+          const delays = [2000, 3000, 4500, 6000]
+          const nextDelay = delays[Math.min(consecutivePollCountRef.current, delays.length - 1)]
+
+          if (isMountedRef.current && !isTerminalRef.current && activeOrderIdRef.current === currentOrderId) {
+            pollTimeoutRef.current = setTimeout(() => {
+              runVerificationRef.current?.('poll')
+            }, nextDelay)
+          }
+        }
+      } catch (err) {
+        if (!isMountedRef.current || activeOrderIdRef.current !== currentOrderId) return
+        console.warn(`[FamGateway ${trigger} Verification Warning]:`, err?.message)
+        if (trigger === 'manual') {
+          showError(err?.message || 'Verification check failed.', 'Check Failed')
+        }
+
+        // On non-terminal transient failure, schedule next poll with backoff
+        if (!isTerminalRef.current && activeOrderIdRef.current === currentOrderId) {
+          consecutivePollCountRef.current += 1
+          const delays = [2000, 3000, 4500, 6000]
+          const nextDelay = delays[Math.min(consecutivePollCountRef.current, delays.length - 1)]
+          pollTimeoutRef.current = setTimeout(() => {
+            runVerificationRef.current?.('poll')
+          }, nextDelay)
+        }
+      } finally {
+        isPollingRef.current = false
+        if (trigger === 'manual') {
+          setIsVerifyingFamgateway(false)
+        }
+
+        // Drain any pending Realtime trigger if state is not terminal
+        if (recheckPendingRef.current && !isTerminalRef.current && isMountedRef.current && activeOrderIdRef.current === currentOrderId) {
+          recheckPendingRef.current = false
+          runVerificationRef.current?.('realtime')
+        }
+      }
+    },
+    [famgatewaySession?.orderId, processVerificationResult, showError, tournament.id]
+  )
+
+  useEffect(() => {
+    runVerificationRef.current = runVerification
+  }, [runVerification])
+
+  // Supabase Realtime payment subscription + safe self-scheduling polling fallback
+  useEffect(() => {
+    const currentOrderId = famgatewaySession?.orderId
+    if (!currentOrderId) {
+      cleanupPaymentListeners()
+      activeOrderIdRef.current = null
+      isTerminalRef.current = false
+      consecutivePollCountRef.current = 0
+      recheckPendingRef.current = false
+      isPollingRef.current = false
+      return
     }
+
+    activeOrderIdRef.current = currentOrderId
+    isTerminalRef.current = false
+    consecutivePollCountRef.current = 0
+    recheckPendingRef.current = false
+    isPollingRef.current = false
+
+    // 1. Establish Supabase Realtime channel for instant server-pushed payment status
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const channelName = `payment_order_${currentOrderId}`
+        const channel = supabase
+          .channel(channelName)
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'tournament_payments',
+              filter: `provider_order_id=eq.${currentOrderId}`,
+            },
+            (payload) => {
+              const newRow = payload?.new
+              if (
+                !newRow ||
+                !isMountedRef.current ||
+                isTerminalRef.current ||
+                activeOrderIdRef.current !== currentOrderId ||
+                (newRow.provider_order_id && newRow.provider_order_id !== currentOrderId)
+              ) {
+                return
+              }
+
+              const status = String(newRow.status || '').toUpperCase()
+
+              // Security Rule: NEVER trust client-side Realtime event as standalone proof of payment.
+              // Always trigger server-side verification.
+              if (
+                status === 'VERIFIED' ||
+                status === 'CONSUMED' ||
+                status === 'FAILED' ||
+                status === 'EXPIRED' ||
+                status === 'REFUNDED'
+              ) {
+                runVerificationRef.current?.('realtime')
+              }
+            }
+          )
+          .subscribe((status, err) => {
+            if (err || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+              console.warn(
+                `[Realtime Payment Subscription] Notice (${status}): Polling fallback active.`,
+                err?.message
+              )
+            }
+          })
+
+        realtimeChannelRef.current = channel
+      } catch (subErr) {
+        console.warn('[Realtime Payment Subscription Setup Warning]:', subErr?.message)
+      }
+    }
+
+    // 2. Start initial polling after 2000ms as a reliable fallback / primary poll
+    pollTimeoutRef.current = setTimeout(() => {
+      runVerificationRef.current?.('poll')
+    }, 2000)
+
+    // Cleanup listeners and timers when order changes or session expires
+    return () => {
+      cleanupPaymentListeners()
+    }
+  }, [famgatewaySession?.orderId, cleanupPaymentListeners])
+
+  const handleManualStatusCheck = async () => {
+    if (!famgatewaySession?.orderId) return
+    if (isPollingRef.current) {
+      // In-flight check already running; prevent duplicate network request
+      return
+    }
+    await runVerificationRef.current?.('manual')
   }
 
 
