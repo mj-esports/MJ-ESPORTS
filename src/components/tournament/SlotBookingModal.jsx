@@ -148,7 +148,8 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   // FamGateway Checkout Session State (Exclusive Payment Gateway)
   const [famgatewaySession, setFamgatewaySession] = useState(null)
   const [isVerifyingFamgateway, setIsVerifyingFamgateway] = useState(false)
-  const [showQrFallback, setShowQrFallback] = useState(false)
+  const [showQrFallback, setShowQrFallback] = useState(true)
+  const [qrLoadError, setQrLoadError] = useState(false)
   const [famgatewayCountdown, setFamgatewayCountdown] = useState(600)
   const [pendingRegistrationPayload, setPendingRegistrationPayload] = useState(null)
   const [capacityRefundNotice, setCapacityRefundNotice] = useState(null)
@@ -566,6 +567,32 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
       return
     }
     await runVerificationRef.current?.('manual')
+  }
+
+  // Reset QR image load error whenever active order session changes
+  useEffect(() => {
+    setQrLoadError(false)
+  }, [famgatewaySession?.orderId])
+
+  // Trigger provider-supplied UPI app intent with graceful desktop/mobile guidance
+  const handleUpiAppTrigger = (appName = 'UPI App') => {
+    if (!famgatewaySession?.upiIntent) {
+      showError('UPI payment link is unavailable for this session. Please scan the QR code.', 'Unavailable')
+      return
+    }
+    const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    if (!isMobile) {
+      showError(
+        `Direct UPI app launch is designed for mobile devices with ${appName} installed. On desktop, please scan the QR code above with your mobile phone.`,
+        'Mobile Device Recommended'
+      )
+    }
+    try {
+      triggerUpiIntent(famgatewaySession.upiIntent)
+    } catch (intentErr) {
+      console.warn(`[UPI Intent Error - ${appName}]:`, intentErr?.message)
+      showError(intentErr?.message || 'Could not launch UPI application.', 'Intent Error')
+    }
   }
 
 
@@ -1422,7 +1449,69 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                 </div>
               </div>
 
-              {/* Mobile Direct UPI Intent Button */}
+              {/* Dynamic QR Code Section — Automatically Visible */}
+              <div className="p-4 bg-[#0E0E10] border border-[#00f2ff]/30 space-y-3 text-center">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <QrCode className="w-4 h-4 text-[#00f2ff]" />
+                    <span>Scan to Pay via UPI QR</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowQrFallback(!showQrFallback)}
+                    className="text-[11px] font-mono text-[#00f2ff] hover:underline cursor-pointer"
+                  >
+                    {showQrFallback ? 'Hide QR Code' : 'Show Dynamic QR'}
+                  </button>
+                </div>
+
+                {showQrFallback && (
+                  famgatewaySession.qrUrl && !qrLoadError ? (
+                    <div className="py-2 space-y-2 animate-fadeIn">
+                      <div className="relative inline-block mx-auto">
+                        <img
+                          src={famgatewaySession.qrUrl}
+                          alt="Scan to pay entry fee"
+                          onError={() => setQrLoadError(true)}
+                          className="w-52 h-52 mx-auto p-2.5 bg-white border-2 border-[#00f2ff]/60 shadow-[0_0_25px_rgba(0,242,255,0.25)]"
+                        />
+                      </div>
+                      <p className="text-xs text-[#E4E4E7] font-medium">
+                        Scan this QR code using any UPI application on your phone
+                      </p>
+                      <p className="text-[10px] text-[#8E8E98] font-mono">
+                        Google Pay • PhonePe • Paytm • BHIM • CRED
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="py-4 px-3 bg-[#18181B] border border-[#ff3366]/40 text-center space-y-1.5">
+                      <AlertTriangle className="w-5 h-5 text-[#ff3366] mx-auto" />
+                      <p className="text-xs text-[#ff3366] font-bold">
+                        QR Code image is currently unavailable from payment provider
+                      </p>
+                      <p className="text-[11px] text-[#8E8E98]">
+                        Please use the direct UPI app options below or open the hosted payment page.
+                      </p>
+                    </div>
+                  )
+                )}
+
+                {famgatewaySession.checkoutUrl && (
+                  <div className="pt-1">
+                    <a
+                      href={famgatewaySession.checkoutUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-[#00f2ff] hover:text-white transition-colors"
+                    >
+                      <span>Open Hosted Payment Screen</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Direct UPI App Payment Section */}
               <div className="p-4 bg-[#0E0E10] border border-[#00f2ff]/30 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-bold text-[#00f2ff]">
@@ -1434,63 +1523,53 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                   </span>
                 </div>
                 <p className="text-xs text-[#8E8E98]">
-                  Tap below to launch Google Pay, PhonePe, Paytm, or BHIM directly:
+                  Tap below to launch your preferred UPI application directly:
                 </p>
                 {famgatewaySession.upiIntent ? (
-                  <button
-                    type="button"
-                    onClick={() => triggerUpiIntent(famgatewaySession.upiIntent)}
-                    className="w-full h-12 flex items-center justify-center gap-2.5 text-xs font-bold uppercase tracking-wider text-black bg-[#00ff9d] hover:bg-white transition-all shadow-[0_0_20px_rgba(0,255,157,0.3)] cursor-pointer"
-                  >
-                    <Smartphone className="w-4 h-4" />
-                    <span>Pay with Google Pay / PhonePe / Paytm</span>
-                  </button>
-                ) : null}
-                <div className="text-[10px] text-[#8E8E98] text-center font-mono">
-                  NPCI Universal UPI Intent • Direct App-to-App Redirection
-                </div>
-              </div>
-
-              {/* Desktop / QR Fallback Section */}
-              <div className="p-4 bg-[#0E0E10] border border-[#2A2A30] space-y-3 text-center">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <QrCode className="w-4 h-4 text-[#00f2ff]" />
-                    <span>Desktop Fallback Option</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowQrFallback(!showQrFallback)}
-                    className="text-[11px] font-mono text-[#00f2ff] hover:underline cursor-pointer"
-                  >
-                    {showQrFallback ? 'Hide QR Code' : 'Show Dynamic QR'}
-                  </button>
-                </div>
-
-                {showQrFallback && famgatewaySession.qrUrl && (
-                  <div className="py-2 space-y-2 animate-fadeIn">
-                    <img
-                      src={famgatewaySession.qrUrl}
-                      alt="Scan to pay entry fee"
-                      className="w-48 h-48 mx-auto p-2 bg-white border border-[#00f2ff]/40 shadow-[0_0_20px_rgba(0,242,255,0.2)]"
-                    />
-                    <p className="text-[11px] text-[#8E8E98]">
-                      Scan with any UPI app on your phone
-                    </p>
-                  </div>
-                )}
-
-                {famgatewaySession.checkoutUrl && (
-                  <div>
-                    <a
-                      href={famgatewaySession.checkoutUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-[#00f2ff] hover:text-white transition-colors"
+                  <div className="space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => handleUpiAppTrigger('UPI App')}
+                      className="w-full h-12 flex items-center justify-center gap-2.5 text-xs font-bold uppercase tracking-wider text-black bg-[#00ff9d] hover:bg-white transition-all shadow-[0_0_20px_rgba(0,255,157,0.3)] cursor-pointer"
                     >
-                      <span>Open Hosted Payment Screen</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
+                      <Smartphone className="w-4 h-4" />
+                      <span>Pay with Any UPI App</span>
+                    </button>
+
+                    {/* Supported UPI App Options */}
+                    <div className="grid grid-cols-3 gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleUpiAppTrigger('Google Pay')}
+                        className="h-9 px-2 flex items-center justify-center gap-1.5 text-[11px] font-bold text-white bg-[#18181B] border border-[#2A2A30] hover:border-[#00f2ff] hover:text-[#00f2ff] transition-colors cursor-pointer"
+                      >
+                        <span>Google Pay</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleUpiAppTrigger('PhonePe')}
+                        className="h-9 px-2 flex items-center justify-center gap-1.5 text-[11px] font-bold text-white bg-[#18181B] border border-[#2A2A30] hover:border-[#00f2ff] hover:text-[#00f2ff] transition-colors cursor-pointer"
+                      >
+                        <span>PhonePe</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleUpiAppTrigger('Paytm')}
+                        className="h-9 px-2 flex items-center justify-center gap-1.5 text-[11px] font-bold text-white bg-[#18181B] border border-[#2A2A30] hover:border-[#00f2ff] hover:text-[#00f2ff] transition-colors cursor-pointer"
+                      >
+                        <span>Paytm</span>
+                      </button>
+                    </div>
+
+                    <div className="text-[10px] text-[#8E8E98] text-center font-mono">
+                      NPCI Universal UPI Intent • Launches your default installed UPI app
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3 bg-[#18181B] border border-[#2A2A30] text-center">
+                    <p className="text-xs text-[#8E8E98]">
+                      Direct mobile app intent link is not supplied for this order. Please scan the QR code above.
+                    </p>
                   </div>
                 )}
               </div>
