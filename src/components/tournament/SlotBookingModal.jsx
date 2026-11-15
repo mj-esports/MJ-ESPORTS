@@ -33,7 +33,6 @@ import {
 import {
   createFamgatewayOrder,
   verifyFamgatewayPayment,
-  triggerUpiIntent,
 } from '../../services/tournamentPaymentService'
 import { getMyTeamPortalData } from '../../services/teamService'
 import FormInput from '../common/FormInput'
@@ -573,27 +572,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
   useEffect(() => {
     setQrLoadError(false)
   }, [famgatewaySession?.orderId])
-
-  // Trigger provider-supplied UPI app intent with graceful desktop/mobile guidance
-  const handleUpiAppTrigger = (appName = 'UPI App') => {
-    if (!famgatewaySession?.upiIntent) {
-      showError('UPI payment link is unavailable for this session. Please scan the QR code.', 'Unavailable')
-      return
-    }
-    const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    if (!isMobile) {
-      showError(
-        `Direct UPI app launch is designed for mobile devices with ${appName} installed. On desktop, please scan the QR code above with your mobile phone.`,
-        'Mobile Device Recommended'
-      )
-    }
-    try {
-      triggerUpiIntent(famgatewaySession.upiIntent)
-    } catch (intentErr) {
-      console.warn(`[UPI Intent Error - ${appName}]:`, intentErr?.message)
-      showError(intentErr?.message || 'Could not launch UPI application.', 'Intent Error')
-    }
-  }
 
 
   /**
@@ -1194,11 +1172,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
               checkoutUrl: fgOrder.checkout_url,
             })
             setFamgatewayCountdown(600)
-
-            // Mobile-first auto intent trigger
-            if (typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && fgOrder.upi_intent) {
-              triggerUpiIntent(fgOrder.upi_intent)
-            }
             return
           } else {
             throw new Error(fgOrder?.error || 'Unable to initialize FamGateway payment order.')
@@ -1490,7 +1463,7 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                         QR Code image is currently unavailable from payment provider
                       </p>
                       <p className="text-[11px] text-[#8E8E98]">
-                        Please use the direct UPI app options below or open the hosted payment page.
+                        Please open the hosted payment screen below or contact support.
                       </p>
                     </div>
                   )
@@ -1507,69 +1480,6 @@ export default function SlotBookingModal({ tournament, onClose, onRegistered }) 
                       <span>Open Hosted Payment Screen</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
-                  </div>
-                )}
-              </div>
-
-              {/* Direct UPI App Payment Section */}
-              <div className="p-4 bg-[#0E0E10] border border-[#00f2ff]/30 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#00f2ff]">
-                    <Smartphone className="w-4 h-4" />
-                    <span>DIRECT MOBILE UPI APPS</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 border border-[#10B981]/30">
-                    0% Gateway Fee
-                  </span>
-                </div>
-                <p className="text-xs text-[#8E8E98]">
-                  Tap below to launch your preferred UPI application directly:
-                </p>
-                {famgatewaySession.upiIntent ? (
-                  <div className="space-y-2">
-                    <button
-                      type="button"
-                      onClick={() => handleUpiAppTrigger('UPI App')}
-                      className="w-full h-12 flex items-center justify-center gap-2.5 text-xs font-bold uppercase tracking-wider text-black bg-[#00ff9d] hover:bg-white transition-all shadow-[0_0_20px_rgba(0,255,157,0.3)] cursor-pointer"
-                    >
-                      <Smartphone className="w-4 h-4" />
-                      <span>Pay with Any UPI App</span>
-                    </button>
-
-                    {/* Supported UPI App Options */}
-                    <div className="grid grid-cols-3 gap-2 pt-1">
-                      <button
-                        type="button"
-                        onClick={() => handleUpiAppTrigger('Google Pay')}
-                        className="h-9 px-2 flex items-center justify-center gap-1.5 text-[11px] font-bold text-white bg-[#18181B] border border-[#2A2A30] hover:border-[#00f2ff] hover:text-[#00f2ff] transition-colors cursor-pointer"
-                      >
-                        <span>Google Pay</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleUpiAppTrigger('PhonePe')}
-                        className="h-9 px-2 flex items-center justify-center gap-1.5 text-[11px] font-bold text-white bg-[#18181B] border border-[#2A2A30] hover:border-[#00f2ff] hover:text-[#00f2ff] transition-colors cursor-pointer"
-                      >
-                        <span>PhonePe</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleUpiAppTrigger('Paytm')}
-                        className="h-9 px-2 flex items-center justify-center gap-1.5 text-[11px] font-bold text-white bg-[#18181B] border border-[#2A2A30] hover:border-[#00f2ff] hover:text-[#00f2ff] transition-colors cursor-pointer"
-                      >
-                        <span>Paytm</span>
-                      </button>
-                    </div>
-
-                    <div className="text-[10px] text-[#8E8E98] text-center font-mono">
-                      NPCI Universal UPI Intent • Launches your default installed UPI app
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-3 bg-[#18181B] border border-[#2A2A30] text-center">
-                    <p className="text-xs text-[#8E8E98]">
-                      Direct mobile app intent link is not supplied for this order. Please scan the QR code above.
-                    </p>
                   </div>
                 )}
               </div>
