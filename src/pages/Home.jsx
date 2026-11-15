@@ -4,7 +4,6 @@ import { useTournaments } from '../contexts/TournamentContext'
 import { useAuth } from '../contexts/AuthContext'
 import SkeletonLoader from '../components/common/SkeletonLoader'
 import {
-  Swords,
   Gamepad2,
   Wallet,
   Trophy,
@@ -81,7 +80,7 @@ export default function Home() {
   }, [tournaments])
 
   return (
-    <div className="flex-grow flex flex-col w-full bg-[#131314] text-white font-body antialiased selection:bg-[#00f2ff]/30 selection:text-[#00f2ff]">
+    <div className="flex-grow flex flex-col w-full bg-[#000000] text-white font-body antialiased selection:bg-[#FFB900]/30 selection:text-[#FFB900]">
 
       {/* 1. HERO SECTION */}
       <section className="relative w-full min-h-[260px] sm:min-h-[300px] md:min-h-[340px] flex items-center justify-center overflow-hidden py-6 sm:py-8 md:py-10">
@@ -98,13 +97,13 @@ export default function Home() {
             srcSet={HERO_IMAGE_SRCSET}
             sizes={HERO_IMAGE_SIZES}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#131314] via-[#131314]/75 to-transparent transform-gpu"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-[#131314] via-transparent to-[#131314] hidden md:block transform-gpu"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/75 to-transparent transform-gpu"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#000000] via-transparent to-[#000000] hidden md:block transform-gpu"></div>
         </div>
 
         <div className="relative z-10 text-center px-3 sm:px-4 max-w-3xl mx-auto flex flex-col items-center">
           {/* Hero Greeting */}
-          <span className="px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-none bg-[#141416] border border-[#00f2ff]/30 text-[#00f2ff] text-xs sm:text-sm font-label-bold tracking-wide mb-2 sm:mb-2.5 inline-flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(0,242,255,0.18)]">
+          <span className="px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-none bg-[#111215] border border-[#FFB900]/30 text-[#FFB900] text-xs sm:text-sm font-label-bold tracking-wide mb-2 sm:mb-2.5 inline-flex items-center justify-center gap-2">
             👋 Welcome back, {displayName}
           </span>
 
@@ -114,7 +113,7 @@ export default function Home() {
           </h1>
 
           {/* Hero Tagline: Maximum 2 balanced lines on mobile, 15-16px, tighter 1.36 leading, reduced gap to CTA */}
-          <p className="font-body text-[#b9cacb] text-[14px] xs:text-[15px] sm:text-[16px] md:text-[17px] max-w-2xl mx-auto mb-3 sm:mb-4 md:mb-5 font-normal leading-[1.36] sm:leading-[1.4] text-center px-1">
+          <p className="font-body text-[#A1A1AA] text-[14px] xs:text-[15px] sm:text-[16px] md:text-[17px] max-w-2xl mx-auto mb-3 sm:mb-4 md:mb-5 font-normal leading-[1.36] sm:leading-[1.4] text-center px-1">
             Every Match Counts. Every Kill Matters. Compete in India's premier Free Fire MAX esports tournament arena.
           </p>
 
@@ -122,7 +121,7 @@ export default function Home() {
           <div className="w-full sm:w-auto flex items-center justify-center">
             <Link
               to="/tournaments"
-              className="w-full xs:w-auto h-12 sm:h-[50px] min-h-[48px] px-8 sm:px-10 bg-[#00f2ff] text-[#00363a] font-headline font-bold text-[15px] sm:text-[16px] rounded-none hover:bg-[#74f5ff] transition-all duration-200 shadow-[0_0_18px_rgba(0,242,255,0.3)] flex items-center justify-center gap-2.5 uppercase tracking-wider border border-[#00f2ff] active:scale-95 whitespace-nowrap min-w-[200px] max-w-full"
+              className="w-full xs:w-auto h-12 sm:h-[50px] min-h-[48px] px-8 sm:px-10 bg-[#FFB900] text-[#000000] font-headline font-bold text-[15px] sm:text-[16px] rounded-none hover:bg-[#FFC933] transition-all duration-200 flex items-center justify-center gap-2.5 uppercase tracking-wider border border-[#FFB900] active:scale-95 whitespace-nowrap min-w-[200px] max-w-full"
             >
               <span>Tournaments</span>
               <ArrowRight className="w-4 h-4 shrink-0" />
@@ -139,12 +138,12 @@ export default function Home() {
           {/* 1. Rulebook */}
           <Link
             to="/about"
-            className="flex items-center gap-2 sm:gap-2.5 px-2.5 py-2 sm:px-3 sm:py-2.5 md:p-3 rounded-none bg-[#141416] border border-[#27272a] hover:border-[#00f2ff]/60 hover:bg-[#18181b] transition-all duration-200 shadow-sm group min-h-[48px] h-full active:scale-[0.98]"
+            className="flex items-center gap-2 sm:gap-2.5 px-2.5 py-2 sm:px-3 sm:py-2.5 md:p-3 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FFB900] hover:bg-[#18181B] transition-all duration-200 shadow-sm group min-h-[48px] h-full active:scale-[0.98]"
           >
-            <div className="w-8 h-8 rounded-none bg-[#1c1b1c] border border-[#27272a] flex items-center justify-center shrink-0 group-hover:border-[#00f2ff]/40 group-hover:bg-[#00f2ff]/10 transition-colors">
-              <BookOpen className="w-4 h-4 text-[#00f2ff] transition-transform group-hover:scale-105" />
+            <div className="w-8 h-8 rounded-none bg-[#18181B] border border-[#27272A] flex items-center justify-center shrink-0 group-hover:border-[#FFB900]/40 group-hover:bg-[#FFB900]/10 transition-colors">
+              <BookOpen className="w-4 h-4 text-[#FFB900] transition-transform group-hover:scale-105" />
             </div>
-            <span className="flex-1 min-w-0 font-headline font-bold text-[12.5px] xs:text-[13.5px] sm:text-[14.5px] md:text-[15px] text-[#e5e2e3] group-hover:text-[#00f2ff] transition-colors leading-[1.12] uppercase tracking-wide whitespace-nowrap">
+            <span className="flex-1 min-w-0 font-headline font-bold text-[12.5px] xs:text-[13.5px] sm:text-[14.5px] md:text-[15px] text-[#FFFFFF] group-hover:text-[#FFB900] transition-colors leading-[1.12] uppercase tracking-wide whitespace-nowrap">
               Rulebook
             </span>
           </Link>
@@ -152,12 +151,12 @@ export default function Home() {
           {/* 2. My Matches */}
           <Link
             to="/profile/history"
-            className="flex items-center gap-2 sm:gap-2.5 px-2.5 py-2 sm:px-3 sm:py-2.5 md:p-3 rounded-none bg-[#141416] border border-[#27272a] hover:border-[#ff5e07]/60 hover:bg-[#18181b] transition-all duration-200 shadow-sm group min-h-[48px] h-full active:scale-[0.98]"
+            className="flex items-center gap-2 sm:gap-2.5 px-2.5 py-2 sm:px-3 sm:py-2.5 md:p-3 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FF8C00] hover:bg-[#18181B] transition-all duration-200 shadow-sm group min-h-[48px] h-full active:scale-[0.98]"
           >
-            <div className="w-8 h-8 rounded-none bg-[#1c1b1c] border border-[#27272a] flex items-center justify-center shrink-0 group-hover:border-[#ff5e07]/40 group-hover:bg-[#ff5e07]/10 transition-colors">
-              <Gamepad2 className="w-4 h-4 text-[#ff5e07] transition-transform group-hover:scale-105" />
+            <div className="w-8 h-8 rounded-none bg-[#18181B] border border-[#27272A] flex items-center justify-center shrink-0 group-hover:border-[#FF8C00]/40 group-hover:bg-[#FF8C00]/10 transition-colors">
+              <Gamepad2 className="w-4 h-4 text-[#FF8C00] transition-transform group-hover:scale-105" />
             </div>
-            <span className="flex-1 min-w-0 font-headline font-bold text-[12.5px] xs:text-[13.5px] sm:text-[14.5px] md:text-[15px] text-[#e5e2e3] group-hover:text-[#ff5e07] transition-colors leading-[1.12] uppercase tracking-wide">
+            <span className="flex-1 min-w-0 font-headline font-bold text-[12.5px] xs:text-[13.5px] sm:text-[14.5px] md:text-[15px] text-[#FFFFFF] group-hover:text-[#FF8C00] transition-colors leading-[1.12] uppercase tracking-wide">
               My Matches
             </span>
           </Link>
@@ -165,12 +164,12 @@ export default function Home() {
           {/* 3. Wallet */}
           <Link
             to="/wallet"
-            className="flex items-center gap-2 sm:gap-2.5 px-2.5 py-2 sm:px-3 sm:py-2.5 md:p-3 rounded-none bg-[#141416] border border-[#27272a] hover:border-[#10b981]/60 hover:bg-[#18181b] transition-all duration-200 shadow-sm group min-h-[48px] h-full active:scale-[0.98]"
+            className="flex items-center gap-2 sm:gap-2.5 px-2.5 py-2 sm:px-3 sm:py-2.5 md:p-3 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#10b981]/60 hover:bg-[#18181B] transition-all duration-200 shadow-sm group min-h-[48px] h-full active:scale-[0.98]"
           >
-            <div className="w-8 h-8 rounded-none bg-[#1c1b1c] border border-[#27272a] flex items-center justify-center shrink-0 group-hover:border-[#10b981]/40 group-hover:bg-[#10b981]/10 transition-colors">
+            <div className="w-8 h-8 rounded-none bg-[#18181B] border border-[#27272A] flex items-center justify-center shrink-0 group-hover:border-[#10b981]/40 group-hover:bg-[#10b981]/10 transition-colors">
               <Wallet className="w-4 h-4 text-[#10b981] transition-transform group-hover:scale-105" />
             </div>
-            <span className="flex-1 min-w-0 font-headline font-bold text-[12.5px] xs:text-[13.5px] sm:text-[14.5px] md:text-[15px] text-[#e5e2e3] group-hover:text-[#10b981] transition-colors leading-[1.12] uppercase tracking-wide whitespace-nowrap">
+            <span className="flex-1 min-w-0 font-headline font-bold text-[12.5px] xs:text-[13.5px] sm:text-[14.5px] md:text-[15px] text-[#FFFFFF] group-hover:text-[#10b981] transition-colors leading-[1.12] uppercase tracking-wide whitespace-nowrap">
               Wallet
             </span>
           </Link>
@@ -178,12 +177,12 @@ export default function Home() {
           {/* 4. Leaderboard */}
           <Link
             to="/leaderboard"
-            className="flex items-center gap-2 sm:gap-2.5 px-2.5 py-2 sm:px-3 sm:py-2.5 md:p-3 rounded-none bg-[#141416] border border-[#27272a] hover:border-[#fed83a]/60 hover:bg-[#18181b] transition-all duration-200 shadow-sm group min-h-[48px] h-full active:scale-[0.98]"
+            className="flex items-center gap-2 sm:gap-2.5 px-2.5 py-2 sm:px-3 sm:py-2.5 md:p-3 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FFB900] hover:bg-[#18181B] transition-all duration-200 shadow-sm group min-h-[48px] h-full active:scale-[0.98]"
           >
-            <div className="w-8 h-8 rounded-none bg-[#1c1b1c] border border-[#27272a] flex items-center justify-center shrink-0 group-hover:border-[#fed83a]/40 group-hover:bg-[#fed83a]/10 transition-colors">
-              <Trophy className="w-4 h-4 text-[#fed83a] transition-transform group-hover:scale-105" />
+            <div className="w-8 h-8 rounded-none bg-[#18181B] border border-[#27272A] flex items-center justify-center shrink-0 group-hover:border-[#FFB900]/40 group-hover:bg-[#FFB900]/10 transition-colors">
+              <Trophy className="w-4 h-4 text-[#FFB900] transition-transform group-hover:scale-105" />
             </div>
-            <span className="flex-1 min-w-0 font-headline font-bold text-[12.5px] xs:text-[13.5px] sm:text-[14.5px] md:text-[15px] text-[#e5e2e3] group-hover:text-[#fed83a] transition-colors leading-[1.12] uppercase tracking-wide whitespace-nowrap">
+            <span className="flex-1 min-w-0 font-headline font-bold text-[12.5px] xs:text-[13.5px] sm:text-[14.5px] md:text-[15px] text-[#FFFFFF] group-hover:text-[#FFB900] transition-colors leading-[1.12] uppercase tracking-wide whitespace-nowrap">
               Leaderboard
             </span>
           </Link>
@@ -194,10 +193,10 @@ export default function Home() {
             <SkeletonLoader type="card" count={2} />
           </div>
         ) : tournaments.length === 0 ? (
-          <div className="py-10 text-center border border-[#27272a] bg-[#141416] rounded-none p-6 space-y-3 shadow-lg">
-            <Trophy className="w-10 h-10 text-[#849495] mx-auto animate-pulse" />
+          <div className="py-10 text-center border border-[#27272A] bg-[#111215] rounded-none p-6 space-y-3 shadow-lg">
+            <Trophy className="w-10 h-10 text-[#A1A1AA] mx-auto animate-pulse" />
             <h3 className="font-headline font-bold text-lg sm:text-xl text-white uppercase">No Active Tournaments Found</h3>
-            <p className="text-xs text-[#b9cacb] max-w-md mx-auto">
+            <p className="text-xs text-[#A1A1AA] max-w-md mx-auto">
               Check back soon for newly published tournaments, or visit our rulebook to prepare for upcoming operations.
             </p>
           </div>
@@ -209,10 +208,10 @@ export default function Home() {
             <section className="lg:col-span-2 space-y-3 sm:space-y-4 min-w-0">
               <div className="flex items-center justify-between gap-2 min-w-0">
                 <h2 className="font-headline font-extrabold text-[22px] xs:text-[24px] sm:text-[26px] md:text-[28px] uppercase tracking-wider text-white flex items-center gap-2 sm:gap-2.5 min-w-0 leading-[1.1]">
-                  <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#00f2ff] shrink-0" />
+                  <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#FFB900] shrink-0" />
                   <span className="leading-[1.1]">Upcoming Tournaments</span>
                 </h2>
-                <Link to="/tournaments" className="text-xs sm:text-sm font-label-bold text-[#00f2ff] hover:text-[#74f5ff] transition-colors flex items-center gap-1 uppercase whitespace-nowrap shrink-0 ml-2">
+                <Link to="/tournaments" className="text-xs sm:text-sm font-label-bold text-[#FFB900] hover:text-[#FFC933] transition-colors flex items-center gap-1 uppercase whitespace-nowrap shrink-0 ml-2">
                   <span>View All</span>
                   <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                 </Link>
@@ -220,14 +219,14 @@ export default function Home() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                 {upcomingTournaments.length === 0 ? (
-                  <div className="col-span-2 py-8 text-center text-xs text-[#b9cacb] font-sans bg-[#141416] rounded-none border border-[#27272a]">
+                  <div className="col-span-2 py-8 text-center text-xs text-[#A1A1AA] font-sans bg-[#111215] rounded-none border border-[#27272A]">
                     No active tournaments right now.
                   </div>
                 ) : (
                   upcomingTournaments.map((t, idx) => (
-                    <div key={`upcoming-tourney-${t.id || t._id || idx}`} className="bg-[#141416] rounded-none border border-[#27272a] overflow-hidden hover:border-[#00f2ff]/60 transition-all duration-200 group flex flex-col shadow-md">
+                    <div key={`upcoming-tourney-${t.id || t._id || idx}`} className="bg-[#111215] rounded-none border border-[#27272A] overflow-hidden hover:border-[#FFB900]/60 transition-all duration-200 group flex flex-col shadow-md">
                       {/* Compact Tournament Image Banner with Game/Mode Badges */}
-                      <div className="h-16 xs:h-20 sm:h-24 relative overflow-hidden bg-[#0e0e0f]">
+                      <div className="h-16 xs:h-20 sm:h-24 relative overflow-hidden bg-[#000000]">
                         <img
                           className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-300"
                           alt={`${t.title} Tournament Banner`}
@@ -236,13 +235,13 @@ export default function Home() {
                           height="200"
                           src={getTournamentImage(t)}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#141416] via-[#141416]/40 to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#111215] via-[#111215]/40 to-transparent"></div>
                         <div className="absolute bottom-2 left-2.5 flex items-center gap-1.5">
-                          <span className="px-2 py-0.5 bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/30 text-[11px] sm:text-[12px] font-label-bold uppercase rounded-none tracking-wider">
+                          <span className="px-2 py-0.5 bg-[#FFB900]/15 text-[#FFB900] border border-[#FFB900]/30 text-[11px] sm:text-[12px] font-label-bold uppercase rounded-none tracking-wider">
                             {t.game || 'Free Fire MAX'}
                           </span>
                           {t.mode && (
-                            <span className="px-1.5 py-0.5 bg-[#1c1b1c]/90 text-[#b9cacb] border border-[#27272a] text-[11px] font-label-bold uppercase rounded-none">
+                            <span className="px-1.5 py-0.5 bg-[#18181B]/90 text-[#A1A1AA] border border-[#27272A] text-[11px] font-label-bold uppercase rounded-none">
                               {t.mode}
                             </span>
                           )}
@@ -259,41 +258,41 @@ export default function Home() {
                         </div>
 
                         {/* Entry Fee & Prize Pool (Compact horizontal row) */}
-                        <div className="grid grid-cols-2 gap-2 px-2.5 py-1.5 sm:py-2 rounded-none bg-[#1c1b1c] border border-[#27272a]">
+                        <div className="grid grid-cols-2 gap-2 px-2.5 py-1.5 sm:py-2 rounded-none bg-[#18181B] border border-[#27272A]">
                           <div className="flex flex-col">
-                            <span className="text-[11px] sm:text-[12px] text-[#849495] uppercase font-label-bold tracking-wider">Entry Fee</span>
+                            <span className="text-[11px] sm:text-[12px] text-[#A1A1AA] uppercase font-label-bold tracking-wider">Entry Fee</span>
                             <span className="font-bold text-white text-[16px] xs:text-[18px] sm:text-[20px] font-headline leading-tight">
                               {t.entryFee || t.entry_fee || 'Free'}
                             </span>
                           </div>
                           <div className="flex flex-col items-end">
-                            <span className="text-[11px] sm:text-[12px] text-[#849495] uppercase font-label-bold tracking-wider">Prize Pool</span>
-                            <span className="font-bold text-[#ff5e07] text-[16px] xs:text-[18px] sm:text-[20px] font-headline leading-tight">
+                            <span className="text-[11px] sm:text-[12px] text-[#A1A1AA] uppercase font-label-bold tracking-wider">Prize Pool</span>
+                            <span className="font-bold text-[#FF8C00] text-[16px] xs:text-[18px] sm:text-[20px] font-headline leading-tight">
                               {formatTournamentPrize(t)}
                             </span>
                           </div>
                         </div>
 
                         {/* Date/Time & Slots (14-15px) */}
-                        <div className="flex items-center justify-between text-[13px] xs:text-[14px] sm:text-[14.5px] text-[#b9cacb] font-medium">
+                        <div className="flex items-center justify-between text-[13px] xs:text-[14px] sm:text-[14.5px] text-[#A1A1AA] font-medium">
                           <span className="truncate">
                             {t.startDate} &bull; {t.startTime}
                           </span>
-                          <span className="text-[#00f2ff] font-bold shrink-0 ml-2">
+                          <span className="text-[#FFB900] font-bold shrink-0 ml-2">
                             {calculateFilledPlayerSlots(t)}/{calculateTotalPlayerSlots(t)} Slots
                           </span>
                         </div>
 
                         {/* Slot Progress Bar (4-5px height) */}
-                        <div className="w-full h-1 sm:h-1.5 bg-[#27272a] border border-[#3f3f46]/40 rounded-none overflow-hidden">
-                          <div className="h-full bg-[#00f2ff]" style={{ width: `${calculateSlotFillPercentage(t)}%` }}></div>
+                        <div className="w-full h-1 sm:h-1.5 bg-[#18181B] border border-[#27272A] rounded-none overflow-hidden">
+                          <div className="h-full bg-[#FFB900]" style={{ width: `${calculateSlotFillPercentage(t)}%` }}></div>
                         </div>
 
                         {/* Primary Card Action: Register Now (~44px height) */}
                         <div className="pt-0.5 mt-auto">
                           <Link
                             to={`/tournaments/${t.id}`}
-                            className="w-full h-11 min-h-[44px] bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold text-[14px] sm:text-[15px] uppercase tracking-wider rounded-none transition-all duration-200 border border-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.25)] text-center flex items-center justify-center active:scale-95"
+                            className="w-full h-11 min-h-[44px] bg-[#FFB900] hover:bg-[#FFC933] text-[#000000] font-headline font-bold text-[14px] sm:text-[15px] uppercase tracking-wider rounded-none transition-all duration-200 border border-[#FFB900] text-center flex items-center justify-center active:scale-95"
                           >
                             Register Now
                           </Link>
@@ -309,30 +308,29 @@ export default function Home() {
             <section className="lg:col-span-1 flex flex-col space-y-3 sm:space-y-4 min-w-0">
               <div className="flex items-center justify-between gap-2 min-w-0">
                 <div className="min-w-0">
-                  <span className="text-[10px] xs:text-[11px] font-headline font-bold text-[#00f2ff] uppercase tracking-widest block leading-none mb-1">
+                  <span className="text-[10px] xs:text-[11px] font-headline font-bold text-[#FFB900] uppercase tracking-widest block leading-none mb-1">
                     TOP 3
                   </span>
                   <h2 className="font-headline font-extrabold text-[17px] xs:text-[19px] sm:text-[21px] md:text-[23px] uppercase tracking-wider text-white flex items-center gap-1.5 min-w-0 leading-tight">
-                    <Trophy className="w-4.5 h-4.5 text-[#fed83a] shrink-0" />
+                    <Trophy className="w-4.5 h-4.5 text-[#FFB900] shrink-0" />
                     <span>Tournament Leaders</span>
                   </h2>
                 </div>
-                <Link to="/leaderboard" className="text-xs sm:text-sm font-label-bold text-[#00f2ff] hover:text-[#74f5ff] transition-colors flex items-center gap-1 uppercase whitespace-nowrap shrink-0 ml-2">
+                <Link to="/leaderboard" className="text-xs sm:text-sm font-label-bold text-[#FFB900] hover:text-[#FFC933] transition-colors flex items-center gap-1 uppercase whitespace-nowrap shrink-0 ml-2">
                   <span>View All</span>
                   <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                 </Link>
               </div>
 
-              <div className="bg-[#141416] rounded-none border border-[#27272a] p-2 xs:p-2.5 sm:p-3 pt-5 xs:pt-6 relative overflow-hidden shadow-md">
-                {/* Subtle Esports Ambient Glow & Arena Pattern */}
-                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,rgba(0,242,255,0.06),transparent_70%)]"></div>
+              <div className="bg-[#111215] rounded-none border border-[#27272A] p-2 xs:p-2.5 sm:p-3 pt-5 xs:pt-6 relative overflow-hidden shadow-md">
+                {/* Subtle Arena Pattern */}
                 <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:14px_14px]"></div>
 
                 {topPlayers.length === 0 ? (
                   <div className="py-7 flex flex-col items-center justify-center text-center space-y-2 relative z-10">
-                    <Trophy className="w-7 h-7 text-[#27272a] shrink-0" />
+                    <Trophy className="w-7 h-7 text-[#27272A] shrink-0" />
                     <p className="text-xs font-bold text-white uppercase tracking-wider">Leaderboard Standings</p>
-                    <p className="text-[12px] text-[#849495] max-w-[220px] leading-relaxed">
+                    <p className="text-[12px] text-[#A1A1AA] max-w-[220px] leading-relaxed">
                       No match scores recorded yet. Results will appear here after tournament completion.
                     </p>
                   </div>
@@ -343,28 +341,28 @@ export default function Home() {
                       {
                         rank: 2,
                         player: topPlayers[1] || null,
-                        color: '#94a3b8',
-                        borderColor: 'border-[#94a3b8]/40 hover:border-[#94a3b8]/80',
-                        bgGradient: 'from-[#94a3b8]/15 via-[#1a1a1c] to-[#141416]',
-                        glow: 'shadow-[0_0_10px_rgba(148,163,184,0.12)]',
-                        badgeBg: 'bg-[#94a3b8]/20 border-[#94a3b8]',
-                        badgeText: 'text-[#94a3b8]',
+                        color: '#A1A1AA',
+                        borderColor: 'border-[#A1A1AA]/40 hover:border-[#A1A1AA]/80',
+                        bgGradient: 'from-[#A1A1AA]/10 via-[#18181B] to-[#111215]',
+                        glow: '',
+                        badgeBg: 'bg-[#A1A1AA]/20 border-[#A1A1AA]',
+                        badgeText: 'text-[#A1A1AA]',
                         trophyIcon: Medal,
-                        trophySize: 'w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#94a3b8]',
+                        trophySize: 'w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#A1A1AA]',
                         elevation: 'h-[168px] xs:h-[180px] sm:h-[195px]',
                         rankBadge: '#2',
                       },
                       {
                         rank: 1,
                         player: topPlayers[0] || null,
-                        color: '#fed83a',
-                        borderColor: 'border-[#fed83a]/70 hover:border-[#fed83a]',
-                        bgGradient: 'from-[#fed83a]/25 via-[#1f1d18] to-[#141416]',
-                        glow: 'shadow-[0_0_18px_rgba(254,216,58,0.22)] ring-1 ring-[#fed83a]/30',
-                        badgeBg: 'bg-[#fed83a]/25 border-[#fed83a]',
-                        badgeText: 'text-[#fed83a]',
+                        color: '#FFB900',
+                        borderColor: 'border-[#FFB900]/70 hover:border-[#FFB900]',
+                        bgGradient: 'from-[#FFB900]/15 via-[#18181B] to-[#111215]',
+                        glow: 'ring-1 ring-[#FFB900]/30',
+                        badgeBg: 'bg-[#FFB900]/25 border-[#FFB900]',
+                        badgeText: 'text-[#FFB900]',
                         trophyIcon: Crown,
-                        trophySize: 'w-4 h-4 sm:w-5 sm:h-5 text-[#fed83a] drop-shadow-[0_0_8px_rgba(254,216,58,0.6)]',
+                        trophySize: 'w-4 h-4 sm:w-5 sm:h-5 text-[#FFB900]',
                         elevation: 'h-[192px] xs:h-[206px] sm:h-[222px]',
                         rankBadge: '#1 WINNER',
                         isWinner: true,
@@ -372,14 +370,14 @@ export default function Home() {
                       {
                         rank: 3,
                         player: topPlayers[2] || null,
-                        color: '#ff5e07',
-                        borderColor: 'border-[#ff5e07]/40 hover:border-[#ff5e07]/80',
-                        bgGradient: 'from-[#ff5e07]/15 via-[#1a1818] to-[#141416]',
-                        glow: 'shadow-[0_0_10px_rgba(255,94,7,0.12)]',
-                        badgeBg: 'bg-[#ff5e07]/20 border-[#ff5e07]',
-                        badgeText: 'text-[#ff5e07]',
+                        color: '#FF8C00',
+                        borderColor: 'border-[#FF8C00]/40 hover:border-[#FF8C00]/80',
+                        bgGradient: 'from-[#FF8C00]/10 via-[#18181B] to-[#111215]',
+                        glow: '',
+                        badgeBg: 'bg-[#FF8C00]/20 border-[#FF8C00]',
+                        badgeText: 'text-[#FF8C00]',
                         trophyIcon: Medal,
-                        trophySize: 'w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ff5e07]',
+                        trophySize: 'w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FF8C00]',
                         elevation: 'h-[156px] xs:h-[168px] sm:h-[182px]',
                         rankBadge: '#3',
                       },
@@ -409,29 +407,28 @@ export default function Home() {
                             {p ? (
                               <>
                                 <h4
-                                  className={`font-headline font-bold text-[11px] xs:text-[12px] sm:text-[13px] text-white truncate max-w-full leading-tight ${slot.isWinner ? 'text-[#fed83a]' : ''}`}
+                                  className={`font-headline font-bold text-[11px] xs:text-[12px] sm:text-[13px] text-white truncate max-w-full leading-tight ${slot.isWinner ? 'text-[#FFB900]' : ''}`}
                                   title={p.player}
                                 >
                                   {p.player}
                                 </h4>
-                                <p className="text-[9px] xs:text-[9.5px] sm:text-[10px] text-[#849495] font-mono truncate max-w-full mt-0.5">
+                                <p className="text-[9px] xs:text-[9.5px] sm:text-[10px] text-[#A1A1AA] font-mono truncate max-w-full mt-0.5">
                                   {p.team || (p.uid ? `UID:${p.uid.slice(0, 6)}` : '—')}
                                 </p>
                               </>
                             ) : (
-                              <div className="text-[10px] xs:text-[11px] text-[#849495] italic">Open Slot</div>
+                              <div className="text-[10px] xs:text-[11px] text-[#A1A1AA] italic">Open Slot</div>
                             )}
                           </div>
 
                           {/* Bottom Metrics: Kills • PTS + Payout */}
-                          <div className="w-full pt-1 border-t border-[#27272a]/60 flex flex-col items-center shrink-0">
+                          <div className="w-full pt-1 border-t border-[#27272A]/60 flex flex-col items-center shrink-0">
                             <span className="text-[9px] xs:text-[9.5px] sm:text-[10px] text-white font-mono font-bold tracking-tight truncate max-w-full">
                               {p ? `${p.kills} KILLS • ${p.points} PTS` : '0 KILLS • 0 PTS'}
                             </span>
                             {slot.isWinner && (
                               <span
-                                className="font-headline font-black text-[10px] xs:text-[10.5px] sm:text-[11px] leading-tight mt-0.5"
-                                style={{ color: slot.color }}
+                                className="font-headline font-black text-[10px] xs:text-[10.5px] sm:text-[11px] leading-tight mt-0.5 text-[#FFB900]"
                               >
                                 {p && p.earnings > 0 ? `₹${p.earnings.toLocaleString('en-IN')} EARNED` : `${p ? p.points : 0} PTS`}
                               </span>

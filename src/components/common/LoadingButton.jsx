@@ -31,17 +31,17 @@ export default function LoadingButton({
 
   const variantStyles = {
     primary:
-      'bg-[#FFB900] hover:bg-[#FFA500] active:bg-[#E5A700] text-[#000000] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(255,185,0,0.35)] hover:shadow-[0_0_24px_rgba(255,185,0,0.5)] transition-all',
+      'bg-[#FFB900] hover:bg-[#FFC933] active:bg-[#E5A700] text-[#000000] font-headline font-bold uppercase tracking-wider transition-all',
     secondary:
-      'bg-[#FF6200] hover:bg-[#FF771F] active:bg-[#E55800] text-[#FFFFFF] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(255,98,0,0.35)] hover:shadow-[0_0_24px_rgba(255,98,0,0.5)] transition-all',
+      'bg-[#FF8C00] hover:bg-[#FFA033] active:bg-[#E57D00] text-[#000000] font-headline font-bold uppercase tracking-wider transition-all',
     outline:
-      'bg-[#111318] hover:bg-[#1B1B1F] border border-[#2A2A30] hover:border-[#FFB900] text-[#FFFFFF] hover:text-[#FFB900] font-headline font-semibold uppercase tracking-wider transition-all',
+      'bg-[#111215] hover:bg-[#18181B] border border-[#27272A] hover:border-[#FFB900] text-[#FFFFFF] hover:text-[#FFB900] font-headline font-semibold uppercase tracking-wider transition-all',
     ghost:
       'bg-transparent hover:bg-[#FFB900]/10 text-[#FFB900] font-headline font-semibold uppercase tracking-wider transition-all',
     danger:
-      'bg-[#FF0000]/15 hover:bg-[#FF0000]/25 border border-[#FF0000] text-[#FF0000] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(255,0,0,0.3)] transition-all',
+      'bg-[#ef4444]/15 hover:bg-[#ef4444]/25 border border-[#ef4444] text-[#ef4444] font-headline font-bold uppercase tracking-wider transition-all',
     emerald:
-      'bg-[#10b981] hover:bg-[#34d399] active:bg-[#059669] text-[#003622] font-headline font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all',
+      'bg-[#10b981] hover:bg-[#34d399] active:bg-[#059669] text-[#000000] font-headline font-bold uppercase tracking-wider transition-all',
   }
 
   const defaultSpinnerVariant =

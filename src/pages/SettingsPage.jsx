@@ -123,9 +123,9 @@ export default function SettingsPage() {
     if (/[0-9]/.test(newPassword)) score += 1
     if (/[^A-Za-z0-9]/.test(newPassword)) score += 1
 
-    if (score <= 2) return { width: '33%', label: 'Weak', color: 'bg-[#ff3366]' }
-    if (score <= 4) return { width: '66%', label: 'Medium', color: 'bg-[#fe6b00]' }
-    return { width: '100%', label: 'Strong', color: 'bg-[#00ff9d]' }
+    if (score <= 2) return { width: '33%', label: 'Weak', color: 'bg-[#EF4444]' }
+    if (score <= 4) return { width: '66%', label: 'Medium', color: 'bg-[#FF8C00]' }
+    return { width: '100%', label: 'Strong', color: 'bg-[#10B981]' }
   }, [newPassword])
 
   // Real Password Change Handler via Supabase Auth
@@ -172,7 +172,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="bg-[#08080a] text-[#b9cacb] font-body min-h-screen pb-28 sm:pb-32 antialiased text-xs overflow-x-hidden">
+    <div className="bg-[#000000] text-[#A1A1AA] font-body min-h-screen pb-28 sm:pb-32 antialiased text-xs overflow-x-hidden">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-6 sm:space-y-8 font-mono">
 
         {/* ================================================== */}
@@ -182,23 +182,23 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between">
             <Link
               to="/profile"
-              className="inline-flex items-center gap-1.5 text-xs text-[#8e95a5] hover:text-[#00f2ff] transition-colors group cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs text-[#A1A1AA] hover:text-[#FFB900] transition-colors group cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
               <span>Return to Profile</span>
             </Link>
 
-            <span className="px-2.5 py-1 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-bold text-[#fe6b00] tracking-wider uppercase">
+            <span className="px-2.5 py-1 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-bold text-[#FF8C00] tracking-wider uppercase">
               FREE FIRE MAX ONLY
             </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-[#1f2230] pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-[#27272A] pb-4">
             <div className="space-y-1">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight uppercase">
                 PLAYER DOSSIER
               </h1>
-              <p className="text-xs text-[#8e95a5] font-sans">
+              <p className="text-xs text-[#A1A1AA] font-sans">
                 ACCOUNT & PREFERENCES
               </p>
             </div>
@@ -210,21 +210,21 @@ export default function SettingsPage() {
         {/* ================================================== */}
         <section
           aria-label="Player Identity Strip"
-          className="p-4 sm:p-5 rounded-none bg-[#0d0e15] border border-[#1f2230] shadow-[0_4px_25px_rgba(0,0,0,0.3)] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          className="p-4 sm:p-5 rounded-none bg-[#111215] border border-[#27272A] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
         >
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="relative shrink-0">
               <img
                 src={avatarUrl}
                 alt={displayName}
-                className="w-12 h-12 rounded-none object-cover border border-[#1f2230]"
+                className="w-12 h-12 rounded-none object-cover border border-[#27272A]"
               />
               {isVerified && (
                 <div
                   title="Authoritative Verified Player"
-                  className="absolute -bottom-1 -right-1 p-0.5 bg-[#08080a] rounded-none"
+                  className="absolute -bottom-1 -right-1 p-0.5 bg-[#000000] rounded-none"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-[#00ff9d] fill-[#08080a]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#10B981] fill-[#000000]" />
                 </div>
               )}
             </div>
@@ -236,21 +236,21 @@ export default function SettingsPage() {
                 </h2>
 
                 {isVerified && (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
                     <ShieldCheck className="w-2.5 h-2.5" />
                     <span>VERIFIED</span>
                   </span>
                 )}
 
                 {isPro && (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#fe6b00]/15 text-[#fe6b00] border border-[#fe6b00]/30">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#FF8C00]/15 text-[#FF8C00] border border-[#FF8C00]/30">
                     <Zap className="w-2.5 h-2.5" />
                     <span>PRO</span>
                   </span>
                 )}
               </div>
 
-              <div className="flex items-center gap-2 text-[10px] text-[#8e95a5] font-mono">
+              <div className="flex items-center gap-2 text-[10px] text-[#A1A1AA] font-mono">
                 <span>FF MAX UID: {freeFireUid || 'Not registered'}</span>
                 <span>&bull;</span>
                 <span className="truncate max-w-[150px]">{emailAddress}</span>
@@ -260,7 +260,7 @@ export default function SettingsPage() {
 
           <Link
             to="/profile/edit"
-            className="self-start sm:self-auto px-4 py-2 rounded-none bg-[#141620] hover:bg-[#1a1d29] text-white hover:text-[#00f2ff] border border-[#222638] hover:border-[#00f2ff]/40 font-bold uppercase tracking-wider text-xs transition-all flex items-center gap-2 cursor-pointer shrink-0"
+            className="self-start sm:self-auto px-4 py-2 rounded-none bg-[#18181B] hover:bg-[#27272A] text-white hover:text-[#FFB900] border border-[#27272A] hover:border-[#FFB900]/40 font-bold uppercase tracking-wider text-xs transition-all flex items-center gap-2 cursor-pointer shrink-0"
           >
             <span>Edit Profile</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -294,9 +294,9 @@ export default function SettingsPage() {
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-none transition-all text-left font-bold cursor-pointer border ${
                     isSelected
                       ? tab.danger
-                        ? 'bg-[#ff3366]/10 text-[#ff3366] border-[#ff3366]/40 shadow-lg'
-                        : 'bg-[#00f2ff] text-[#08080a] border-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.25)] font-black'
-                      : 'bg-[#0d0e15] text-[#8e95a5] hover:text-white hover:bg-[#141620] border-[#1f2230]'
+                        ? 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/40 shadow-none'
+                        : 'bg-[#FFB900] text-black border-[#FFB900] shadow-none font-black'
+                      : 'bg-[#111215] text-[#A1A1AA] hover:text-white hover:bg-[#18181B] border-[#27272A]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -310,61 +310,61 @@ export default function SettingsPage() {
           </nav>
 
           {/* Settings Content Area */}
-          <div className="lg:col-span-8 bg-[#0d0e15] rounded-none p-5 sm:p-7 border border-[#1f2230] shadow-xl space-y-6">
+          <div className="lg:col-span-8 bg-[#111215] rounded-none p-5 sm:p-7 border border-[#27272A] shadow-none space-y-6">
 
             {/* TAB 1: GENERAL INFO */}
             {activeTab === 'general' && (
               <div className="space-y-6">
-                <div className="border-b border-[#1f2230] pb-4">
+                <div className="border-b border-[#27272A] pb-4">
                   <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <User className="w-4 h-4 text-[#00f2ff]" />
+                    <User className="w-4 h-4 text-[#FFB900]" />
                     <span>GENERAL INFO</span>
                   </h2>
-                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                  <p className="text-xs text-[#A1A1AA] font-sans mt-0.5">
                     Core identity, Free Fire MAX game ID, and contact data.
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                    <span className="text-[10px] text-[#A1A1AA] uppercase font-bold block">
                       DISPLAY NAME
                     </span>
-                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-none text-xs text-white font-mono flex items-center justify-between">
+                    <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white font-mono flex items-center justify-between">
                       <span>{displayName}</span>
-                      <span className="text-[10px] text-[#717a8e] font-sans">Synced from Profile</span>
+                      <span className="text-[10px] text-[#A1A1AA] font-sans">Synced from Profile</span>
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                    <span className="text-[10px] text-[#A1A1AA] uppercase font-bold block">
                       EMAIL ADDRESS (READ ONLY)
                     </span>
-                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-none text-xs text-[#8e95a5] font-mono flex items-center justify-between">
+                    <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-[#A1A1AA] font-mono flex items-center justify-between">
                       <span>{emailAddress}</span>
-                      <span className="text-[9.5px] px-1.5 py-0.5 rounded-none bg-[#08080a] border border-[#222638] text-[#717a8e] uppercase font-bold">
+                      <span className="text-[9.5px] px-1.5 py-0.5 rounded-none bg-[#000000] border border-[#27272A] text-[#A1A1AA] uppercase font-bold">
                         Read Only
                       </span>
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                    <span className="text-[10px] text-[#A1A1AA] uppercase font-bold block">
                       PHONE NUMBER
                     </span>
-                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-none text-xs text-white font-mono flex items-center justify-between">
+                    <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white font-mono flex items-center justify-between">
                       <span>{phoneNumber ? `+91 ${phoneNumber}` : 'Not linked'}</span>
-                      <span className="text-[10px] text-[#717a8e] font-sans">WhatsApp Contact</span>
+                      <span className="text-[10px] text-[#A1A1AA] font-sans">WhatsApp Contact</span>
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                    <span className="text-[10px] text-[#A1A1AA] uppercase font-bold block">
                       FREE FIRE MAX UID
                     </span>
-                    <div className="p-3 bg-[#141620] border border-[#222638] rounded-none text-xs text-white font-mono flex items-center justify-between">
-                      <span className="font-bold text-[#00f2ff]">{freeFireUid || 'Not registered'}</span>
-                      <span className="text-[9.5px] px-2 py-0.5 rounded-none bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/30 font-bold uppercase">
+                    <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white font-mono flex items-center justify-between">
+                      <span className="font-bold text-[#FFB900]">{freeFireUid || 'Not registered'}</span>
+                      <span className="text-[9.5px] px-2 py-0.5 rounded-none bg-[#FF8C00]/10 text-[#FF8C00] border border-[#FF8C00]/30 font-bold uppercase">
                         FF MAX ONLY
                       </span>
                     </div>
@@ -373,7 +373,7 @@ export default function SettingsPage() {
                   <div className="pt-2">
                     <Link
                       to="/profile/edit"
-                      className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black rounded-none text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(0,242,255,0.25)] cursor-pointer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#FFB900] hover:bg-[#FFC933] text-black font-black rounded-none text-xs uppercase tracking-wider transition-all shadow-none cursor-pointer"
                     >
                       <span>Edit in Profile Center</span>
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -386,12 +386,12 @@ export default function SettingsPage() {
             {/* TAB 2: SECURITY & AUTH */}
             {activeTab === 'security' && (
               <div className="space-y-6">
-                <div className="border-b border-[#1f2230] pb-4">
+                <div className="border-b border-[#27272A] pb-4">
                   <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-[#00f2ff]" />
+                    <Lock className="w-4 h-4 text-[#FFB900]" />
                     <span>SECURITY & AUTH</span>
                   </h2>
-                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                  <p className="text-xs text-[#A1A1AA] font-sans mt-0.5">
                     Password credentials and session protection.
                   </p>
                 </div>
@@ -403,7 +403,7 @@ export default function SettingsPage() {
                   </h3>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                    <label className="text-[10px] text-[#A1A1AA] uppercase font-bold block">
                       New Password *
                     </label>
                     <div className="relative">
@@ -413,12 +413,12 @@ export default function SettingsPage() {
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="Minimum 6 characters"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-none pl-3.5 pr-10 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono"
+                        className="w-full bg-[#18181B] border border-[#27272A] rounded-none pl-3.5 pr-10 py-2.5 text-xs text-white focus:border-[#FFB900] focus:outline-none font-mono"
                       />
                       <button
                         type="button"
                         onClick={() => setShowNewPassword((prev) => !prev)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8e95a5] hover:text-[#00f2ff] cursor-pointer"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#FFB900] cursor-pointer"
                       >
                         {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
@@ -427,12 +427,12 @@ export default function SettingsPage() {
                     {newPassword && (
                       <div className="space-y-1 pt-1">
                         <div className="flex justify-between items-center text-[10px]">
-                          <span className="text-[#8e95a5]">Strength:</span>
-                          <span className={`font-bold ${passwordStrength.label === 'Strong' ? 'text-[#00ff9d]' : passwordStrength.label === 'Medium' ? 'text-[#fe6b00]' : 'text-[#ff3366]'}`}>
+                          <span className="text-[#A1A1AA]">Strength:</span>
+                          <span className={`font-bold ${passwordStrength.label === 'Strong' ? 'text-[#10B981]' : passwordStrength.label === 'Medium' ? 'text-[#FF8C00]' : 'text-[#EF4444]'}`}>
                             {passwordStrength.label}
                           </span>
                         </div>
-                        <div className="w-full bg-[#141620] h-1.5 rounded-none overflow-hidden border border-[#222638]">
+                        <div className="w-full bg-[#18181B] h-1.5 rounded-none overflow-hidden border border-[#27272A]">
                           <div className={`h-full transition-all duration-300 ${passwordStrength.color}`} style={{ width: passwordStrength.width }}></div>
                         </div>
                       </div>
@@ -440,7 +440,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] text-[#8e95a5] uppercase font-bold block">
+                    <label className="text-[10px] text-[#A1A1AA] uppercase font-bold block">
                       Confirm New Password *
                     </label>
                     <div className="relative">
@@ -450,12 +450,12 @@ export default function SettingsPage() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Re-enter new password"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-none pl-3.5 pr-10 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono"
+                        className="w-full bg-[#18181B] border border-[#27272A] rounded-none pl-3.5 pr-10 py-2.5 text-xs text-white focus:border-[#FFB900] focus:outline-none font-mono"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword((prev) => !prev)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8e95a5] hover:text-[#00f2ff] cursor-pointer"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#FFB900] cursor-pointer"
                       >
                         {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
@@ -465,23 +465,23 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={isChangingPassword}
-                    className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black rounded-none text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(0,242,255,0.25)] cursor-pointer disabled:opacity-50"
+                    className="px-5 py-2.5 bg-[#FFB900] hover:bg-[#FFC933] text-black font-black rounded-none text-xs uppercase tracking-wider transition-all shadow-none cursor-pointer disabled:opacity-50"
                   >
                     {isChangingPassword ? 'Updating...' : 'Update Password'}
                   </button>
                 </form>
 
                 {/* Two-Factor Auth (Truthful Coming Soon) */}
-                <div className="pt-6 border-t border-[#1f2230] space-y-4">
-                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
+                <div className="pt-6 border-t border-[#27272A] space-y-4">
+                  <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-white uppercase">TWO-FACTOR AUTH (2FA)</span>
-                        <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#fe6b00]/15 text-[#fe6b00] border border-[#fe6b00]/30">
+                        <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#FF8C00]/15 text-[#FF8C00] border border-[#FF8C00]/30">
                           COMING SOON
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#8e95a5] font-sans">
+                      <p className="text-[11px] text-[#A1A1AA] font-sans">
                         TOTP mobile authenticator verification is scheduled for an upcoming security release.
                       </p>
                     </div>
@@ -489,7 +489,7 @@ export default function SettingsPage() {
                     <button
                       type="button"
                       disabled
-                      className="px-3 py-1.5 rounded-none bg-[#08080a] text-[#525866] border border-[#222638] text-xs font-bold uppercase cursor-not-allowed opacity-60"
+                      className="px-3 py-1.5 rounded-none bg-[#000000] text-[#71717A] border border-[#27272A] text-xs font-bold uppercase cursor-not-allowed opacity-60"
                     >
                       Disabled
                     </button>
@@ -501,18 +501,18 @@ export default function SettingsPage() {
                       <span className="text-xs font-bold text-white uppercase tracking-wider">
                         ACTIVE SESSIONS
                       </span>
-                      <span className="text-[10px] text-[#00ff9d] font-mono font-bold flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-none bg-[#00ff9d] animate-pulse"></span>
+                      <span className="text-[10px] text-[#10B981] font-mono font-bold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-none bg-[#10B981] animate-pulse"></span>
                         <span>Current Session Active</span>
                       </span>
                     </div>
 
-                    <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-3">
+                    <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <Smartphone className="w-5 h-5 text-[#00f2ff] shrink-0" />
+                        <Smartphone className="w-5 h-5 text-[#FFB900] shrink-0" />
                         <div>
                           <span className="text-xs font-bold text-white block">This Device</span>
-                          <span className="text-[10px] text-[#8e95a5] font-mono block">
+                          <span className="text-[10px] text-[#A1A1AA] font-mono block">
                             Authenticated via Supabase Session
                           </span>
                         </div>
@@ -521,16 +521,16 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={handleSignOutCurrentDevice}
-                        className="px-3 py-1.5 bg-[#1f2230] hover:bg-red-950/40 text-[#f87171] border border-red-900/40 rounded-none text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5"
+                        className="px-3 py-1.5 bg-[#27272A] hover:bg-red-950/40 text-red-400 border border-red-900/40 rounded-none text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5"
                       >
                         <LogOut className="w-3.5 h-3.5" />
                         <span>Sign Out</span>
                       </button>
                     </div>
 
-                    <div className="p-3 bg-[#141620]/60 rounded-none border border-[#222638] flex items-center justify-between text-[11px]">
-                      <span className="text-[#8e95a5] font-sans">Remote multi-session revocation (Logout All Devices)</span>
-                      <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#222638] text-[#8e95a5]">
+                    <div className="p-3 bg-[#18181B]/60 rounded-none border border-[#27272A] flex items-center justify-between text-[11px]">
+                      <span className="text-[#A1A1AA] font-sans">Remote multi-session revocation (Logout All Devices)</span>
+                      <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#27272A] text-[#A1A1AA]">
                         COMING SOON
                       </span>
                     </div>
@@ -542,18 +542,18 @@ export default function SettingsPage() {
             {/* TAB 3: NOTIFICATIONS */}
             {activeTab === 'notifications' && (
               <div className="space-y-6">
-                <div className="border-b border-[#1f2230] pb-4">
+                <div className="border-b border-[#27272A] pb-4">
                   <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <Bell className="w-4 h-4 text-[#00f2ff]" />
+                    <Bell className="w-4 h-4 text-[#FFB900]" />
                     <span>NOTIFICATION PREFERENCES</span>
                   </h2>
-                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                  <p className="text-xs text-[#A1A1AA] font-sans mt-0.5">
                     Live match reminders, slot alerts, and competitive telemetry.
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-none border border-[#00f2ff]/20 bg-[#00f2ff]/5 text-xs text-[#8e95a5] font-sans flex items-start gap-2.5">
-                  <Info className="w-4 h-4 text-[#00f2ff] shrink-0 mt-0.5" />
+                <div className="p-3.5 rounded-none border border-[#FFB900]/20 bg-[#FFB900]/5 text-xs text-[#A1A1AA] font-sans flex items-start gap-2.5">
+                  <Info className="w-4 h-4 text-[#FFB900] shrink-0 mt-0.5" />
                   <span>
                     Real-time match alerts and tournament announcements are currently published in the in-app notification center. Granular push and email preference toggles are coming soon.
                   </span>
@@ -569,14 +569,14 @@ export default function SettingsPage() {
                   ].map((item) => (
                     <div
                       key={item.title}
-                      className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4"
+                      className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4"
                     >
                       <div className="space-y-0.5">
                         <span className="text-xs font-bold text-white block">{item.title}</span>
-                        <span className="text-[10px] text-[#8e95a5] font-sans block">{item.desc}</span>
+                        <span className="text-[10px] text-[#A1A1AA] font-sans block">{item.desc}</span>
                       </div>
 
-                      <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                      <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#000000] text-[#A1A1AA] border border-[#27272A] shrink-0">
                         COMING SOON
                       </span>
                     </div>
@@ -588,49 +588,49 @@ export default function SettingsPage() {
             {/* TAB 4: PRIVACY */}
             {activeTab === 'privacy' && (
               <div className="space-y-6">
-                <div className="border-b border-[#1f2230] pb-4">
+                <div className="border-b border-[#27272A] pb-4">
                   <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-[#00f2ff]" />
+                    <Shield className="w-4 h-4 text-[#FFB900]" />
                     <span>PRIVACY & VISIBILITY</span>
                   </h2>
-                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                  <p className="text-xs text-[#A1A1AA] font-sans mt-0.5">
                     Esports profile accessibility and public telemetry controls.
                   </p>
                 </div>
 
                 <div className="space-y-4 font-mono">
-                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-white uppercase">Profile Visibility</span>
-                        <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                        <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
                           PUBLIC (ACTIVE)
                         </span>
                       </div>
-                      <p className="text-[10px] text-[#8e95a5] font-sans">
+                      <p className="text-[10px] text-[#A1A1AA] font-sans">
                         Tournament leaderboards, match placements, and verified IGN are publicly visible to competitors.
                       </p>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#000000] text-[#A1A1AA] border border-[#27272A] shrink-0">
                       COMING SOON
                     </span>
                   </div>
 
-                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-white uppercase">Match Telemetry & Stats</span>
-                        <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                        <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold uppercase bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
                           PUBLIC (ACTIVE)
                         </span>
                       </div>
-                      <p className="text-[10px] text-[#8e95a5] font-sans">
+                      <p className="text-[10px] text-[#A1A1AA] font-sans">
                         Win rates and confirmed kill records are publicly auditable for competitive integrity.
                       </p>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#000000] text-[#A1A1AA] border border-[#27272A] shrink-0">
                       COMING SOON
                     </span>
                   </div>
@@ -641,41 +641,41 @@ export default function SettingsPage() {
             {/* TAB 5: APP PREFERENCES */}
             {activeTab === 'preferences' && (
               <div className="space-y-6">
-                <div className="border-b border-[#1f2230] pb-4">
+                <div className="border-b border-[#27272A] pb-4">
                   <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <Sliders className="w-4 h-4 text-[#00f2ff]" />
+                    <Sliders className="w-4 h-4 text-[#FFB900]" />
                     <span>APP PREFERENCES</span>
                   </h2>
-                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                  <p className="text-xs text-[#A1A1AA] font-sans mt-0.5">
                     Platform language and game ecosystem settings.
                   </p>
                 </div>
 
                 <div className="space-y-4 font-mono">
                   {/* Language */}
-                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white uppercase block">Platform Language</span>
-                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                      <span className="text-[10px] text-[#A1A1AA] font-sans block">
                         English (US) is the primary supported platform language.
                       </span>
                     </div>
 
-                    <span className="px-2.5 py-1 rounded-none bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-xs font-bold uppercase">
+                    <span className="px-2.5 py-1 rounded-none bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30 text-xs font-bold uppercase">
                       English (US)
                     </span>
                   </div>
 
                   {/* Dedicated Game */}
-                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white uppercase block">Dedicated Platform Game</span>
-                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                      <span className="text-[10px] text-[#A1A1AA] font-sans block">
                         MJ ESPORTS is exclusively optimized for Free Fire MAX.
                       </span>
                     </div>
 
-                    <span className="px-2.5 py-1 rounded-none bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/30 text-xs font-bold uppercase">
+                    <span className="px-2.5 py-1 rounded-none bg-[#FF8C00]/10 text-[#FF8C00] border border-[#FF8C00]/30 text-xs font-bold uppercase">
                       FREE FIRE MAX
                     </span>
                   </div>
@@ -686,75 +686,75 @@ export default function SettingsPage() {
             {/* TAB 6: LINKED ACCOUNTS */}
             {activeTab === 'linked' && (
               <div className="space-y-6">
-                <div className="border-b border-[#1f2230] pb-4">
+                <div className="border-b border-[#27272A] pb-4">
                   <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <Link2 className="w-4 h-4 text-[#00f2ff]" />
+                    <Link2 className="w-4 h-4 text-[#FFB900]" />
                     <span>LINKED ACCOUNTS</span>
                   </h2>
-                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                  <p className="text-xs text-[#A1A1AA] font-sans mt-0.5">
                     Connected authentication identities and social platforms.
                   </p>
                 </div>
 
                 <div className="space-y-3 font-mono">
                   {/* Google */}
-                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white block">Google</span>
-                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                      <span className="text-[10px] text-[#A1A1AA] font-sans block">
                         Single Sign-On authentication via Google OAuth.
                       </span>
                     </div>
 
                     {isGoogleLinked ? (
-                      <span className="px-2.5 py-1 rounded-none bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 text-xs font-bold uppercase">
+                      <span className="px-2.5 py-1 rounded-none bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30 text-xs font-bold uppercase">
                         CONNECTED
                       </span>
                     ) : (
-                      <span className="px-2.5 py-1 rounded-none bg-[#08080a] text-[#8e95a5] border border-[#222638] text-xs font-bold uppercase">
+                      <span className="px-2.5 py-1 rounded-none bg-[#000000] text-[#A1A1AA] border border-[#27272A] text-xs font-bold uppercase">
                         NOT CONNECTED
                       </span>
                     )}
                   </div>
 
                   {/* Discord */}
-                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white block">Discord</span>
-                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                      <span className="text-[10px] text-[#A1A1AA] font-sans block">
                         Tournament room voice channels and role verification.
                       </span>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#000000] text-[#A1A1AA] border border-[#27272A] shrink-0">
                       COMING SOON
                     </span>
                   </div>
 
                   {/* YouTube */}
-                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white block">YouTube</span>
-                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                      <span className="text-[10px] text-[#A1A1AA] font-sans block">
                         Creator channel highlights and broadcast links.
                       </span>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#000000] text-[#A1A1AA] border border-[#27272A] shrink-0">
                       COMING SOON
                     </span>
                   </div>
 
                   {/* X / Twitter */}
-                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white block">X (Twitter)</span>
-                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                      <span className="text-[10px] text-[#A1A1AA] font-sans block">
                         Competitive announcements and social mentions.
                       </span>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#000000] text-[#A1A1AA] border border-[#27272A] shrink-0">
                       COMING SOON
                     </span>
                   </div>
@@ -765,27 +765,27 @@ export default function SettingsPage() {
             {/* TAB 7: DANGER ZONE */}
             {activeTab === 'danger' && (
               <div className="space-y-6">
-                <div className="border-b border-[#ff3366]/20 pb-4">
-                  <h2 className="text-sm sm:text-base font-bold text-[#ff3366] uppercase tracking-wider flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-[#ff3366]" />
+                <div className="border-b border-[#EF4444]/20 pb-4">
+                  <h2 className="text-sm sm:text-base font-bold text-[#EF4444] uppercase tracking-wider flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-[#EF4444]" />
                     <span>DANGER ZONE</span>
                   </h2>
-                  <p className="text-xs text-[#8e95a5] font-sans mt-0.5">
+                  <p className="text-xs text-[#A1A1AA] font-sans mt-0.5">
                     Irreversible account procedures and data compliance archives.
                   </p>
                 </div>
 
                 <div className="space-y-4 font-mono">
                   {/* Export My Data */}
-                  <div className="p-4 bg-[#141620] rounded-none border border-[#222638] flex items-center justify-between gap-4">
+                  <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white uppercase block">Export My Data</span>
-                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                      <span className="text-[10px] text-[#A1A1AA] font-sans block">
                         Automated GDPR/compliance data archives are scheduled for a future update. Contact support for immediate data exports.
                       </span>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#08080a] text-[#8e95a5] border border-[#222638] shrink-0">
+                    <span className="px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#000000] text-[#A1A1AA] border border-[#27272A] shrink-0">
                       COMING SOON
                     </span>
                   </div>
@@ -793,15 +793,15 @@ export default function SettingsPage() {
                   {/* Delete Account */}
                   <div className="p-4 bg-red-950/20 rounded-none border border-red-900/40 flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
-                      <span className="text-xs font-bold text-[#ff3366] uppercase block">Delete Account</span>
-                      <span className="text-[10px] text-[#8e95a5] font-sans block">
+                      <span className="text-xs font-bold text-[#EF4444] uppercase block">Delete Account</span>
+                      <span className="text-[10px] text-[#A1A1AA] font-sans block">
                         Account termination requires identity and wallet balance review. Please contact support.
                       </span>
                     </div>
 
                     <a
                       href="mailto:mjesports.team@gmail.com?subject=Account%20Deletion%20Request"
-                      className="px-3 py-1.5 bg-[#ff3366]/20 hover:bg-[#ff3366]/30 text-[#ff3366] border border-[#ff3366]/40 rounded-none text-xs font-bold uppercase transition-all cursor-pointer shrink-0"
+                      className="px-3 py-1.5 bg-[#EF4444]/20 hover:bg-[#EF4444]/30 text-[#EF4444] border border-[#EF4444]/40 rounded-none text-xs font-bold uppercase transition-all cursor-pointer shrink-0"
                     >
                       Contact Support
                     </a>

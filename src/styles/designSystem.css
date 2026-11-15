@@ -4,47 +4,47 @@
 */
 
 :root {
-  /* Surfaces & Canvas Elevation (Free Fire MAX Depth) */
+  /* Surfaces & Canvas Elevation (Black & Clean Dark Surfaces) */
   --color-background-deep: #000000;
-  --color-surface: #111318;
-  --color-surface-dim: #0a0b0e;
-  --color-surface-bright: #22252e;
+  --color-surface: #111215;
+  --color-surface-dim: #000000;
+  --color-surface-bright: #18181b;
   --color-surface-container-lowest: #000000;
-  --color-surface-container-low: #0c0d11;
-  --color-surface-container: #111318;
-  --color-surface-container-high: #1b1b1f;
-  --color-surface-container-highest: #26272e;
-  --color-surface-elevated: #1b1b1f;
-  --color-surface-stroke: #2a2a30;
+  --color-surface-container-low: #000000;
+  --color-surface-container: #111215;
+  --color-surface-container-high: #18181b;
+  --color-surface-container-highest: #27272a;
+  --color-surface-elevated: #18181b;
+  --color-surface-stroke: #27272a;
 
-  /* Primary Brand Accent (Amber #FFB900) */
+  /* Primary Brand Accent (Yellow #FFB900) */
   --color-primary: #ffb900;
   --color-on-primary: #000000;
   --color-primary-container: #ffb900;
-  --color-on-primary-container: #3d2c00;
+  --color-on-primary-container: #000000;
   --color-primary-fixed: #ffc933;
   --color-primary-fixed-dim: #e6a700;
 
-  /* Secondary Brand Accent (Fire Orange #FF6200) */
-  --color-secondary: #ff6200;
+  /* Secondary Brand Accent (Orange #FF8C00) */
+  --color-secondary: #ff8c00;
   --color-on-secondary: #000000;
-  --color-secondary-container: #ff6200;
-  --color-on-secondary-container: #471900;
-  --color-action-orange: #ff6200;
+  --color-secondary-container: #ff8c00;
+  --color-on-secondary-container: #000000;
+  --color-action-orange: #ff8c00;
 
   /* Status & Functional Accents */
-  --color-tertiary: #ff9100;
-  --color-tertiary-container: #ff9100;
+  --color-tertiary: #ff8c00;
+  --color-tertiary-container: #ff8c00;
   --color-success: #10b981;
   --color-warning: #ffb900;
-  --color-error: #ff0000;
+  --color-error: #ef4444;
   --color-error-container: #7f0000;
 
   /* Neutrals & Borders */
   --color-on-surface: #ffffff;
-  --color-on-surface-variant: #a3a3a3;
-  --color-outline: #525252;
-  --color-outline-variant: #262626;
+  --color-on-surface-variant: #a1a1aa;
+  --color-outline: #27272a;
+  --color-outline-variant: #27272a;
 
   /* Typography Fonts */
   --font-headline: 'Hanken Grotesk', 'Geist', system-ui, -apple-system, sans-serif;
@@ -63,10 +63,10 @@
   --radius-full: 0px;
   --radius: 0px;
 
-  /* Ambient Shadows & Glows */
-  --shadow-ambient: 0px 8px 24px rgba(0, 0, 0, 0.8);
-  --shadow-amber-glow: 0px 0px 16px rgba(255, 185, 0, 0.35);
-  --shadow-orange-glow: 0px 0px 16px rgba(255, 98, 0, 0.35);
+  /* Ambient Shadows & Zero Glow */
+  --shadow-ambient: 0px 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-amber-glow: none;
+  --shadow-orange-glow: none;
 
   /* Micro-animations & Easing */
   --ease-stitch: cubic-bezier(0.16, 1, 0.3, 1);
@@ -224,7 +224,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* Reusable Stitch Buttons */
+/* Reusable Stitch Buttons (Clean Zero-Glow Aesthetic) */
 .btn-stitch-primary {
   background-color: var(--color-primary-container);
   color: var(--color-on-primary);
@@ -236,7 +236,7 @@ body {
   border-radius: 0px !important;
   padding: 0.625rem 1.25rem;
   transition: all var(--duration-fast) var(--ease-stitch);
-  box-shadow: var(--shadow-amber-glow);
+  box-shadow: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -248,7 +248,7 @@ body {
 .btn-stitch-primary:hover:not(:disabled) {
   background-color: var(--color-primary-fixed);
   transform: translateY(-1px);
-  box-shadow: 0 0 24px rgba(255, 185, 0, 0.5);
+  box-shadow: none;
 }
 
 .btn-stitch-secondary {
@@ -262,7 +262,7 @@ body {
   border-radius: 0px !important;
   padding: 0.625rem 1.25rem;
   transition: all var(--duration-fast) var(--ease-stitch);
-  box-shadow: var(--shadow-orange-glow);
+  box-shadow: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -272,9 +272,9 @@ body {
 }
 
 .btn-stitch-secondary:hover:not(:disabled) {
-  background-color: #ff7d2b;
+  background-color: var(--color-secondary-fixed);
   transform: translateY(-1px);
-  box-shadow: 0 0 24px rgba(255, 98, 0, 0.5);
+  box-shadow: none;
 }
 
 .btn-stitch-outline {
@@ -345,7 +345,7 @@ body {
 
 .input-stitch:focus {
   border-color: var(--color-primary-container);
-  box-shadow: 0 0 12px rgba(255, 185, 0, 0.25);
+  box-shadow: none;
 }
 
 .input-stitch::placeholder {

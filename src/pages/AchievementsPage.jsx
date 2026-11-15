@@ -174,7 +174,7 @@ export default function AchievementsPage() {
         title: 'First Blood',
         description: 'Confirm your first registered match kill in a tournament lobby.',
         icon: Crosshair,
-        color: 'text-[#fe6b00] border-[#fe6b00]/30 bg-[#fe6b00]/10',
+        color: 'text-[#FF8C00] border-[#FF8C00]/30 bg-[#FF8C00]/10',
         unlocked: totalKills >= 1,
         progressCurrent: Math.min(totalKills, 1),
         progressTarget: 1,
@@ -186,7 +186,7 @@ export default function AchievementsPage() {
         title: 'Booyah Champion',
         description: 'Win a Free Fire MAX tournament.',
         icon: Trophy,
-        color: 'text-[#fbbf24] border-[#fbbf24]/30 bg-[#fbbf24]/10',
+        color: 'text-[#FFB900] border-[#FFB900]/30 bg-[#FFB900]/10',
         unlocked: championshipsCount >= 1,
         progressCurrent: Math.min(championshipsCount, 1),
         progressTarget: 1,
@@ -198,7 +198,7 @@ export default function AchievementsPage() {
         title: 'Survivalist',
         description: 'Complete your first Free Fire MAX tournament.',
         icon: Timer,
-        color: 'text-[#00ff9d] border-[#00ff9d]/30 bg-[#00ff9d]/10',
+        color: 'text-[#10B981] border-[#10B981]/30 bg-[#10B981]/10',
         unlocked: completedTournamentsCount >= 1,
         progressCurrent: Math.min(completedTournamentsCount, 1),
         progressTarget: 1,
@@ -210,7 +210,7 @@ export default function AchievementsPage() {
         title: 'Veteran Competitor',
         description: 'Complete 5 Free Fire MAX tournaments.',
         icon: ShieldCheck,
-        color: 'text-[#00f2ff] border-[#00f2ff]/30 bg-[#00f2ff]/10',
+        color: 'text-[#FFB900] border-[#FFB900]/30 bg-[#FFB900]/10',
         unlocked: completedTournamentsCount >= 5,
         progressCurrent: Math.min(completedTournamentsCount, 5),
         progressTarget: 5,
@@ -273,19 +273,19 @@ export default function AchievementsPage() {
   // Loading State Skeleton
   if (authLoading || tournamentsLoading) {
     return (
-      <div className="bg-[#050508] text-white min-h-screen pb-24 antialiased font-mono">
+      <div className="bg-[#000000] text-white min-h-screen pb-24 antialiased font-mono">
         <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
-          <div className="h-6 w-36 bg-[#12141c] rounded-none animate-pulse" />
-          <div className="h-28 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+          <div className="h-6 w-36 bg-[#18181B] rounded-none animate-pulse" />
+          <div className="h-28 bg-[#111215] border border-[#27272A] rounded-none animate-pulse" />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
-            <div className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+            <div className="h-20 bg-[#111215] border border-[#27272A] rounded-none animate-pulse" />
+            <div className="h-20 bg-[#111215] border border-[#27272A] rounded-none animate-pulse" />
+            <div className="h-20 bg-[#111215] border border-[#27272A] rounded-none animate-pulse" />
+            <div className="h-20 bg-[#111215] border border-[#27272A] rounded-none animate-pulse" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="h-36 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
-            <div className="h-36 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse" />
+            <div className="h-36 bg-[#111215] border border-[#27272A] rounded-none animate-pulse" />
+            <div className="h-36 bg-[#111215] border border-[#27272A] rounded-none animate-pulse" />
           </div>
         </main>
       </div>
@@ -295,18 +295,18 @@ export default function AchievementsPage() {
   // Error State fallback if tournaments data failed to load
   if (!Array.isArray(tournaments)) {
     return (
-      <div className="bg-[#050508] text-white min-h-screen pb-24 antialiased font-mono flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center p-8 bg-[#0d0e15] border border-[#ff4655]/30 rounded-none space-y-4">
-          <AlertCircle className="w-10 h-10 text-[#ff4655] mx-auto" />
+      <div className="bg-[#000000] text-white min-h-screen pb-24 antialiased font-mono flex items-center justify-center p-4">
+        <div className="max-w-md w-full text-center p-8 bg-[#111215] border border-[#EF4444]/30 rounded-none space-y-4">
+          <AlertCircle className="w-10 h-10 text-[#EF4444] mx-auto" />
           <h2 className="text-sm font-bold uppercase tracking-wider text-white">
             ACHIEVEMENTS TEMPORARILY UNAVAILABLE
           </h2>
-          <p className="text-xs text-[#8e95a5] font-sans">
+          <p className="text-xs text-[#A1A1AA] font-sans">
             Please try again later.
           </p>
           <Link
             to="/profile"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-none bg-[#141620] border border-[#222638] text-xs font-bold text-[#00f2ff] hover:bg-[#1a1d29] transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-none bg-[#18181B] border border-[#27272A] text-xs font-bold text-[#FFB900] hover:bg-[#18181B] transition-all"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Profile</span>
@@ -317,7 +317,7 @@ export default function AchievementsPage() {
   }
 
   return (
-    <div className="bg-[#050508] text-white min-h-screen pb-24 antialiased font-mono selection:bg-[#00f2ff]/20 selection:text-[#00f2ff]">
+    <div className="bg-[#000000] text-white min-h-screen pb-24 antialiased font-mono selection:bg-[#FFB900]/20 selection:text-[#FFB900]">
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
 
         {/* ================================================== */}
@@ -326,13 +326,13 @@ export default function AchievementsPage() {
         <div className="flex items-center justify-between">
           <Link
             to="/profile"
-            className="inline-flex items-center gap-2 text-xs font-bold text-[#8e95a5] hover:text-[#00f2ff] uppercase tracking-wider transition-colors group"
+            className="inline-flex items-center gap-2 text-xs font-bold text-[#A1A1AA] hover:text-[#FFB900] uppercase tracking-wider transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
             <span>Return to Profile</span>
           </Link>
 
-          <span className="px-2 py-0.5 rounded-none text-[10px] font-extrabold uppercase tracking-widest bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/20">
+          <span className="px-2 py-0.5 rounded-none text-[10px] font-extrabold uppercase tracking-widest bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/20">
             FREE FIRE MAX
           </span>
         </div>
@@ -342,11 +342,11 @@ export default function AchievementsPage() {
         {/* ================================================== */}
         <header
           aria-label="Trophy Cabinet Header"
-          className="p-5 rounded-none bg-gradient-to-b from-[#0e1017] to-[#08090d] border border-[#1f2230] relative overflow-hidden shadow-[0_0_25px_rgba(0,0,0,0.4)]"
+          className="p-5 rounded-none bg-[#111215] border border-[#27272A] relative overflow-hidden "
         >
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <div className="relative w-12 h-12 rounded-none bg-[#141620] border border-[#222638] flex items-center justify-center overflow-hidden shrink-0">
+              <div className="relative w-12 h-12 rounded-none bg-[#18181B] border border-[#27272A] flex items-center justify-center overflow-hidden shrink-0">
                 <img
                   src={avatarUrl}
                   alt={displayName}
@@ -362,25 +362,25 @@ export default function AchievementsPage() {
                   {isVerified && (
                     <span
                       title="Authoritatively Verified Player"
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-bold bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-bold bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30"
                     >
-                      <ShieldCheck className="w-3 h-3 text-[#00f2ff]" />
+                      <ShieldCheck className="w-3 h-3 text-[#FFB900]" />
                       <span>VERIFIED</span>
                     </span>
                   )}
                 </div>
 
-                <p className="text-[11px] font-mono uppercase tracking-widest text-[#717a8e]">
+                <p className="text-[11px] font-mono uppercase tracking-widest text-[#A1A1AA]">
                   ACHIEVEMENTS & COMPETITIVE MILESTONES
                 </p>
               </div>
             </div>
 
             {/* Free Fire MAX Identity Pill */}
-            <div className="flex items-center gap-2 bg-[#12141c] border border-[#1f2230] rounded-none px-3 py-2 text-xs shrink-0">
-              <div className="w-2 h-2 rounded-none bg-[#00f2ff] shadow-[0_0_8px_#00f2ff]" />
+            <div className="flex items-center gap-2 bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-xs shrink-0">
+              <div className="w-2 h-2 rounded-none bg-[#FFB900] " />
               <div className="flex flex-col">
-                <span className="text-[9px] text-[#717a8e] uppercase font-bold tracking-wider">
+                <span className="text-[9px] text-[#A1A1AA] uppercase font-bold tracking-wider">
                   FF MAX UID
                 </span>
                 <span className="text-white font-bold font-mono tracking-wider">
@@ -392,10 +392,10 @@ export default function AchievementsPage() {
                   type="button"
                   onClick={handleCopyUid}
                   title="Copy Free Fire MAX UID"
-                  className="ml-1 p-1 hover:text-[#00f2ff] text-[#717a8e] transition-colors cursor-pointer"
+                  className="ml-1 p-1 hover:text-[#FFB900] text-[#A1A1AA] transition-colors cursor-pointer"
                   aria-label="Copy UID"
                 >
-                  {copiedUid ? <Check className="w-3.5 h-3.5 text-[#00ff9d]" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedUid ? <Check className="w-3.5 h-3.5 text-[#10B981]" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
               )}
             </div>
@@ -410,57 +410,57 @@ export default function AchievementsPage() {
           className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5"
         >
           {/* UNLOCKED TROPHIES */}
-          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#fbbf24]/30 transition-all">
-            <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
+          <div className="p-3 sm:p-4 rounded-none bg-[#111215] border border-[#27272A] relative overflow-hidden group hover:border-[#FFB900]/30 transition-all">
+            <div className="flex items-center justify-between text-[#A1A1AA] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>UNLOCKED TROPHIES</span>
-              <Award className="w-3.5 h-3.5 text-[#fbbf24]" />
+              <Award className="w-3.5 h-3.5 text-[#FFB900]" />
             </div>
-            <div className="font-sans font-black text-base sm:text-xl text-[#fbbf24] tracking-tight">
-              {unlockedCount} <span className="text-xs text-[#717a8e] font-mono">/ {totalDefined}</span>
+            <div className="font-sans font-black text-base sm:text-xl text-[#FFB900] tracking-tight">
+              {unlockedCount} <span className="text-xs text-[#A1A1AA] font-mono">/ {totalDefined}</span>
             </div>
-            <div className="text-[9px] text-[#717a8e] font-mono mt-0.5 truncate">
+            <div className="text-[9px] text-[#A1A1AA] font-mono mt-0.5 truncate">
               Earned Badges
             </div>
           </div>
 
           {/* COMPLETION % */}
-          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#00f2ff]/30 transition-all">
-            <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
+          <div className="p-3 sm:p-4 rounded-none bg-[#111215] border border-[#27272A] relative overflow-hidden group hover:border-[#FFB900]/30 transition-all">
+            <div className="flex items-center justify-between text-[#A1A1AA] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>COMPLETION</span>
-              <Sparkles className="w-3.5 h-3.5 text-[#00f2ff]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#FFB900]" />
             </div>
-            <div className="font-sans font-black text-base sm:text-xl text-[#00f2ff] tracking-tight">
+            <div className="font-sans font-black text-base sm:text-xl text-[#FFB900] tracking-tight">
               {completionPercent}%
             </div>
-            <div className="text-[9px] text-[#717a8e] font-mono mt-0.5 truncate">
+            <div className="text-[9px] text-[#A1A1AA] font-mono mt-0.5 truncate">
               Overall Progress
             </div>
           </div>
 
           {/* CHAMPIONSHIPS */}
-          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#fbbf24]/30 transition-all">
-            <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
+          <div className="p-3 sm:p-4 rounded-none bg-[#111215] border border-[#27272A] relative overflow-hidden group hover:border-[#FFB900]/30 transition-all">
+            <div className="flex items-center justify-between text-[#A1A1AA] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>CHAMPIONSHIPS</span>
-              <Trophy className="w-3.5 h-3.5 text-[#fbbf24]" />
+              <Trophy className="w-3.5 h-3.5 text-[#FFB900]" />
             </div>
             <div className="font-sans font-black text-base sm:text-xl text-white tracking-tight">
               {championshipsCount}
             </div>
-            <div className="text-[9px] text-[#717a8e] font-mono mt-0.5 truncate">
+            <div className="text-[9px] text-[#A1A1AA] font-mono mt-0.5 truncate">
               1st Place Finishes
             </div>
           </div>
 
           {/* PODIUM FINISHES */}
-          <div className="p-3 sm:p-4 rounded-none bg-[#0d0e15] border border-[#1f2230] relative overflow-hidden group hover:border-[#ff8c00]/30 transition-all">
-            <div className="flex items-center justify-between text-[#8e95a5] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
+          <div className="p-3 sm:p-4 rounded-none bg-[#111215] border border-[#27272A] relative overflow-hidden group hover:border-[#FF8C00]/30 transition-all">
+            <div className="flex items-center justify-between text-[#A1A1AA] text-[10px] sm:text-[11px] uppercase font-bold tracking-wider mb-1">
               <span>PODIUM FINISHES</span>
-              <Trophy className="w-3.5 h-3.5 text-[#ff8c00]" />
+              <Trophy className="w-3.5 h-3.5 text-[#FF8C00]" />
             </div>
-            <div className="font-sans font-black text-base sm:text-xl text-[#ff8c00] tracking-tight">
+            <div className="font-sans font-black text-base sm:text-xl text-[#FF8C00] tracking-tight">
               {podiumFinishesCount}
             </div>
-            <div className="text-[9px] text-[#717a8e] font-mono mt-0.5 truncate">
+            <div className="text-[9px] text-[#A1A1AA] font-mono mt-0.5 truncate">
               Top 3 Tournament Ranks
             </div>
           </div>
@@ -471,16 +471,16 @@ export default function AchievementsPage() {
         {/* ================================================== */}
         <section aria-label="Latest Crown Earned" className="space-y-2">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#717a8e] flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#fbbf24]" />
+            <h2 className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#A1A1AA] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#FFB900]" />
               <span>LATEST CROWN EARNED</span>
             </h2>
           </div>
 
           {latestUnlockedCrown ? (
-            <div className="p-4 rounded-none bg-gradient-to-r from-[#141620] via-[#0d0e15] to-[#0a0b10] border border-[#fbbf24]/30 shadow-[0_0_20px_rgba(251,191,36,0.08)] flex items-center justify-between gap-4 flex-wrap">
+            <div className="p-4 rounded-none bg-[#111215] border border-[#FFB900]/30  flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-none bg-[#fbbf24]/10 border border-[#fbbf24]/40 flex items-center justify-center text-[#fbbf24] shrink-0 shadow-[0_0_12px_rgba(251,191,36,0.15)]">
+                <div className="w-12 h-12 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/40 flex items-center justify-center text-[#FFB900] shrink-0 ">
                   <latestUnlockedCrown.icon className="w-6 h-6" />
                 </div>
                 <div className="space-y-0.5">
@@ -488,30 +488,30 @@ export default function AchievementsPage() {
                     <h3 className="font-bold text-sm text-white uppercase tracking-wide">
                       {latestUnlockedCrown.title}
                     </h3>
-                    <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-none text-[9px] font-bold bg-[#fbbf24]/15 text-[#fbbf24] border border-[#fbbf24]/30 uppercase">
+                    <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-none text-[9px] font-bold bg-[#FFB900]/15 text-[#FFB900] border border-[#FFB900]/30 uppercase">
                       <Unlock className="w-2.5 h-2.5" />
                       <span>Unlocked</span>
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#8e95a5] font-sans max-w-md">
+                  <p className="text-[11px] text-[#A1A1AA] font-sans max-w-md">
                     {latestUnlockedCrown.description}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-none text-xs font-black font-mono bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/30">
+                <span className="px-2.5 py-1 rounded-none text-xs font-black font-mono bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30">
                   +{latestUnlockedCrown.points} XP
                 </span>
               </div>
             </div>
           ) : (
-            <div className="p-5 text-center rounded-none bg-[#0d0e15] border border-[#1f2230] space-y-1.5">
-              <Award className="w-8 h-8 text-[#525866] mx-auto" />
+            <div className="p-5 text-center rounded-none bg-[#111215] border border-[#27272A] space-y-1.5">
+              <Award className="w-8 h-8 text-[#71717A] mx-auto" />
               <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                 NO CROWNS EARNED YET
               </h3>
-              <p className="text-[11px] text-[#8e95a5] font-sans max-w-sm mx-auto">
+              <p className="text-[11px] text-[#A1A1AA] font-sans max-w-sm mx-auto">
                 Complete Free Fire MAX tournament milestones to earn your first competitive badge.
               </p>
             </div>
@@ -521,15 +521,15 @@ export default function AchievementsPage() {
         {/* ================================================== */}
         {/* 5. FILTER TABS (ALL | UNLOCKED | LOCKED)           */}
         {/* ================================================== */}
-        <div className="flex items-center justify-start bg-[#0d0e15] p-1 rounded-none border border-[#1f2230] text-xs font-bold w-fit">
+        <div className="flex items-center justify-start bg-[#111215] p-1 rounded-none border border-[#27272A] text-xs font-bold w-fit">
           <button
             role="tab"
             aria-selected={filterTab === 'ALL'}
             onClick={() => setFilterTab('ALL')}
             className={`px-3.5 py-1.5 rounded-none transition-all cursor-pointer uppercase tracking-wider ${
               filterTab === 'ALL'
-                ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
-                : 'text-[#8e95a5] hover:text-white'
+                ? 'bg-[#FFB900] text-black font-extrabold '
+                : 'text-[#A1A1AA] hover:text-white'
             }`}
           >
             All ({totalDefined})
@@ -540,8 +540,8 @@ export default function AchievementsPage() {
             onClick={() => setFilterTab('UNLOCKED')}
             className={`px-3.5 py-1.5 rounded-none transition-all cursor-pointer uppercase tracking-wider ${
               filterTab === 'UNLOCKED'
-                ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
-                : 'text-[#8e95a5] hover:text-white'
+                ? 'bg-[#FFB900] text-black font-extrabold '
+                : 'text-[#A1A1AA] hover:text-white'
             }`}
           >
             Unlocked ({unlockedCount})
@@ -552,8 +552,8 @@ export default function AchievementsPage() {
             onClick={() => setFilterTab('LOCKED')}
             className={`px-3.5 py-1.5 rounded-none transition-all cursor-pointer uppercase tracking-wider ${
               filterTab === 'LOCKED'
-                ? 'bg-[#00f2ff] text-black font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
-                : 'text-[#8e95a5] hover:text-white'
+                ? 'bg-[#FFB900] text-black font-extrabold '
+                : 'text-[#A1A1AA] hover:text-white'
             }`}
           >
             Locked ({lockedCount})
@@ -566,9 +566,9 @@ export default function AchievementsPage() {
         {filteredAchievements.length === 0 ? (
           <div
             aria-label="Empty Achievements Filter"
-            className="py-16 text-center border border-[#1f2230] bg-[#0d0e15] rounded-none p-6 space-y-3 font-mono"
+            className="py-16 text-center border border-[#27272A] bg-[#111215] rounded-none p-6 space-y-3 font-mono"
           >
-            <Award className="w-10 h-10 text-[#525866] mx-auto" />
+            <Award className="w-10 h-10 text-[#71717A] mx-auto" />
             <h2 className="text-sm font-bold text-white uppercase tracking-wider">
               {filterTab === 'UNLOCKED'
                 ? 'NO UNLOCKED ACHIEVEMENTS'
@@ -576,7 +576,7 @@ export default function AchievementsPage() {
                 ? 'NO LOCKED ACHIEVEMENTS'
                 : 'NO TROPHIES YET'}
             </h2>
-            <p className="text-xs text-[#8e95a5] font-sans max-w-sm mx-auto">
+            <p className="text-xs text-[#A1A1AA] font-sans max-w-sm mx-auto">
               {filterTab === 'UNLOCKED'
                 ? 'Participate in Free Fire MAX tournaments to unlock competitive badges.'
                 : 'All available competitive milestones have been completed!'}
@@ -586,7 +586,7 @@ export default function AchievementsPage() {
                 <button
                   type="button"
                   onClick={() => setFilterTab('ALL')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#141620] border border-[#222638] text-xs font-bold text-[#00f2ff] hover:bg-[#1a1d29] transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#18181B] border border-[#27272A] text-xs font-bold text-[#FFB900] hover:bg-[#18181B] transition-all cursor-pointer"
                 >
                   <span>View All Badges</span>
                 </button>
@@ -607,8 +607,8 @@ export default function AchievementsPage() {
                   key={badge.id}
                   className={`p-4 rounded-none border transition-all relative overflow-hidden flex flex-col justify-between min-h-[160px] font-mono ${
                     isUnlocked
-                      ? 'bg-[#0d0e15] border-[#1f2230] hover:border-[#00f2ff]/40 shadow-[0_4px_20px_rgba(0,0,0,0.25)]'
-                      : 'bg-[#0a0b10] border-[#181a24] opacity-70'
+                      ? 'bg-[#111215] border-[#27272A] hover:border-[#FFB900]/40 '
+                      : 'bg-[#000000] border-[#18181B] opacity-70'
                   }`}
                 >
                   <div className="space-y-3">
@@ -618,7 +618,7 @@ export default function AchievementsPage() {
                         className={`w-10 h-10 rounded-none border flex items-center justify-center ${
                           isUnlocked
                             ? badge.color
-                            : 'text-[#525866] border-[#222638] bg-[#141620]'
+                            : 'text-[#71717A] border-[#27272A] bg-[#18181B]'
                         }`}
                       >
                         <Icon className="w-5 h-5" />
@@ -626,12 +626,12 @@ export default function AchievementsPage() {
 
                       <div className="flex items-center gap-1.5">
                         {isUnlocked ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
                             <Unlock className="w-2.5 h-2.5" />
                             <span>UNLOCKED</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#141620] text-[#717a8e] border border-[#222638]">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold uppercase bg-[#18181B] text-[#A1A1AA] border border-[#27272A]">
                             <Lock className="w-2.5 h-2.5" />
                             <span>LOCKED</span>
                           </span>
@@ -641,19 +641,19 @@ export default function AchievementsPage() {
 
                     {/* Middle: Title & Description */}
                     <div className="space-y-1">
-                      <h3 className={`text-xs sm:text-sm font-bold uppercase tracking-wide ${isUnlocked ? 'text-white' : 'text-[#8e95a5]'}`}>
+                      <h3 className={`text-xs sm:text-sm font-bold uppercase tracking-wide ${isUnlocked ? 'text-white' : 'text-[#A1A1AA]'}`}>
                         {badge.title}
                       </h3>
-                      <p className="text-[11px] text-[#717a8e] leading-relaxed font-sans">
+                      <p className="text-[11px] text-[#A1A1AA] leading-relaxed font-sans">
                         {badge.description}
                       </p>
                     </div>
                   </div>
 
                   {/* Bottom: Progress & Points */}
-                  <div className="pt-3 border-t border-[#1f2230]/60 flex items-center justify-between text-[10px] mt-3">
+                  <div className="pt-3 border-t border-[#27272A]/60 flex items-center justify-between text-[10px] mt-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-[#8e95a5]">
+                      <span className="text-[#A1A1AA]">
                         {badge.progressText}
                       </span>
                     </div>
@@ -661,8 +661,8 @@ export default function AchievementsPage() {
                     <span
                       className={`font-black px-2 py-0.5 rounded-none font-mono ${
                         isUnlocked
-                          ? 'bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/30'
-                          : 'bg-[#141620] text-[#717a8e] border border-[#222638]'
+                          ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30'
+                          : 'bg-[#18181B] text-[#A1A1AA] border border-[#27272A]'
                       }`}
                     >
                       +{badge.points} XP

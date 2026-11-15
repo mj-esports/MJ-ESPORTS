@@ -95,8 +95,8 @@ export default function TournamentsPage() {
     switch (stateObj.state) {
       case 'LIVE':
         return (
-          <span className="bg-[#FF6200]/20 backdrop-blur-md text-[#FF6200] border border-[#FF6200]/40 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-none text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider shadow-sm flex items-center gap-1.5 animate-pulse">
-            <span className="w-1.5 h-1.5 rounded-none bg-[#FF6200]" />
+          <span className="bg-[#FF8C00]/20 backdrop-blur-md text-[#FF8C00] border border-[#FF8C00]/40 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-none text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider shadow-sm flex items-center gap-1.5 animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-none bg-[#FF8C00]" />
             LIVE
           </span>
         )
@@ -108,13 +108,13 @@ export default function TournamentsPage() {
         )
       case 'FULL':
         return (
-          <span className="bg-[#FF0000]/15 backdrop-blur-md text-[#FF0000] border border-[#FF0000]/40 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-none text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider shadow-sm">
+          <span className="bg-[#ef4444]/15 backdrop-blur-md text-[#ef4444] border border-[#ef4444]/40 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-none text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider shadow-sm">
             FULL
           </span>
         )
       case 'CLOSED':
         return (
-          <span className="bg-[#1B1B1F]/90 backdrop-blur-md text-[#A3A3A3] border border-[#2A2A30] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-none text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider">
+          <span className="bg-[#18181B]/90 backdrop-blur-md text-[#A1A1AA] border border-[#27272A] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-none text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider">
             CLOSED
           </span>
         )
@@ -126,7 +126,7 @@ export default function TournamentsPage() {
         )
       case 'COMPLETED':
         return (
-          <span className="bg-[#111318]/90 backdrop-blur-md text-[#A3A3A3] border border-[#2A2A30] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-none text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider">
+          <span className="bg-[#111215]/90 backdrop-blur-md text-[#A1A1AA] border border-[#27272A] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-none text-[10px] sm:text-xs font-bold font-headline uppercase tracking-wider">
             COMPLETED
           </span>
         )
@@ -141,12 +141,12 @@ export default function TournamentsPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#000000] text-[#A3A3A3] pb-28 sm:pb-32 font-body antialiased overflow-x-hidden">
+    <div className="w-full min-h-screen bg-[#000000] text-[#A1A1AA] pb-28 sm:pb-32 font-body antialiased overflow-x-hidden">
       <main className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8 flex flex-col gap-8">
 
         {/* 1. STITCH FEATURED TOURNAMENT HERO BANNER */}
         {featuredTournament && !searchQuery && (
-          <section className="relative rounded-none overflow-hidden border border-[#2A2A30] group shadow-2xl bg-[#111318]">
+          <section className="relative rounded-none overflow-hidden border border-[#27272A] group shadow-2xl bg-[#111215]">
             <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/50 via-40% to-transparent z-10"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-[#000000]/60 via-transparent to-transparent z-10"></div>
             <div
@@ -158,14 +158,14 @@ export default function TournamentsPage() {
 
             <div className="absolute bottom-0 left-0 w-full p-4 sm:p-8 md:p-10 z-20 flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-6 md:gap-8">
               <div className="space-y-2 sm:space-y-3.5 max-w-2xl">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[11px] sm:text-xs font-bold bg-[#FFB900]/15 text-[#FFB900] border border-[#FFB900]/40 uppercase tracking-wider font-label-bold shadow-[0_0_15px_rgba(255,185,0,0.25)]">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[11px] sm:text-xs font-bold bg-[#FFB900]/15 text-[#FFB900] border border-[#FFB900]/40 uppercase tracking-wider font-label-bold">
                   <Sparkles className="w-3.5 h-3.5" />
                   Featured Arena Event
                 </span>
                 <h2 className="text-xl xs:text-2xl sm:text-4xl md:text-5xl font-extrabold font-headline text-white tracking-tight drop-shadow-md leading-tight line-clamp-2 sm:line-clamp-none">
                   {featuredTournament.title || 'Global Clash Championship'}
                 </h2>
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[#A3A3A3] text-xs sm:text-sm font-label pt-0.5 font-medium">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[#A1A1AA] text-xs sm:text-sm font-label pt-0.5 font-medium">
                   <span className="flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FFB900]" />
                     {featuredTournament.startDate || 'Upcoming Schedule'}
@@ -177,16 +177,16 @@ export default function TournamentsPage() {
                 </div>
               </div>
 
-              <div className="flex flex-row md:flex-col items-end md:items-end justify-between md:justify-start gap-3 shrink-0 w-full md:w-auto pt-2 border-t border-[#2A2A30]/60 md:border-0">
+              <div className="flex flex-row md:flex-col items-end md:items-end justify-between md:justify-start gap-3 shrink-0 w-full md:w-auto pt-2 border-t border-[#27272A]/60 md:border-0">
                 <div className="text-left md:text-right">
-                  <div className="text-[#A3A3A3] text-[10px] sm:text-xs uppercase font-bold font-label-bold tracking-wider mb-0.5">Prize Pool</div>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-headline text-[#FF6200] drop-shadow-sm leading-none">
+                  <div className="text-[#A1A1AA] text-[10px] sm:text-xs uppercase font-bold font-label-bold tracking-wider mb-0.5">Prize Pool</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-headline text-[#FF8C00] drop-shadow-sm leading-none">
                     {formatTournamentPrize(featuredTournament)}
                   </div>
                 </div>
                 <Link
                   to={featuredTournament?.id ? `/tournaments/${featuredTournament.id}` : '/tournaments'}
-                  className="bg-[#FFB900] text-[#000000] font-bold px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-none hover:bg-[#FFA500] transition-all font-headline text-center shadow-[0_0_20px_rgba(255,185,0,0.35)] uppercase tracking-wider text-xs sm:text-sm min-h-[44px] flex items-center justify-center cursor-pointer active:scale-95 shrink-0"
+                  className="bg-[#FFB900] text-[#000000] font-bold px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-none hover:bg-[#FFC933] transition-all font-headline text-center uppercase tracking-wider text-xs sm:text-sm min-h-[44px] flex items-center justify-center cursor-pointer active:scale-95 shrink-0"
                 >
                   {featuredStatusState?.isFull || featuredStatusState?.isClosed || featuredStatusState?.isCompleted ? 'View Details' : 'Register Now'}
                 </Link>
@@ -196,7 +196,7 @@ export default function TournamentsPage() {
         )}
 
         {/* 2. STITCH FILTERS AND TABS (STICKY BAR) */}
-        <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3.5 sm:gap-4 sticky top-0 z-40 bg-[#000000]/95 backdrop-blur-xl py-3 sm:py-4 border-b border-[#2A2A30] shadow-xl -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 transition-all duration-200 max-w-[100vw]">
+        <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3.5 sm:gap-4 sticky top-0 z-40 bg-[#000000]/95 backdrop-blur-xl py-3 sm:py-4 border-b border-[#27272A] shadow-xl -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 transition-all duration-200 max-w-[100vw]">
           {/* Game Category Tabs (Horizontally scrollable with no clipping) */}
           <div className="w-full lg:w-auto overflow-x-auto hide-scrollbar pb-0.5">
             <div className="flex items-center gap-2 min-w-max">
@@ -211,8 +211,8 @@ export default function TournamentsPage() {
                     }}
                     className={`flex-shrink-0 px-4 sm:px-5 py-2.5 rounded-none font-headline text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center gap-1.5 min-h-[44px] select-none ${
                       isActive
-                        ? 'bg-[#FFB900] text-[#000000] font-black shadow-[0_0_15px_rgba(255,185,0,0.4)]'
-                        : 'bg-[#111318] border border-[#2A2A30] text-[#A3A3A3] font-bold hover:text-white hover:border-[#FFB900] hover:bg-[#1B1B1F]'
+                        ? 'bg-[#FFB900] text-[#000000] font-black'
+                        : 'bg-[#111215] border border-[#27272A] text-[#A1A1AA] font-bold hover:text-white hover:border-[#FFB900] hover:bg-[#18181B]'
                     }`}
                   >
                     {game === 'All' ? 'ALL GAMES' : game.toUpperCase()}
@@ -226,7 +226,7 @@ export default function TournamentsPage() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3.5 w-full lg:w-auto">
             {/* Search Input */}
             <div className="relative w-full sm:w-64 md:w-72">
-              <Search className="w-4 h-4 text-[#A3A3A3] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-[#A1A1AA] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
@@ -235,12 +235,12 @@ export default function TournamentsPage() {
                   setVisibleCount(6)
                 }}
                 placeholder="Search tournaments..."
-                className="w-full bg-[#111318] border border-[#2A2A30] rounded-none pl-10 pr-4 py-2 text-xs sm:text-sm text-[#FFFFFF] placeholder-[#A3A3A3] focus:border-[#FFB900] focus:ring-1 focus:ring-[#FFB900]/30 focus:outline-none transition-all duration-200 h-[44px] font-body"
+                className="w-full bg-[#111215] border border-[#27272A] rounded-none pl-10 pr-4 py-2 text-xs sm:text-sm text-[#FFFFFF] placeholder-[#A1A1AA] focus:border-[#FFB900] focus:ring-1 focus:ring-[#FFB900]/30 focus:outline-none transition-all duration-200 h-[44px] font-body"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A3A3A3] hover:text-white bg-[#1B1B1F] px-2 py-1 rounded-none font-headline uppercase"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A1A1AA] hover:text-white bg-[#18181B] px-2 py-1 rounded-none font-headline uppercase"
                 >
                   Clear
                 </button>
@@ -249,7 +249,7 @@ export default function TournamentsPage() {
 
             {/* Status Segmented Tabs (Horizontally scrollable with no clipped 'COMPLETED') */}
             <div className="w-full sm:w-auto overflow-x-auto hide-scrollbar">
-              <div className="flex items-center bg-[#111318] border border-[#2A2A30] rounded-none p-1 min-w-max gap-1">
+              <div className="flex items-center bg-[#111215] border border-[#27272A] rounded-none p-1 min-w-max gap-1">
                 {statusChips.map((st) => {
                   const isActive = selectedStatus === st
                   return (
@@ -261,8 +261,8 @@ export default function TournamentsPage() {
                       }}
                       className={`px-3.5 sm:px-4 py-2 rounded-none font-headline text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[40px] flex items-center justify-center shrink-0 select-none ${
                         isActive
-                          ? 'bg-[#FFB900] text-[#000000] font-black shadow-[0_0_12px_rgba(255,185,0,0.35)]'
-                          : 'text-[#A3A3A3] font-bold hover:text-white hover:bg-[#1B1B1F]'
+                          ? 'bg-[#FFB900] text-[#000000] font-black'
+                          : 'text-[#A1A1AA] font-bold hover:text-white hover:bg-[#18181B]'
                       }`}
                     >
                       {st === 'ALL' ? 'ALL' : st === 'UPCOMING' ? 'UPCOMING' : st === 'LIVE NOW' ? 'LIVE' : 'COMPLETED'}
@@ -384,7 +384,7 @@ export default function TournamentsPage() {
                 return (
                   <article
                     key={`tourn-card-${t.id}`}
-                    className={`bg-[#111318] rounded-none border border-[#2A2A30] overflow-hidden hover:border-[#FFB900] hover:shadow-[0_0_20px_rgba(255,185,0,0.2)] transition-all duration-200 group flex flex-col justify-between h-full ${
+                    className={`bg-[#111215] rounded-none border border-[#27272A] overflow-hidden hover:border-[#FFB900] transition-all duration-200 group flex flex-col justify-between h-full ${
                       isCompleted ? 'opacity-85' : ''
                     }`}
                   >
@@ -396,13 +396,13 @@ export default function TournamentsPage() {
                         }`}
                         style={{ backgroundImage: `url(${cardImage})` }}
                       >
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#111318] via-[#111318]/30 via-20% to-black/40"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#111215] via-[#111215]/30 via-20% to-black/40"></div>
                         
                         {/* Top Badges Bar: Left (Game & Mode) and Right (Status) with safe bounds */}
                         <div className="absolute top-2.5 inset-x-2.5 sm:top-3 sm:inset-x-3 flex items-start justify-between gap-2 z-10 pointer-events-none">
                           {/* Left Badges: Game + Mode */}
                           <div className="flex items-center gap-1.5 max-w-[65%] min-w-0">
-                            <span className="bg-[#000000]/90 backdrop-blur-md px-2.5 py-1 rounded-none text-[11px] font-bold font-headline text-white border border-[#2A2A30] shadow-sm shrink-0">
+                            <span className="bg-[#000000]/90 backdrop-blur-md px-2.5 py-1 rounded-none text-[11px] font-bold font-headline text-white border border-[#27272A] shadow-sm shrink-0">
                               {t.game}
                             </span>
                             <span className="bg-[#FFB900]/15 backdrop-blur-md px-2 py-1 rounded-none text-[10.5px] font-bold font-headline text-[#FFB900] border border-[#FFB900]/40 uppercase tracking-wider shadow-sm shrink-0">
@@ -426,7 +426,7 @@ export default function TournamentsPage() {
                           {t.title}
                         </h3>
                         {/* Title -> Date */}
-                        <p className="text-xs text-[#A3A3A3] font-body flex items-center gap-1.5 font-medium">
+                        <p className="text-xs text-[#A1A1AA] font-body flex items-center gap-1.5 font-medium">
                           <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FFB900] shrink-0" />
                           <span>{startTime}</span>
                         </p>
@@ -436,12 +436,12 @@ export default function TournamentsPage() {
                       <div className="mt-auto space-y-3 sm:space-y-4">
                         {/* Stat Box Grid */}
                         <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-                          <div className="bg-[#1B1B1F] p-3 rounded-none border border-[#2A2A30] flex flex-col justify-center min-h-[74px] sm:min-h-[82px]">
-                            <div className="text-[10px] text-[#A3A3A3] font-label-bold uppercase tracking-wider mb-1">Prize Pool</div>
-                            <div className="font-headline font-black text-[#FF6200] text-base xs:text-lg sm:text-xl leading-tight">{formatTournamentPrize(t)}</div>
+                          <div className="bg-[#18181B] p-3 rounded-none border border-[#27272A] flex flex-col justify-center min-h-[74px] sm:min-h-[82px]">
+                            <div className="text-[10px] text-[#A1A1AA] font-label-bold uppercase tracking-wider mb-1">Prize Pool</div>
+                            <div className="font-headline font-black text-[#FF8C00] text-base xs:text-lg sm:text-xl leading-tight">{formatTournamentPrize(t)}</div>
                           </div>
-                          <div className="bg-[#1B1B1F] p-3 rounded-none border border-[#2A2A30] flex flex-col justify-center min-h-[74px] sm:min-h-[82px]">
-                            <div className="text-[10px] text-[#A3A3A3] font-label-bold uppercase tracking-wider mb-1">Entry Fee</div>
+                          <div className="bg-[#18181B] p-3 rounded-none border border-[#27272A] flex flex-col justify-center min-h-[74px] sm:min-h-[82px]">
+                            <div className="text-[10px] text-[#A1A1AA] font-label-bold uppercase tracking-wider mb-1">Entry Fee</div>
                             <div className="font-headline font-black text-white text-sm xs:text-base sm:text-lg leading-tight">{entryFee}</div>
                           </div>
                         </div>
@@ -449,19 +449,19 @@ export default function TournamentsPage() {
                         {/* Registration Progress */}
                         <div className="space-y-1.5 sm:space-y-2">
                           <div className="flex justify-between items-center text-xs font-label">
-                            <span className="text-[#A3A3A3] text-[11px] font-medium font-label-bold">Registration Progress</span>
-                            <span className={isFull ? 'text-[#FF0000] font-bold text-[11px]' : 'text-[#FFB900] font-bold text-[11px]'}>
+                            <span className="text-[#A1A1AA] text-[11px] font-medium font-label-bold">Registration Progress</span>
+                            <span className={isFull ? 'text-[#ef4444] font-bold text-[11px]' : 'text-[#FFB900] font-bold text-[11px]'}>
                               {progressText}
                             </span>
                           </div>
-                          <div className="w-full bg-[#000000] border border-[#2A2A30] rounded-none h-2 sm:h-2.5 overflow-hidden">
+                          <div className="w-full bg-[#000000] border border-[#27272A] rounded-none h-2 sm:h-2.5 overflow-hidden">
                             <div
                               className={`h-full rounded-none transition-all duration-300 ${
                                 isFull
-                                  ? 'bg-[#FF0000]'
+                                  ? 'bg-[#ef4444]'
                                   : isCompleted
-                                  ? 'bg-[#2A2A30]'
-                                  : 'bg-gradient-to-r from-[#FF6200] to-[#FFB900]'
+                                  ? 'bg-[#27272A]'
+                                  : 'bg-[#FFB900]'
                               }`}
                               style={{ width: `${isFull ? 100 : fillPercentage}%` }}
                             ></div>
@@ -472,21 +472,21 @@ export default function TournamentsPage() {
                         {isCompleted ? (
                           <Link
                             to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
-                            className="w-full py-3 rounded-none bg-[#1B1B1F] text-[#A3A3A3] hover:text-white font-headline font-bold text-xs transition-colors text-center block uppercase tracking-wider border border-[#2A2A30] hover:border-[#A3A3A3] min-h-[44px] flex items-center justify-center cursor-pointer"
+                            className="w-full py-3 rounded-none bg-[#18181B] text-[#A1A1AA] hover:text-white font-headline font-bold text-xs transition-colors text-center block uppercase tracking-wider border border-[#27272A] hover:border-[#A1A1AA] min-h-[44px] flex items-center justify-center cursor-pointer"
                           >
                             View Results & Summary
                           </Link>
                         ) : isFull ? (
                           <Link
                             to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
-                            className="w-full py-3 rounded-none bg-[#1B1B1F] text-[#FFFFFF] hover:text-[#FFB900] font-headline font-bold text-xs transition-all duration-200 text-center block uppercase tracking-wider border border-[#2A2A30] hover:border-[#FFB900] min-h-[44px] flex items-center justify-center cursor-pointer"
+                            className="w-full py-3 rounded-none bg-[#18181B] text-[#FFFFFF] hover:text-[#FFB900] font-headline font-bold text-xs transition-all duration-200 text-center block uppercase tracking-wider border border-[#27272A] hover:border-[#FFB900] min-h-[44px] flex items-center justify-center cursor-pointer"
                           >
                             View Details
                           </Link>
                         ) : (
                           <Link
                             to={t?.id ? `/tournaments/${t.id}` : '/tournaments'}
-                            className="w-full py-3 rounded-none bg-[#FFB900] hover:bg-[#FFA500] text-[#000000] font-headline font-black text-xs transition-all duration-200 text-center block uppercase tracking-wider border border-[#FFB900] hover:shadow-[0_0_15px_rgba(255,185,0,0.35)] min-h-[44px] flex items-center justify-center cursor-pointer active:scale-95"
+                            className="w-full py-3 rounded-none bg-[#FFB900] hover:bg-[#FFC933] text-[#000000] font-headline font-black text-xs transition-all duration-200 text-center block uppercase tracking-wider border border-[#FFB900] min-h-[44px] flex items-center justify-center cursor-pointer active:scale-95"
                           >
                             View Details
                           </Link>
@@ -503,7 +503,7 @@ export default function TournamentsPage() {
               <div className="pt-6 text-center">
                 <button
                   onClick={() => setVisibleCount((prev) => prev + 6)}
-                  className="px-8 py-3 rounded-none bg-[#111318] hover:bg-[#1B1B1F] border border-[#2A2A30] hover:border-[#FFB900] text-xs font-headline font-bold text-[#FFB900] uppercase tracking-wider transition-all min-h-[44px] shadow-lg cursor-pointer"
+                  className="px-8 py-3 rounded-none bg-[#111215] hover:bg-[#18181B] border border-[#27272A] hover:border-[#FFB900] text-xs font-headline font-bold text-[#FFB900] uppercase tracking-wider transition-all min-h-[44px] shadow-lg cursor-pointer"
                 >
                   Load More Tournaments ({filteredTournaments.length - visibleCount} Remaining)
                 </button>

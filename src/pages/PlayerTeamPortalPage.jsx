@@ -297,19 +297,19 @@ export default function PlayerTeamPortalPage() {
   // ==========================================================================
   if (isLoading) {
     return (
-      <div className="bg-[#07080b] text-white font-body min-h-screen pb-20 antialiased selection:bg-[#00f2ff]/30 selection:text-white">
+      <div className="bg-[#000000] text-white font-body min-h-screen pb-20 antialiased selection:bg-[#FFB900]/30 selection:text-white">
         <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 space-y-6 animate-pulse">
           {/* Breadcrumb Skeleton */}
-          <div className="h-6 w-48 bg-[#141416] rounded-none" />
+          <div className="h-6 w-48 bg-[#18181B] rounded-none" />
 
           {/* Hero Overview Skeleton */}
-          <div className="h-44 sm:h-48 bg-[#0e1017] rounded-none border border-[#1f2230]" />
+          <div className="h-44 sm:h-48 bg-[#111215] rounded-none border border-[#27272A]" />
 
           {/* Roster Skeleton */}
           <div className="space-y-3">
-            <div className="h-6 w-36 bg-[#141416] rounded-none" />
+            <div className="h-6 w-36 bg-[#18181B] rounded-none" />
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-16 bg-[#141416] rounded-none border border-[#1f2230]" />
+              <div key={i} className="h-16 bg-[#18181B] rounded-none border border-[#27272A]" />
             ))}
           </div>
         </main>
@@ -320,28 +320,28 @@ export default function PlayerTeamPortalPage() {
   const defaultUid = profile?.game_uid || user?.user_metadata?.game_uid || ''
 
   return (
-    <div className="bg-[#07080b] text-white font-body min-h-screen pb-20 antialiased selection:bg-[#00f2ff]/30 selection:text-white">
+    <div className="bg-[#000000] text-white font-body min-h-screen pb-20 antialiased selection:bg-[#FFB900]/30 selection:text-white">
       <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 space-y-6 sm:space-y-7">
         {/* ==================================================================== */}
         {/* 1. BREADCRUMBS & SECTION TITLE                                       */}
         {/* ==================================================================== */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-[#849495]">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-[#A1A1AA]">
             <Link to="/profile" className="hover:text-white transition-colors flex items-center gap-1">
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Profile</span>
             </Link>
-            <ChevronRight className="w-3 h-3 text-[#3a494b]" />
-            <span className="text-[#00f2ff] font-headline font-semibold">Squad Management</span>
+            <ChevronRight className="w-3 h-3 text-[#27272A]" />
+            <span className="text-[#FFB900] font-headline font-semibold">Squad Management</span>
           </nav>
 
           <button
             type="button"
             onClick={loadPortalData}
             aria-label="Refresh squad data"
-            className="min-h-[38px] px-3 py-1.5 rounded-none bg-[#141416] border border-[#27272a] text-[#849495] hover:text-white hover:border-[#00f2ff]/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors"
+            className="min-h-[38px] px-3 py-1.5 rounded-none bg-[#18181B] border border-[#27272A] text-[#A1A1AA] hover:text-white hover:border-[#FFB900]/40 text-xs font-headline font-semibold flex items-center gap-1.5 transition-colors"
           >
-            <RefreshCw className="w-3.5 h-3.5 text-[#00f2ff]" />
+            <RefreshCw className="w-3.5 h-3.5 text-[#FFB900]" />
             <span className="hidden sm:inline">Refresh Data</span>
           </button>
         </div>
@@ -401,19 +401,19 @@ export default function PlayerTeamPortalPage() {
           <div className="space-y-8">
             <section
               aria-label="No Squad State"
-              className="relative rounded-none bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] p-6 sm:p-10 text-center space-y-5 shadow-[0_4px_30px_rgba(0,0,0,0.6)] overflow-hidden"
+              className="relative rounded-none bg-[#111215] border border-[#27272A] p-6 sm:p-10 text-center space-y-5  overflow-hidden"
             >
               <div
                 className="absolute inset-0 pointer-events-none opacity-20"
                 style={{
-                  backgroundImage: 'radial-gradient(#00f2ff 1px, transparent 1px)',
+                  backgroundImage: 'radial-gradient(#FFB900 1px, transparent 1px)',
                   backgroundSize: '24px 24px',
                 }}
               />
-              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-64 h-32 bg-[#00f2ff]/10 rounded-none blur-3xl pointer-events-none" />
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-64 h-32 bg-[#FFB900]/10 rounded-none blur-3xl pointer-events-none" />
 
               <div className="relative z-10 max-w-md mx-auto space-y-4">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none bg-gradient-to-br from-[#00f2ff]/20 to-[#141416] border-2 border-[#00f2ff]/40 shadow-[0_0_25px_rgba(0,242,255,0.2)] flex items-center justify-center mx-auto text-[#00f2ff]">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none bg-[#18181B] border-2 border-[#FFB900]/40  flex items-center justify-center mx-auto text-[#FFB900]">
                   <Shield className="w-8 h-8 sm:w-10 sm:h-10" />
                 </div>
 
@@ -421,7 +421,7 @@ export default function PlayerTeamPortalPage() {
                   <h1 className="text-xl sm:text-2xl md:text-3xl font-headline font-bold text-white tracking-wide">
                     You Are Not Part of a Squad Yet
                   </h1>
-                  <p className="text-xs sm:text-sm text-[#849495] font-body leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#A1A1AA] font-body leading-relaxed">
                     Form a permanent Free Fire MAX squad to compete in tournaments, recruit teammates, and climb the competitive leaderboards together.
                   </p>
                 </div>
@@ -430,7 +430,7 @@ export default function PlayerTeamPortalPage() {
                   <button
                     type="button"
                     onClick={() => setIsCreateOpen(true)}
-                    className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 rounded-none bg-[#00f2ff] text-[#00363a] hover:bg-[#74f5ff] text-xs font-headline font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(0,242,255,0.3)] active:scale-[0.99]"
+                    className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 rounded-none bg-[#FFB900] text-[#000000] hover:bg-[#FFC933] text-xs font-headline font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all  active:scale-[0.99]"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Create Free Fire Squad</span>
@@ -526,7 +526,7 @@ export default function PlayerTeamPortalPage() {
             className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
           >
             <div
-              className="relative w-full max-w-md bg-[#0e1017] border border-[#27272a] rounded-none p-5 sm:p-6 shadow-[0_10px_40px_rgba(0,0,0,0.8)] space-y-4"
+              className="relative w-full max-w-md bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6  space-y-4"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start gap-3">
@@ -543,7 +543,7 @@ export default function PlayerTeamPortalPage() {
                   <h3 id="confirm-modal-title" className="font-headline font-bold text-white text-base">
                     {confirmModal.title}
                   </h3>
-                  <p className="text-xs text-[#849495] font-body leading-relaxed">{confirmModal.message}</p>
+                  <p className="text-xs text-[#A1A1AA] font-body leading-relaxed">{confirmModal.message}</p>
                 </div>
               </div>
 
@@ -551,7 +551,7 @@ export default function PlayerTeamPortalPage() {
                 <button
                   type="button"
                   onClick={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
-                  className="min-h-[44px] px-4 py-2 rounded-none bg-[#141416] border border-[#27272a] text-[#b9cacb] hover:text-white text-xs font-headline font-semibold uppercase"
+                  className="min-h-[44px] px-4 py-2 rounded-none bg-[#18181B] border border-[#27272A] text-[#A1A1AA] hover:text-white text-xs font-headline font-semibold uppercase"
                 >
                   Cancel
                 </button>
@@ -561,7 +561,7 @@ export default function PlayerTeamPortalPage() {
                   className={`min-h-[44px] px-5 py-2 rounded-none text-xs font-headline font-bold uppercase transition-all shadow-sm ${
                     confirmModal.isDanger
                       ? 'bg-red-600 hover:bg-red-500 text-white'
-                      : 'bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a]'
+                      : 'bg-[#FFB900] hover:bg-[#FFC933] text-[#000000]'
                   }`}
                 >
                   {confirmModal.confirmText}

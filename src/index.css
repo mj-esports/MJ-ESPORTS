@@ -16,46 +16,46 @@
   --radius-4xl: 0px;
   --radius-full: 0px;
 
-  /* Free Fire MAX Stitch Color Palette */
+  /* Approved Brand Color Palette: Black, White, Yellow, Orange */
   --color-background: #000000;
-  --color-surface: #111318;
-  --color-surface-dim: #0a0b0e;
-  --color-surface-bright: #22252e;
-  --color-surface-elevated: #1b1b1f;
-  --color-surface-stroke: #2a2a30;
+  --color-surface: #111215;
+  --color-surface-dim: #000000;
+  --color-surface-bright: #18181b;
+  --color-surface-elevated: #18181b;
+  --color-surface-stroke: #27272a;
   --color-surface-container-lowest: #000000;
   --color-surface-container-low: #0c0d11;
-  --color-surface-container: #111318;
-  --color-surface-container-high: #1b1b1f;
-  --color-surface-container-highest: #26272e;
+  --color-surface-container: #111215;
+  --color-surface-container-high: #18181b;
+  --color-surface-container-highest: #27272a;
 
   --color-primary: #ffb900;
   --color-on-primary: #000000;
   --color-primary-container: #ffb900;
-  --color-on-primary-container: #3d2c00;
+  --color-on-primary-container: #000000;
   --color-primary-fixed: #ffc933;
   --color-primary-fixed-dim: #e6a700;
 
-  --color-secondary: #ff6200;
+  --color-secondary: #ff8c00;
   --color-on-secondary: #000000;
-  --color-secondary-container: #ff6200;
-  --color-on-secondary-container: #471900;
-  --color-secondary-fixed: #ff7d2b;
-  --color-secondary-fixed-dim: #e55800;
+  --color-secondary-container: #ff8c00;
+  --color-on-secondary-container: #000000;
+  --color-secondary-fixed: #ffa033;
+  --color-secondary-fixed-dim: #e57d00;
 
-  --color-tertiary: #ff9100;
+  --color-tertiary: #ff8c00;
   --color-on-tertiary: #000000;
-  --color-tertiary-container: #ff9100;
-  --color-on-tertiary-container: #3d2200;
+  --color-tertiary-container: #ff8c00;
+  --color-on-tertiary-container: #000000;
 
   --color-on-surface: #ffffff;
-  --color-on-surface-variant: #a3a3a3;
-  --color-outline: #525252;
-  --color-outline-variant: #262626;
+  --color-on-surface-variant: #a1a1aa;
+  --color-outline: #27272a;
+  --color-outline-variant: #27272a;
 
   --color-success: #10b981;
   --color-warning: #ffb900;
-  --color-error: #ff0000;
+  --color-error: #ef4444;
   --color-error-container: #7f0000;
 
   /* Typography Fonts */
@@ -68,16 +68,16 @@
 
 @layer base {
   :root {
-    --bg-surface: #111318;
+    --bg-surface: #111215;
     --bg-dark: #000000;
-    --surface-elevated: #1b1b1f;
-    --surface-stroke: #2a2a30;
-    --surface-container: #111318;
-    --surface-container-high: #1b1b1f;
-    --surface-container-low: #0c0d11;
+    --surface-elevated: #18181b;
+    --surface-stroke: #27272a;
+    --surface-container: #111215;
+    --surface-container-high: #18181b;
+    --surface-container-low: #000000;
     --primary-amber: #ffb900;
     --primary-container: #ffb900;
-    --secondary-orange: #ff6200;
+    --secondary-orange: #ff8c00;
   }
 
   html {
@@ -132,38 +132,41 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0, 219, 231, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 185, 0, 0.15), transparent);
   animation: shimmer 0.6s ease-out;
 }
 
 .glass-panel {
-  background: rgba(22, 27, 34, 0.85);
+  background: rgba(17, 18, 21, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #27272a;
 }
 
 .glass-panel-orange {
-  background: rgba(34, 22, 16, 0.85);
+  background: rgba(24, 24, 27, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #27272a;
 }
 
+/* Zero-Glow Clean Border Resets */
 .neon-border-primary {
-  border: 1px solid #00dbe7;
-  box-shadow: 0 0 12px rgba(0, 219, 231, 0.25);
+  border: 1px solid #ffb900;
+  box-shadow: none;
 }
 
 .neon-border-secondary {
-  border: 1px solid #fe6b00;
-  box-shadow: 0 0 12px rgba(254, 107, 0, 0.25);
+  border: 1px solid #ff8c00;
+  box-shadow: none;
 }
 
 .text-glow-cyan {
-  text-shadow: 0 0 12px rgba(0, 219, 231, 0.7);
+  text-shadow: none;
 }
 
 .text-glow-orange {
-  text-shadow: 0 0 12px rgba(254, 107, 0, 0.7);
+  text-shadow: none;
 }
 
 /* Animations & Keyframes */
@@ -189,15 +192,6 @@
   }
 }
 
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 22px rgba(0, 242, 255, 0.5);
-  }
-}
-
 .animate-fadeIn {
   animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -206,8 +200,9 @@
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Zero-Glow Pulse Placeholder */
 .animate-pulseGlow {
-  animation: pulseGlow 2.5s infinite ease-in-out;
+  animation: none;
 }
 
 /* Utility to hide scrollbars for mobile tab strips */
@@ -260,21 +255,21 @@ progress,
   }
 }
 
-/* Custom Scrollbar (Sharp Square Corners) */
+/* Custom Scrollbar (Clean Black/Zinc/Yellow Theme) */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0b0e11;
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3a494b;
+  background: #27272a;
   border-radius: 0px !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #00dbe7;
+  background: #ffb900;
 }

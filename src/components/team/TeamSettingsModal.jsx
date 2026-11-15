@@ -100,22 +100,20 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fadeIn"
     >
       <div
-        className="relative w-full max-w-lg bg-[#0e1017] border border-[#27272a] rounded-none shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden my-auto"
+        className="relative w-full max-w-lg bg-[#111215] border border-[#27272A] rounded-none shadow-2xl overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#00f2ff] to-transparent opacity-80" />
-
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-[#1f2230]">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-[#27272A]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+            <div className="w-10 h-10 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 flex items-center justify-center text-[#FFB900]">
               <Settings className="w-5 h-5" />
             </div>
             <div>
               <h2 id="team-settings-title" className="text-lg sm:text-xl font-headline font-bold text-white tracking-wide">
                 Squad Settings
               </h2>
-              <p className="text-xs text-[#849495]">Manage identity, recruiting status, and profile</p>
+              <p className="text-xs text-[#A1A1AA]">Manage identity, recruiting status, and profile</p>
             </div>
           </div>
           <button
@@ -123,7 +121,7 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
             onClick={onClose}
             disabled={isSubmitting}
             aria-label="Close dialog"
-            className="w-9 h-9 min-h-[44px] min-w-[44px] rounded-none bg-[#141416] border border-[#27272a] flex items-center justify-center text-[#849495] hover:text-white hover:border-[#00f2ff]/50 transition-colors disabled:opacity-50"
+            className="w-9 h-9 min-h-[44px] min-w-[44px] rounded-none bg-[#18181B] border border-[#27272A] flex items-center justify-center text-[#A1A1AA] hover:text-white hover:border-[#FFB900]/50 transition-colors disabled:opacity-50"
           >
             <X className="w-5 h-5" />
           </button>
@@ -143,8 +141,8 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
 
           {/* Squad Name */}
           <div className="space-y-1.5">
-            <label htmlFor="settings-team-name" className="block text-xs font-headline font-bold uppercase tracking-wider text-[#b9cacb]">
-              Squad Name <span className="text-[#00f2ff]">*</span>
+            <label htmlFor="settings-team-name" className="block text-xs font-headline font-bold uppercase tracking-wider text-[#A1A1AA]">
+              Squad Name <span className="text-[#FFB900]">*</span>
             </label>
             <input
               id="settings-team-name"
@@ -158,8 +156,8 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
                 if (validationErrors.name) setValidationErrors((prev) => ({ ...prev, name: null }))
               }}
               placeholder="Squad display name"
-              className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#141416] rounded-none border text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#00f2ff] transition-all ${
-                validationErrors.name ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272a] focus:border-[#00f2ff]'
+              className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#18181B] rounded-none border text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#FFB900] transition-all ${
+                validationErrors.name ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272A] focus:border-[#FFB900]'
               }`}
             />
             {validationErrors.name && <p className="text-[11px] text-red-400">{validationErrors.name}</p>}
@@ -167,7 +165,7 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
 
           {/* Squad Tag */}
           <div className="space-y-1.5">
-            <label htmlFor="settings-team-tag" className="block text-xs font-headline font-bold uppercase tracking-wider text-[#b9cacb]">
+            <label htmlFor="settings-team-tag" className="block text-xs font-headline font-bold uppercase tracking-wider text-[#A1A1AA]">
               Squad Tag
             </label>
             <input
@@ -181,8 +179,8 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
                 if (validationErrors.tag) setValidationErrors((prev) => ({ ...prev, tag: null }))
               }}
               placeholder="e.g. PHX"
-              className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#141416] rounded-none border text-sm text-white font-mono uppercase focus:outline-none focus:ring-1 focus:ring-[#00f2ff] transition-all ${
-                validationErrors.tag ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272a] focus:border-[#00f2ff]'
+              className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#18181B] rounded-none border text-sm text-white font-mono uppercase focus:outline-none focus:ring-1 focus:ring-[#FFB900] transition-all ${
+                validationErrors.tag ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272A] focus:border-[#FFB900]'
               }`}
             />
             {validationErrors.tag && <p className="text-[11px] text-red-400">{validationErrors.tag}</p>}
@@ -191,10 +189,10 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
           {/* Motto / Bio */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label htmlFor="settings-team-desc" className="block text-xs font-headline font-bold uppercase tracking-wider text-[#b9cacb]">
+              <label htmlFor="settings-team-desc" className="block text-xs font-headline font-bold uppercase tracking-wider text-[#A1A1AA]">
                 Squad Motto / Bio
               </label>
-              <span className="text-[10px] text-[#849495]">{description.length}/250</span>
+              <span className="text-[10px] text-[#A1A1AA]">{description.length}/250</span>
             </div>
             <textarea
               id="settings-team-desc"
@@ -207,13 +205,13 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
                 if (validationErrors.description) setValidationErrors((prev) => ({ ...prev, description: null }))
               }}
               placeholder="Squad description..."
-              className="w-full px-3.5 py-2.5 bg-[#141416] rounded-none border border-[#27272a] text-sm text-white focus:outline-none focus:border-[#00f2ff] focus:ring-1 focus:ring-[#00f2ff] transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-[#18181B] rounded-none border border-[#27272A] text-sm text-white focus:outline-none focus:border-[#FFB900] focus:ring-1 focus:ring-[#FFB900] transition-all resize-none"
             />
           </div>
 
           {/* Logo URL */}
           <div className="space-y-1.5">
-            <label htmlFor="settings-logo-url" className="block text-xs font-headline font-bold uppercase tracking-wider text-[#b9cacb]">
+            <label htmlFor="settings-logo-url" className="block text-xs font-headline font-bold uppercase tracking-wider text-[#A1A1AA]">
               Squad Emblem URL
             </label>
             <input
@@ -223,18 +221,18 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
               value={logoUrl}
               onChange={(e) => setLogoUrl(e.target.value)}
               placeholder="https://example.com/logo.png"
-              className="w-full min-h-[44px] px-3.5 py-2.5 bg-[#141416] rounded-none border border-[#27272a] text-sm text-white placeholder-[#849495]/60 focus:outline-none focus:border-[#00f2ff] focus:ring-1 focus:ring-[#00f2ff] transition-all"
+              className="w-full min-h-[44px] px-3.5 py-2.5 bg-[#18181B] rounded-none border border-[#27272A] text-sm text-white placeholder-[#A1A1AA]/60 focus:outline-none focus:border-[#FFB900] focus:ring-1 focus:ring-[#FFB900] transition-all"
             />
-            <p className="text-[11px] text-[#849495]">Enter an image URL for your squad emblem (Direct file upload will be introduced in future storage phase).</p>
+            <p className="text-[11px] text-[#A1A1AA]">Enter an image URL for your squad emblem (Direct file upload will be introduced in future storage phase).</p>
           </div>
 
           {/* Recruitment Toggle */}
-          <div className="flex items-center justify-between p-3.5 rounded-none bg-[#141416] border border-[#27272a]">
+          <div className="flex items-center justify-between p-3.5 rounded-none bg-[#18181B] border border-[#27272A]">
             <div>
               <span className="block text-xs font-headline font-bold uppercase tracking-wider text-white">
                 Roster Recruitment
               </span>
-              <span className="text-[11px] text-[#849495]">
+              <span className="text-[11px] text-[#A1A1AA]">
                 {isRecruiting ? 'Accepting player applications & open for scrims' : 'Roster is locked / closed to recruitment'}
               </span>
             </div>
@@ -243,11 +241,11 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
               onClick={() => setIsRecruiting(!isRecruiting)}
               aria-pressed={isRecruiting}
               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-none border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                isRecruiting ? 'bg-[#00f2ff]' : 'bg-[#27272a]'
+                isRecruiting ? 'bg-[#FFB900]' : 'bg-[#27272A]'
               }`}
             >
               <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-none bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-none bg-black shadow ring-0 transition duration-200 ease-in-out ${
                   isRecruiting ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />
@@ -255,8 +253,8 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
           </div>
 
           {/* Immutable Security Notice */}
-          <div className="p-3 rounded-none bg-[#141416] border border-[#27272a] flex items-start gap-2.5 text-xs text-[#849495]">
-            <Info className="w-4 h-4 text-[#fed83a] shrink-0 mt-0.5" />
+          <div className="p-3 rounded-none bg-[#18181B] border border-[#27272A] flex items-start gap-2.5 text-xs text-[#A1A1AA]">
+            <Info className="w-4 h-4 text-[#FFB900] shrink-0 mt-0.5" />
             <p>
               Captain assignment and maximum roster capacity (6 players) are server-authoritative and cannot be modified here. Use <strong className="text-white">Transfer Ownership</strong> to reassign captaincy.
             </p>
@@ -268,14 +266,14 @@ export default function TeamSettingsModal({ isOpen, onClose, team, onSuccess }) 
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-none border border-[#27272a] bg-[#141416] text-[#e5e2e3] font-headline font-semibold text-xs uppercase tracking-wider hover:bg-[#1f2230] transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-none border border-[#27272A] bg-[#18181B] text-[#e5e2e3] font-headline font-semibold text-xs uppercase tracking-wider hover:bg-[#27272A] transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 rounded-none bg-[#00f2ff] text-[#00363a] font-headline font-bold text-xs uppercase tracking-wider hover:bg-[#74f5ff] active:scale-[0.99] transition-all shadow-[0_0_20px_rgba(0,242,255,0.25)] flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 rounded-none bg-[#FFB900] text-black font-headline font-bold text-xs uppercase tracking-wider hover:bg-[#FFC933] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>

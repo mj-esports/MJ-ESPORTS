@@ -420,7 +420,7 @@ export default function WalletPage() {
   }, [transactions, activeFilter, searchQuery])
 
   return (
-    <div className="bg-[#08080a] text-[#b9cacb] font-body min-h-screen pb-28 sm:pb-32 antialiased text-xs overflow-x-hidden">
+    <div className="bg-[#000000] text-[#A1A1AA] font-body min-h-screen pb-28 sm:pb-32 antialiased text-xs overflow-x-hidden">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-6 sm:space-y-8 font-mono">
 
         {/* ================================================== */}
@@ -430,35 +430,35 @@ export default function WalletPage() {
           <div className="flex items-center justify-between">
             <Link
               to="/profile"
-              className="inline-flex items-center gap-1.5 text-xs text-[#8e95a5] hover:text-[#00f2ff] transition-colors group cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs text-[#A1A1AA] hover:text-[#FFB900] transition-colors group cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
               <span>Return to Profile</span>
             </Link>
 
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30">
-                <span className="w-1.5 h-1.5 rounded-none bg-[#00ff9d] animate-pulse"></span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30">
+                <span className="w-1.5 h-1.5 rounded-none bg-[#10B981] animate-pulse"></span>
                 <span>WALLET STATUS: LIVE</span>
               </span>
-              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#141620] text-[#00f2ff] border border-[#00f2ff]/20">
-                <ShieldCheck className="w-3 h-3 text-[#00f2ff]" />
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#18181B] text-[#FFB900] border border-[#FFB900]/20">
+                <ShieldCheck className="w-3 h-3 text-[#FFB900]" />
                 <span>SECURE WALLET</span>
               </span>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-[#1f2230] pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-[#27272A] pb-4">
             <div className="space-y-1">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight uppercase">
                 WALLET & LEDGER
               </h1>
-              <p className="text-xs text-[#8e95a5] font-sans">
+              <p className="text-xs text-[#A1A1AA] font-sans">
                 Real-time competitive tournament finances & instant payouts
               </p>
             </div>
 
-            <span className="self-start sm:self-auto px-2.5 py-1 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-bold text-[#fe6b00] tracking-wider uppercase">
+            <span className="self-start sm:self-auto px-2.5 py-1 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-bold text-[#FF8C00] tracking-wider uppercase">
               FREE FIRE MAX ONLY
             </span>
           </div>
@@ -489,12 +489,12 @@ export default function WalletPage() {
         <section aria-label="Available Balance Overview" className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
 
           {/* Primary Balance Card */}
-          <article className="md:col-span-7 bg-[#0d0e15] border border-[#1f2230] rounded-none p-5 sm:p-7 relative overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.35)] flex flex-col justify-between">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f2ff]/5 rounded-none blur-3xl pointer-events-none -z-10"></div>
+          <article className="md:col-span-7 bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-7 relative overflow-hidden shadow-lg flex flex-col justify-between">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFB900]/5 rounded-none blur-3xl pointer-events-none -z-10"></div>
 
             <div>
               <div className="flex items-center justify-between mb-4">
-                <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#00f2ff] uppercase tracking-wider bg-[#00f2ff]/10 px-2.5 py-1 rounded-none border border-[#00f2ff]/20">
+                <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#FFB900] uppercase tracking-wider bg-[#FFB900]/10 px-2.5 py-1 rounded-none border border-[#FFB900]/20">
                   <Wallet className="w-3.5 h-3.5 shrink-0" />
                   <span>AVAILABLE BALANCE</span>
                 </div>
@@ -503,16 +503,16 @@ export default function WalletPage() {
                   type="button"
                   onClick={handleRefreshBalance}
                   disabled={isRefreshing}
-                  className="p-2 rounded-none bg-[#141620] border border-[#222638] text-[#8e95a5] hover:text-[#00f2ff] hover:border-[#00f2ff]/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                  className="p-2 rounded-none bg-[#18181B] border border-[#27272A] text-[#A1A1AA] hover:text-[#FFB900] hover:border-[#FFB900]/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center"
                   title="Synchronize Wallet Balance"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#00f2ff]' : ''}`} />
+                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#FFB900]' : ''}`} />
                 </button>
               </div>
 
               <div className="space-y-1 my-2">
                 {isPageLoading ? (
-                  <div className="h-12 w-40 bg-[#141620] animate-pulse rounded-none my-1"></div>
+                  <div className="h-12 w-40 bg-[#18181B] animate-pulse rounded-none my-1"></div>
                 ) : walletError ? (
                   <span className="text-xl sm:text-2xl font-bold text-red-400 block tracking-tight">
                     BALANCE UNAVAILABLE
@@ -524,21 +524,21 @@ export default function WalletPage() {
                     </span>
                   </div>
                 )}
-                <span className="text-[11px] text-[#8e95a5] block uppercase font-sans tracking-wide">
+                <span className="text-[11px] text-[#A1A1AA] block uppercase font-sans tracking-wide">
                   INR Player Wallet • Ready for tournament entry
                 </span>
               </div>
             </div>
 
             {/* Quick Balance Actions */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6 pt-4 border-t border-[#1f2230]">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6 pt-4 border-t border-[#27272A]">
               <button
                 type="button"
                 onClick={() => {
                   setAmountInput('')
                   setIsDepositModalOpen(true)
                 }}
-                className="py-3 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] font-black uppercase tracking-wider rounded-none text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(0,242,255,0.25)] flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+                className="py-3 bg-[#FFB900] hover:bg-[#FFC933] text-[#000000] font-black uppercase tracking-wider rounded-none text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
               >
                 <PlusCircle className="w-4 h-4 shrink-0" />
                 <span>ADD MONEY</span>
@@ -558,7 +558,7 @@ export default function WalletPage() {
                   setWithdrawalIdempotencyKey(null)
                   setIsWithdrawModalOpen(true)
                 }}
-                className="py-3 bg-[#141620] hover:bg-[#1a1d29] text-white hover:text-[#00f2ff] border border-[#222638] hover:border-[#00f2ff]/40 font-bold uppercase tracking-wider rounded-none text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+                className="py-3 bg-[#18181B] hover:bg-[#27272A] text-white hover:text-[#FFB900] border border-[#27272A] hover:border-[#FFB900]/40 font-bold uppercase tracking-wider rounded-none text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
               >
                 <ArrowUpRight className="w-4 h-4 shrink-0" />
                 <span>WITHDRAW</span>
@@ -567,35 +567,35 @@ export default function WalletPage() {
           </article>
 
           {/* Single Authoritative Prize Earnings Metric Card */}
-          <article className="md:col-span-5 bg-[#0d0e15] border border-[#1f2230] rounded-none p-5 sm:p-7 relative overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.35)] flex flex-col justify-between">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-[#fbbf24]/5 rounded-none blur-3xl pointer-events-none -z-10"></div>
+          <article className="md:col-span-5 bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-7 relative overflow-hidden shadow-lg flex flex-col justify-between">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#FFB900]/5 rounded-none blur-3xl pointer-events-none -z-10"></div>
 
             <div>
-              <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#fbbf24] uppercase tracking-wider bg-[#fbbf24]/10 px-2.5 py-1 rounded-none border border-[#fbbf24]/20 mb-4">
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#FFB900] uppercase tracking-wider bg-[#FFB900]/10 px-2.5 py-1 rounded-none border border-[#FFB900]/20 mb-4">
                 <Trophy className="w-3.5 h-3.5 shrink-0" />
                 <span>PRIZE EARNINGS</span>
               </div>
 
               <div className="space-y-1 my-2">
                 {loadingPrizeEarnings ? (
-                  <div className="h-10 w-32 bg-[#141620] animate-pulse rounded-none my-1"></div>
+                  <div className="h-10 w-32 bg-[#18181B] animate-pulse rounded-none my-1"></div>
                 ) : (
-                  <span className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-[#fbbf24] block">
+                  <span className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-[#FFB900] block">
                     {prizeEarnings !== null && prizeEarnings > 0
                       ? `₹${Math.floor(prizeEarnings).toLocaleString('en-IN')}`
                       : '—'}
                   </span>
                 )}
-                <span className="text-[11px] text-[#8e95a5] block uppercase font-sans tracking-wide">
+                <span className="text-[11px] text-[#A1A1AA] block uppercase font-sans tracking-wide">
                   Confirmed Free Fire MAX Tournament Winnings
                 </span>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[#1f2230] mt-6">
-              <div className="flex items-center justify-between text-[11px] text-[#717a8e] font-sans">
+            <div className="pt-4 border-t border-[#27272A] mt-6">
+              <div className="flex items-center justify-between text-[11px] text-[#A1A1AA] font-sans">
                 <span>Direct Ledger Accounting</span>
-                <span className="text-[#00ff9d] font-mono font-bold">100% Credited</span>
+                <span className="text-[#10B981] font-mono font-bold">100% Credited</span>
               </div>
             </div>
           </article>
@@ -606,18 +606,18 @@ export default function WalletPage() {
         {/* 2.5 WITHDRAWAL REQUESTS QUEUE / HISTORY            */}
         {/* ================================================== */}
         <section aria-label="Withdrawal Requests" className="space-y-4">
-          <div className="flex items-center justify-between border-b border-[#1f2230] pb-4">
+          <div className="flex items-center justify-between border-b border-[#27272A] pb-4">
             <div className="flex items-center gap-2.5">
               <h2 className="text-base sm:text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <ArrowUpRight className="w-4 h-4 text-[#fe6b00]" />
+                <ArrowUpRight className="w-4 h-4 text-[#FF8C00]" />
                 <span>WITHDRAWAL REQUESTS</span>
               </h2>
-              <span className="px-2 py-0.5 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#fe6b00]">
+              <span className="px-2 py-0.5 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#FF8C00]">
                 {userWithdrawals.length} {userWithdrawals.length === 1 ? 'Request' : 'Requests'}
               </span>
             </div>
 
-            <span className="text-[10px] text-[#8e95a5] font-sans hidden sm:inline-block">
+            <span className="text-[10px] text-[#A1A1AA] font-sans hidden sm:inline-block">
               Manual Admin Review & Direct Bank / UPI Disbursement
             </span>
           </div>
@@ -625,16 +625,16 @@ export default function WalletPage() {
           {loadingWithdrawals ? (
             <div className="space-y-3">
               {[1, 2].map((n) => (
-                <div key={n} className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse"></div>
+                <div key={n} className="h-20 bg-[#111215] border border-[#27272A] rounded-none animate-pulse"></div>
               ))}
             </div>
           ) : userWithdrawals.length === 0 ? (
-            <div className="py-10 text-center border border-[#1f2230] bg-[#0d0e15] rounded-none p-6 space-y-2">
-              <ArrowUpRight className="w-8 h-8 text-[#525866] mx-auto" />
+            <div className="py-10 text-center border border-[#27272A] bg-[#111215] rounded-none p-6 space-y-2">
+              <ArrowUpRight className="w-8 h-8 text-[#71717A] mx-auto" />
               <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                 NO WITHDRAWAL REQUESTS YET
               </h3>
-              <p className="text-[11px] text-[#8e95a5] font-sans max-w-sm mx-auto">
+              <p className="text-[11px] text-[#A1A1AA] font-sans max-w-sm mx-auto">
                 When you request a payout, its live review and disbursement status will appear here.
               </p>
             </div>
@@ -655,20 +655,20 @@ export default function WalletPage() {
                 return (
                   <article
                     key={w.id}
-                    className="p-4 sm:p-5 rounded-none bg-[#0d0e15] border border-[#1f2230] hover:border-[#fe6b00]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_2px_15px_rgba(0,0,0,0.25)]"
+                    className="p-4 sm:p-5 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FF8C00]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md"
                   >
                     <div className="flex items-start gap-3.5 min-w-0">
-                      <div className="w-10 h-10 rounded-none border border-[#fe6b00]/30 bg-[#fe6b00]/10 text-[#fe6b00] flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-10 h-10 rounded-none border border-[#FF8C00]/30 bg-[#FF8C00]/10 text-[#FF8C00] flex items-center justify-center shrink-0 mt-0.5">
                         <ArrowUpRight className="w-5 h-5" />
                       </div>
 
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 rounded-none text-[10px] font-black uppercase tracking-wider border bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/30">
+                          <span className="px-2 py-0.5 rounded-none text-[10px] font-black uppercase tracking-wider border bg-[#FF8C00]/10 text-[#FF8C00] border-[#FF8C00]/30">
                             {w.payout_method === 'BANK_TRANSFER' ? 'BANK TRANSFER' : 'UPI TRANSFER'}
                           </span>
 
-                          <span className="text-[10px] text-[#525866] font-mono">
+                          <span className="text-[10px] text-[#71717A] font-mono">
                             {dateStr} • {timeStr}
                           </span>
                         </div>
@@ -677,50 +677,50 @@ export default function WalletPage() {
                           {formatPayoutSummary(w.payout_method, w.payout_details)}
                         </div>
 
-                        <div className="flex items-center gap-2 text-[10px] text-[#717a8e] font-mono flex-wrap">
+                        <div className="flex items-center gap-2 text-[10px] text-[#A1A1AA] font-mono flex-wrap">
                           <span>Ref: {w.id.substring(0, 8)}...</span>
                           {w.payment_reference && (
                             <>
                               <span>&bull;</span>
-                              <span className="text-[#00ff9d] font-bold">UTR: {w.payment_reference}</span>
+                              <span className="text-[#10B981] font-bold">UTR: {w.payment_reference}</span>
                             </>
                           )}
                           {w.rejection_reason && (
                             <>
                               <span>&bull;</span>
-                              <span className="text-[#f87171]">Reason: {w.rejection_reason}</span>
+                              <span className="text-[#EF4444]">Reason: {w.rejection_reason}</span>
                             </>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[#1f2230] shrink-0">
-                      <span className="text-sm sm:text-base font-black font-mono text-[#fe6b00]">
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[#27272A] shrink-0">
+                      <span className="text-sm sm:text-base font-black font-mono text-[#FF8C00]">
                         ₹{Math.floor(Number(w.amount || 0))}
                       </span>
 
                       <div className="mt-1">
                         {w.status === 'PENDING' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#fbbf24] bg-[#fbbf24]/10 border border-[#fbbf24]/30 uppercase">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#FFB900] bg-[#FFB900]/10 border border-[#FFB900]/30 uppercase">
                             <Clock className="w-3 h-3" />
                             <span>PENDING REVIEW</span>
                           </span>
                         )}
                         {w.status === 'APPROVED' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/30 uppercase">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#FFB900] bg-[#FFB900]/10 border border-[#FFB900]/30 uppercase">
                             <CheckCircle2 className="w-3 h-3" />
                             <span>APPROVED - PROCESSING</span>
                           </span>
                         )}
                         {w.status === 'PAID' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#00ff9d] bg-[#00ff9d]/10 border border-[#00ff9d]/30 uppercase">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/30 uppercase">
                             <CheckCircle2 className="w-3 h-3" />
                             <span>PAID</span>
                           </span>
                         )}
                         {w.status === 'REJECTED' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#f87171] bg-red-950/40 border border-red-900/50 uppercase">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[9.5px] font-bold text-[#EF4444] bg-red-950/40 border border-red-900/50 uppercase">
                             <AlertCircle className="w-3 h-3" />
                             <span>REJECTED (REFUNDED)</span>
                           </span>
@@ -740,26 +740,26 @@ export default function WalletPage() {
         <section aria-label="Transaction History" className="space-y-4">
 
           {/* Section Controls: Title, Search, Filter Tabs */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#1f2230] pb-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#27272A] pb-4">
             <div className="flex items-center gap-2.5">
               <h2 className="text-base sm:text-lg font-bold text-white uppercase tracking-wider">
                 TRANSACTION HISTORY
               </h2>
-              <span className="px-2 py-0.5 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#00f2ff]">
+              <span className="px-2 py-0.5 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#FFB900]">
                 {filteredTransactions.length} {filteredTransactions.length === 1 ? 'Record' : 'Records'}
               </span>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
               {/* Filter Tabs: ALL, CREDITS (+), DEBITS (-) */}
-              <div className="flex items-center p-1 bg-[#0d0e15] border border-[#1f2230] rounded-none text-[11px] font-mono font-bold">
+              <div className="flex items-center p-1 bg-[#111215] border border-[#27272A] rounded-none text-[11px] font-mono font-bold">
                 <button
                   type="button"
                   onClick={() => setActiveFilter('ALL')}
                   className={`px-3 py-1.5 rounded-none uppercase transition-all cursor-pointer ${
                     activeFilter === 'ALL'
-                      ? 'bg-[#00f2ff] text-[#08080a] shadow-[0_0_10px_rgba(0,242,255,0.3)]'
-                      : 'text-[#8e95a5] hover:text-white'
+                      ? 'bg-[#FFB900] text-[#000000]'
+                      : 'text-[#A1A1AA] hover:text-white'
                   }`}
                 >
                   ALL
@@ -769,8 +769,8 @@ export default function WalletPage() {
                   onClick={() => setActiveFilter('CREDITS')}
                   className={`px-3 py-1.5 rounded-none uppercase transition-all cursor-pointer ${
                     activeFilter === 'CREDITS'
-                      ? 'bg-[#00ff9d] text-[#08080a] shadow-[0_0_10px_rgba(0,255,157,0.3)]'
-                      : 'text-[#8e95a5] hover:text-white'
+                      ? 'bg-[#10B981] text-[#000000]'
+                      : 'text-[#A1A1AA] hover:text-white'
                   }`}
                 >
                   CREDITS (+)
@@ -780,8 +780,8 @@ export default function WalletPage() {
                   onClick={() => setActiveFilter('DEBITS')}
                   className={`px-3 py-1.5 rounded-none uppercase transition-all cursor-pointer ${
                     activeFilter === 'DEBITS'
-                      ? 'bg-[#f87171] text-[#08080a] shadow-[0_0_10px_rgba(248,113,113,0.3)]'
-                      : 'text-[#8e95a5] hover:text-white'
+                      ? 'bg-[#EF4444] text-[#000000]'
+                      : 'text-[#A1A1AA] hover:text-white'
                   }`}
                 >
                   DEBITS (-)
@@ -790,13 +790,13 @@ export default function WalletPage() {
 
               {/* Search Bar */}
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-[#525866] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Search className="w-3.5 h-3.5 text-[#71717A] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search statement..."
-                  className="w-full sm:w-48 bg-[#0d0e15] border border-[#1f2230] rounded-none pl-9 pr-3 py-1.5 text-xs text-white placeholder-[#525866] focus:border-[#00f2ff] focus:outline-none transition-colors h-[38px] font-sans"
+                  className="w-full sm:w-48 bg-[#111215] border border-[#27272A] rounded-none pl-9 pr-3 py-1.5 text-xs text-white placeholder-[#71717A] focus:border-[#FFB900] focus:outline-none transition-colors h-[38px] font-sans"
                 />
               </div>
             </div>
@@ -806,28 +806,28 @@ export default function WalletPage() {
           {isPageLoading ? (
             <div className="space-y-3">
               {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="h-20 bg-[#0d0e15] border border-[#1f2230] rounded-none animate-pulse"></div>
+                <div key={n} className="h-20 bg-[#111215] border border-[#27272A] rounded-none animate-pulse"></div>
               ))}
             </div>
           ) : transactions.length === 0 ? (
             /* Empty State: No Transactions Yet */
-            <div className="py-16 text-center border border-[#1f2230] bg-[#0d0e15] rounded-none p-6 space-y-3">
-              <Wallet className="w-10 h-10 text-[#525866] mx-auto" />
+            <div className="py-16 text-center border border-[#27272A] bg-[#111215] rounded-none p-6 space-y-3">
+              <Wallet className="w-10 h-10 text-[#71717A] mx-auto" />
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                 NO TRANSACTIONS YET
               </h3>
-              <p className="text-xs text-[#8e95a5] font-sans max-w-sm mx-auto">
+              <p className="text-xs text-[#A1A1AA] font-sans max-w-sm mx-auto">
                 Add money or participate in a Free Fire MAX tournament to begin your wallet history.
               </p>
             </div>
           ) : filteredTransactions.length === 0 ? (
             /* Filter/Search Empty State */
-            <div className="py-14 text-center border border-[#1f2230] bg-[#0d0e15] rounded-none p-6 space-y-2.5">
-              <AlertCircle className="w-8 h-8 text-[#525866] mx-auto" />
+            <div className="py-14 text-center border border-[#27272A] bg-[#111215] rounded-none p-6 space-y-2.5">
+              <AlertCircle className="w-8 h-8 text-[#71717A] mx-auto" />
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                 NO MATCHING TRANSACTIONS
               </h3>
-              <p className="text-xs text-[#8e95a5] font-sans max-w-sm mx-auto">
+              <p className="text-xs text-[#A1A1AA] font-sans max-w-sm mx-auto">
                 No transactions match the selected filter or search query.
               </p>
             </div>
@@ -841,16 +841,16 @@ export default function WalletPage() {
                 return (
                   <article
                     key={tx.id}
-                    className="p-4 sm:p-5 rounded-none bg-[#0d0e15] border border-[#1f2230] hover:border-[#00f2ff]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_2px_15px_rgba(0,0,0,0.25)]"
+                    className="p-4 sm:p-5 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FFB900]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md"
                   >
                     <div className="flex items-start gap-3.5 min-w-0">
                       <div
                         className={`w-10 h-10 rounded-none border flex items-center justify-center shrink-0 mt-0.5 ${
                           isCredit
                             ? isPrize
-                              ? 'bg-[#fbbf24]/10 text-[#fbbf24] border-[#fbbf24]/30'
-                              : 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/30'
-                            : 'bg-[#f87171]/10 text-[#f87171] border-[#f87171]/30'
+                              ? 'bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/30'
+                              : 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30'
+                            : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30'
                         }`}
                       >
                         {isCredit ? (
@@ -866,15 +866,15 @@ export default function WalletPage() {
                             className={`px-2 py-0.5 rounded-none text-[10px] font-black uppercase tracking-wider border ${
                               isCredit
                                 ? isPrize
-                                  ? 'bg-[#fbbf24]/10 text-[#fbbf24] border-[#fbbf24]/30'
-                                  : 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/30'
-                                : 'bg-[#f87171]/10 text-[#f87171] border-[#f87171]/30'
+                                  ? 'bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/30'
+                                  : 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30'
+                                : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30'
                             }`}
                           >
                             {tx.category}
                           </span>
 
-                          <span className="text-[10px] text-[#525866] font-mono">
+                          <span className="text-[10px] text-[#71717A] font-mono">
                             {tx.date} • {tx.time}
                           </span>
                         </div>
@@ -883,7 +883,7 @@ export default function WalletPage() {
                           {tx.description}
                         </h3>
 
-                        <div className="flex items-center gap-3 text-[10px] text-[#717a8e] font-mono">
+                        <div className="flex items-center gap-3 text-[10px] text-[#A1A1AA] font-mono">
                           <span>Ref: {tx.id.substring(0, 8)}...</span>
                           <span>&bull;</span>
                           <span>Bal: ₹{Math.floor(tx.balanceAfter)}</span>
@@ -891,19 +891,19 @@ export default function WalletPage() {
                       </div>
                     </div>
 
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[#1f2230]">
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[#27272A]">
                       <span
                         className={`text-sm sm:text-base font-black font-mono ${
                           isCredit
                             ? isPrize
-                              ? 'text-[#fbbf24]'
-                              : 'text-[#00ff9d]'
-                            : 'text-[#f87171]'
+                              ? 'text-[#FFB900]'
+                              : 'text-[#10B981]'
+                            : 'text-[#EF4444]'
                         }`}
                       >
                         {isCredit ? '+' : '−'}₹{Math.abs(tx.amount)}
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[9.5px] font-bold text-[#00ff9d] uppercase">
+                      <span className="inline-flex items-center gap-1 text-[9.5px] font-bold text-[#10B981] uppercase">
                         <CheckCircle2 className="w-3 h-3" />
                         <span>COMPLETED</span>
                       </span>
@@ -923,7 +923,7 @@ export default function WalletPage() {
       {/* ================================================== */}
       {isDepositModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md font-mono">
-          <div className="w-full max-w-md bg-[#0d0e15] border border-[#1f2230] rounded-none p-6 space-y-5 shadow-2xl relative">
+          <div className="w-full max-w-md bg-[#111215] border border-[#27272A] rounded-none p-6 space-y-5 shadow-2xl relative">
             <button
               type="button"
               onClick={() => {
@@ -933,19 +933,19 @@ export default function WalletPage() {
                 setTopupStatus(null)
               }}
               disabled={isSubmittingTopup}
-              className="absolute top-4 right-4 p-1.5 text-[#8e95a5] hover:text-white rounded-none bg-[#141620] border border-[#222638] transition-colors disabled:opacity-40 cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 text-[#A1A1AA] hover:text-white rounded-none bg-[#18181B] border border-[#27272A] transition-colors disabled:opacity-40 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="space-y-1">
-              <span className="text-[10px] font-bold text-[#00f2ff] uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-[#FFB900] uppercase tracking-wider">
                 ONLINE WALLET TOP-UP
               </span>
               <h3 className="text-lg font-black text-white uppercase tracking-wider">
                 ADD MONEY
               </h3>
-              <p className="text-xs text-[#8e95a5] font-sans">
+              <p className="text-xs text-[#A1A1AA] font-sans">
                 Top up your wallet balance instantly for tournament registrations. Allowed: ₹1 through ₹200 per transaction. Whole rupees only.
               </p>
             </div>
@@ -953,7 +953,7 @@ export default function WalletPage() {
             <form onSubmit={handleDepositSubmit} className="space-y-4">
               {/* Preset Buttons */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
                   Quick Presets
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -968,8 +968,8 @@ export default function WalletPage() {
                       }}
                       className={`py-2 rounded-none text-xs font-bold font-mono transition-all border cursor-pointer disabled:opacity-50 ${
                         amountInput === preset.toString()
-                          ? 'bg-[#00f2ff]/15 border-[#00f2ff] text-[#00f2ff]'
-                          : 'bg-[#141620] border-[#222638] text-white hover:border-[#00f2ff]/40'
+                          ? 'bg-[#FFB900]/15 border-[#FFB900] text-[#FFB900]'
+                          : 'bg-[#18181B] border-[#27272A] text-white hover:border-[#FFB900]/40'
                       }`}
                     >
                       +₹{preset}
@@ -981,10 +981,10 @@ export default function WalletPage() {
               {/* Custom Input */}
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center text-[10px]">
-                  <label className="uppercase font-bold text-[#8e95a5]">
+                  <label className="uppercase font-bold text-[#A1A1AA]">
                     Top-Up Amount (INR)
                   </label>
-                  <span className="text-[#00f2ff] font-mono">
+                  <span className="text-[#FFB900] font-mono">
                     Limit: ₹1 - ₹200
                   </span>
                 </div>
@@ -1006,14 +1006,14 @@ export default function WalletPage() {
                     }}
                     placeholder="Enter amount (1-200)"
                     required
-                    className="w-full bg-[#141620] border border-[#222638] rounded-none pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                    className="w-full bg-[#18181B] border border-[#27272A] rounded-none pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#FFB900] focus:outline-none font-mono disabled:opacity-50"
                   />
                 </div>
               </div>
 
               {/* Payment Gateway Options */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
                   Payment Method
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -1025,8 +1025,8 @@ export default function WalletPage() {
                       disabled={isSubmittingTopup}
                       className={`py-2 text-[10px] font-bold uppercase rounded-none border transition-all cursor-pointer disabled:opacity-50 ${
                         paymentMethod === method
-                          ? 'bg-[#00f2ff]/10 border-[#00f2ff] text-[#00f2ff]'
-                          : 'bg-[#141620] border-[#222638] text-[#8e95a5] hover:text-white'
+                          ? 'bg-[#FFB900]/10 border-[#FFB900] text-[#FFB900]'
+                          : 'bg-[#18181B] border-[#27272A] text-[#A1A1AA] hover:text-white'
                       }`}
                     >
                       {method === 'UPI' ? 'UPI / QR' : method === 'CARD' ? 'Card' : 'NetBanking'}
@@ -1037,7 +1037,7 @@ export default function WalletPage() {
 
               {/* Status Indicator during Payment */}
               {topupStatus === 'PROCESSING' && (
-                <div className="p-2.5 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-xs flex items-center gap-2 font-sans">
+                <div className="p-2.5 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 text-[#FFB900] text-xs flex items-center gap-2 font-sans">
                   <RefreshCw className="w-4 h-4 animate-spin shrink-0" />
                   <span>PAYMENT PROCESSING: Authoritative ledger verification in progress...</span>
                 </div>
@@ -1051,7 +1051,7 @@ export default function WalletPage() {
               )}
 
               {/* Actions */}
-              <div className="flex gap-3 pt-3 border-t border-[#1f2230]">
+              <div className="flex gap-3 pt-3 border-t border-[#27272A]">
                 <button
                   type="button"
                   onClick={() => {
@@ -1061,14 +1061,14 @@ export default function WalletPage() {
                     setTopupStatus(null)
                   }}
                   disabled={isSubmittingTopup}
-                  className="flex-1 py-2.5 bg-[#141620] border border-[#222638] hover:border-red-500 hover:text-red-400 rounded-none text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-[#18181B] border border-[#27272A] hover:border-red-500 hover:text-red-400 rounded-none text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingTopup || !amountInput}
-                  className="flex-1 py-2.5 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#08080a] rounded-none text-xs font-black uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 bg-[#FFB900] hover:bg-[#FFC933] text-[#000000] rounded-none text-xs font-black uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isSubmittingTopup ? (
                     <>
@@ -1090,7 +1090,7 @@ export default function WalletPage() {
       {/* ================================================== */}
       {isWithdrawModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md font-mono">
-          <div className="w-full max-w-lg bg-[#0d0e15] border border-[#1f2230] rounded-none p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-lg bg-[#111215] border border-[#27272A] rounded-none p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button
               type="button"
               onClick={() => {
@@ -1099,27 +1099,27 @@ export default function WalletPage() {
                 }
               }}
               disabled={isSubmittingWithdrawal}
-              className="absolute top-4 right-4 p-1.5 text-[#8e95a5] hover:text-white rounded-none bg-[#141620] border border-[#222638] transition-colors cursor-pointer disabled:opacity-40"
+              className="absolute top-4 right-4 p-1.5 text-[#A1A1AA] hover:text-white rounded-none bg-[#18181B] border border-[#27272A] transition-colors cursor-pointer disabled:opacity-40"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="space-y-1">
-              <span className="text-[10px] font-bold text-[#fe6b00] uppercase tracking-wider flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-[#fe6b00]" />
+              <span className="text-[10px] font-bold text-[#FF8C00] uppercase tracking-wider flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-[#FF8C00]" />
                 <span>COMPETITIVE PAYOUT DISBURSEMENT</span>
               </span>
               <h3 className="text-lg font-black text-white uppercase tracking-wider">
                 REQUEST WITHDRAWAL
               </h3>
-              <p className="text-xs text-[#8e95a5] font-sans">
-                Transfer your tournament winnings and balance to your verified bank or UPI account. Available balance: <strong className="text-[#00ff9d] font-mono">₹{authoritativeBalance}</strong>.
+              <p className="text-xs text-[#A1A1AA] font-sans">
+                Transfer your tournament winnings and balance to your verified bank or UPI account. Available balance: <strong className="text-[#10B981] font-mono">₹{authoritativeBalance}</strong>.
               </p>
             </div>
 
             {/* Payout Method Selector */}
             <div className="space-y-1.5">
-              <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+              <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
                 Select Disbursement Channel
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -1129,8 +1129,8 @@ export default function WalletPage() {
                   disabled={isSubmittingWithdrawal}
                   className={`py-2.5 px-3 rounded-none border text-xs font-bold font-mono uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     withdrawalPayoutMethod === 'UPI'
-                      ? 'bg-[#00f2ff]/15 border-[#00f2ff] text-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.2)]'
-                      : 'bg-[#141620] border-[#222638] text-[#8e95a5] hover:text-white'
+                      ? 'bg-[#FFB900]/15 border-[#FFB900] text-[#FFB900]'
+                      : 'bg-[#18181B] border-[#27272A] text-[#A1A1AA] hover:text-white'
                   }`}
                 >
                   <Zap className="w-3.5 h-3.5" />
@@ -1143,8 +1143,8 @@ export default function WalletPage() {
                   disabled={isSubmittingWithdrawal}
                   className={`py-2.5 px-3 rounded-none border text-xs font-bold font-mono uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     withdrawalPayoutMethod === 'BANK_TRANSFER'
-                      ? 'bg-[#00f2ff]/15 border-[#00f2ff] text-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.2)]'
-                      : 'bg-[#141620] border-[#222638] text-[#8e95a5] hover:text-white'
+                      ? 'bg-[#FFB900]/15 border-[#FFB900] text-[#FFB900]'
+                      : 'bg-[#18181B] border-[#27272A] text-[#A1A1AA] hover:text-white'
                   }`}
                 >
                   <Wallet className="w-3.5 h-3.5" />
@@ -1157,10 +1157,10 @@ export default function WalletPage() {
               {/* Amount Input */}
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center text-[10px]">
-                  <label className="uppercase font-bold text-[#8e95a5]">
+                  <label className="uppercase font-bold text-[#A1A1AA]">
                     Withdrawal Amount (Whole INR)
                   </label>
-                  <span className="text-[#fe6b00] font-mono">
+                  <span className="text-[#FF8C00] font-mono">
                     Min: ₹100 • Max: ₹{authoritativeBalance}
                   </span>
                 </div>
@@ -1181,7 +1181,7 @@ export default function WalletPage() {
                     }}
                     placeholder="Enter whole rupee amount (min 100)"
                     required
-                    className="w-full bg-[#141620] border border-[#222638] rounded-none pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                    className="w-full bg-[#18181B] border border-[#27272A] rounded-none pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#FFB900] focus:outline-none font-mono disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -1189,7 +1189,7 @@ export default function WalletPage() {
               {/* UPI Fields */}
               {withdrawalPayoutMethod === 'UPI' && (
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                  <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
                     UPI ID / Virtual Payment Address (VPA)
                   </label>
                   <input
@@ -1199,9 +1199,9 @@ export default function WalletPage() {
                     onChange={(e) => setUpiIdInput(e.target.value)}
                     placeholder="e.g. username@okhdfcbank or 9876543210@ybl"
                     required
-                    className="w-full bg-[#141620] border border-[#222638] rounded-none px-4 py-2.5 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                    className="w-full bg-[#18181B] border border-[#27272A] rounded-none px-4 py-2.5 text-xs text-white focus:border-[#FFB900] focus:outline-none font-mono disabled:opacity-50"
                   />
-                  <p className="text-[10px] text-[#525866] font-sans">
+                  <p className="text-[10px] text-[#71717A] font-sans">
                     Must be registered with BHIM, Google Pay, PhonePe, Paytm, or your banking app.
                   </p>
                 </div>
@@ -1212,7 +1212,7 @@ export default function WalletPage() {
                 <div className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                      <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
                         Bank Name
                       </label>
                       <input
@@ -1222,12 +1222,12 @@ export default function WalletPage() {
                         onChange={(e) => setBankName(e.target.value)}
                         placeholder="e.g. HDFC Bank, SBI"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                        className="w-full bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-xs text-white focus:border-[#FFB900] focus:outline-none font-mono disabled:opacity-50"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                      <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
                         Account Holder Name
                       </label>
                       <input
@@ -1237,14 +1237,14 @@ export default function WalletPage() {
                         onChange={(e) => setBankAccountHolder(e.target.value)}
                         placeholder="As on bank passbook"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                        className="w-full bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-xs text-white focus:border-[#FFB900] focus:outline-none font-mono disabled:opacity-50"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                      <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
                         Account Number
                       </label>
                       <input
@@ -1254,12 +1254,12 @@ export default function WalletPage() {
                         onChange={(e) => setBankAccountNumber(e.target.value.replace(/[^0-9]/g, ''))}
                         placeholder="Enter account number"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                        className="w-full bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-xs text-white focus:border-[#FFB900] focus:outline-none font-mono disabled:opacity-50"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                      <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
                         Confirm Account Number
                       </label>
                       <input
@@ -1269,13 +1269,13 @@ export default function WalletPage() {
                         onChange={(e) => setBankAccountConfirm(e.target.value.replace(/[^0-9]/g, ''))}
                         placeholder="Re-enter account number"
                         required
-                        className="w-full bg-[#141620] border border-[#222638] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono disabled:opacity-50"
+                        className="w-full bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-xs text-white focus:border-[#FFB900] focus:outline-none font-mono disabled:opacity-50"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[10px] uppercase font-bold text-[#8e95a5]">
+                    <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
                       Bank IFSC Code
                     </label>
                     <input
@@ -1286,16 +1286,16 @@ export default function WalletPage() {
                       onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
                       placeholder="e.g. HDFC0001234, SBIN0004567"
                       required
-                      className="w-full bg-[#141620] border border-[#222638] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono uppercase disabled:opacity-50"
+                      className="w-full bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-xs text-white focus:border-[#FFB900] focus:outline-none font-mono uppercase disabled:opacity-50"
                     />
                   </div>
                 </div>
               )}
 
               {/* Zero-Trust Security Note */}
-              <div className="p-3 rounded-none bg-[#141620] border border-[#222638] space-y-1 text-[11px] font-sans text-[#8e95a5]">
-                <div className="flex items-center gap-1.5 text-[#00f2ff] font-mono font-bold text-[10px] uppercase">
-                  <Lock className="w-3 h-3 text-[#00f2ff]" />
+              <div className="p-3 rounded-none bg-[#18181B] border border-[#27272A] space-y-1 text-[11px] font-sans text-[#A1A1AA]">
+                <div className="flex items-center gap-1.5 text-[#FFB900] font-mono font-bold text-[10px] uppercase">
+                  <Lock className="w-3 h-3 text-[#FFB900]" />
                   <span>Zero-Trust Payout Security</span>
                 </div>
                 <p>
@@ -1304,19 +1304,19 @@ export default function WalletPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-3 border-t border-[#1f2230]">
+              <div className="flex gap-3 pt-3 border-t border-[#27272A]">
                 <button
                   type="button"
                   onClick={() => setIsWithdrawModalOpen(false)}
                   disabled={isSubmittingWithdrawal}
-                  className="flex-1 py-2.5 bg-[#141620] border border-[#222638] hover:border-red-500 hover:text-red-400 rounded-none text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-[#18181B] border border-[#27272A] hover:border-red-500 hover:text-red-400 rounded-none text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingWithdrawal || !withdrawAmountInput || parseInt(withdrawAmountInput, 10) < 100 || parseInt(withdrawAmountInput, 10) > authoritativeBalance}
-                  className="flex-1 py-2.5 bg-[#fe6b00] hover:bg-[#ff7d1a] text-white rounded-none text-xs font-black uppercase transition-all shadow-[0_0_15px_rgba(254,107,0,0.3)] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 bg-[#FF8C00] hover:bg-[#FFA033] text-[#000000] rounded-none text-xs font-black uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isSubmittingWithdrawal ? (
                     <>

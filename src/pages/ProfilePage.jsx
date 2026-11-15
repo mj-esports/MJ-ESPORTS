@@ -281,17 +281,17 @@ export default function ProfilePage() {
   // 7. Loading Skeleton
   if (authLoading && !user) {
     return (
-      <div className="bg-[#07080b] text-white font-body min-h-screen pb-20 antialiased">
+      <div className="bg-[#000000] text-white font-body min-h-screen pb-20 antialiased">
         <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 space-y-6 animate-pulse">
-          <div className="h-44 bg-[#0d0e15] rounded-none border border-[#1f2230]"></div>
+          <div className="h-44 bg-[#111215] rounded-none border border-[#27272A]"></div>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-20 bg-[#0d0e15] rounded-none border border-[#1f2230]"></div>
+              <div key={i} className="h-20 bg-[#111215] rounded-none border border-[#27272A]"></div>
             ))}
           </div>
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-16 bg-[#0d0e15] rounded-none border border-[#1f2230]"></div>
+              <div key={i} className="h-16 bg-[#111215] rounded-none border border-[#27272A]"></div>
             ))}
           </div>
         </main>
@@ -300,7 +300,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="bg-[#07080b] text-white font-body min-h-screen pb-20 antialiased selection:bg-[#00f2ff]/30 selection:text-white">
+    <div className="bg-[#000000] text-white font-body min-h-screen pb-20 antialiased selection:bg-[#FFB900]/30 selection:text-white">
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 space-y-5 sm:space-y-6">
 
         {/* ================================================== */}
@@ -308,32 +308,32 @@ export default function ProfilePage() {
         {/* ================================================== */}
         <section
           aria-label="Player Identity"
-          className="relative rounded-none bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] p-5 sm:p-6 shadow-[0_4px_30px_rgba(0,0,0,0.6)] overflow-hidden"
+          className="relative rounded-none bg-[#111215] border border-[#27272A] p-5 sm:p-6  overflow-hidden"
         >
           {/* Subtle Cyber Grid & Ambient Highlights */}
           <div
             className="absolute inset-0 pointer-events-none opacity-20"
             style={{
-              backgroundImage: 'radial-gradient(#00f2ff 1px, transparent 1px)',
+              backgroundImage: 'radial-gradient(#FFB900 1px, transparent 1px)',
               backgroundSize: '24px 24px',
             }}
           ></div>
-          <div className="absolute top-0 right-0 w-64 h-32 bg-[#00f2ff]/5 rounded-none blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-32 bg-[#ff5e07]/5 rounded-none blur-3xl pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-64 h-32 bg-[#FFB900]/5 rounded-none blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-32 bg-[#FF8C00]/5 rounded-none blur-3xl pointer-events-none"></div>
 
           {/* Top Bar: Game Scope Badge + Edit Profile Action */}
-          <div className="relative z-10 flex items-center justify-between gap-3 mb-4 pb-3 border-b border-[#1f2230]/70">
+          <div className="relative z-10 flex items-center justify-between gap-3 mb-4 pb-3 border-b border-[#27272A]/70">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-mono font-bold uppercase tracking-widest">
-                <Gamepad2 className="w-3 h-3 text-[#00f2ff]" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 text-[#FFB900] text-[10px] font-mono font-bold uppercase tracking-widest">
+                <Gamepad2 className="w-3 h-3 text-[#FFB900]" />
                 <span>FREE FIRE MAX</span>
               </span>
               {isVerified && (
                 <span
                   id="profile-verified-badge"
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-none bg-[#00ff9d]/10 border border-[#00ff9d]/30 text-[#00ff9d] text-[10px] font-mono font-bold uppercase tracking-widest"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-none bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981] text-[10px] font-mono font-bold uppercase tracking-widest"
                 >
-                  <CheckCircle2 className="w-3 h-3 text-[#00ff9d]" />
+                  <CheckCircle2 className="w-3 h-3 text-[#10B981]" />
                   <span>VERIFIED</span>
                 </span>
               )}
@@ -342,7 +342,7 @@ export default function ProfilePage() {
             <button
               onClick={() => navigate('/profile/edit')}
               aria-label="Edit Profile"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#141620] hover:bg-[#00f2ff]/10 border border-[#272b3c] hover:border-[#00f2ff]/50 text-[#9ba3b8] hover:text-[#00f2ff] text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#18181B] hover:bg-[#FFB900]/10 border border-[#27272A] hover:border-[#FFB900]/50 text-[#A1A1AA] hover:text-[#FFB900] text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer"
             >
               <Edit3 className="w-3.5 h-3.5" />
               <span>Edit Profile</span>
@@ -356,12 +356,12 @@ export default function ProfilePage() {
               <img
                 src={avatarUrl}
                 alt={displayName}
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-none object-cover ring-2 ring-[#00f2ff]/30 ring-offset-2 ring-offset-[#0d0e15] shadow-[0_0_20px_rgba(0,242,255,0.2)]"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-none object-cover ring-2 ring-[#FFB900]/30 ring-offset-2 ring-offset-[#111215] "
               />
               {isPro && (
                 <div
                   id="profile-pro-badge"
-                  className="absolute -bottom-1 -right-1 bg-[#00f2ff] text-black text-[9px] font-black font-headline px-1.5 py-0.5 rounded-none shadow-[0_0_10px_rgba(0,242,255,0.6)] uppercase tracking-wider border border-[#0a0b10]"
+                  className="absolute -bottom-1 -right-1 bg-[#FFB900] text-black text-[9px] font-black font-headline px-1.5 py-0.5 rounded-none  uppercase tracking-wider border border-[#000000]"
                 >
                   PRO
                 </div>
@@ -376,8 +376,8 @@ export default function ProfilePage() {
 
               {/* Free Fire MAX UID Pill */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-0.5">
-                <div className="inline-flex items-center gap-2 bg-[#12141c] border border-[#222638] rounded-none px-2.5 py-1 text-xs font-mono">
-                  <span className="text-[#00f2ff] font-bold text-[11px] uppercase tracking-wider">
+                <div className="inline-flex items-center gap-2 bg-[#18181B] border border-[#27272A] rounded-none px-2.5 py-1 text-xs font-mono">
+                  <span className="text-[#FFB900] font-bold text-[11px] uppercase tracking-wider">
                     UID:
                   </span>
                   <span className="text-white font-semibold tracking-wider select-all">
@@ -388,10 +388,10 @@ export default function ProfilePage() {
                       onClick={handleCopyUid}
                       aria-label="Copy Free Fire MAX UID"
                       title="Copy Free Fire MAX UID"
-                      className="text-[#717a8e] hover:text-[#00f2ff] transition-colors p-0.5 cursor-pointer ml-1"
+                      className="text-[#A1A1AA] hover:text-[#FFB900] transition-colors p-0.5 cursor-pointer ml-1"
                     >
                       {copied ? (
-                        <Check className="w-3.5 h-3.5 text-[#00ff9d]" />
+                        <Check className="w-3.5 h-3.5 text-[#10B981]" />
                       ) : (
                         <Copy className="w-3.5 h-3.5" />
                       )}
@@ -405,7 +405,7 @@ export default function ProfilePage() {
                     href={`https://instagram.com/${instagram.replace('@', '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#12141c] hover:bg-[#181b26] border border-[#222638] hover:border-[#fb00ff]/40 text-[#c2c7d6] hover:text-[#fb00ff] rounded-none text-[11px] font-mono transition-all"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#18181B] hover:bg-[#18181B] border border-[#27272A] hover:border-[#FF8C00]/40 text-[#A1A1AA] hover:text-[#FF8C00] rounded-none text-[11px] font-mono transition-all"
                   >
                     <span>@{instagram.replace('@', '')}</span>
                   </a>
@@ -415,7 +415,7 @@ export default function ProfilePage() {
                     href={whatsappChannel}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#12141c] hover:bg-[#181b26] border border-[#222638] hover:border-[#00ff9d]/40 text-[#c2c7d6] hover:text-[#00ff9d] rounded-none text-[11px] font-mono transition-all"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#18181B] hover:bg-[#18181B] border border-[#27272A] hover:border-[#10B981]/40 text-[#A1A1AA] hover:text-[#10B981] rounded-none text-[11px] font-mono transition-all"
                   >
                     <span>WhatsApp</span>
                   </a>
@@ -424,7 +424,7 @@ export default function ProfilePage() {
 
               {/* Bio (if available) */}
               {bio && (
-                <p className="text-[#8e95a5] text-xs font-sans italic line-clamp-2 max-w-xl pt-1">
+                <p className="text-[#A1A1AA] text-xs font-sans italic line-clamp-2 max-w-xl pt-1">
                   "{bio}"
                 </p>
               )}
@@ -437,78 +437,78 @@ export default function ProfilePage() {
         {/* ================================================== */}
         <section aria-label="Competitive Telemetry" className="space-y-2.5">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#717a8e] flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-[#00f2ff]" />
+            <h2 className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#A1A1AA] flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5 text-[#FFB900]" />
               <span>Competitive Telemetry</span>
             </h2>
-            <span className="text-[10px] font-mono text-[#525866] uppercase tracking-wider">
+            <span className="text-[10px] font-mono text-[#71717A] uppercase tracking-wider">
               Free Fire MAX Live
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3">
             {/* 1. Matches (Actual completed matches played) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00f2ff]/40 transition-all group">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
+            <div className="bg-[#111215] border border-[#27272A] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#FFB900]/40 transition-all group">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#A1A1AA]">
                 Matches
               </span>
               <div className="mt-2 flex items-baseline justify-between">
-                <span className="text-xl sm:text-2xl font-mono font-black text-white group-hover:text-[#00f2ff] transition-colors">
+                <span className="text-xl sm:text-2xl font-mono font-black text-white group-hover:text-[#FFB900] transition-colors">
                   {matchesPlayedCount}
                 </span>
-                <Trophy className="w-4 h-4 text-[#ff5e07]/60 group-hover:text-[#ff5e07] transition-colors" />
+                <Trophy className="w-4 h-4 text-[#FF8C00]/60 group-hover:text-[#FF8C00] transition-colors" />
               </div>
             </div>
 
             {/* 2. Wins (First-place finishes in completed matches) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#ff5e07]/40 transition-all group">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
+            <div className="bg-[#111215] border border-[#27272A] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#FF8C00]/40 transition-all group">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#A1A1AA]">
                 Wins
               </span>
               <div className="mt-2 flex items-baseline justify-between">
-                <span className="text-xl sm:text-2xl font-mono font-black text-white group-hover:text-[#ff5e07] transition-colors">
+                <span className="text-xl sm:text-2xl font-mono font-black text-white group-hover:text-[#FF8C00] transition-colors">
                   {winsCount}
                 </span>
-                <Flame className="w-4 h-4 text-[#ff5e07]/60 group-hover:text-[#ff5e07] transition-colors" />
+                <Flame className="w-4 h-4 text-[#FF8C00]/60 group-hover:text-[#FF8C00] transition-colors" />
               </div>
             </div>
 
             {/* 3. Eliminations / Kills (Aggregate kills recorded in match results) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00f2ff]/40 transition-all group">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
+            <div className="bg-[#111215] border border-[#27272A] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#FFB900]/40 transition-all group">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#A1A1AA]">
                 Kills
               </span>
               <div className="mt-2 flex items-baseline justify-between">
-                <span className="text-xl sm:text-2xl font-mono font-black text-white group-hover:text-[#00f2ff] transition-colors">
+                <span className="text-xl sm:text-2xl font-mono font-black text-white group-hover:text-[#FFB900] transition-colors">
                   {totalKills}
                 </span>
-                <Crosshair className="w-4 h-4 text-[#00f2ff]/60 group-hover:text-[#00f2ff] transition-colors" />
+                <Crosshair className="w-4 h-4 text-[#FFB900]/60 group-hover:text-[#FFB900] transition-colors" />
               </div>
             </div>
 
             {/* 4. Win Rate (Calculated percentage of completed matches won) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00ff9d]/40 transition-all group">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
+            <div className="bg-[#111215] border border-[#27272A] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#10B981]/40 transition-all group">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#A1A1AA]">
                 Win Rate
               </span>
               <div className="mt-2 flex items-baseline justify-between">
-                <span className="text-xl sm:text-2xl font-mono font-black text-white group-hover:text-[#00ff9d] transition-colors">
+                <span className="text-xl sm:text-2xl font-mono font-black text-white group-hover:text-[#10B981] transition-colors">
                   {winRate}
                 </span>
-                <ShieldCheck className="w-4 h-4 text-[#00ff9d]/60 group-hover:text-[#00ff9d] transition-colors" />
+                <ShieldCheck className="w-4 h-4 text-[#10B981]/60 group-hover:text-[#10B981] transition-colors" />
               </div>
             </div>
 
             {/* 5. Earnings (Authoritative tournament prize earnings or honest '—' unavailable state) */}
-            <div className="bg-gradient-to-b from-[#0e1017] to-[#0a0b10] border border-[#1f2230] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#00ff9d]/40 transition-all group col-span-2 sm:col-span-1">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8e95a5]">
+            <div className="bg-[#111215] border border-[#27272A] rounded-none p-3 sm:p-3.5 flex flex-col justify-between hover:border-[#10B981]/40 transition-all group col-span-2 sm:col-span-1">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#A1A1AA]">
                 Earnings
               </span>
               <div className="mt-2 flex items-baseline justify-between">
-                <span className="text-xl sm:text-2xl font-mono font-black text-white group-hover:text-[#00ff9d] transition-colors">
+                <span className="text-xl sm:text-2xl font-mono font-black text-white group-hover:text-[#10B981] transition-colors">
                   {hasEarningsData ? `₹${Math.floor(authoritativeEarnings)}` : '—'}
                 </span>
-                <Wallet className="w-4 h-4 text-[#00ff9d]/60 group-hover:text-[#00ff9d] transition-colors" />
+                <Wallet className="w-4 h-4 text-[#10B981]/60 group-hover:text-[#10B981] transition-colors" />
               </div>
             </div>
           </div>
@@ -519,10 +519,10 @@ export default function ProfilePage() {
         {/* ================================================== */}
         <section aria-label="Profile Control Center" className="space-y-2.5">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#717a8e]">
+            <h2 className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#A1A1AA]">
               Profile Control Center
             </h2>
-            <span className="text-[10px] font-mono text-[#525866] uppercase tracking-wider">
+            <span className="text-[10px] font-mono text-[#71717A] uppercase tracking-wider">
               Navigation
             </span>
           </div>
@@ -531,160 +531,160 @@ export default function ProfilePage() {
             {/* 1. STATISTICS */}
             <Link
               to="/profile/statistics"
-              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-gradient-to-r from-[#0d0e15] to-[#0a0b10] border border-[#1f2230] hover:border-[#00f2ff]/40 hover:from-[#10121c] hover:to-[#0d0f16] transition-all duration-200 group cursor-pointer"
+              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FFB900]/40 hover:from-[#18181B] hover:to-[#111215] transition-all duration-200 group cursor-pointer"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/20 flex items-center justify-center text-[#00f2ff] group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(0,242,255,0.3)] transition-all">
+                <div className="w-10 h-10 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/20 flex items-center justify-center text-[#FFB900] group-hover:scale-105 group-hover: transition-all">
                   <Activity className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#00f2ff] transition-colors">
+                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#FFB900] transition-colors">
                     Statistics
                   </h3>
-                  <p className="text-[11px] text-[#717a8e] font-sans">
+                  <p className="text-[11px] text-[#A1A1AA] font-sans">
                     Performance & telemetry
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
-                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#9ba3b8]">
+                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#A1A1AA]">
                   {kdRatio} K/D
                 </span>
-                <ChevronRight className="w-4 h-4 text-[#525866] group-hover:text-[#00f2ff] group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="w-4 h-4 text-[#71717A] group-hover:text-[#FFB900] group-hover:translate-x-0.5 transition-all" />
               </div>
             </Link>
 
             {/* TEAM MANAGEMENT */}
             <Link
               to="/profile/team"
-              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-gradient-to-r from-[#0d0e15] to-[#0a0b10] border border-[#1f2230] hover:border-[#00f2ff]/40 hover:from-[#10121c] hover:to-[#0d0f16] transition-all duration-200 group cursor-pointer"
+              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FFB900]/40 hover:from-[#18181B] hover:to-[#111215] transition-all duration-200 group cursor-pointer"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/20 flex items-center justify-center text-[#00f2ff] group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(0,242,255,0.3)] transition-all">
+                <div className="w-10 h-10 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/20 flex items-center justify-center text-[#FFB900] group-hover:scale-105 group-hover: transition-all">
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#00f2ff] transition-colors">
+                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#FFB900] transition-colors">
                     Team Management
                   </h3>
-                  <p className="text-[11px] text-[#717a8e] font-sans">
+                  <p className="text-[11px] text-[#A1A1AA] font-sans">
                     Squad roster & invitations
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
-                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#9ba3b8]">
+                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#A1A1AA]">
                   Squad
                 </span>
-                <ChevronRight className="w-4 h-4 text-[#525866] group-hover:text-[#00f2ff] group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="w-4 h-4 text-[#71717A] group-hover:text-[#FFB900] group-hover:translate-x-0.5 transition-all" />
               </div>
             </Link>
 
             {/* 2. MATCHES */}
             <Link
               to="/profile/history"
-              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-gradient-to-r from-[#0d0e15] to-[#0a0b10] border border-[#1f2230] hover:border-[#ff5e07]/40 hover:from-[#10121c] hover:to-[#0d0f16] transition-all duration-200 group cursor-pointer"
+              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FF8C00]/40 hover:from-[#18181B] hover:to-[#111215] transition-all duration-200 group cursor-pointer"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-none bg-[#ff5e07]/10 border border-[#ff5e07]/20 flex items-center justify-center text-[#ff5e07] group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(255,94,7,0.3)] transition-all">
+                <div className="w-10 h-10 rounded-none bg-[#FF8C00]/10 border border-[#FF8C00]/20 flex items-center justify-center text-[#FF8C00] group-hover:scale-105 group-hover: transition-all">
                   <Trophy className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#ff5e07] transition-colors">
+                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#FF8C00] transition-colors">
                     Matches
                   </h3>
-                  <p className="text-[11px] text-[#717a8e] font-sans">
+                  <p className="text-[11px] text-[#A1A1AA] font-sans">
                     Tournament history
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
-                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#9ba3b8]">
+                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#A1A1AA]">
                   {userRegistrations.length} {userRegistrations.length === 1 ? 'Tournament' : 'Tournaments'}
                 </span>
-                <ChevronRight className="w-4 h-4 text-[#525866] group-hover:text-[#ff5e07] group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="w-4 h-4 text-[#71717A] group-hover:text-[#FF8C00] group-hover:translate-x-0.5 transition-all" />
               </div>
             </Link>
 
             {/* 3. TROPHIES */}
             <Link
               to="/profile/achievements"
-              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-gradient-to-r from-[#0d0e15] to-[#0a0b10] border border-[#1f2230] hover:border-[#fbbf24]/40 hover:from-[#10121c] hover:to-[#0d0f16] transition-all duration-200 group cursor-pointer"
+              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FFB900]/40 hover:from-[#18181B] hover:to-[#111215] transition-all duration-200 group cursor-pointer"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-none bg-[#fbbf24]/10 border border-[#fbbf24]/20 flex items-center justify-center text-[#fbbf24] group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(251,191,36,0.3)] transition-all">
+                <div className="w-10 h-10 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/20 flex items-center justify-center text-[#FFB900] group-hover:scale-105 group-hover: transition-all">
                   <Award className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#fbbf24] transition-colors">
+                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#FFB900] transition-colors">
                     Trophies
                   </h3>
-                  <p className="text-[11px] text-[#717a8e] font-sans">
+                  <p className="text-[11px] text-[#A1A1AA] font-sans">
                     Achievements & badges
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
-                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#9ba3b8]">
+                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#A1A1AA]">
                   Cabinet
                 </span>
-                <ChevronRight className="w-4 h-4 text-[#525866] group-hover:text-[#fbbf24] group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="w-4 h-4 text-[#71717A] group-hover:text-[#FFB900] group-hover:translate-x-0.5 transition-all" />
               </div>
             </Link>
 
             {/* 4. WALLET */}
             <Link
               to="/wallet"
-              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-gradient-to-r from-[#0d0e15] to-[#0a0b10] border border-[#1f2230] hover:border-[#00ff9d]/40 hover:from-[#10121c] hover:to-[#0d0f16] transition-all duration-200 group cursor-pointer"
+              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#10B981]/40 hover:from-[#18181B] hover:to-[#111215] transition-all duration-200 group cursor-pointer"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-none bg-[#00ff9d]/10 border border-[#00ff9d]/20 flex items-center justify-center text-[#00ff9d] group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(0,255,157,0.3)] transition-all">
+                <div className="w-10 h-10 rounded-none bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center text-[#10B981] group-hover:scale-105 group-hover: transition-all">
                   <Wallet className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#00ff9d] transition-colors">
+                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-[#10B981] transition-colors">
                     Wallet
                   </h3>
-                  <p className="text-[11px] text-[#717a8e] font-sans">
+                  <p className="text-[11px] text-[#A1A1AA] font-sans">
                     Available balance
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
-                <span className="px-2.5 py-0.5 rounded-none bg-[#00ff9d]/10 border border-[#00ff9d]/30 text-[11px] font-mono font-bold text-[#00ff9d]">
+                <span className="px-2.5 py-0.5 rounded-none bg-[#10B981]/10 border border-[#10B981]/30 text-[11px] font-mono font-bold text-[#10B981]">
                   {isWalletLoading
                     ? 'Loading...'
                     : walletBalance !== null
                     ? `₹${Math.floor(walletBalance)}`
                     : 'Unavailable'}
                 </span>
-                <ChevronRight className="w-4 h-4 text-[#525866] group-hover:text-[#00ff9d] group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="w-4 h-4 text-[#71717A] group-hover:text-[#10B981] group-hover:translate-x-0.5 transition-all" />
               </div>
             </Link>
 
             {/* 5. SETTINGS */}
             <Link
               to="/settings"
-              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-gradient-to-r from-[#0d0e15] to-[#0a0b10] border border-[#1f2230] hover:border-slate-400/40 hover:from-[#10121c] hover:to-[#0d0f16] transition-all duration-200 group cursor-pointer"
+              className="flex items-center justify-between p-3.5 sm:p-4 rounded-none bg-[#111215] border border-[#27272A] hover:border-slate-400/40 hover:from-[#18181B] hover:to-[#111215] transition-all duration-200 group cursor-pointer"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-none bg-slate-400/10 border border-slate-400/20 flex items-center justify-center text-slate-400 group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(148,163,184,0.3)] transition-all">
+                <div className="w-10 h-10 rounded-none bg-slate-400/10 border border-slate-400/20 flex items-center justify-center text-slate-400 group-hover:scale-105 group-hover: transition-all">
                   <Settings className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white group-hover:text-slate-300 transition-colors">
                     Settings
                   </h3>
-                  <p className="text-[11px] text-[#717a8e] font-sans">
+                  <p className="text-[11px] text-[#A1A1AA] font-sans">
                     Account & preferences
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
-                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-none bg-[#141620] border border-[#222638] text-[10px] font-mono text-[#9ba3b8]">
+                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#A1A1AA]">
                   Configure
                 </span>
-                <ChevronRight className="w-4 h-4 text-[#525866] group-hover:text-slate-300 group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="w-4 h-4 text-[#71717A] group-hover:text-slate-300 group-hover:translate-x-0.5 transition-all" />
               </div>
             </Link>
           </div>

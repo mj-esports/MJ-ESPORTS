@@ -41,7 +41,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="bg-[#000000] border-t border-[#1B1B1F] pt-5 sm:pt-6 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-6 text-[#A3A3A3] relative select-none"
+      className="bg-[#000000] border-t border-[#27272A] pt-5 sm:pt-6 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-6 text-[#A1A1AA] relative select-none"
       aria-label="Platform Footer and Support"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,30 +52,33 @@ export default function Footer() {
           {/* Brand Info (1. Strong Brand, 2. Secondary Game Subtitle) */}
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center sm:text-left">
             <Link to="/" className="inline-flex items-center gap-2.5 group" aria-label="MJ ESPORTS Home">
-              <img
-                src="/mj-esports-logo.png"
-                alt="MJ ESPORTS"
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-none object-contain shrink-0 group-hover:scale-105 transition-transform duration-200"
-              />
+              <picture className="shrink-0 flex items-center justify-center">
+                <source type="image/webp" srcSet="/mj-esports-logo.webp" />
+                <img
+                  src="/mj-esports-logo.png"
+                  alt="MJ ESPORTS"
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-none object-contain shrink-0 group-hover:scale-105 transition-transform duration-200"
+                />
+              </picture>
               <span className="font-headline text-lg sm:text-xl font-extrabold tracking-wider text-white uppercase leading-none">
                 MJ <span className="text-[#FFB900]">ESPORTS</span>
               </span>
             </Link>
             <span className="hidden sm:inline text-[#3f3f46]">&bull;</span>
-            <span className="text-[14px] xs:text-[15px] sm:text-sm font-headline font-bold tracking-wider text-[#FF6200] uppercase">
+            <span className="text-[14px] xs:text-[15px] sm:text-sm font-headline font-bold tracking-wider text-[#FF8C00] uppercase">
               Free Fire MAX Tournament Arena
             </span>
           </div>
 
           {/* Quick Nav Links (Rulebook & Info + Support mailto ONLY) */}
           <nav aria-label="Footer Quick Links" className="flex items-center justify-center gap-6 sm:gap-8 text-[14px] sm:text-[15px] font-headline font-bold uppercase tracking-wider text-center">
-            <Link to="/about" className="text-[#A3A3A3] hover:text-[#FFB900] transition-colors py-0.5">
+            <Link to="/about" className="text-[#A1A1AA] hover:text-[#FFB900] transition-colors py-0.5">
               Rulebook & Info
             </Link>
             <a
               href="mailto:support.mjesports@gmail.com?subject=MJ%20ESPORTS%20Support%20Request"
               aria-label="Contact MJ ESPORTS Support via Email"
-              className="text-[#A3A3A3] hover:text-[#FFB900] transition-colors flex items-center justify-center gap-1.5 py-0.5 cursor-pointer group/support"
+              className="text-[#A1A1AA] hover:text-[#FFB900] transition-colors flex items-center justify-center gap-1.5 py-0.5 cursor-pointer group/support"
             >
               <Headphones className="w-4 h-4 text-[#FFB900] group-hover/support:scale-105 transition-transform" />
               <span>Support</span>
@@ -110,7 +113,7 @@ export default function Footer() {
                   }
                 }
               }}
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-none bg-[#111318] border border-[#2A2A30] hover:border-[#FFB900]/80 hover:shadow-[0_0_12px_rgba(255,185,0,0.3)] focus:outline-none focus:ring-2 focus:ring-[#FFB900] transition-all flex items-center justify-center group active:scale-95"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FFB900] focus:outline-none focus:ring-2 focus:ring-[#FFB900] transition-all flex items-center justify-center group active:scale-95"
             >
               <svg
                 className="w-5 h-5 transition-transform group-hover:scale-105"
@@ -159,7 +162,7 @@ export default function Footer() {
                   }
                 }
               }}
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-none bg-[#111318] border border-[#2A2A30] hover:border-[#25D366] hover:shadow-[0_0_12px_rgba(37,211,102,0.3)] focus:outline-none focus:ring-2 focus:ring-[#25D366] transition-all flex items-center justify-center group active:scale-95"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#25D366] focus:outline-none focus:ring-2 focus:ring-[#25D366] transition-all flex items-center justify-center group active:scale-95"
             >
               <svg
                 className="w-5 h-5 transition-transform group-hover:scale-105"
@@ -180,7 +183,7 @@ export default function Footer() {
         </div>
 
         {/* BOTTOM DIVIDER & COPYRIGHT BAR (Smallest Legal / Terms Text 12-14px) */}
-        <div className="pt-2.5 sm:pt-3 border-t border-[#1B1B1F] flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 text-xs text-[#A3A3A3]">
+        <div className="pt-2.5 sm:pt-3 border-t border-[#27272A] flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 text-xs text-[#A1A1AA]">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-3.5 h-3.5 text-[#10b981]" />
             <p className="font-mono text-[12px] sm:text-[13px] text-center sm:text-left">
@@ -188,11 +191,11 @@ export default function Footer() {
             </p>
           </div>
           <div className="flex items-center justify-center gap-4 text-[13px] sm:text-[14px] font-medium font-headline">
-            <Link to="/privacy" className="text-[#A3A3A3] hover:text-[#FFB900] transition-colors whitespace-nowrap">
+            <Link to="/privacy" className="text-[#A1A1AA] hover:text-[#FFB900] transition-colors whitespace-nowrap">
               Privacy Policy
             </Link>
             <span className="text-[#3f3f46]">&bull;</span>
-            <Link to="/terms" className="text-[#A3A3A3] hover:text-[#FFB900] transition-colors whitespace-nowrap">
+            <Link to="/terms" className="text-[#A1A1AA] hover:text-[#FFB900] transition-colors whitespace-nowrap">
               Terms of Service
             </Link>
           </div>

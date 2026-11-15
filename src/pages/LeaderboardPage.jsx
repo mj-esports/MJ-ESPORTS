@@ -513,7 +513,7 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#000000] text-[#A3A3A3] pb-6 sm:pb-8 font-body antialiased selection:bg-[#FFB900] selection:text-[#000000] overflow-x-hidden">
+    <div className="w-full min-h-screen bg-[#000000] text-[#A1A1AA] pb-6 sm:pb-8 font-body antialiased selection:bg-[#FFB900] selection:text-[#000000] overflow-x-hidden">
       <main className="max-w-7xl mx-auto pt-4 sm:pt-6 px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-6">
         
         {/* 1. HEADER & TOURNAMENT SELECTOR */}
@@ -525,7 +525,7 @@ export default function LeaderboardPage() {
           {/* Tournament Selector Pills */}
           {tournamentsList.length > 1 && (
             <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pt-1">
-              <span className="text-xs text-[#A3A3A3] font-headline font-bold uppercase shrink-0 mr-1">
+              <span className="text-xs text-[#A1A1AA] font-headline font-bold uppercase shrink-0 mr-1">
                 Event:
               </span>
               {tournamentsList.map((t) => {
@@ -539,8 +539,8 @@ export default function LeaderboardPage() {
                     }}
                     className={`px-3 py-1.5 rounded-none text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
                       isSelected
-                        ? 'bg-[#FFB900] text-[#000000] font-extrabold shadow-[0_0_10px_rgba(255,185,0,0.3)]'
-                        : 'bg-[#111318] text-[#A3A3A3] border border-[#2A2A30] hover:text-white hover:border-[#FFB900]/50'
+                        ? 'bg-[#FFB900] text-[#000000] font-extrabold '
+                        : 'bg-[#111215] text-[#A1A1AA] border border-[#27272A] hover:text-white hover:border-[#FFB900]/50'
                     }`}
                   >
                     {t.title || 'Tournament'}
@@ -556,7 +556,7 @@ export default function LeaderboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             
             {/* Champion Card (Profile Avatar, No Crown, Compact Stat Bar) */}
-            <div className="lg:col-span-2 bg-gradient-to-b from-[#FFB900]/15 via-[#1B1B1F] to-[#111318] rounded-none border border-[#FFB900]/40 p-4 sm:p-5 relative overflow-hidden shadow-[0_0_20px_rgba(255,185,0,0.12)] flex flex-col justify-between">
+            <div className="lg:col-span-2 bg-gradient-to-b from-[#FFB900]/15 via-[#18181B] to-[#111215] rounded-none border border-[#FFB900]/40 p-4 sm:p-5 relative overflow-hidden  flex flex-col justify-between">
               
               {/* Top Badge Header Row */}
               <div className="flex items-center justify-between gap-2 mb-3">
@@ -566,11 +566,11 @@ export default function LeaderboardPage() {
                 </div>
                 
                 {isChampionTopFragger ? (
-                  <span className="px-2 py-0.5 rounded-none bg-[#FF6200]/15 border border-[#FF6200]/40 text-[#FF6200] text-[10.5px] sm:text-[11px] font-headline font-bold uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded-none bg-[#FF8C00]/15 border border-[#FF8C00]/40 text-[#FF8C00] text-[10.5px] sm:text-[11px] font-headline font-bold uppercase tracking-wider">
                     TOP FRAGGER &bull; MVP
                   </span>
                 ) : (
-                  <span className="px-2 py-0.5 rounded-none bg-[#1B1B1F] border border-[#2A2A30] text-[#A3A3A3] text-[10.5px] sm:text-[11px] font-headline font-bold uppercase">
+                  <span className="px-2 py-0.5 rounded-none bg-[#18181B] border border-[#27272A] text-[#A1A1AA] text-[10.5px] sm:text-[11px] font-headline font-bold uppercase">
                     RANK #1
                   </span>
                 )}
@@ -578,7 +578,7 @@ export default function LeaderboardPage() {
 
               {/* Centered Profile Avatar + Team & Player Info */}
               <div className="text-center my-1 sm:my-2">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-none bg-[#111318] border border-[#FFB900]/70 shadow-[0_0_12px_rgba(255,185,0,0.25)] mx-auto mb-2 overflow-hidden flex items-center justify-center">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-none bg-[#111215] border border-[#FFB900]/70  mx-auto mb-2 overflow-hidden flex items-center justify-center">
                   {championTeam.avatar && !championImgError ? (
                     <img
                       src={championTeam.avatar}
@@ -600,20 +600,20 @@ export default function LeaderboardPage() {
               </div>
 
               {/* Compact Professional Esports Stat Bar (3 columns) */}
-              <div className="mt-3 pt-3 border-t border-[#2A2A30] grid grid-cols-3 gap-2 text-center bg-[#111318]/90 rounded-none p-2 border border-[#2A2A30]">
-                <div className="border-r border-[#2A2A30] pr-1">
+              <div className="mt-3 pt-3 border-t border-[#27272A] grid grid-cols-3 gap-2 text-center bg-[#111215]/90 rounded-none p-2 border border-[#27272A]">
+                <div className="border-r border-[#27272A] pr-1">
                   <span className="text-[15px] sm:text-[17px] font-headline font-extrabold text-[#FFB900] font-mono block leading-tight">
                     {championTeam.points} PTS
                   </span>
-                  <span className="text-[9.5px] sm:text-[10px] text-[#A3A3A3] font-headline font-bold uppercase tracking-wider block mt-0.5">
+                  <span className="text-[9.5px] sm:text-[10px] text-[#A1A1AA] font-headline font-bold uppercase tracking-wider block mt-0.5">
                     SCORE
                   </span>
                 </div>
-                <div className="border-r border-[#2A2A30] px-1">
+                <div className="border-r border-[#27272A] px-1">
                   <span className="text-[15px] sm:text-[17px] font-headline font-extrabold text-white font-mono block leading-tight">
                     {championTeam.kills} KILLS
                   </span>
-                  <span className="text-[9.5px] sm:text-[10px] text-[#A3A3A3] font-headline font-bold uppercase tracking-wider block mt-0.5">
+                  <span className="text-[9.5px] sm:text-[10px] text-[#A1A1AA] font-headline font-bold uppercase tracking-wider block mt-0.5">
                     FINISHES
                   </span>
                 </div>
@@ -621,7 +621,7 @@ export default function LeaderboardPage() {
                   <span className="text-[15px] sm:text-[17px] font-headline font-extrabold text-[#10b981] font-mono block leading-tight">
                     {championTeam.payout}
                   </span>
-                  <span className="text-[9.5px] sm:text-[10px] text-[#A3A3A3] font-headline font-bold uppercase tracking-wider block mt-0.5">
+                  <span className="text-[9.5px] sm:text-[10px] text-[#A1A1AA] font-headline font-bold uppercase tracking-wider block mt-0.5">
                     EARNED
                   </span>
                 </div>
@@ -630,7 +630,7 @@ export default function LeaderboardPage() {
             </div>
 
             {/* Compact Secondary Prize Model Info Block */}
-            <div className="lg:col-span-1 bg-[#111318] rounded-none border border-[#2A2A30] p-4 sm:p-5 flex flex-col justify-between shadow-md">
+            <div className="lg:col-span-1 bg-[#111215] rounded-none border border-[#27272A] p-4 sm:p-5 flex flex-col justify-between shadow-md">
               <div>
                 <span className="text-[10px] font-headline font-bold text-[#FFB900] uppercase tracking-widest block mb-1">
                   PRIZE MODEL
@@ -638,21 +638,21 @@ export default function LeaderboardPage() {
                 <h3 className="font-headline text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
                   {prizePoolSummary.totalFormatted}
                 </h3>
-                <p className="text-xs text-[#A3A3A3] font-mono mt-1">
+                <p className="text-xs text-[#A1A1AA] font-mono mt-1">
                   {prizePoolSummary.secondFormatted}
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-[#2A2A30] text-xs space-y-1.5">
+              <div className="mt-4 pt-3 border-t border-[#27272A] text-xs space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#A3A3A3] font-headline">Distribution:</span>
+                  <span className="text-[#A1A1AA] font-headline">Distribution:</span>
                   <span className="text-white font-headline font-bold">
                     {prizePoolSummary.thirdFormatted}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#A3A3A3] font-headline">Per Kill Bounty:</span>
-                  <span className="text-[#FF6200] font-mono font-bold">
+                  <span className="text-[#A1A1AA] font-headline">Per Kill Bounty:</span>
+                  <span className="text-[#FF8C00] font-mono font-bold">
                     {prizePoolSummary.firstFormatted}
                   </span>
                 </div>
@@ -677,30 +677,30 @@ export default function LeaderboardPage() {
                   rank === 1
                     ? 'border-[#FFB900] text-[#FFB900] bg-[#FFB900]/20'
                     : rank === 2
-                    ? 'border-[#94a3b8] text-[#94a3b8] bg-[#94a3b8]/20'
-                    : 'border-[#FF6200] text-[#FF6200] bg-[#FF6200]/20'
+                    ? 'border-[#A1A1AA] text-[#A1A1AA] bg-[#A1A1AA]/20'
+                    : 'border-[#FF8C00] text-[#FF8C00] bg-[#FF8C00]/20'
                 const cardBorder =
                   rank === 1
                     ? 'border-[#FFB900]/40 bg-[#FFB900]/5 hover:border-[#FFB900]'
                     : rank === 2
-                    ? 'border-[#94a3b8]/30 bg-[#94a3b8]/5 hover:border-[#94a3b8]'
-                    : 'border-[#FF6200]/30 bg-[#FF6200]/5 hover:border-[#FF6200]'
+                    ? 'border-[#A1A1AA]/30 bg-[#A1A1AA]/5 hover:border-[#A1A1AA]'
+                    : 'border-[#FF8C00]/30 bg-[#FF8C00]/5 hover:border-[#FF8C00]'
 
                 if (!player) {
                   return (
                     <div
                       key={`top3-slot-${rank}`}
-                      className="p-3 sm:p-3.5 rounded-none bg-[#111318] border border-[#2A2A30] flex items-center justify-between gap-3 text-xs text-[#A3A3A3]"
+                      className="p-3 sm:p-3.5 rounded-none bg-[#111215] border border-[#27272A] flex items-center justify-between gap-3 text-xs text-[#A1A1AA]"
                     >
                       <div className="flex items-center gap-2.5">
                         <div className={`w-7 h-7 rounded-none border font-headline font-bold text-xs flex items-center justify-center shrink-0 ${rankColor}`}>
                           #{rank}
                         </div>
-                        <span className="font-headline font-bold uppercase tracking-wider text-[#A3A3A3]">
+                        <span className="font-headline font-bold uppercase tracking-wider text-[#A1A1AA]">
                           OPEN SLOT
                         </span>
                       </div>
-                      <span className="text-[11px] font-mono text-[#52525b]">---</span>
+                      <span className="text-[11px] font-mono text-[#71717A]">---</span>
                     </div>
                   )
                 }
@@ -719,7 +719,7 @@ export default function LeaderboardPage() {
                         <p className={`font-headline font-bold text-xs sm:text-sm truncate ${rank === 1 ? 'text-[#FFB900]' : 'text-white'}`} title={player.team}>
                           {player.team}
                         </p>
-                        <p className="text-[11px] sm:text-xs text-[#A3A3A3] font-body truncate" title={player.player}>
+                        <p className="text-[11px] sm:text-xs text-[#A1A1AA] font-body truncate" title={player.player}>
                           {player.player}
                         </p>
                       </div>
@@ -728,7 +728,7 @@ export default function LeaderboardPage() {
                       <p className="font-headline font-extrabold text-xs sm:text-sm text-white font-mono leading-tight">
                         {player.points} PTS
                       </p>
-                      <p className="text-[11px] text-[#FF6200] font-mono mt-0.5">
+                      <p className="text-[11px] text-[#FF8C00] font-mono mt-0.5">
                         {player.kills} Kills
                       </p>
                     </div>
@@ -741,20 +741,20 @@ export default function LeaderboardPage() {
 
         {/* 4. FULL STANDINGS — ALIGNED HEADER & COMPACT CARDS */}
         <section className="space-y-3">
-          <div className="flex items-center justify-between gap-3 border-b border-[#2A2A30] pb-2.5">
+          <div className="flex items-center justify-between gap-3 border-b border-[#27272A] pb-2.5">
             <div className="flex items-center gap-2 min-w-0">
               <Swords className="w-4 h-4 text-[#FFB900] shrink-0" />
               <h2 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase tracking-wider truncate">
                 FULL STANDINGS
               </h2>
             </div>
-            <span className="text-xs font-mono text-[#A3A3A3] shrink-0 text-right">
+            <span className="text-xs font-mono text-[#A1A1AA] shrink-0 text-right">
               {standings.length} {standings.length === 1 ? 'Team Registered' : 'Teams Registered'}
             </span>
           </div>
 
           {loading ? (
-            <div className="p-4 bg-[#111318] rounded-none border border-[#2A2A30]">
+            <div className="p-4 bg-[#111215] rounded-none border border-[#27272A]">
               <TableSkeleton rows={4} />
             </div>
           ) : standings.length === 0 ? (
@@ -769,16 +769,16 @@ export default function LeaderboardPage() {
                 const rankColor = isRank1
                   ? 'border-[#FFB900] text-[#FFB900] bg-[#FFB900]/15'
                   : isRank2
-                  ? 'border-[#94a3b8] text-[#94a3b8] bg-[#94a3b8]/15'
+                  ? 'border-[#A1A1AA] text-[#A1A1AA] bg-[#A1A1AA]/15'
                   : isRank3
-                  ? 'border-[#FF6200] text-[#FF6200] bg-[#FF6200]/15'
-                  : 'border-[#2A2A30] text-[#A3A3A3] bg-[#1B1B1F]'
+                  ? 'border-[#FF8C00] text-[#FF8C00] bg-[#FF8C00]/15'
+                  : 'border-[#27272A] text-[#A1A1AA] bg-[#18181B]'
 
                 return (
                   <div
                     key={`standings-card-${s.rank}-${s.team}`}
                     onClick={() => setSelectedTeamModal(s)}
-                    className="p-3 sm:p-3.5 rounded-none bg-[#111318] border border-[#2A2A30] hover:border-[#FFB900]/60 hover:bg-[#1B1B1F] transition-all cursor-pointer shadow-sm group active:scale-[0.99]"
+                    className="p-3 sm:p-3.5 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FFB900]/60 hover:bg-[#18181B] transition-all cursor-pointer shadow-sm group active:scale-[0.99]"
                   >
                     {/* Compact 2-line ranking card (Mobile) / Horizontal flex layout (Desktop) */}
                     <div className="flex items-center justify-between gap-3">
@@ -795,7 +795,7 @@ export default function LeaderboardPage() {
                               {s.team}
                             </span>
                           </div>
-                          <p className="text-[11px] sm:text-xs text-[#A3A3A3] font-body truncate mt-0.5" title={s.player}>
+                          <p className="text-[11px] sm:text-xs text-[#A1A1AA] font-body truncate mt-0.5" title={s.player}>
                             {s.player}
                           </p>
                         </div>
@@ -807,14 +807,14 @@ export default function LeaderboardPage() {
                           <span className="font-headline font-extrabold text-xs sm:text-sm text-white font-mono block leading-tight">
                             {s.points} PTS
                           </span>
-                          <span className="text-[11px] text-[#FF6200] font-mono block mt-0.5">
+                          <span className="text-[11px] text-[#FF8C00] font-mono block mt-0.5">
                             {s.kills} Kills
                           </span>
                         </div>
 
                         <div className="min-w-[55px] sm:min-w-[75px] text-right">
                           <span className={`font-headline font-bold text-xs sm:text-sm block font-mono ${
-                            isRank1 ? 'text-[#FFB900]' : isRank2 ? 'text-[#94a3b8]' : isRank3 ? 'text-[#FF6200]' : 'text-[#A3A3A3]'
+                            isRank1 ? 'text-[#FFB900]' : isRank2 ? 'text-[#A1A1AA]' : isRank3 ? 'text-[#FF8C00]' : 'text-[#A1A1AA]'
                           }`}>
                             {s.payout}
                           </span>
@@ -834,7 +834,7 @@ export default function LeaderboardPage() {
           <div className="pt-4 sm:pt-6 pb-2 flex items-center justify-center">
             <button
               onClick={handleDownloadCsv}
-              className="text-xs font-headline font-bold text-[#FFB900] hover:text-[#000000] hover:bg-[#FFB900] transition-all flex items-center justify-center gap-2 bg-[#111318] px-5 py-2.5 rounded-none border border-[#2A2A30] hover:border-[#FFB900] cursor-pointer uppercase tracking-wider min-h-[44px] shadow-sm select-none active:scale-95 group"
+              className="text-xs font-headline font-bold text-[#FFB900] hover:text-[#000000] hover:bg-[#FFB900] transition-all flex items-center justify-center gap-2 bg-[#111215] px-5 py-2.5 rounded-none border border-[#27272A] hover:border-[#FFB900] cursor-pointer uppercase tracking-wider min-h-[44px] shadow-sm select-none active:scale-95 group"
             >
               <Download className="w-4 h-4 shrink-0 transition-transform group-hover:-translate-y-0.5" />
               <span>Download Full CSV</span>

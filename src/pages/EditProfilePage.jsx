@@ -462,12 +462,9 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div className="bg-[#050505] text-[#f5f5f5] min-h-screen pb-24 antialiased selection:bg-[#00f2ff]/30 selection:text-[#00f2ff]">
+    <div className="bg-[#000000] text-[#f5f5f5] min-h-screen pb-24 antialiased selection:bg-[#FFB900]/30 selection:text-[#FFB900]">
       
-      {/* Top Background Atmospheric Glow */}
-      <div className="relative w-full overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[220px] bg-gradient-to-b from-[#00f2ff]/10 via-transparent to-transparent blur-3xl" />
-      </div>
+
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 relative z-10 space-y-6">
         
@@ -475,37 +472,37 @@ export default function EditProfilePage() {
         <div className="flex items-center justify-between">
           <Link
             to="/profile"
-            className="inline-flex items-center gap-2 text-xs font-mono font-bold text-[#849495] hover:text-[#00f2ff] uppercase tracking-wider transition-colors group"
+            className="inline-flex items-center gap-2 text-xs font-mono font-bold text-[#A1A1AA] hover:text-[#FFB900] uppercase tracking-wider transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
             <span>RETURN TO PROFILE</span>
           </Link>
 
-          <span className="text-[10px] font-mono font-extrabold uppercase px-2.5 py-1 bg-[#121214] border border-[#27272a] text-[#00f2ff] rounded-none tracking-wider">
+          <span className="text-[10px] font-mono font-extrabold uppercase px-2.5 py-1 bg-[#111215] border border-[#27272A] text-[#FFB900] rounded-none tracking-wider">
             FREE FIRE MAX ONLY
           </span>
         </div>
 
         {/* Page Header */}
-        <div className="border-b border-[#27272a] pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div className="border-b border-[#27272A] pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-none bg-[#00f2ff] shadow-[0_0_8px_rgba(0,242,255,0.8)]" />
-              <span className="font-mono text-[11px] font-extrabold text-[#00f2ff] uppercase tracking-widest">
+              <span className="w-2 h-2 rounded-none bg-[#FFB900] " />
+              <span className="font-mono text-[11px] font-extrabold text-[#FFB900] uppercase tracking-widest">
                 PLAYER IDENTITY
               </span>
             </div>
             <h1 className="font-headline text-xl sm:text-2xl font-black text-white uppercase tracking-wider">
               EDIT PROFILE
             </h1>
-            <p className="text-xs font-sans text-[#849495] mt-0.5">
+            <p className="text-xs font-sans text-[#A1A1AA] mt-0.5">
               Manage competitive handle, Free Fire MAX player credentials, and verified evidence.
             </p>
           </div>
 
           {/* Unsaved Changes Indicator */}
           {isDirty && (
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-[#00f2ff]/10 border border-[#00f2ff]/40 rounded-none text-[11px] font-mono font-bold text-[#00f2ff] animate-pulse">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-[#FFB900]/10 border border-[#FFB900]/40 rounded-none text-[11px] font-mono font-bold text-[#FFB900] animate-pulse">
               <Sparkles className="w-3.5 h-3.5" />
               <span>UNSAVED CHANGES</span>
             </div>
@@ -519,15 +516,15 @@ export default function EditProfilePage() {
 
           {/* LEFT COLUMN: Identity Preview Card */}
           <aside className="lg:col-span-4 space-y-4">
-            <div className="bg-[#0b0c0e] border border-[#1f2128] rounded-none p-5 relative overflow-hidden shadow-xl">
+            <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 relative overflow-hidden shadow-xl">
               {/* Subtle accent line */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#00f2ff]/40 to-transparent" />
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#FFB900]/40 to-transparent" />
 
               <div className="flex flex-col items-center text-center space-y-3">
                 
                 {/* Avatar with Upload Action */}
                 <div className="relative group">
-                  <div className="w-24 h-24 rounded-none overflow-hidden border-2 border-[#27272a] group-hover:border-[#00f2ff] transition-all bg-[#141416] flex items-center justify-center shadow-lg">
+                  <div className="w-24 h-24 rounded-none overflow-hidden border-2 border-[#27272A] group-hover:border-[#FFB900] transition-all bg-[#18181B] flex items-center justify-center shadow-lg">
                     {avatarUrl ? (
                       <img
                         src={avatarUrl}
@@ -535,7 +532,7 @@ export default function EditProfilePage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-2xl font-bold font-mono text-[#00f2ff] bg-[#141416]">
+                      <div className="w-full h-full flex items-center justify-center text-2xl font-bold font-mono text-[#FFB900] bg-[#18181B]">
                         {(formData.username || 'P')[0]?.toUpperCase()}
                       </div>
                     )}
@@ -547,7 +544,7 @@ export default function EditProfilePage() {
                     className="absolute inset-0 rounded-none bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-1 cursor-pointer"
                     title="Change Avatar Photo"
                   >
-                    <Camera className="w-5 h-5 text-[#00f2ff]" />
+                    <Camera className="w-5 h-5 text-[#FFB900]" />
                     <span className="text-[9px] font-mono font-bold uppercase tracking-wider">CHANGE</span>
                   </button>
                 </div>
@@ -574,13 +571,13 @@ export default function EditProfilePage() {
                       </span>
                     )}
                     {verificationStatus === 'Requires Re-upload' && (
-                      <span className="px-2 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#ff4655]/15 text-[#ff4655] border border-[#ff4655]/40 uppercase flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/40 uppercase flex items-center gap-1">
                         <AlertCircle className="w-3 h-3" />
                         RE-UPLOAD
                       </span>
                     )}
                     {verificationStatus === 'Unverified' && (
-                      <span className="px-2 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#27272a] text-[#849495] border border-[#3f3f46] uppercase">
+                      <span className="px-2 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#27272A] text-[#A1A1AA] border border-[#27272A] uppercase">
                         UNVERIFIED
                       </span>
                     )}
@@ -588,8 +585,8 @@ export default function EditProfilePage() {
                     {/* PRO Badge (Read-Only) */}
                     <span className={`px-2 py-0.5 rounded-none text-[10px] font-mono font-bold uppercase ${
                       isPro
-                        ? 'bg-[#ff7700]/15 text-[#ff7700] border border-[#ff7700]/40'
-                        : 'bg-[#18181b] text-[#71717a] border border-[#27272a]'
+                        ? 'bg-[#FF8C00]/15 text-[#FF8C00] border border-[#FF8C00]/40'
+                        : 'bg-[#18181b] text-[#71717A] border border-[#27272A]'
                     }`}>
                       {isPro ? 'PRO TIER' : 'STANDARD'}
                     </span>
@@ -597,17 +594,17 @@ export default function EditProfilePage() {
                 </div>
 
                 {/* Identity Quick Data Strip */}
-                <div className="w-full pt-3 border-t border-[#1f2128] space-y-2 text-left text-xs font-mono">
+                <div className="w-full pt-3 border-t border-[#27272A] space-y-2 text-left text-xs font-mono">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-[#71717a] uppercase">FF MAX UID</span>
-                    <span className="text-[#00f2ff] font-bold tracking-wider">
+                    <span className="text-[10px] text-[#71717A] uppercase">FF MAX UID</span>
+                    <span className="text-[#FFB900] font-bold tracking-wider">
                       {formData.freeFireUid || 'NOT SET'}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-[#71717a] uppercase">EMAIL</span>
-                    <span className="text-[#b9cacb] truncate max-w-[140px] text-[11px]">
+                    <span className="text-[10px] text-[#71717A] uppercase">EMAIL</span>
+                    <span className="text-[#A1A1AA] truncate max-w-[140px] text-[11px]">
                       {user?.email || 'N/A'}
                     </span>
                   </div>
@@ -617,7 +614,7 @@ export default function EditProfilePage() {
                 <button
                   type="button"
                   onClick={() => setIsAvatarModalOpen(true)}
-                  className="w-full py-2 bg-[#141416] hover:bg-[#1a1a1d] border border-[#27272a] hover:border-[#00f2ff]/60 text-[#00f2ff] rounded-none text-[11px] font-mono font-bold uppercase transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-2 bg-[#18181B] hover:bg-[#18181B] border border-[#27272A] hover:border-[#FFB900]/60 text-[#FFB900] rounded-none text-[11px] font-mono font-bold uppercase transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Camera className="w-3.5 h-3.5" />
                   <span>UPLOAD AVATAR</span>
@@ -627,9 +624,9 @@ export default function EditProfilePage() {
             </div>
 
             {/* Profile Guidelines Box */}
-            <div className="p-4 bg-[#0b0c0e] border border-[#1f2128] rounded-none text-xs space-y-2 text-[#849495]">
+            <div className="p-4 bg-[#111215] border border-[#27272A] rounded-none text-xs space-y-2 text-[#A1A1AA]">
               <div className="flex items-center gap-1.5 text-white font-mono font-bold text-[11px] uppercase">
-                <Shield className="w-3.5 h-3.5 text-[#00f2ff]" />
+                <Shield className="w-3.5 h-3.5 text-[#FFB900]" />
                 <span>COMPLIANCE RULES</span>
               </div>
               <ul className="list-disc list-inside space-y-1 text-[11px] font-sans">
@@ -646,15 +643,15 @@ export default function EditProfilePage() {
             <form onSubmit={handleSaveProfile} noValidate className="space-y-6">
               
               {/* SECTION: GENERAL IDENTITY */}
-              <div className="bg-[#0b0c0e] border border-[#1f2128] rounded-none p-5 space-y-4 shadow-xl">
-                <div className="flex items-center justify-between border-b border-[#1f2128] pb-3">
+              <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 space-y-4 shadow-xl">
+                <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-[#00f2ff]" />
+                    <User className="w-4 h-4 text-[#FFB900]" />
                     <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">
                       GENERAL IDENTITY
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono text-[#71717a] uppercase">STEP 1 OF 3</span>
+                  <span className="text-[10px] font-mono text-[#71717A] uppercase">STEP 1 OF 3</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -675,16 +672,16 @@ export default function EditProfilePage() {
                   {/* Primary Auth Email (Read-Only) */}
                   <div className="space-y-1.5 text-left">
                     <div className="flex items-center justify-between">
-                      <label className="block font-label-md text-[11px] font-bold text-[#b9cacb] uppercase tracking-wider">
+                      <label className="block font-label-md text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">
                         PRIMARY AUTH EMAIL
                       </label>
-                      <span className="text-[9px] font-mono font-bold text-[#71717a] uppercase flex items-center gap-1">
+                      <span className="text-[9px] font-mono font-bold text-[#71717A] uppercase flex items-center gap-1">
                         <Lock className="w-2.5 h-2.5" />
                         READ ONLY
                       </span>
                     </div>
                     <div className="relative rounded-none shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#71717a]">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#71717A]">
                         <Lock className="w-4 h-4" />
                       </div>
                       <input
@@ -693,10 +690,10 @@ export default function EditProfilePage() {
                         disabled
                         readOnly
                         aria-readonly="true"
-                        className="w-full bg-[#121316] border border-[#27272a] rounded-none py-2.5 pl-10 pr-3 text-xs font-mono text-[#849495] cursor-not-allowed select-none"
+                        className="w-full bg-[#18181B] border border-[#27272A] rounded-none py-2.5 pl-10 pr-3 text-xs font-mono text-[#A1A1AA] cursor-not-allowed select-none"
                       />
                     </div>
-                    <p className="text-[10px] text-[#71717a] font-sans">
+                    <p className="text-[10px] text-[#71717A] font-sans">
                       Linked to authentication provider. Managed under Security & Auth.
                     </p>
                   </div>
@@ -736,7 +733,7 @@ export default function EditProfilePage() {
                       placeholder="10-digit Mobile Number"
                       icon={Phone}
                     />
-                    <p className="text-[10px] text-[#71717a] font-sans">
+                    <p className="text-[10px] text-[#71717A] font-sans">
                       Used for match room alerts. Does not confer verified identity badge.
                     </p>
                   </div>
@@ -744,16 +741,16 @@ export default function EditProfilePage() {
               </div>
 
               {/* SECTION: IN-GAME PROFILE EVIDENCE PROOF */}
-              <div className="bg-[#0b0c0e] border border-[#1f2128] rounded-none p-5 space-y-4 shadow-xl">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1f2128] pb-3">
+              <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 space-y-4 shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#27272A] pb-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4 text-[#00f2ff]" />
+                      <ShieldCheck className="w-4 h-4 text-[#FFB900]" />
                       <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">
                         FREE FIRE IN-GAME PROFILE EVIDENCE
                       </span>
                     </div>
-                    <p className="text-[11px] text-[#849495] mt-0.5 font-sans">
+                    <p className="text-[11px] text-[#A1A1AA] mt-0.5 font-sans">
                       Upload your in-game profile screenshot for authoritative administrator verification.
                     </p>
                   </div>
@@ -773,13 +770,13 @@ export default function EditProfilePage() {
                       </span>
                     )}
                     {verificationStatus === 'Requires Re-upload' && (
-                      <span className="px-2.5 py-1 rounded-none text-[10px] font-mono font-bold bg-[#ff4655]/15 text-[#ff4655] border border-[#ff4655]/40 uppercase flex items-center gap-1">
+                      <span className="px-2.5 py-1 rounded-none text-[10px] font-mono font-bold bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/40 uppercase flex items-center gap-1">
                         <AlertCircle className="w-3 h-3" />
                         Re-upload Required
                       </span>
                     )}
                     {verificationStatus === 'Rejected' && (
-                      <span className="px-2.5 py-1 rounded-none text-[10px] font-mono font-bold bg-[#ff4655]/15 text-[#ff4655] border border-[#ff4655]/40 uppercase flex items-center gap-1">
+                      <span className="px-2.5 py-1 rounded-none text-[10px] font-mono font-bold bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/40 uppercase flex items-center gap-1">
                         <AlertCircle className="w-3 h-3" />
                         Proof Rejected
                       </span>
@@ -789,7 +786,7 @@ export default function EditProfilePage() {
 
                 {/* Rejection / Feedback Alert */}
                 {proofEvidence && (proofEvidence.status === 'REJECTED' || proofEvidence.status === 'REQUIRES_REUPLOAD') && proofEvidence.rejection_reason && (
-                  <div className="p-3 bg-[#ff4655]/10 border border-[#ff4655]/30 rounded-none text-xs text-[#ff4655] space-y-1">
+                  <div className="p-3 bg-[#EF4444]/10 border border-[#EF4444]/30 rounded-none text-xs text-[#EF4444] space-y-1">
                     <span className="font-mono font-bold block uppercase text-[10px]">ADMIN AUDIT FEEDBACK:</span>
                     <p className="font-sans">{proofEvidence.rejection_reason}</p>
                   </div>
@@ -797,7 +794,7 @@ export default function EditProfilePage() {
 
                 {/* Screenshot Preview & Upload Controls */}
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                  <div className="sm:col-span-5 aspect-video bg-[#141416] border border-[#27272a] rounded-none overflow-hidden flex items-center justify-center relative">
+                  <div className="sm:col-span-5 aspect-video bg-[#18181B] border border-[#27272A] rounded-none overflow-hidden flex items-center justify-center relative">
                     {proofPreviewUrl ? (
                       <img
                         src={proofPreviewUrl}
@@ -805,7 +802,7 @@ export default function EditProfilePage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="text-center p-3 space-y-1 text-[#849495]">
+                      <div className="text-center p-3 space-y-1 text-[#A1A1AA]">
                         <FileImage className="w-6 h-6 mx-auto opacity-60" />
                         <span className="text-[10px] font-mono block">No screenshot uploaded</span>
                       </div>
@@ -813,11 +810,11 @@ export default function EditProfilePage() {
                   </div>
 
                   <div className="sm:col-span-7 space-y-3">
-                    <label className="text-[11px] font-mono font-bold text-[#849495] uppercase block">
+                    <label className="text-[11px] font-mono font-bold text-[#A1A1AA] uppercase block">
                       {proofEvidence ? 'REPLACE / RE-UPLOAD SCREENSHOT' : 'UPLOAD IN-GAME SCREENSHOT'}
                     </label>
                     <div className="flex flex-wrap items-center gap-2.5">
-                      <label className="px-3 py-2 bg-[#141416] border border-[#27272a] hover:border-[#00f2ff] text-white hover:text-[#00f2ff] rounded-none text-xs font-mono font-bold uppercase transition-all cursor-pointer flex items-center gap-2">
+                      <label className="px-3 py-2 bg-[#18181B] border border-[#27272A] hover:border-[#FFB900] text-white hover:text-[#FFB900] rounded-none text-xs font-mono font-bold uppercase transition-all cursor-pointer flex items-center gap-2">
                         <Upload className="w-3.5 h-3.5" />
                         <span>{stagedFile ? 'CHANGE SCREENSHOT' : 'SELECT SCREENSHOT'}</span>
                         <input
@@ -834,7 +831,7 @@ export default function EditProfilePage() {
                           type="button"
                           onClick={handleSubmitProof}
                           disabled={isProofUploading}
-                          className="px-3.5 py-2 bg-[#00f2ff] hover:bg-cyan-300 text-black font-mono font-bold uppercase rounded-none text-xs transition-all shadow-[0_0_12px_rgba(0,242,255,0.3)] flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          className="px-3.5 py-2 bg-[#FFB900] hover:bg-[#FFC933] text-black font-mono font-bold uppercase rounded-none text-xs transition-all  flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                         >
                           <Check className="w-3.5 h-3.5" />
                           <span>{isProofUploading ? 'UPLOADING...' : 'SUBMIT PROOF'}</span>
@@ -846,7 +843,7 @@ export default function EditProfilePage() {
                           type="button"
                           onClick={handleCancelStagedFile}
                           disabled={isProofUploading}
-                          className="px-2.5 py-2 bg-[#18181b] border border-[#27272a] hover:border-[#ff4655] hover:text-[#ff4655] rounded-none text-xs font-mono font-bold uppercase transition-all flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-2 bg-[#18181b] border border-[#27272A] hover:border-[#EF4444] hover:text-[#EF4444] rounded-none text-xs font-mono font-bold uppercase transition-all flex items-center gap-1 cursor-pointer"
                         >
                           <X className="w-3.5 h-3.5" />
                           <span>CANCEL</span>
@@ -854,26 +851,26 @@ export default function EditProfilePage() {
                       )}
                     </div>
 
-                    <p className="text-[10px] text-[#71717a] font-sans">
+                    <p className="text-[10px] text-[#71717A] font-sans">
                       Accepted formats: PNG, JPG, WEBP (Max 10 MB). Screenshot must clearly display player IGN and 10-digit UID.
                     </p>
                     {proofError && (
-                      <p className="text-[11px] text-[#ff4655] font-medium" role="alert">{proofError}</p>
+                      <p className="text-[11px] text-[#EF4444] font-medium" role="alert">{proofError}</p>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* SECTION: SOCIALS & BIO */}
-              <div className="bg-[#0b0c0e] border border-[#1f2128] rounded-none p-5 space-y-4 shadow-xl">
-                <div className="flex items-center justify-between border-b border-[#1f2128] pb-3">
+              <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 space-y-4 shadow-xl">
+                <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
                   <div className="flex items-center gap-2">
-                    <Link2 className="w-4 h-4 text-[#00f2ff]" />
+                    <Link2 className="w-4 h-4 text-[#FFB900]" />
                     <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">
                       SOCIALS & PLAYER BIO
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono text-[#71717a] uppercase">STEP 3 OF 3</span>
+                  <span className="text-[10px] font-mono text-[#71717A] uppercase">STEP 3 OF 3</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -900,10 +897,10 @@ export default function EditProfilePage() {
 
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between">
-                    <label className="block font-label-md text-[11px] font-bold text-[#b9cacb] uppercase tracking-wider">
+                    <label className="block font-label-md text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">
                       PLAYER BIO
                     </label>
-                    <span className="text-[10px] font-mono font-bold text-[#849495]">
+                    <span className="text-[10px] font-mono font-bold text-[#A1A1AA]">
                       {formData.bio.length}/200
                     </span>
                   </div>
@@ -914,24 +911,24 @@ export default function EditProfilePage() {
                     rows={3}
                     maxLength={200}
                     placeholder="Competitive roles, favorite guns, or team accolades..."
-                    className="w-full bg-[#121316] border border-[#27272a] rounded-none p-3 text-xs font-sans text-white placeholder-[#71717a] focus:border-[#00f2ff] focus:outline-none transition-colors"
+                    className="w-full bg-[#18181B] border border-[#27272A] rounded-none p-3 text-xs font-sans text-white placeholder-[#71717A] focus:border-[#FFB900] focus:outline-none transition-colors"
                   ></textarea>
                   {errors.bio && (
-                    <p className="text-[11px] text-[#ff4655]" role="alert">{errors.bio}</p>
+                    <p className="text-[11px] text-[#EF4444]" role="alert">{errors.bio}</p>
                   )}
                 </div>
               </div>
 
               {/* STICKY SAVE / CANCEL BAR */}
-              <div className="sticky bottom-4 z-30 p-4 bg-[#0b0c0e]/95 backdrop-blur-md border border-[#1f2128] rounded-none shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="sticky bottom-4 z-30 p-4 bg-[#111215]/95 backdrop-blur-md border border-[#27272A] rounded-none shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-xs font-mono">
                   {isDirty ? (
-                    <span className="text-[#00f2ff] font-bold flex items-center gap-1.5">
+                    <span className="text-[#FFB900] font-bold flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
                       UNSAVED MODIFICATIONS DETECTED
                     </span>
                   ) : (
-                    <span className="text-[#71717a] font-medium flex items-center gap-1.5">
+                    <span className="text-[#71717A] font-medium flex items-center gap-1.5">
                       <Check className="w-3.5 h-3.5 text-[#10b981]" />
                       PROFILE IS UP TO DATE
                     </span>
@@ -944,7 +941,7 @@ export default function EditProfilePage() {
                       type="button"
                       onClick={handleDiscardChanges}
                       disabled={isSaving}
-                      className="px-4 py-2.5 bg-[#141416] border border-[#27272a] hover:border-[#ff4655] hover:text-[#ff4655] text-xs font-mono font-bold uppercase rounded-none transition-all cursor-pointer disabled:opacity-50"
+                      className="px-4 py-2.5 bg-[#18181B] border border-[#27272A] hover:border-[#EF4444] hover:text-[#EF4444] text-xs font-mono font-bold uppercase rounded-none transition-all cursor-pointer disabled:opacity-50"
                     >
                       DISCARD
                     </button>
@@ -952,7 +949,7 @@ export default function EditProfilePage() {
 
                   <Link
                     to="/profile"
-                    className="px-4 py-2.5 bg-[#141416] border border-[#27272a] hover:border-[#849495] text-xs font-mono font-bold uppercase rounded-none text-[#849495] hover:text-white transition-all text-center flex-1 sm:flex-none"
+                    className="px-4 py-2.5 bg-[#18181B] border border-[#27272A] hover:border-[#A1A1AA] text-xs font-mono font-bold uppercase rounded-none text-[#A1A1AA] hover:text-white transition-all text-center flex-1 sm:flex-none"
                   >
                     CANCEL
                   </Link>
@@ -961,7 +958,7 @@ export default function EditProfilePage() {
                     type="submit"
                     loading={isSaving}
                     disabled={!isDirty || isSaving}
-                    className="flex-1 sm:flex-none px-6 py-2.5 bg-[#00f2ff] hover:bg-cyan-300 text-black font-mono font-extrabold uppercase rounded-none text-xs transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center justify-center gap-2 min-h-[40px] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer"
+                    className="flex-1 sm:flex-none px-6 py-2.5 bg-[#FFB900] hover:bg-[#FFC933] text-black font-mono font-extrabold uppercase rounded-none text-xs transition-all  flex items-center justify-center gap-2 min-h-[40px] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer"
                   >
                     <Save className="w-3.5 h-3.5" />
                     <span>SAVE CHANGES</span>
