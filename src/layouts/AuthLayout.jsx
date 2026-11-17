@@ -6,7 +6,7 @@ import PageFallback from '../components/common/PageFallback'
 export default function AuthLayout() {
   return (
     <div className="min-h-screen min-h-dvh bg-[#000000] text-[#ffffff] flex flex-col justify-between font-sans selection:bg-[#ffb900] selection:text-[#000000] overflow-x-hidden w-full">
-      
+
       {/* Top Auth Header Bar (Standardized with Public Navbar) */}
       <header className="sticky top-0 z-50 bg-[#000000]/95 backdrop-blur-md border-b border-[#27272A] shadow-[0_8px_24px_rgba(0,0,0,0.6)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between h-16 sm:h-20">
@@ -24,7 +24,7 @@ export default function AuthLayout() {
                 MJ <span className="text-[#FFB900]">ESPORTS</span>
               </span>
               <span className="text-[9.5px] xs:text-[11px] sm:text-xs font-bold tracking-wider text-[#FF8C00] font-headline truncate block uppercase leading-tight mt-0.5">
-                Free Fire MAX Arena
+                Free Fire India Arena
               </span>
             </div>
           </Link>

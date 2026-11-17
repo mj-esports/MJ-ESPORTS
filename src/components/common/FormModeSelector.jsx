@@ -15,8 +15,8 @@ export default function FormModeSelector({
   return (
     <div className="space-y-1.5 text-left font-mono">
       {label && (
-        <label className="block font-label-md text-[11px] font-bold text-[#b9cacb] uppercase tracking-wider">
-          {label} {required && <span className="text-[#00f2ff]">*</span>}
+        <label className="block font-label-md text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider">
+          {label} {required && <span className="text-[#FFB900]">*</span>}
         </label>
       )}
 
@@ -30,8 +30,8 @@ export default function FormModeSelector({
               onClick={() => onChange(m.key)}
               className={`py-2.5 px-3 rounded-none text-xs font-bold uppercase transition-all border flex flex-col items-center justify-center min-h-[44px] cursor-pointer ${
                 isSelected
-                  ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff] font-extrabold shadow-[0_0_12px_rgba(0,242,255,0.3)]'
-                  : 'bg-[#1d2023] text-[#849495] border-[#3a494b] hover:text-white hover:border-[#00f2ff]/40'
+                  ? 'bg-[#FFB900] text-black border-[#FFB900] font-extrabold'
+                  : 'bg-[#18181B] text-[#A1A1AA] border-[#27272A] hover:text-white hover:border-[#FFB900]/50'
               }`}
             >
               <span className="font-extrabold">{m.label}</span>
@@ -42,7 +42,7 @@ export default function FormModeSelector({
       </div>
 
       {error && (
-        <p className="text-xs text-[#ef4444] font-medium pl-1" role="alert">
+        <p className="text-xs text-[#EF4444] font-medium pl-1" role="alert">
           {error}
         </p>
       )}

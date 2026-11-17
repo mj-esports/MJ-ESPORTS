@@ -149,13 +149,13 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
     <div className="space-y-6">
       
       {/* Header & Tournament Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#27272A]/60 pb-4">
         <div className="space-y-1">
           <h2 className="font-display-lg text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-[#fe6b00]" />
+            <BarChart3 className="w-6 h-6 text-[#FF8C00]" />
             <span>POINTS TABLE & STANDINGS EDITOR</span>
           </h2>
-          <p className="text-xs text-[#8e9dae]">
+          <p className="text-xs text-[#A1A1AA]">
             Input match kills, placement points, and automatically publish live leaderboard standings.
           </p>
         </div>
@@ -164,7 +164,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
         <select
           value={selectedId}
           onChange={(e) => handleSelectTournament(e.target.value)}
-          className="py-2.5 px-4 bg-[#07090c] border border-[#3a494b] rounded-none text-xs font-bold text-[#00f2ff] focus:outline-none"
+          className="py-2.5 px-4 bg-[#000000] border border-[#27272A] rounded-none text-xs font-bold text-[#FFB900] focus:outline-none"
         >
           {tournaments.map((t) => (
             <option key={`lb-select-${t.id}`} value={t.id}>{t.title} ({t.game})</option>
@@ -175,9 +175,9 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
       {/* MATCH ROUND CONTROLS & PUBLISH ACTIONS */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#111215] border border-[#27272A]/60 rounded-none p-4 shadow-xl">
         <div className="flex items-center gap-2">
-          <span className="font-label-caps text-xs text-[#8e9dae] uppercase font-bold">Round Filter:</span>
+          <span className="font-label-caps text-xs text-[#A1A1AA] uppercase font-bold">Round Filter:</span>
           <div className="flex gap-1.5 font-mono text-xs font-bold">
             {['Overall', 'Match 1', 'Match 2', 'Match 3'].map((r) => (
               <button
@@ -185,8 +185,8 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
                 onClick={() => setMatchRound(r)}
                 className={`px-3 py-1.5 rounded-none transition-all ${
                   matchRound === r
-                    ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_10px_rgba(0,242,255,0.3)]'
-                    : 'bg-[#07090c] text-[#8e9dae] border border-[#3a494b] hover:text-white'
+                    ? 'bg-[#FFB900] text-[#000000] font-extrabold '
+                    : 'bg-[#000000] text-[#A1A1AA] border border-[#27272A] hover:text-white'
                 }`}
               >
                 {r}
@@ -198,15 +198,15 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowPreview(!showPreview)}
-            className="px-3.5 py-2.5 bg-[#07090c] hover:bg-[#1d232c] border border-[#3a494b] text-xs font-bold text-[#e1e2e7] hover:text-[#00f2ff] rounded-none transition-colors flex items-center gap-1.5 uppercase min-h-[40px]"
+            className="px-3.5 py-2.5 bg-[#000000] hover:bg-[#18181B] border border-[#27272A] text-xs font-bold text-[#e1e2e7] hover:text-[#FFB900] rounded-none transition-colors flex items-center gap-1.5 uppercase min-h-[40px]"
           >
-            <Eye className="w-4 h-4 text-[#00f2ff]" />
+            <Eye className="w-4 h-4 text-[#FFB900]" />
             <span>{showPreview ? 'Hide Preview' : 'Public Live Preview'}</span>
           </button>
 
           <button
             onClick={handleDeclareWinner}
-            className="px-3.5 py-2.5 bg-[#fe6b00]/10 hover:bg-[#fe6b00]/20 border border-[#fe6b00]/40 text-[#fe6b00] font-bold text-xs rounded-none transition-colors flex items-center gap-1.5 uppercase min-h-[40px]"
+            className="px-3.5 py-2.5 bg-[#FF8C00]/10 hover:bg-[#FF8C00]/20 border border-[#FF8C00]/40 text-[#FF8C00] font-bold text-xs rounded-none transition-colors flex items-center gap-1.5 uppercase min-h-[40px]"
           >
             <Crown className="w-4 h-4" />
             <span>Declare Winner</span>
@@ -225,18 +225,18 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
       </div>
 
       {/* EDITABLE POINTS TABLE */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none overflow-hidden shadow-xl">
-        <div className="p-4 bg-[#07090c] border-b border-[#3a494b]/60 flex items-center justify-between">
+      <div className="bg-[#111215] border border-[#27272A]/60 rounded-none overflow-hidden shadow-xl">
+        <div className="p-4 bg-[#000000] border-b border-[#27272A]/60 flex items-center justify-between">
           <h3 className="font-display-lg text-sm font-bold text-white uppercase flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-[#00f2ff]" />
+            <Trophy className="w-4 h-4 text-[#FFB900]" />
             <span>{selectedTournament?.title} &mdash; Standings Editor</span>
           </h3>
-          <span className="font-mono text-xs text-[#00ff9d] font-bold">Automatic Formula: Total = Kills + Placement Pts</span>
+          <span className="font-mono text-xs text-[#10B981] font-bold">Automatic Formula: Total = Kills + Placement Pts</span>
         </div>
 
         {teams.length === 0 ? (
-          <div className="p-12 text-center text-[#8e9dae] text-xs space-y-2">
-            <BarChart3 className="w-8 h-8 text-[#8e9dae] mx-auto" />
+          <div className="p-12 text-center text-[#A1A1AA] text-xs space-y-2">
+            <BarChart3 className="w-8 h-8 text-[#A1A1AA] mx-auto" />
             <p className="font-bold text-white">No Registered Teams</p>
             <p>Approve squad registrations to populate team entries in the points table.</p>
           </div>
@@ -244,7 +244,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
+                <tr className="bg-[#000000] border-b border-[#27272A]/60 font-label-caps text-[#A1A1AA]">
                   <th className="p-3.5 pl-4 text-center w-12">Rank</th>
                   <th className="p-3.5">Squad Team Name</th>
                   <th className="p-3.5">Captain</th>
@@ -253,7 +253,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
                   <th className="p-3.5 text-right pr-6 w-32">Total Points</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#3a494b]/40">
+              <tbody className="divide-y divide-[#27272A]/40">
                 {teams.map((t, idx) => {
                   const rank = idx + 1
                   const isTop1 = rank === 1
@@ -263,23 +263,23 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
                   return (
                     <tr
                       key={`edit-row-${t.id}`}
-                      className={`hover:bg-[#1d232c] transition-colors ${
-                        isTop1 ? 'bg-[#fe6b00]/5' : isTop2 ? 'bg-[#00f2ff]/5' : isTop3 ? 'bg-[#ffb800]/5' : ''
+                      className={`hover:bg-[#18181B] transition-colors ${
+                        isTop1 ? 'bg-[#FF8C00]/5' : isTop2 ? 'bg-[#FFB900]/5' : isTop3 ? 'bg-[#FFB900]/5' : ''
                       }`}
                     >
                       {/* Rank */}
                       <td className="p-3.5 pl-4 text-center font-mono font-extrabold text-sm">
                         {isTop1 ? (
-                          <span className="text-[#fe6b00] flex items-center justify-center gap-1">
-                            <Crown className="w-4 h-4 fill-[#fe6b00]" />
+                          <span className="text-[#FF8C00] flex items-center justify-center gap-1">
+                            <Crown className="w-4 h-4 fill-[#FF8C00]" />
                             #1
                           </span>
                         ) : isTop2 ? (
-                          <span className="text-[#00f2ff]">#2</span>
+                          <span className="text-[#FFB900]">#2</span>
                         ) : isTop3 ? (
-                          <span className="text-[#ffb800]">#3</span>
+                          <span className="text-[#FFB900]">#3</span>
                         ) : (
-                          <span className="text-[#8e9dae]">#{rank}</span>
+                          <span className="text-[#A1A1AA]">#{rank}</span>
                         )}
                       </td>
 
@@ -289,7 +289,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
                       </td>
 
                       {/* Captain */}
-                      <td className="p-3.5 text-[#8e9dae]">
+                      <td className="p-3.5 text-[#A1A1AA]">
                         {t.captain}
                       </td>
 
@@ -300,7 +300,7 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
                           min="0"
                           value={t.kills}
                           onChange={(e) => handleScoreChange(idx, 'kills', e.target.value)}
-                          className="w-16 py-1.5 px-2 bg-[#07090c] border border-[#3a494b] rounded-none text-center font-mono text-xs font-bold text-white focus:outline-none focus:border-[#00f2ff]"
+                          className="w-16 py-1.5 px-2 bg-[#000000] border border-[#27272A] rounded-none text-center font-mono text-xs font-bold text-white focus:outline-none focus:border-[#FFB900]"
                         />
                       </td>
 
@@ -311,12 +311,12 @@ export default function LeaderboardsView({ tournaments = [], updateTournamentSco
                           min="0"
                           value={t.placementPoints}
                           onChange={(e) => handleScoreChange(idx, 'placementPoints', e.target.value)}
-                          className="w-20 py-1.5 px-2 bg-[#07090c] border border-[#3a494b] rounded-none text-center font-mono text-xs font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff]"
+                          className="w-20 py-1.5 px-2 bg-[#000000] border border-[#27272A] rounded-none text-center font-mono text-xs font-bold text-[#FFB900] focus:outline-none focus:border-[#FFB900]"
                         />
                       </td>
 
                       {/* Total Points */}
-                      <td className="p-3.5 text-right pr-6 font-mono font-extrabold text-sm text-[#00ff9d]">
+                      <td className="p-3.5 text-right pr-6 font-mono font-extrabold text-sm text-[#10B981]">
                         {t.points} Pts
                       </td>
                     </tr>

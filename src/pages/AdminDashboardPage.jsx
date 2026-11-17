@@ -87,7 +87,7 @@ export default function AdminDashboardPage({ defaultTab }) {
   const activeNavItem = NAV_ITEMS.find((item) => item.id === activeTab) || NAV_ITEMS[0]
 
   return (
-    <div className="min-h-screen bg-[#131314] text-[#b9cacb] font-body selection:bg-[#00f2ff]/30 selection:text-[#00f2ff] flex flex-col antialiased">
+    <div className="min-h-screen bg-[#000000] text-[#A1A1AA] font-body selection:bg-[#FFB900]/30 selection:text-[#FFB900] flex flex-col antialiased">
       
       {/* Stitch UI-2A Admin Top Header */}
       <AdminHeader
@@ -111,28 +111,28 @@ export default function AdminDashboardPage({ defaultTab }) {
           
           {/* Sub-Tab Header for Generic Pages */}
           {activeTab !== 'dashboard' && activeTab !== 'tournaments' && activeTab !== 'matches' && activeTab !== 'results' && (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#141416] border border-[#27272a] rounded-none p-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#111215] border border-[#27272A] rounded-none p-4 shadow-xl">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+                <div className="w-8 h-8 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 flex items-center justify-center text-[#FFB900]">
                   <activeNavItem.icon className="w-4 h-4" />
                 </div>
                 <div>
                   <h2 className="font-headline text-sm sm:text-base font-extrabold text-white uppercase tracking-wider">
                     {activeNavItem.label} Console
                   </h2>
-                  <p className="text-[11px] text-[#849495] font-body">Operational controls & real-time management</p>
+                  <p className="text-[11px] text-[#A1A1AA] font-body">Operational controls & real-time management</p>
                 </div>
               </div>
 
               {/* Sub-Tab Navigation for Specific Tabs */}
               {activeTab === 'players' && (
-                <div className="flex items-center bg-[#1c1b1c] p-1 rounded-none border border-[#27272a] text-xs font-headline font-bold">
+                <div className="flex items-center bg-[#18181B] p-1 rounded-none border border-[#27272A] text-xs font-headline font-bold">
                   <button
                     onClick={() => setPlayersSubTab('directory')}
                     className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       playersSubTab === 'directory'
-                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
-                        : 'text-[#849495] hover:text-white'
+                        ? 'bg-[#FFB900] text-[#000000] font-extrabold'
+                        : 'text-[#A1A1AA] hover:text-white'
                     }`}
                   >
                     Directory
@@ -141,8 +141,8 @@ export default function AdminDashboardPage({ defaultTab }) {
                     onClick={() => setPlayersSubTab('teams')}
                     className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       playersSubTab === 'teams'
-                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
-                        : 'text-[#849495] hover:text-white'
+                        ? 'bg-[#FFB900] text-[#000000] font-extrabold'
+                        : 'text-[#A1A1AA] hover:text-white'
                     }`}
                   >
                     Teams
@@ -151,13 +151,13 @@ export default function AdminDashboardPage({ defaultTab }) {
               )}
 
               {activeTab === 'finance' && (
-                <div className="flex items-center bg-[#1c1b1c] p-1 rounded-none border border-[#27272a] text-xs font-headline font-bold">
+                <div className="flex items-center bg-[#18181B] p-1 rounded-none border border-[#27272A] text-xs font-headline font-bold">
                   <button
                     onClick={() => setPaymentsSubTab('finance')}
                     className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       paymentsSubTab === 'finance'
-                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
-                        : 'text-[#849495] hover:text-white'
+                        ? 'bg-[#FFB900] text-[#000000] font-extrabold'
+                        : 'text-[#A1A1AA] hover:text-white'
                     }`}
                   >
                     Finance Dashboard
@@ -166,8 +166,8 @@ export default function AdminDashboardPage({ defaultTab }) {
                     onClick={() => setPaymentsSubTab('verification')}
                     className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       paymentsSubTab === 'verification'
-                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
-                        : 'text-[#849495] hover:text-white'
+                        ? 'bg-[#FFB900] text-[#000000] font-extrabold'
+                        : 'text-[#A1A1AA] hover:text-white'
                     }`}
                   >
                     Payment Verification
@@ -176,13 +176,13 @@ export default function AdminDashboardPage({ defaultTab }) {
               )}
 
               {activeTab === 'reports' && (
-                <div className="flex items-center bg-[#1c1b1c] p-1 rounded-none border border-[#27272a] text-xs font-headline font-bold">
+                <div className="flex items-center bg-[#18181B] p-1 rounded-none border border-[#27272A] text-xs font-headline font-bold">
                   <button
                     onClick={() => setReportsSubTab('reports')}
                     className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       reportsSubTab === 'reports'
-                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
-                        : 'text-[#849495] hover:text-white'
+                        ? 'bg-[#FFB900] text-[#000000] font-extrabold'
+                        : 'text-[#A1A1AA] hover:text-white'
                     }`}
                   >
                     Reports
@@ -191,8 +191,8 @@ export default function AdminDashboardPage({ defaultTab }) {
                     onClick={() => setReportsSubTab('telemetry')}
                     className={`px-3 py-1.5 rounded-none transition-all cursor-pointer ${
                       reportsSubTab === 'telemetry'
-                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold'
-                        : 'text-[#849495] hover:text-white'
+                        ? 'bg-[#FFB900] text-[#000000] font-extrabold'
+                        : 'text-[#A1A1AA] hover:text-white'
                     }`}
                   >
                     Telemetry

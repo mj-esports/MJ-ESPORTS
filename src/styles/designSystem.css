@@ -1,5 +1,5 @@
 /* 
-  MJ ESPORTS — Free Fire MAX Stitch Design System
+  MJ ESPORTS — Free Fire India Stitch Design System
   Unified Design Tokens, Color Palette, Elevation & Components
 */
 
@@ -75,7 +75,8 @@
 }
 
 /* Base Body System Reset */
-html, body {
+html,
+body {
   overflow-x: hidden;
   max-width: 100vw;
   width: 100%;
@@ -374,10 +375,13 @@ input[type="time"] {
 
 /* Shimmer Loading Skeleton */
 @keyframes skeletonPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     background-color: var(--color-surface-container);
   }
+
   50% {
     opacity: 0.6;
     background-color: var(--color-surface-container-high);

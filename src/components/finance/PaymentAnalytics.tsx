@@ -30,7 +30,7 @@ export const PaymentAnalytics: React.FC<PaymentAnalyticsProps> = ({ transactions
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
+
       {/* Game-wise Revenue */}
       <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-xl p-5 space-y-4 shadow-xl">
         <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
@@ -43,7 +43,7 @@ export const PaymentAnalytics: React.FC<PaymentAnalyticsProps> = ({ transactions
         <div className="space-y-4 pt-1">
           <div>
             <div className="flex justify-between items-center text-xs font-bold mb-1">
-              <span className="text-[#00f2ff]">Free Fire MAX</span>
+              <span className="text-[#00f2ff]">Free Fire India</span>
               <span className="font-mono text-[#00f2ff]">₹{ffRev.toLocaleString()} ({ffPct}%)</span>
             </div>
             <div className="w-full h-2 bg-[#07090c] rounded-full overflow-hidden border border-[#3a494b]/40">

@@ -31,7 +31,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6 sm:space-y-8">
-      
+
       {/* Header Banner */}
       <div className="text-center space-y-2.5 max-w-2xl mx-auto">
         <div className="flex items-center justify-center mx-auto">
@@ -61,11 +61,10 @@ export default function AboutPage({ defaultTab = 'about' }) {
             <button
               key={`about-tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-3.5 py-2.5 rounded-none border transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] cursor-pointer ${
-                isActive
-                  ? 'border-[#FFB900] text-[#000000] bg-[#FFB900] font-extrabold'
-                  : 'border-[#27272A] bg-[#111215] text-[#A1A1AA] hover:text-white hover:border-[#3f3f46]'
-              }`}
+              className={`px-3.5 py-2.5 rounded-none border transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] cursor-pointer ${isActive
+                ? 'border-[#FFB900] text-[#000000] bg-[#FFB900] font-extrabold'
+                : 'border-[#27272A] bg-[#111215] text-[#A1A1AA] hover:text-white hover:border-[#3f3f46]'
+                }`}
             >
               <Icon className="w-4 h-4 shrink-0" />
               <span className="truncate">{tab.label}</span>
@@ -83,7 +82,7 @@ export default function AboutPage({ defaultTab = 'about' }) {
                 <Trophy className="w-5 h-5" />
               </div>
               <h3 className="font-headline text-base font-bold text-white uppercase">Pro Tournaments</h3>
-              <p className="text-xs text-[#A1A1AA] leading-relaxed">Daily and weekly competitive Free Fire MAX matches with real prize pools.</p>
+              <p className="text-xs text-[#A1A1AA] leading-relaxed">Daily and weekly competitive Free Fire India matches with real prize pools.</p>
             </div>
 
             <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 space-y-3 shadow-xl">

@@ -189,7 +189,7 @@ export default function SettingsPage() {
             </Link>
 
             <span className="px-2.5 py-1 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-bold text-[#FF8C00] tracking-wider uppercase">
-              FREE FIRE MAX ONLY
+              FREE FIRE INDIA ONLY
             </span>
           </div>
 
@@ -291,13 +291,12 @@ export default function SettingsPage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-none transition-all text-left font-bold cursor-pointer border ${
-                    isSelected
-                      ? tab.danger
-                        ? 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/40 shadow-none'
-                        : 'bg-[#FFB900] text-black border-[#FFB900] shadow-none font-black'
-                      : 'bg-[#111215] text-[#A1A1AA] hover:text-white hover:bg-[#18181B] border-[#27272A]'
-                  }`}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-none transition-all text-left font-bold cursor-pointer border ${isSelected
+                    ? tab.danger
+                      ? 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/40 shadow-none'
+                      : 'bg-[#FFB900] text-black border-[#FFB900] shadow-none font-black'
+                    : 'bg-[#111215] text-[#A1A1AA] hover:text-white hover:bg-[#18181B] border-[#27272A]'
+                    }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <Icon className="w-4 h-4 shrink-0" />
@@ -321,7 +320,7 @@ export default function SettingsPage() {
                     <span>GENERAL INFO</span>
                   </h2>
                   <p className="text-xs text-[#A1A1AA] font-sans mt-0.5">
-                    Core identity, Free Fire MAX game ID, and contact data.
+                    Core identity, Free Fire India game ID, and contact data.
                   </p>
                 </div>
 
@@ -360,12 +359,12 @@ export default function SettingsPage() {
 
                   <div className="space-y-1">
                     <span className="text-[10px] text-[#A1A1AA] uppercase font-bold block">
-                      FREE FIRE MAX UID
+                      FREE FIRE INDIA UID
                     </span>
                     <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white font-mono flex items-center justify-between">
                       <span className="font-bold text-[#FFB900]">{freeFireUid || 'Not registered'}</span>
                       <span className="text-[9.5px] px-2 py-0.5 rounded-none bg-[#FF8C00]/10 text-[#FF8C00] border border-[#FF8C00]/30 font-bold uppercase">
-                        FF MAX ONLY
+                        FF INDIA ONLY
                       </span>
                     </div>
                   </div>
@@ -671,12 +670,12 @@ export default function SettingsPage() {
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white uppercase block">Dedicated Platform Game</span>
                       <span className="text-[10px] text-[#A1A1AA] font-sans block">
-                        MJ ESPORTS is exclusively optimized for Free Fire MAX.
+                        MJ ESPORTS is exclusively optimized for Free Fire India.
                       </span>
                     </div>
 
                     <span className="px-2.5 py-1 rounded-none bg-[#FF8C00]/10 text-[#FF8C00] border border-[#FF8C00]/30 text-xs font-bold uppercase">
-                      FREE FIRE MAX
+                      FREE FIRE INDIA
                     </span>
                   </div>
                 </div>

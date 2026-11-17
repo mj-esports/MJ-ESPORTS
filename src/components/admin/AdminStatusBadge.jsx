@@ -49,16 +49,16 @@ export default function AdminStatusBadge({ status, size = 'sm', className = '' }
   }
 
   const stylesByVariant = {
-    live: 'bg-[#ff5e07]/15 text-[#ff5e07] border-[#ff5e07]/40 font-headline',
-    open: 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/30 font-headline',
-    upcoming: 'bg-[#1c1b1c] text-[#00f2ff] border-[#27272a] font-headline',
-    full: 'bg-[#fed83a]/10 text-[#fed83a] border-[#fed83a]/40 font-headline',
-    results_pending: 'bg-[#fed83a]/15 text-[#fed83a] border-[#fed83a]/40 font-headline',
+    live: 'bg-[#FF8C00]/15 text-[#FF8C00] border-[#FF8C00]/40 font-headline',
+    open: 'bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/30 font-headline',
+    upcoming: 'bg-[#18181B] text-[#FFB900] border-[#27272A] font-headline',
+    full: 'bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/40 font-headline',
+    results_pending: 'bg-[#FFB900]/15 text-[#FFB900] border-[#FFB900]/40 font-headline',
     completed: 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/30 font-headline',
     cancelled: 'bg-red-950/40 text-red-400 border-red-900/40 font-headline',
-    pending: 'bg-[#ff5e07]/10 text-[#ff5e07] border-[#ff5e07]/30 font-headline',
+    pending: 'bg-[#FF8C00]/10 text-[#FF8C00] border-[#FF8C00]/30 font-headline',
     failed: 'bg-red-950/40 text-red-400 border-red-900/40 font-headline',
-    default: 'bg-[#1c1b1c] text-[#849495] border-[#27272a] font-headline',
+    default: 'bg-[#18181B] text-[#A1A1AA] border-[#27272A] font-headline',
   }
 
   const sizeStyles = {
@@ -73,8 +73,8 @@ export default function AdminStatusBadge({ status, size = 'sm', className = '' }
         sizeStyles[size] || sizeStyles.sm
       } ${stylesByVariant[variant] || stylesByVariant.default} ${className}`}
     >
-      {isLive && <span className="w-1.5 h-1.5 rounded-none bg-[#ff5e07] animate-pulse" />}
-      {isPending && <span className="w-1.5 h-1.5 rounded-none bg-[#ff5e07] animate-ping" />}
+      {isLive && <span className="w-1.5 h-1.5 rounded-none bg-[#FF8C00] animate-pulse" />}
+      {isPending && <span className="w-1.5 h-1.5 rounded-none bg-[#FF8C00] animate-ping" />}
       <span>{label}</span>
     </span>
   )

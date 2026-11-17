@@ -11,7 +11,7 @@ export default function LiveMatchCard({
   matchNumber = '07',
   tournamentName = 'MJ ESPORTS',
   title = 'BATTLE ARENA',
-  game = 'FREE FIRE MAX',
+  game = 'FREE FIRE INDIA',
   team1 = {
     shortName: 'MJ',
     name: 'MJ TITANS',

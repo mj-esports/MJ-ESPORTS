@@ -66,21 +66,21 @@ export default function ResetPasswordPage() {
         
         {/* Header Branding */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-none bg-[#00f2ff] p-[1px] mx-auto shadow-[0_0_15px_rgba(0,242,255,0.4)]">
-            <div className="w-full h-full bg-[#07090c] rounded-none flex items-center justify-center">
-              <KeyRound className="w-6 h-6 text-[#00f2ff]" />
+          <div className="w-12 h-12 rounded-none bg-[#FFB900] p-[1px] mx-auto">
+            <div className="w-full h-full bg-[#111215] rounded-none flex items-center justify-center">
+              <KeyRound className="w-6 h-6 text-[#FFB900]" />
             </div>
           </div>
           <h1 className="font-display-lg text-2xl font-extrabold text-white tracking-tight uppercase">
             SET NEW PASSWORD
           </h1>
-          <p className="text-xs text-[#8e9dae]">
+          <p className="text-xs text-[#A1A1AA]">
             Choose a strong, secure password for your MJ ESPORTS account.
           </p>
         </div>
 
         {/* Card Form */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-6 sm:p-8 space-y-6 shadow-2xl">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-6 sm:p-8 space-y-6 shadow-2xl">
           {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
           {isSuccess ? (
@@ -134,7 +134,7 @@ export default function ResetPasswordPage() {
               >
                 {isSubmitting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-[#00363a] border-t-transparent rounded-none animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-[#000000] border-t-transparent rounded-none animate-spin"></div>
                     <span>Updating Password...</span>
                   </>
                 ) : (
@@ -147,9 +147,9 @@ export default function ResetPasswordPage() {
             </form>
           )}
 
-          <div className="pt-4 border-t border-[#3a494b]/60 text-center text-xs text-[#8e9dae]">
+          <div className="pt-4 border-t border-[#27272A] text-center text-xs text-[#A1A1AA]">
             Remembered your password?{' '}
-            <Link to="/login" className="font-bold text-[#00f2ff] hover:underline transition-colors inline-flex items-center gap-1 uppercase tracking-wider">
+            <Link to="/login" className="font-bold text-[#FFB900] hover:underline transition-colors inline-flex items-center gap-1 uppercase tracking-wider">
               <span>Back to Login</span>
             </Link>
           </div>

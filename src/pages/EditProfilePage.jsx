@@ -479,7 +479,7 @@ export default function EditProfilePage() {
           </Link>
 
           <span className="text-[10px] font-mono font-extrabold uppercase px-2.5 py-1 bg-[#111215] border border-[#27272A] text-[#FFB900] rounded-none tracking-wider">
-            FREE FIRE MAX ONLY
+            FREE FIRE INDIA ONLY
           </span>
         </div>
 
@@ -496,7 +496,7 @@ export default function EditProfilePage() {
               EDIT PROFILE
             </h1>
             <p className="text-xs font-sans text-[#A1A1AA] mt-0.5">
-              Manage competitive handle, Free Fire MAX player credentials, and verified evidence.
+              Manage competitive handle, Free Fire India player credentials, and verified evidence.
             </p>
           </div>
 
@@ -630,7 +630,7 @@ export default function EditProfilePage() {
                 <span>COMPLIANCE RULES</span>
               </div>
               <ul className="list-disc list-inside space-y-1 text-[11px] font-sans">
-                <li>Free Fire MAX UID must match your in-game profile.</li>
+                <li>Free Fire India UID must match your in-game profile.</li>
                 <li>Display name edits must be unique across players.</li>
                 <li>Modifying verified UID triggers administrative re-audit.</li>
                 <li>Avatars must adhere to community guidelines.</li>
@@ -700,9 +700,9 @@ export default function EditProfilePage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Free Fire MAX UID */}
+                  {/* Free Fire India UID */}
                   <FormInput
-                    label="FREE FIRE MAX UID"
+                    label="FREE FIRE INDIA UID"
                     name="freeFireUid"
                     type="text"
                     inputMode="numeric"

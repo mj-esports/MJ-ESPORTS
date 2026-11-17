@@ -171,7 +171,7 @@ export default function AdminSidebar({
       <nav className="flex-1 space-y-4 overflow-y-auto pr-1">
         {NAV_GROUPS.map((group) => (
           <div key={`nav-group-${group.id}`} className="space-y-1">
-            <div className="px-3 pt-1 pb-1 text-[10px] font-headline font-extrabold uppercase tracking-widest text-[#849495]/70 select-none">
+            <div className="px-3 pt-1 pb-1 text-[10px] font-headline font-extrabold uppercase tracking-widest text-[#A1A1AA]/70 select-none">
               {group.title}
             </div>
 
@@ -187,14 +187,14 @@ export default function AdminSidebar({
                     onClick={() => handleNavClick(item.id)}
                     className={`w-full px-3 py-2 rounded-none font-headline font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-between min-h-[38px] sm:min-h-[40px] cursor-pointer select-none group ${
                       active
-                        ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_15px_rgba(0,242,255,0.25)]'
-                        : 'text-[#849495] hover:text-white hover:bg-[#1c1b1c]'
+                        ? 'bg-[#FFB900] text-[#000000] font-extrabold '
+                        : 'text-[#A1A1AA] hover:text-white hover:bg-[#18181B]'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <Icon
                         className={`w-4 h-4 shrink-0 transition-colors ${
-                          active ? 'text-[#00363a]' : 'text-[#849495] group-hover:text-white'
+                          active ? 'text-[#000000]' : 'text-[#A1A1AA] group-hover:text-white'
                         }`}
                       />
                       <span className="truncate">{item.label}</span>
@@ -205,14 +205,14 @@ export default function AdminSidebar({
                         <span
                           className={`px-1.5 py-0.5 rounded-none text-[9px] font-headline font-extrabold leading-none ${
                             active
-                              ? 'bg-[#00363a] text-[#00f2ff]'
-                              : 'bg-[#ff5e07]/20 text-[#ff5e07] border border-[#ff5e07]/40'
+                              ? 'bg-[#000000] text-[#FFB900]'
+                              : 'bg-[#FF8C00]/20 text-[#FF8C00] border border-[#FF8C00]/40'
                           }`}
                         >
                           {badgeCount}
                         </span>
                       )}
-                      {active && <ChevronRight className="w-3.5 h-3.5 text-[#00363a] shrink-0" />}
+                      {active && <ChevronRight className="w-3.5 h-3.5 text-[#000000] shrink-0" />}
                     </div>
                   </button>
                 )
@@ -227,10 +227,10 @@ export default function AdminSidebar({
   return (
     <>
       {/* Desktop Sidebar (Fixed Left Panel >= 1024px) */}
-      <aside className="hidden lg:flex flex-col w-60 bg-[#141416] border-r border-[#27272a] shrink-0 min-h-[calc(100vh-64px)] p-4 space-y-4">
+      <aside className="hidden lg:flex flex-col w-60 bg-[#111215] border-r border-[#27272A] shrink-0 min-h-[calc(100vh-64px)] p-4 space-y-4">
         {/* Ops Status Header */}
-        <div className="px-3 py-2.5 bg-[#1c1b1c] rounded-none border border-[#27272a] flex items-center gap-2.5 shrink-0">
-          <div className="w-7 h-7 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] font-bold shrink-0">
+        <div className="px-3 py-2.5 bg-[#18181B] rounded-none border border-[#27272A] flex items-center gap-2.5 shrink-0">
+          <div className="w-7 h-7 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 flex items-center justify-center text-[#FFB900] font-bold shrink-0">
             <Shield className="w-3.5 h-3.5" />
           </div>
           <div>
@@ -246,9 +246,9 @@ export default function AdminSidebar({
         {renderNavList()}
 
         {/* Global Telemetry Status (Compact Bottom Area) */}
-        <div className="pt-3 border-t border-[#27272a] mt-auto shrink-0">
-          <div className="px-3 py-2 bg-[#1c1b1c] rounded-none border border-[#27272a] flex items-center justify-between text-xs font-body select-none">
-            <span className="text-[#849495] text-xs">Telemetry Stream:</span>
+        <div className="pt-3 border-t border-[#27272A] mt-auto shrink-0">
+          <div className="px-3 py-2 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between text-xs font-body select-none">
+            <span className="text-[#A1A1AA] text-xs">Telemetry Stream:</span>
             <span className="font-headline font-bold text-[#10b981] text-[10px] uppercase flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-none bg-[#10b981] animate-pulse"></span>
               ONLINE
@@ -265,18 +265,18 @@ export default function AdminSidebar({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-64 max-w-[80vw] bg-[#141416] border-r border-[#27272a] p-4 space-y-3 flex flex-col h-full overflow-y-auto shadow-2xl"
+            className="w-64 max-w-[80vw] bg-[#111215] border-r border-[#27272A] p-4 space-y-3 flex flex-col h-full overflow-y-auto shadow-2xl"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#27272a] shrink-0">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A] shrink-0">
               <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#00f2ff]" />
+                <Shield className="w-4 h-4 text-[#FFB900]" />
                 <span className="font-headline font-extrabold text-white text-xs uppercase tracking-wider">
                   Admin Console
                 </span>
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1.5 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-white min-h-[36px] min-w-[36px] flex items-center justify-center cursor-pointer"
+                className="p-1.5 rounded-none bg-[#18181B] border border-[#27272A] text-[#A1A1AA] hover:text-white min-h-[36px] min-w-[36px] flex items-center justify-center cursor-pointer"
                 aria-label="Close Admin Navigation"
               >
                 <X className="w-4 h-4" />
@@ -286,9 +286,9 @@ export default function AdminSidebar({
             {renderNavList()}
 
             {/* Global Telemetry Status for Mobile Drawer */}
-            <div className="pt-3 border-t border-[#27272a] mt-auto shrink-0">
-              <div className="px-3 py-2 bg-[#1c1b1c] rounded-none border border-[#27272a] flex items-center justify-between text-xs font-body select-none">
-                <span className="text-[#849495] text-xs">Telemetry Stream:</span>
+            <div className="pt-3 border-t border-[#27272A] mt-auto shrink-0">
+              <div className="px-3 py-2 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-between text-xs font-body select-none">
+                <span className="text-[#A1A1AA] text-xs">Telemetry Stream:</span>
                 <span className="font-headline font-bold text-[#10b981] text-[10px] uppercase flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-none bg-[#10b981] animate-pulse"></span>
                   ONLINE

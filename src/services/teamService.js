@@ -96,7 +96,7 @@ export async function getMyTeamPortalData() {
  * @param {string} params.name - Squad display name (3-30 chars)
  * @param {string} [params.tag] - Squad tag (2-5 uppercase chars)
  * @param {string} [params.description] - Squad motto/bio (<=250 chars)
- * @param {string} [params.gameUid] - 10-digit Free Fire MAX Character UID
+ * @param {string} [params.gameUid] - 10-digit Free Fire India Character UID
  * @returns {Promise<{ success: boolean, team?: object, message?: string, error?: string, error_code?: string }>}
  */
 export async function createPlayerTeam(params = {}) {
@@ -130,7 +130,7 @@ export async function createPlayerTeam(params = {}) {
   if (gameUid && !/^[0-9]{10}$/.test(gameUid.trim())) {
     return {
       success: false,
-      error: 'Free Fire MAX Character UID must be exactly 10 numeric digits.',
+      error: 'Free Fire India Character UID must be exactly 10 numeric digits.',
       error_code: 'VALIDATION_ERROR',
     }
   }

@@ -1,6 +1,6 @@
 /**
  * Built-in Esports Tournament Background Assets
- * Provides official hardcoded backgrounds for Free Fire / Free Fire MAX tournaments.
+ * Provides official hardcoded backgrounds for Free Fire / Free Fire India tournaments.
  */
 
 export const FREE_FIRE_BANNER =

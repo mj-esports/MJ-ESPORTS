@@ -105,81 +105,81 @@ export default function TournamentScheduleForm({
 
   if (readOnly) {
     return (
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 sm:p-5 space-y-3.5 sm:space-y-4 shadow-md text-white font-mono text-xs">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-4 sm:p-5 space-y-3.5 sm:space-y-4 shadow-md text-white font-mono text-xs">
         {/* Header Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#27272a] pb-3">
-          <div className="flex items-center gap-2 text-[#00f2ff]">
-            <Calendar className="w-4 h-4 text-[#00f2ff]" />
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#27272A] pb-3">
+          <div className="flex items-center gap-2 text-[#FFB900]">
+            <Calendar className="w-4 h-4 text-[#FFB900]" />
             <h4 className="font-headline text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
               Tournament Schedule Overview
             </h4>
           </div>
-          <span className="px-2 py-0.5 rounded-none bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">
+          <span className="px-2 py-0.5 rounded-none bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">
             IST (UTC+05:30)
           </span>
         </div>
 
         {/* Mini Chronology Sequence Ribbon */}
-        <div className="bg-[#1c1b1c] p-2.5 rounded-none border border-[#27272a] flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-[#849495] overflow-x-auto gap-2">
+        <div className="bg-[#18181B] p-2.5 rounded-none border border-[#27272A] flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-[#A1A1AA] overflow-x-auto gap-2">
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-none bg-[#10b981]" />
+            <span className="w-1.5 h-1.5 rounded-none bg-[#10B981]" />
             <span>Reg: <strong className="text-white">{registrationStart || 'Immediate'}</strong></span>
           </div>
-          <span className="text-[#27272a] shrink-0">→</span>
+          <span className="text-[#27272A] shrink-0">→</span>
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-none bg-[#00f2ff]" />
+            <span className="w-1.5 h-1.5 rounded-none bg-[#FFB900]" />
             <span>Check-in: <strong className="text-white">{checkInStart || '05:00 PM'}</strong></span>
           </div>
-          <span className="text-[#27272a] shrink-0">→</span>
+          <span className="text-[#27272A] shrink-0">→</span>
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-none bg-[#00dbe7]" />
+            <span className="w-1.5 h-1.5 rounded-none bg-[#FFB900]" />
             <span>Room Unlock: <strong className="text-white">{roomPublishTime || '05:45 PM'}</strong></span>
           </div>
-          <span className="text-[#27272a] shrink-0">→</span>
+          <span className="text-[#27272A] shrink-0">→</span>
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-none bg-[#ff5e07]" />
-            <span>Kickoff: <strong className="text-[#ff5e07]">{startTime || '06:00 PM'}</strong></span>
+            <span className="w-1.5 h-1.5 rounded-none bg-[#FF8C00]" />
+            <span>Kickoff: <strong className="text-[#FF8C00]">{startTime || '06:00 PM'}</strong></span>
           </div>
         </div>
 
         {/* Grid of Chronological Window Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
-          <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-1 hover:border-[#00f2ff]/30 transition-colors">
-            <span className="text-[10px] text-[#849495] uppercase font-bold tracking-wider block">Tournament Date</span>
+          <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none space-y-1 hover:border-[#FFB900]/30 transition-colors">
+            <span className="text-[10px] text-[#A1A1AA] uppercase font-bold tracking-wider block">Tournament Date</span>
             <span className="text-white text-xs sm:text-sm font-bold block">{startDate || 'TBD'}</span>
           </div>
 
-          <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-1 hover:border-[#00f2ff]/30 transition-colors">
-            <span className="text-[10px] text-[#849495] uppercase font-bold tracking-wider block">Registration Opens</span>
-            <span className="text-[#10b981] text-xs sm:text-sm font-bold block">{registrationStart || 'Immediate'}</span>
+          <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none space-y-1 hover:border-[#FFB900]/30 transition-colors">
+            <span className="text-[10px] text-[#A1A1AA] uppercase font-bold tracking-wider block">Registration Opens</span>
+            <span className="text-[#10B981] text-xs sm:text-sm font-bold block">{registrationStart || 'Immediate'}</span>
           </div>
 
-          <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-1 hover:border-[#00f2ff]/30 transition-colors">
-            <span className="text-[10px] text-[#849495] uppercase font-bold tracking-wider block">Registration Closes</span>
-            <span className="text-[#ff5e07] text-xs sm:text-sm font-bold block">{registrationEnd || '1 Hour Prior'}</span>
+          <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none space-y-1 hover:border-[#FFB900]/30 transition-colors">
+            <span className="text-[10px] text-[#A1A1AA] uppercase font-bold tracking-wider block">Registration Closes</span>
+            <span className="text-[#FF8C00] text-xs sm:text-sm font-bold block">{registrationEnd || '1 Hour Prior'}</span>
           </div>
 
-          <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-1 hover:border-[#00f2ff]/30 transition-colors">
-            <span className="text-[10px] text-[#849495] uppercase font-bold tracking-wider block">Check-in Opens</span>
-            <span className="text-[#00f2ff] text-xs sm:text-sm font-bold block">{checkInStart || '05:00 PM IST'}</span>
+          <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none space-y-1 hover:border-[#FFB900]/30 transition-colors">
+            <span className="text-[10px] text-[#A1A1AA] uppercase font-bold tracking-wider block">Check-in Opens</span>
+            <span className="text-[#FFB900] text-xs sm:text-sm font-bold block">{checkInStart || '05:00 PM IST'}</span>
           </div>
 
-          <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-1 hover:border-[#00f2ff]/30 transition-colors">
-            <span className="text-[10px] text-[#849495] uppercase font-bold tracking-wider block">Check-in Closes</span>
-            <span className="text-[#fed83a] text-xs sm:text-sm font-bold block">{checkInEnd || checkInTime || '05:30 PM IST'}</span>
+          <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none space-y-1 hover:border-[#FFB900]/30 transition-colors">
+            <span className="text-[10px] text-[#A1A1AA] uppercase font-bold tracking-wider block">Check-in Closes</span>
+            <span className="text-[#FFB900] text-xs sm:text-sm font-bold block">{checkInEnd || checkInTime || '05:30 PM IST'}</span>
           </div>
 
-          <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-1 hover:border-[#00f2ff]/30 transition-colors">
-            <span className="text-[10px] text-[#849495] uppercase font-bold tracking-wider block">Room Publish Time</span>
-            <span className="text-[#00dbe7] text-xs sm:text-sm font-bold block">{roomPublishTime || '05:45 PM IST'}</span>
+          <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none space-y-1 hover:border-[#FFB900]/30 transition-colors">
+            <span className="text-[10px] text-[#A1A1AA] uppercase font-bold tracking-wider block">Room Publish Time</span>
+            <span className="text-[#FFB900] text-xs sm:text-sm font-bold block">{roomPublishTime || '05:45 PM IST'}</span>
           </div>
 
-          <div className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded-none sm:col-span-2 lg:col-span-3 flex flex-wrap items-center justify-between gap-3 hover:border-[#00f2ff]/30 transition-colors">
+          <div className="p-3.5 bg-[#18181B] border border-[#27272A] rounded-none sm:col-span-2 lg:col-span-3 flex flex-wrap items-center justify-between gap-3 hover:border-[#FFB900]/30 transition-colors">
             <div>
-              <span className="text-[10px] text-[#849495] uppercase font-bold tracking-wider block">Match Start Time (Kickoff)</span>
-              <span className="text-[#ff5e07] text-sm sm:text-base font-black tracking-wide block">{startTime || '06:00 PM IST'}</span>
+              <span className="text-[10px] text-[#A1A1AA] uppercase font-bold tracking-wider block">Match Start Time (Kickoff)</span>
+              <span className="text-[#FF8C00] text-sm sm:text-base font-black tracking-wide block">{startTime || '06:00 PM IST'}</span>
             </div>
-            <span className="px-2.5 py-1 rounded-none bg-[#ff5e07]/10 text-[#ff5e07] border border-[#ff5e07]/30 text-[10px] font-bold uppercase tracking-wider font-mono">
+            <span className="px-2.5 py-1 rounded-none bg-[#FF8C00]/10 text-[#FF8C00] border border-[#FF8C00]/30 text-[10px] font-bold uppercase tracking-wider font-mono">
               Mandatory Punctuality
             </span>
           </div>
@@ -189,15 +189,15 @@ export default function TournamentScheduleForm({
   }
 
   return (
-    <div className="bg-[#141416] p-4 sm:p-5 rounded-none border border-[#27272a] shadow-md space-y-4 text-white font-mono text-xs">
-      <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
-        <div className="flex items-center gap-2 text-[#00f2ff]">
-          <Calendar className="w-4 h-4 text-[#00f2ff]" />
+    <div className="bg-[#111215] p-4 sm:p-5 rounded-none border border-[#27272A] shadow-md space-y-4 text-white font-mono text-xs">
+      <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
+        <div className="flex items-center gap-2 text-[#FFB900]">
+          <Calendar className="w-4 h-4 text-[#FFB900]" />
           <h3 className="font-headline text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
             Tournament Schedule Configuration
           </h3>
         </div>
-        <span className="text-[10px] text-[#849495] font-semibold uppercase">Auto-Validated Chronology</span>
+        <span className="text-[10px] text-[#A1A1AA] font-semibold uppercase">Auto-Validated Chronology</span>
       </div>
 
       {Object.keys(chronoErrors).length > 0 && (
@@ -211,15 +211,15 @@ export default function TournamentScheduleForm({
         
         {/* Field 1: Tournament Date */}
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold text-[#849495] uppercase tracking-wide block">
+          <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide block">
             1. Tournament Date *
           </label>
           <input
             type="date"
             value={startDate}
             onChange={(e) => handleChange('startDate', e.target.value)}
-            className={`w-full bg-[#1c1b1c] border rounded-none px-3.5 py-2 text-white text-xs focus:outline-none cursor-pointer ${
-              mergedErrors.startDate ? 'border-red-500 bg-red-500/10' : 'border-[#27272a] focus:border-[#00f2ff]'
+            className={`w-full bg-[#18181B] border rounded-none px-3.5 py-2 text-white text-xs focus:outline-none cursor-pointer ${
+              mergedErrors.startDate ? 'border-red-500 bg-red-500/10' : 'border-[#27272A] focus:border-[#FFB900]'
             }`}
           />
           {mergedErrors.startDate && (
@@ -229,7 +229,7 @@ export default function TournamentScheduleForm({
 
         {/* Field 2: Registration Opens */}
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold text-[#849495] uppercase tracking-wide block">
+          <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide block">
             2. Registration Opens *
           </label>
           <input
@@ -237,8 +237,8 @@ export default function TournamentScheduleForm({
             value={registrationStart}
             onChange={(e) => handleChange('registrationStart', e.target.value)}
             placeholder="e.g. Immediate / 04:00 PM IST"
-            className={`w-full bg-[#1c1b1c] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#849495] focus:outline-none ${
-              mergedErrors.registrationStart ? 'border-red-500 bg-red-500/10' : 'border-[#27272a] focus:border-[#10b981]'
+            className={`w-full bg-[#18181B] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#A1A1AA] focus:outline-none ${
+              mergedErrors.registrationStart ? 'border-red-500 bg-red-500/10' : 'border-[#27272A] focus:border-[#10B981]'
             }`}
           />
           {mergedErrors.registrationStart && (
@@ -248,7 +248,7 @@ export default function TournamentScheduleForm({
 
         {/* Field 3: Registration Closes */}
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold text-[#849495] uppercase tracking-wide block">
+          <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide block">
             3. Registration Closes *
           </label>
           <input
@@ -256,8 +256,8 @@ export default function TournamentScheduleForm({
             value={registrationEnd}
             onChange={(e) => handleChange('registrationEnd', e.target.value)}
             placeholder="e.g. 04:45 PM IST"
-            className={`w-full bg-[#1c1b1c] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#849495] focus:outline-none ${
-              mergedErrors.registrationEnd ? 'border-red-500 bg-red-500/10' : 'border-[#27272a] focus:border-[#ff5e07]'
+            className={`w-full bg-[#18181B] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#A1A1AA] focus:outline-none ${
+              mergedErrors.registrationEnd ? 'border-red-500 bg-red-500/10' : 'border-[#27272A] focus:border-[#FF8C00]'
             }`}
           />
           {mergedErrors.registrationEnd && (
@@ -267,7 +267,7 @@ export default function TournamentScheduleForm({
 
         {/* Field 4: Check-in Opens */}
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold text-[#849495] uppercase tracking-wide block">
+          <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide block">
             4. Check-in Opens *
           </label>
           <input
@@ -275,8 +275,8 @@ export default function TournamentScheduleForm({
             value={checkInStart}
             onChange={(e) => handleChange('checkInStart', e.target.value)}
             placeholder="e.g. 05:00 PM IST"
-            className={`w-full bg-[#1c1b1c] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#849495] focus:outline-none ${
-              mergedErrors.checkInStart ? 'border-red-500 bg-red-500/10' : 'border-[#27272a] focus:border-[#00f2ff]'
+            className={`w-full bg-[#18181B] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#A1A1AA] focus:outline-none ${
+              mergedErrors.checkInStart ? 'border-red-500 bg-red-500/10' : 'border-[#27272A] focus:border-[#FFB900]'
             }`}
           />
           {mergedErrors.checkInStart && (
@@ -286,7 +286,7 @@ export default function TournamentScheduleForm({
 
         {/* Field 5: Check-in Closes */}
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold text-[#849495] uppercase tracking-wide block">
+          <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide block">
             5. Check-in Closes *
           </label>
           <input
@@ -297,8 +297,8 @@ export default function TournamentScheduleForm({
               handleChange('checkInTime', e.target.value)
             }}
             placeholder="e.g. 05:30 PM IST"
-            className={`w-full bg-[#1c1b1c] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#849495] focus:outline-none ${
-              mergedErrors.checkInEnd ? 'border-red-500 bg-red-500/10' : 'border-[#27272a] focus:border-[#fed83a]'
+            className={`w-full bg-[#18181B] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#A1A1AA] focus:outline-none ${
+              mergedErrors.checkInEnd ? 'border-red-500 bg-red-500/10' : 'border-[#27272A] focus:border-[#FFB900]'
             }`}
           />
           {mergedErrors.checkInEnd && (
@@ -308,7 +308,7 @@ export default function TournamentScheduleForm({
 
         {/* Field 6: Room Publish Time */}
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold text-[#849495] uppercase tracking-wide block">
+          <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide block">
             6. Room Publish Time *
           </label>
           <input
@@ -316,8 +316,8 @@ export default function TournamentScheduleForm({
             value={roomPublishTime}
             onChange={(e) => handleChange('roomPublishTime', e.target.value)}
             placeholder="e.g. 05:45 PM IST"
-            className={`w-full bg-[#1c1b1c] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#849495] focus:outline-none ${
-              mergedErrors.roomPublishTime ? 'border-red-500 bg-red-500/10' : 'border-[#27272a] focus:border-[#00dbe7]'
+            className={`w-full bg-[#18181B] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#A1A1AA] focus:outline-none ${
+              mergedErrors.roomPublishTime ? 'border-red-500 bg-red-500/10' : 'border-[#27272A] focus:border-[#FFB900]'
             }`}
           />
           {mergedErrors.roomPublishTime && (
@@ -327,7 +327,7 @@ export default function TournamentScheduleForm({
 
         {/* Field 7: Match Start Time */}
         <div className="space-y-1.5 sm:col-span-2 lg:col-span-3">
-          <label className="text-[11px] font-bold text-[#849495] uppercase tracking-wide block">
+          <label className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide block">
             7. Match Start Time *
           </label>
           <input
@@ -335,8 +335,8 @@ export default function TournamentScheduleForm({
             value={startTime}
             onChange={(e) => handleChange('startTime', e.target.value)}
             placeholder="e.g. 06:00 PM IST"
-            className={`w-full bg-[#1c1b1c] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#849495] focus:outline-none ${
-              mergedErrors.startTime ? 'border-red-500 bg-red-500/10' : 'border-[#27272a] focus:border-[#ff5e07]'
+            className={`w-full bg-[#18181B] border rounded-none px-3.5 py-2 text-white text-xs placeholder-[#A1A1AA] focus:outline-none ${
+              mergedErrors.startTime ? 'border-red-500 bg-red-500/10' : 'border-[#27272A] focus:border-[#FF8C00]'
             }`}
           />
           {mergedErrors.startTime && (

@@ -90,7 +90,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               userId: r.user_id || r.userId,
               tournamentId: r.tournament_id,
               tournamentTitle: r.tournament_title || tourn?.title || 'Esports Championship',
-              tournamentGame: tourn?.game || 'Free Fire MAX',
+              tournamentGame: tourn?.game || 'Free Fire India',
               teamName: r.team_name,
               name: r.team_name,
               captainName: r.captain_name || r.captain || r.name,
@@ -369,15 +369,15 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
 
   return (
     <div className="space-y-5 font-body antialiased">
-      
+
       {/* 1. QUEUE HEADER & ROSTER EXPORT */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 sm:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-4 sm:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="font-headline text-lg sm:text-xl font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-            <ClipboardList className="w-5 h-5 text-[#00f2ff]" />
+            <ClipboardList className="w-5 h-5 text-[#FFB900]" />
             <span>Registration Queue Moderation</span>
           </h2>
-          <p className="text-xs text-[#849495] font-body mt-0.5">
+          <p className="text-xs text-[#A1A1AA] font-body mt-0.5">
             Review incoming squad registrations, inspect Free Fire profile screenshot evidence, and verify player identity.
           </p>
         </div>
@@ -386,7 +386,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
           <button
             onClick={fetchRegistrations}
             disabled={loading}
-            className="p-2 bg-[#1c1b1c] hover:bg-[#27272a] border border-[#27272a] text-[#849495] hover:text-[#00f2ff] rounded-none transition-all cursor-pointer disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center"
+            className="p-2 bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-[#A1A1AA] hover:text-[#FFB900] rounded-none transition-all cursor-pointer disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center"
             title="Sync Queue"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -395,9 +395,9 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
           <button
             onClick={exportCSV}
             disabled={liveRegistrations.length === 0}
-            className="px-3.5 py-2 bg-[#1c1b1c] hover:bg-[#27272a] border border-[#27272a] hover:border-[#00f2ff]/40 text-white rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
+            className="px-3.5 py-2 bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] hover:border-[#FFB900]/40 text-white rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
           >
-            <Download className="w-3.5 h-3.5 text-[#00f2ff]" />
+            <Download className="w-3.5 h-3.5 text-[#FFB900]" />
             <span>Export CSV</span>
           </button>
         </div>
@@ -407,7 +407,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
 
       {/* 2. FILTER TABS WITH REAL LIVE COUNTS */}
       <div className="space-y-3">
-        <div className="flex items-center gap-2 border-b border-[#27272a] pb-2 overflow-x-auto text-xs font-headline font-bold">
+        <div className="flex items-center gap-2 border-b border-[#27272A] pb-2 overflow-x-auto text-xs font-headline font-bold">
           {[
             { id: 'ALL', label: 'All Registrations', count: counts.ALL },
             { id: 'PENDING', label: 'Pending Review', count: counts.PENDING },
@@ -417,16 +417,14 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             <button
               key={`q-tab-${tab.id}`}
               onClick={() => setActiveQueueTab(tab.id)}
-              className={`px-3.5 py-2 rounded-none text-xs uppercase transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
-                activeQueueTab === tab.id
-                  ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-sm'
-                  : 'text-[#849495] hover:text-white bg-[#141416] hover:bg-[#1c1b1c] border border-[#27272a]'
-              }`}
+              className={`px-3.5 py-2 rounded-none text-xs uppercase transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${activeQueueTab === tab.id
+                ? 'bg-[#FFB900] text-[#000000] font-extrabold shadow-sm'
+                : 'text-[#A1A1AA] hover:text-white bg-[#111215] hover:bg-[#18181B] border border-[#27272A]'
+                }`}
             >
               <span>{tab.label}</span>
-              <span className={`px-1.5 py-0.2 rounded-none text-[10px] font-mono ${
-                activeQueueTab === tab.id ? 'bg-[#00363a]/20 text-[#00363a]' : 'bg-[#1c1b1c] text-white'
-              }`}>
+              <span className={`px-1.5 py-0.2 rounded-none text-[10px] font-mono ${activeQueueTab === tab.id ? 'bg-[#000000]/20 text-[#000000]' : 'bg-[#18181B] text-white'
+                }`}>
                 {tab.count}
               </span>
             </button>
@@ -434,15 +432,15 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
         </div>
 
         {/* Search & Tournament Selector Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#141416] border border-[#27272a] rounded-none p-3 shadow-xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#111215] border border-[#27272A] rounded-none p-3 shadow-xl">
           <div className="relative">
-            <Search className="w-4 h-4 text-[#849495] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#A1A1AA] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search team name, captain, UID, or email..."
-              className="w-full pl-9 pr-3 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white placeholder-[#849495] focus:outline-none focus:border-[#00f2ff]"
+              className="w-full pl-9 pr-3 py-2 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white placeholder-[#A1A1AA] focus:outline-none focus:border-[#FFB900]"
             />
           </div>
 
@@ -450,7 +448,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             <select
               value={selectedTournamentFilter}
               onChange={(e) => setSelectedTournamentFilter(e.target.value)}
-              className="w-full p-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white focus:outline-none focus:border-[#00f2ff] font-headline font-bold cursor-pointer"
+              className="w-full p-2 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white focus:outline-none focus:border-[#FFB900] font-headline font-bold cursor-pointer"
             >
               <option value="ALL">All Tournaments</option>
               {tournaments.map((t) => (
@@ -462,17 +460,17 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
       </div>
 
       {/* 3. REGISTRATIONS TABLE (DESKTOP >= 1024px) */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none overflow-hidden shadow-xl">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none overflow-hidden shadow-xl">
         {loading ? (
-          <div className="p-12 text-center text-[#849495] space-y-2">
-            <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-none animate-spin mx-auto"></div>
+          <div className="p-12 text-center text-[#A1A1AA] space-y-2">
+            <div className="w-6 h-6 border-2 border-[#FFB900] border-t-transparent rounded-none animate-spin mx-auto"></div>
             <span className="text-xs">Synchronizing queue...</span>
           </div>
         ) : filteredRegistrations.length === 0 ? (
-          <div className="p-12 text-center text-[#849495] font-body space-y-2">
-            <ClipboardList className="w-8 h-8 text-[#849495] mx-auto opacity-40" />
+          <div className="p-12 text-center text-[#A1A1AA] font-body space-y-2">
+            <ClipboardList className="w-8 h-8 text-[#A1A1AA] mx-auto opacity-40" />
             <p className="text-sm font-bold text-white font-headline uppercase">No Registrations Found</p>
-            <p className="text-xs text-[#849495]">No squad registrations match the current filter parameters.</p>
+            <p className="text-xs text-[#A1A1AA]">No squad registrations match the current filter parameters.</p>
           </div>
         ) : (
           <>
@@ -480,7 +478,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             <div className="hidden lg:block overflow-x-auto w-full">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-[#1c1b1c] border-b border-[#27272a] text-[#849495] text-[10px] font-headline uppercase font-bold tracking-wider">
+                  <tr className="bg-[#18181B] border-b border-[#27272A] text-[#A1A1AA] text-[10px] font-headline uppercase font-bold tracking-wider">
                     <th className="py-3 px-4">Ref ID</th>
                     <th className="py-3 px-4">Tournament</th>
                     <th className="py-3 px-4">Player / IGN</th>
@@ -490,44 +488,42 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                     <th className="py-3 px-4 text-right pr-4">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#27272a]">
+                <tbody className="divide-y divide-[#27272A]">
                   {filteredRegistrations.map((r) => {
                     const isPending = r.status === 'Pending' || (!r.isFreeTournament && r.paymentStatus === 'Pending')
                     const isApproved = r.status === 'Approved' || r.status === 'Confirmed'
 
                     return (
-                      <tr key={`q-row-${r.id}`} className="hover:bg-[#1c1b1c]/80 transition-colors">
-                        <td className="py-3 px-4 font-mono font-bold text-[#00f2ff]">{r.referenceId}</td>
+                      <tr key={`q-row-${r.id}`} className="hover:bg-[#18181B]/80 transition-colors">
+                        <td className="py-3 px-4 font-mono font-bold text-[#FFB900]">{r.referenceId}</td>
                         <td className="py-3 px-4 font-headline font-bold text-white max-w-[200px] truncate" title={r.tournamentTitle}>
                           {r.tournamentTitle}
                         </td>
                         <td className="py-3 px-4 font-headline font-bold text-white">
                           <div className="flex flex-col">
                             <span>{r.captainName}</span>
-                            <span className="text-[10px] text-[#849495] font-normal">{r.teamName}</span>
+                            <span className="text-[10px] text-[#A1A1AA] font-normal">{r.teamName}</span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 font-mono text-[#00f2ff] font-bold">{r.freeFireUid}</td>
+                        <td className="py-3 px-4 font-mono text-[#FFB900] font-bold">{r.freeFireUid}</td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-bold uppercase border inline-flex items-center gap-1 ${
-                            r.identityStatus === 'VERIFIED'
-                              ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
-                              : r.identityStatus === 'REJECTED'
+                          <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-bold uppercase border inline-flex items-center gap-1 ${r.identityStatus === 'VERIFIED'
+                            ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
+                            : r.identityStatus === 'REJECTED'
                               ? 'bg-red-950/40 text-red-400 border-red-800'
-                              : 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40'
-                          }`}>
+                              : 'bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/40'
+                            }`}>
                             <Shield className="w-2.5 h-2.5" />
                             {r.identityStatus === 'VERIFIED' ? 'VERIFIED' : r.identityStatus === 'REJECTED' ? 'REJECTED' : 'RECORDED'}
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`px-2.5 py-0.5 rounded-none text-[9px] font-headline font-bold uppercase border ${
-                            isApproved
-                              ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
-                              : isPending
-                              ? 'bg-[#ff5e07]/10 text-[#ff5e07] border-[#ff5e07]/40'
+                          <span className={`px-2.5 py-0.5 rounded-none text-[9px] font-headline font-bold uppercase border ${isApproved
+                            ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
+                            : isPending
+                              ? 'bg-[#FF8C00]/10 text-[#FF8C00] border-[#FF8C00]/40'
                               : 'bg-red-950/40 text-red-400 border-red-800'
-                          }`}>
+                            }`}>
                             {r.status}
                           </span>
                         </td>
@@ -535,7 +531,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => setSelectedDetail(r)}
-                              className="px-3 py-1 bg-[#1c1b1c] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] hover:border-[#00f2ff]/40 rounded-none text-[10px] font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1"
+                              className="px-3 py-1 bg-[#18181B] hover:bg-[#27272A] text-[#FFB900] border border-[#27272A] hover:border-[#FFB900]/40 rounded-none text-[10px] font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1"
                               title="Inspect Registration Details & Identity Proof"
                             >
                               <Eye className="w-3 h-3" />
@@ -551,7 +547,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             </div>
 
             {/* Mobile Stacked Cards (< 1024px) */}
-            <div className="lg:hidden divide-y divide-[#27272a]">
+            <div className="lg:hidden divide-y divide-[#27272A]">
               {filteredRegistrations.map((r) => {
                 const isPending = r.status === 'Pending' || (!r.isFreeTournament && r.paymentStatus === 'Pending')
                 const isApproved = r.status === 'Approved' || r.status === 'Confirmed'
@@ -559,24 +555,22 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                 return (
                   <div key={`m-q-${r.id}`} className="p-4 space-y-2 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-[#00f2ff] font-bold">{r.referenceId}</span>
+                      <span className="font-mono text-[#FFB900] font-bold">{r.referenceId}</span>
                       <div className="flex items-center gap-1.5">
-                        <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-bold uppercase border ${
-                          r.identityStatus === 'VERIFIED'
-                            ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
-                            : r.identityStatus === 'REJECTED'
+                        <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-bold uppercase border ${r.identityStatus === 'VERIFIED'
+                          ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
+                          : r.identityStatus === 'REJECTED'
                             ? 'bg-red-950 text-red-400 border-red-800'
-                            : 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40'
-                        }`}>
+                            : 'bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/40'
+                          }`}>
                           ID: {r.identityStatus === 'VERIFIED' ? 'VERIFIED' : r.identityStatus === 'REJECTED' ? 'REJECTED' : 'RECORDED'}
                         </span>
-                        <span className={`px-2 py-0.5 rounded-none text-[9px] font-headline font-bold uppercase border ${
-                          isApproved
-                            ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
-                            : isPending
-                            ? 'bg-[#ff5e07]/10 text-[#ff5e07] border-[#ff5e07]/40'
+                        <span className={`px-2 py-0.5 rounded-none text-[9px] font-headline font-bold uppercase border ${isApproved
+                          ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/40'
+                          : isPending
+                            ? 'bg-[#FF8C00]/10 text-[#FF8C00] border-[#FF8C00]/40'
                             : 'bg-red-950 text-red-400 border-red-800'
-                        }`}>
+                          }`}>
                           {r.status}
                         </span>
                       </div>
@@ -584,18 +578,18 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
 
                     <div>
                       <h4 className="font-headline font-bold text-white text-sm">{r.captainName}</h4>
-                      <p className="text-[10px] text-[#849495]">{r.tournamentTitle} &bull; {r.teamName}</p>
+                      <p className="text-[10px] text-[#A1A1AA]">{r.tournamentTitle} &bull; {r.teamName}</p>
                     </div>
 
-                    <div className="bg-[#1c1b1c] p-2.5 rounded-none border border-[#27272a] space-y-1 font-body text-[11px]">
-                      <p>Free Fire UID: <span className="text-[#00f2ff] font-mono font-bold">{r.freeFireUid}</span></p>
+                    <div className="bg-[#18181B] p-2.5 rounded-none border border-[#27272A] space-y-1 font-body text-[11px]">
+                      <p>Free Fire UID: <span className="text-[#FFB900] font-mono font-bold">{r.freeFireUid}</span></p>
                       <p>WhatsApp: <span className="text-[#10b981] font-mono">{r.whatsappNumber}</span></p>
                     </div>
 
                     <div className="flex items-center gap-2 pt-1">
                       <button
                         onClick={() => setSelectedDetail(r)}
-                        className="flex-1 py-1.5 bg-[#00f2ff]/10 hover:bg-[#00f2ff]/20 text-[#00f2ff] border border-[#00f2ff]/40 rounded-none font-headline font-bold uppercase text-[10px] cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 py-1.5 bg-[#FFB900]/10 hover:bg-[#FFB900]/20 text-[#FFB900] border border-[#FFB900]/40 rounded-none font-headline font-bold uppercase text-[10px] cursor-pointer flex items-center justify-center gap-1"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>Inspect Proof & Details</span>
@@ -618,13 +612,13 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
           onClick={() => setSelectedDetail(null)}
         >
           <div
-            className="w-full max-w-md bg-[#141416] border-l border-[#27272a] h-full p-4 sm:p-5 overflow-y-auto shadow-2xl space-y-3"
+            className="w-full max-w-md bg-[#111215] border-l border-[#27272A] h-full p-4 sm:p-5 overflow-y-auto shadow-2xl space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
             {/* DRAWER HEADER */}
-            <div className="flex items-start justify-between border-b border-[#27272a] pb-2">
+            <div className="flex items-start justify-between border-b border-[#27272A] pb-2">
               <div>
-                <span className="font-mono text-xs font-bold text-[#00f2ff] block">
+                <span className="font-mono text-xs font-bold text-[#FFB900] block">
                   {selectedDetail.referenceId}
                 </span>
                 <h3 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase mt-0.5">
@@ -633,7 +627,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               </div>
               <button
                 onClick={() => setSelectedDetail(null)}
-                className="p-1.5 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
+                className="p-1.5 rounded-none bg-[#18181B] border border-[#27272A] text-[#A1A1AA] hover:text-white cursor-pointer"
                 title="Close Drawer"
               >
                 <X className="w-4 h-4" />
@@ -641,53 +635,53 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             </div>
 
             {/* SECTION: PLAYER DETAILS (COMPACT LABEL/VALUE LAYOUT) */}
-            <div className="p-3 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1.5 text-xs font-body">
+            <div className="p-3 bg-[#18181B] rounded-none border border-[#27272A] space-y-1.5 text-xs font-body">
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-[#849495]">Tournament</span>
+                <span className="text-[#A1A1AA]">Tournament</span>
                 <span className="font-bold text-white font-headline text-right truncate max-w-[200px]" title={selectedDetail.tournamentTitle}>
                   {selectedDetail.tournamentTitle}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1">
-                <span className="text-[#849495]">IGN / Display Name</span>
+              <div className="flex justify-between items-center py-0.5 border-t border-[#27272A]/60 pt-1">
+                <span className="text-[#A1A1AA]">IGN / Display Name</span>
                 <span className="font-bold text-white">{selectedDetail.captainName}</span>
               </div>
-              <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1">
-                <span className="text-[#849495]">Free Fire UID</span>
+              <div className="flex justify-between items-center py-0.5 border-t border-[#27272A]/60 pt-1">
+                <span className="text-[#A1A1AA]">Free Fire UID</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-mono font-bold text-[#00f2ff]">{selectedDetail.freeFireUid}</span>
+                  <span className="font-mono font-bold text-[#FFB900]">{selectedDetail.freeFireUid}</span>
                   <button
                     onClick={() => handleCopyUid(selectedDetail.freeFireUid)}
-                    className="p-0.5 text-[#849495] hover:text-[#00f2ff] cursor-pointer"
+                    className="p-0.5 text-[#A1A1AA] hover:text-[#FFB900] cursor-pointer"
                     title="Copy UID"
                   >
                     {copiedUid ? <Check className="w-3 h-3 text-[#10b981]" /> : <Copy className="w-3 h-3" />}
                   </button>
                 </div>
               </div>
-              <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1">
-                <span className="text-[#849495]">Full Name</span>
+              <div className="flex justify-between items-center py-0.5 border-t border-[#27272A]/60 pt-1">
+                <span className="text-[#A1A1AA]">Full Name</span>
                 <span className="text-white font-medium">{selectedDetail.fullName || selectedDetail.teamName}</span>
               </div>
-              <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1">
-                <span className="text-[#849495]">Email</span>
-                <span className="text-[#b9cacb] font-mono">{selectedDetail.email || 'N/A'}</span>
+              <div className="flex justify-between items-center py-0.5 border-t border-[#27272A]/60 pt-1">
+                <span className="text-[#A1A1AA]">Email</span>
+                <span className="text-[#A1A1AA] font-mono">{selectedDetail.email || 'N/A'}</span>
               </div>
-              <div className="flex justify-between items-center py-0.5 border-t border-[#27272a]/60 pt-1">
-                <span className="text-[#849495]">WhatsApp</span>
+              <div className="flex justify-between items-center py-0.5 border-t border-[#27272A]/60 pt-1">
+                <span className="text-[#A1A1AA]">WhatsApp</span>
                 <span className="font-mono text-[#10b981] font-bold">{selectedDetail.whatsappNumber}</span>
               </div>
 
               {/* Optional Teammates inside compact card */}
               {selectedDetail.teammateUids && selectedDetail.teammateUids.length > 0 && (
-                <div className="border-t border-[#27272a] pt-1.5 mt-1 space-y-1">
-                  <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                <div className="border-t border-[#27272A] pt-1.5 mt-1 space-y-1">
+                  <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                     Squad Roster UIDs
                   </span>
                   <div className="grid grid-cols-2 gap-1 font-mono text-[11px]">
                     {selectedDetail.teammateUids.map((uid, idx) => (
-                      <div key={`tm-uid-${idx}`} className="p-1 bg-[#141416] rounded-none border border-[#27272a] text-[#00f2ff] truncate">
-                        <span className="text-[#849495] text-[9px] mr-1">P{idx + 2}:</span>
+                      <div key={`tm-uid-${idx}`} className="p-1 bg-[#111215] rounded-none border border-[#27272A] text-[#FFB900] truncate">
+                        <span className="text-[#A1A1AA] text-[9px] mr-1">P{idx + 2}:</span>
                         {uid}
                       </div>
                     ))}
@@ -697,37 +691,36 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             </div>
 
             {/* SECTION: IDENTITY VERIFICATION (STREAMLINED MANUAL WORKFLOW) */}
-            <div className="p-3 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-2">
-              
+            <div className="p-3 bg-[#18181B] rounded-none border border-[#27272A] space-y-2">
+
               {/* Header & Status */}
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-headline font-bold text-white uppercase flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#00f2ff]" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#FFB900]" />
                   <span>Identity Verification</span>
                 </span>
-                <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-bold uppercase border ${
-                  (proofEvidence?.status || selectedDetail.identityStatus) === 'VERIFIED'
-                    ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
-                    : (proofEvidence?.status || selectedDetail.identityStatus) === 'REJECTED'
+                <span className={`px-2 py-0.5 rounded-none text-[9px] font-mono font-bold uppercase border ${(proofEvidence?.status || selectedDetail.identityStatus) === 'VERIFIED'
+                  ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
+                  : (proofEvidence?.status || selectedDetail.identityStatus) === 'REJECTED'
                     ? 'bg-red-950/50 text-red-400 border-red-800'
-                    : 'bg-[#ff5e07]/15 text-[#ff5e07] border-[#ff5e07]/40'
-                }`}>
+                    : 'bg-[#FF8C00]/15 text-[#FF8C00] border-[#FF8C00]/40'
+                  }`}>
                   Status: {proofEvidence?.status || selectedDetail.identityStatus || 'PENDING'}
                 </span>
               </div>
 
               {/* Identity Proof Credentials */}
               <div className="space-y-1">
-                <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                   Identity Proof
                 </span>
                 <div className="grid grid-cols-2 gap-1.5 text-xs font-mono">
-                  <div className="p-1.5 bg-[#141416] rounded-none border border-[#27272a]">
-                    <span className="text-[9px] text-[#849495] uppercase block">Registered UID</span>
-                    <span className="text-[#00f2ff] font-bold truncate block">{selectedDetail.freeFireUid}</span>
+                  <div className="p-1.5 bg-[#111215] rounded-none border border-[#27272A]">
+                    <span className="text-[9px] text-[#A1A1AA] uppercase block">Registered UID</span>
+                    <span className="text-[#FFB900] font-bold truncate block">{selectedDetail.freeFireUid}</span>
                   </div>
-                  <div className="p-1.5 bg-[#141416] rounded-none border border-[#27272a]">
-                    <span className="text-[9px] text-[#849495] uppercase block">Registered IGN</span>
+                  <div className="p-1.5 bg-[#111215] rounded-none border border-[#27272A]">
+                    <span className="text-[9px] text-[#A1A1AA] uppercase block">Registered IGN</span>
                     <span className="text-white font-bold truncate block">{selectedDetail.captainName}</span>
                   </div>
                 </div>
@@ -737,7 +730,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               {proofEvidence?.signedUrl && (
                 <div
                   onClick={() => setIsScreenshotModalOpen(true)}
-                  className="relative h-24 sm:h-28 rounded-none overflow-hidden border border-[#27272a] hover:border-[#00f2ff]/60 transition-colors cursor-pointer group bg-[#0a0f18]"
+                  className="relative h-24 sm:h-28 rounded-none overflow-hidden border border-[#27272A] hover:border-[#FFB900]/60 transition-colors cursor-pointer group bg-[#000000]"
                 >
                   <img
                     src={proofEvidence.signedUrl}
@@ -746,7 +739,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
                     <span className="text-[10px] text-white font-mono font-bold flex items-center gap-1">
-                      <ZoomIn className="w-3 h-3 text-[#00f2ff]" />
+                      <ZoomIn className="w-3 h-3 text-[#FFB900]" />
                       Click to Inspect Screenshot
                     </span>
                   </div>
@@ -756,19 +749,19 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
               {/* Action: View Profile Screenshot */}
               <button
                 onClick={() => setIsScreenshotModalOpen(true)}
-                className="w-full py-1.5 bg-[#141416] hover:bg-[#27272a] text-[#00f2ff] border border-[#00f2ff]/40 rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-1.5 bg-[#111215] hover:bg-[#27272A] text-[#FFB900] border border-[#FFB900]/40 rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>View Profile Screenshot</span>
               </button>
 
               {/* Verification Actions (Single authoritative location) */}
-              <div className="flex items-center gap-2 pt-1 border-t border-[#27272a]/60">
+              <div className="flex items-center gap-2 pt-1 border-t border-[#27272A]/60">
                 {(proofEvidence?.status || selectedDetail.identityStatus) !== 'VERIFIED' ? (
                   <button
                     onClick={handleVerifyIdentity}
                     disabled={isSubmittingReview}
-                    className="flex-1 py-2 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_12px_rgba(16,185,129,0.25)] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    className="flex-1 py-2 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-all  flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span>{isSubmittingReview ? 'Verifying...' : '✓ Verify Identity'}</span>
@@ -795,20 +788,19 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
 
             {/* PAID TOURNAMENTS ONLY: PAYMENT STATUS (Completely omitted for free tournaments) */}
             {!isFreeTournament && (
-              <div className="p-2.5 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1 text-xs font-body">
+              <div className="p-2.5 bg-[#18181B] rounded-none border border-[#27272A] space-y-1 text-xs font-body">
                 <div className="flex justify-between items-center">
-                  <span className="text-[#849495]">Entry Fee</span>
+                  <span className="text-[#A1A1AA]">Entry Fee</span>
                   <span className="text-white font-mono font-bold">{selectedDetail.entryFee}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[#849495]">Payment Status</span>
-                  <span className={`font-mono font-bold uppercase ${
-                    selectedDetail.paymentStatus === 'Paid' || selectedDetail.paymentStatus === 'VERIFIED'
-                      ? 'text-[#10b981]'
-                      : selectedDetail.paymentStatus === 'Rejected'
+                  <span className="text-[#A1A1AA]">Payment Status</span>
+                  <span className={`font-mono font-bold uppercase ${selectedDetail.paymentStatus === 'Paid' || selectedDetail.paymentStatus === 'VERIFIED'
+                    ? 'text-[#10b981]'
+                    : selectedDetail.paymentStatus === 'Rejected'
                       ? 'text-red-400'
-                      : 'text-[#ff5e07]'
-                  }`}>
+                      : 'text-[#FF8C00]'
+                    }`}>
                     {selectedDetail.paymentStatus || 'PENDING'}
                   </span>
                 </div>
@@ -819,7 +811,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
             <div className="pt-1">
               <button
                 onClick={() => setSelectedDetail(null)}
-                className="w-full py-2 text-xs font-headline font-bold bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none uppercase cursor-pointer transition-colors"
+                className="w-full py-2 text-xs font-headline font-bold bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none uppercase cursor-pointer transition-colors"
               >
                 Close Drawer
               </button>
@@ -837,74 +829,74 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
           onClick={() => setIsScreenshotModalOpen(false)}
         >
           <div
-            className="bg-[#141416] border border-[#27272a] rounded-none max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl"
+            className="bg-[#111215] border border-[#27272A] rounded-none max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Top Bar */}
-            <div className="p-3.5 bg-[#1c1b1c] border-b border-[#27272a] flex items-center justify-between">
+            <div className="p-3.5 bg-[#18181B] border-b border-[#27272A] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <FileImage className="w-5 h-5 text-[#00f2ff]" />
+                <FileImage className="w-5 h-5 text-[#FFB900]" />
                 <div>
                   <h3 className="font-headline font-extrabold text-sm sm:text-base text-white uppercase">
                     Free Fire Profile Screenshot Proof
                   </h3>
-                  <span className="text-[10px] text-[#849495] font-mono">
+                  <span className="text-[10px] text-[#A1A1AA] font-mono">
                     Player: <strong className="text-white">{selectedDetail.captainName}</strong> &bull; Ref: {selectedDetail.referenceId}
                   </span>
                 </div>
               </div>
               <button
                 onClick={() => setIsScreenshotModalOpen(false)}
-                className="p-1.5 rounded-none bg-[#141416] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
+                className="p-1.5 rounded-none bg-[#111215] border border-[#27272A] text-[#A1A1AA] hover:text-white cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Comparison Bar */}
-            <div className="p-2.5 bg-[#0d1219] border-b border-[#27272a] grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
-              <div className="flex items-center justify-between p-2 bg-[#141416] rounded-none border border-[#27272a]">
-                <span className="text-[#849495]">Submitted Free Fire UID:</span>
-                <span className="text-[#00f2ff] font-bold text-sm">{selectedDetail.freeFireUid}</span>
+            <div className="p-2.5 bg-[#000000] border-b border-[#27272A] grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+              <div className="flex items-center justify-between p-2 bg-[#111215] rounded-none border border-[#27272A]">
+                <span className="text-[#A1A1AA]">Submitted Free Fire UID:</span>
+                <span className="text-[#FFB900] font-bold text-sm">{selectedDetail.freeFireUid}</span>
               </div>
-              <div className="flex items-center justify-between p-2 bg-[#141416] rounded-none border border-[#27272a]">
-                <span className="text-[#849495]">Submitted IGN:</span>
+              <div className="flex items-center justify-between p-2 bg-[#111215] rounded-none border border-[#27272A]">
+                <span className="text-[#A1A1AA]">Submitted IGN:</span>
                 <span className="text-white font-bold text-sm">{selectedDetail.captainName}</span>
               </div>
             </div>
 
             {/* Image Preview Canvas */}
-            <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-[#080c14] min-h-[260px]">
+            <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-[#000000] min-h-[260px]">
               {loadingProof ? (
-                <div className="p-8 text-center text-[#849495] space-y-2">
-                  <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-none animate-spin mx-auto"></div>
+                <div className="p-8 text-center text-[#A1A1AA] space-y-2">
+                  <div className="w-6 h-6 border-2 border-[#FFB900] border-t-transparent rounded-none animate-spin mx-auto"></div>
                   <p className="text-xs">Generating secure signed preview URL...</p>
                 </div>
               ) : proofEvidence?.signedUrl ? (
                 <img
                   src={proofEvidence.signedUrl}
                   alt="Free Fire Profile Proof Screenshot"
-                  className="max-h-[55vh] w-auto max-w-full object-contain rounded-none border border-[#27272a] shadow-xl"
+                  className="max-h-[55vh] w-auto max-w-full object-contain rounded-none border border-[#27272A] shadow-xl"
                 />
               ) : (
-                <div className="p-8 text-center text-[#849495]">
-                  <AlertCircle className="w-8 h-8 text-[#ff5e07] mx-auto mb-2" />
+                <div className="p-8 text-center text-[#A1A1AA]">
+                  <AlertCircle className="w-8 h-8 text-[#FF8C00] mx-auto mb-2" />
                   <p className="text-xs font-bold text-white">No Screenshot File Available</p>
-                  <p className="text-[10px] text-[#849495]">No storage object found for this registration.</p>
+                  <p className="text-[10px] text-[#A1A1AA]">No storage object found for this registration.</p>
                 </div>
               )}
             </div>
 
             {/* Modal Bottom Actions */}
-            <div className="p-3 bg-[#1c1b1c] border-t border-[#27272a] flex flex-col sm:flex-row items-center justify-between gap-3">
-              <span className="text-[11px] text-[#849495] font-body">
+            <div className="p-3 bg-[#18181B] border-t border-[#27272A] flex flex-col sm:flex-row items-center justify-between gap-3">
+              <span className="text-[11px] text-[#A1A1AA] font-body">
                 Verify that <strong>UID</strong> and <strong>IGN</strong> match the profile header shown above.
               </span>
 
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => setIsScreenshotModalOpen(false)}
-                  className="flex-1 sm:flex-initial px-4 py-1.5 bg-[#141416] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase cursor-pointer"
+                  className="flex-1 sm:flex-initial px-4 py-1.5 bg-[#111215] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase cursor-pointer"
                 >
                   Close
                 </button>
@@ -923,7 +915,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                     handleVerifyIdentity()
                   }}
                   disabled={isSubmittingReview || (proofEvidence?.status || selectedDetail.identityStatus) === 'VERIFIED'}
-                  className="flex-1 sm:flex-initial px-5 py-1.5 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase shadow-[0_0_12px_rgba(16,185,129,0.3)] cursor-pointer disabled:opacity-50"
+                  className="flex-1 sm:flex-initial px-5 py-1.5 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase  cursor-pointer disabled:opacity-50"
                 >
                   {isSubmittingReview ? 'Verifying...' : '✓ Verify Identity'}
                 </button>
@@ -938,7 +930,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
       {/* ======================================================================= */}
       {rejectTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 max-w-md w-full space-y-3.5 shadow-2xl">
+          <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 max-w-md w-full space-y-3.5 shadow-2xl">
             <div className="flex items-center gap-3 text-red-400">
               <div className="w-9 h-9 rounded-none bg-red-950/60 border border-red-500/30 flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-5 h-5 text-red-400" />
@@ -947,17 +939,17 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                 <h3 className="font-headline font-extrabold text-sm uppercase text-white">
                   Reject Registration & Identity Proof
                 </h3>
-                <p className="text-xs text-[#849495] font-body">This will reject the slot and log the verification audit reason.</p>
+                <p className="text-xs text-[#A1A1AA] font-body">This will reject the slot and log the verification audit reason.</p>
               </div>
             </div>
 
-            <p className="text-xs text-[#b9cacb] font-body">
-              Rejecting registration for player <strong className="text-white">{rejectTarget.captainName}</strong> ({rejectTarget.teamName}) &bull; Ref: <span className="font-mono text-[#00f2ff]">{rejectTarget.referenceId}</span>.
+            <p className="text-xs text-[#A1A1AA] font-body">
+              Rejecting registration for player <strong className="text-white">{rejectTarget.captainName}</strong> ({rejectTarget.teamName}) &bull; Ref: <span className="font-mono text-[#FFB900]">{rejectTarget.referenceId}</span>.
             </p>
 
             {/* Standard Quick Reasons */}
             <div className="space-y-1">
-              <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+              <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                 Select Standard Rejection Reason:
               </span>
               <div className="space-y-1">
@@ -965,11 +957,10 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                   <button
                     key={`reason-btn-${idx}`}
                     onClick={() => setRejectionReason(r)}
-                    className={`w-full text-left p-2 rounded-none text-xs font-body transition-colors border ${
-                      rejectionReason === r
-                        ? 'bg-red-950/40 text-white border-red-500'
-                        : 'bg-[#1c1b1c] text-[#849495] hover:text-white border-[#27272a]'
-                    }`}
+                    className={`w-full text-left p-2 rounded-none text-xs font-body transition-colors border ${rejectionReason === r
+                      ? 'bg-red-950/40 text-white border-red-500'
+                      : 'bg-[#18181B] text-[#A1A1AA] hover:text-white border-[#27272A]'
+                      }`}
                   >
                     {r}
                   </button>
@@ -979,7 +970,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
 
             {/* Custom Reason Input */}
             <div className="space-y-1">
-              <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+              <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                 Custom Feedback / Audit Notes:
               </span>
               <textarea
@@ -987,7 +978,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                 onChange={(e) => setRejectionReason(e.target.value)}
                 placeholder="Enter specific rejection reason for the player..."
                 rows={2}
-                className="w-full p-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white placeholder-[#849495] focus:outline-none focus:border-red-500 font-body"
+                className="w-full p-2 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white placeholder-[#A1A1AA] focus:outline-none focus:border-red-500 font-body"
               />
             </div>
 
@@ -997,7 +988,7 @@ export default function RegistrationQueueView({ tournaments = [], updateRegistra
                   setRejectTarget(null)
                   setRejectionReason('')
                 }}
-                className="flex-1 py-2 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+                className="flex-1 py-2 bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
               >
                 Cancel
               </button>

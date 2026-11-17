@@ -132,7 +132,7 @@ export default function ProfilePage() {
     }
   }, [user?.id, profile?.verification_status])
 
-  // 3. User Identity Details (Strictly Free Fire MAX only)
+  // 3. User Identity Details (Strictly Free Fire India only)
   const meta = user?.user_metadata || {}
   const displayName = meta.username || profile?.username || meta.full_name || user?.email?.split('@')[0] || 'Player'
   const freeFireUid = meta.freeFireUid || meta.game_uid || profile?.game_uid || ''
@@ -274,7 +274,7 @@ export default function ProfilePage() {
     }
     navigator.clipboard.writeText(freeFireUid)
     setCopied(true)
-    showSuccess('Free Fire MAX UID copied to clipboard!')
+    showSuccess('Free Fire India UID copied to clipboard!')
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -326,7 +326,7 @@ export default function ProfilePage() {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 text-[#FFB900] text-[10px] font-mono font-bold uppercase tracking-widest">
                 <Gamepad2 className="w-3 h-3 text-[#FFB900]" />
-                <span>FREE FIRE MAX</span>
+                <span>FREE FIRE INDIA</span>
               </span>
               {isVerified && (
                 <span
@@ -374,7 +374,7 @@ export default function ProfilePage() {
                 {displayName}
               </h1>
 
-              {/* Free Fire MAX UID Pill */}
+              {/* Free Fire India UID Pill */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-0.5">
                 <div className="inline-flex items-center gap-2 bg-[#18181B] border border-[#27272A] rounded-none px-2.5 py-1 text-xs font-mono">
                   <span className="text-[#FFB900] font-bold text-[11px] uppercase tracking-wider">
@@ -386,8 +386,8 @@ export default function ProfilePage() {
                   {freeFireUid && (
                     <button
                       onClick={handleCopyUid}
-                      aria-label="Copy Free Fire MAX UID"
-                      title="Copy Free Fire MAX UID"
+                      aria-label="Copy Free Fire India UID"
+                      title="Copy Free Fire India UID"
                       className="text-[#A1A1AA] hover:text-[#FFB900] transition-colors p-0.5 cursor-pointer ml-1"
                     >
                       {copied ? (
@@ -442,7 +442,7 @@ export default function ProfilePage() {
               <span>Competitive Telemetry</span>
             </h2>
             <span className="text-[10px] font-mono text-[#71717A] uppercase tracking-wider">
-              Free Fire MAX Live
+              Free Fire India Live
             </span>
           </div>
 

@@ -697,7 +697,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
           id: t.id,
           matchId: matchNum,
           tournament: t.title,
-          game: t.game || 'Free Fire MAX',
+          game: t.game || 'Free Fire India',
           format: t.format || t.matchFormat || 'Squad (4P)',
           teamsDisplay: `${registered} / ${max}`,
           scheduleDisplay: `${t.startDate || 'TBD'} ${t.startTime ? '• ' + t.startTime : ''}`,
@@ -757,16 +757,16 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
     <div className="space-y-6 font-body antialiased">
 
       {/* 1. PAGE HEADER & TOURNAMENT SELECTOR */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-headline font-bold text-[#00f2ff] uppercase tracking-wider mb-1.5">
+          <div className="flex items-center gap-2 text-xs font-headline font-bold text-[#FFB900] uppercase tracking-wider mb-1.5">
             <Tv className="w-4 h-4" />
             <span>MATCH CONTROL CONSOLE</span>
           </div>
           <h1 className="font-headline text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-tight">
             MATCH COMMAND & ROOM OPERATIONS
           </h1>
-          <p className="text-xs sm:text-sm text-[#849495] font-body mt-1 max-w-2xl">
+          <p className="text-xs sm:text-sm text-[#A1A1AA] font-body mt-1 max-w-2xl">
             Operate tournament matches, manage custom rooms, control live match states and hand verified results to the Results console.
           </p>
         </div>
@@ -774,13 +774,13 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
         {/* Header Controls: Tournament Selector & Quick Filter */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
           <div className="space-y-1">
-            <label className="text-[10px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
+            <label className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider block">
               Active Tournament:
             </label>
             <select
               value={selectedTourneyId}
               onChange={(e) => setSelectedTourneyId(e.target.value)}
-              className="w-full sm:w-auto px-3.5 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-headline font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff] cursor-pointer min-w-[220px]"
+              className="w-full sm:w-auto px-3.5 py-2 bg-[#18181B] border border-[#27272A] rounded-none text-xs font-headline font-bold text-[#FFB900] focus:outline-none focus:border-[#FFB900] cursor-pointer min-w-[220px]"
             >
               {tournaments.map((t) => (
                 <option key={`mc-t-${t.id}`} value={t.id}>{t.title}</option>
@@ -789,13 +789,13 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
+            <label className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider block">
               Match Status Filter:
             </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-auto px-3 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-headline font-bold text-white focus:outline-none focus:border-[#00f2ff] cursor-pointer"
+              className="w-full sm:w-auto px-3 py-2 bg-[#18181B] border border-[#27272A] rounded-none text-xs font-headline font-bold text-white focus:outline-none focus:border-[#FFB900] cursor-pointer"
             >
               <option value="ALL">ALL STATUSES</option>
               <option value="UPCOMING">UPCOMING ONLY</option>
@@ -809,41 +809,41 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       {/* 2. OPERATIONAL METRICS */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* TOTAL MATCHES */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 shadow-xl space-y-1">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-4 shadow-xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider">
+            <span className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider">
               TOTAL MATCHES
             </span>
-            <Layers className="w-4 h-4 text-[#00f2ff]" />
+            <Layers className="w-4 h-4 text-[#FFB900]" />
           </div>
           <p className="font-headline text-2xl font-extrabold text-white">
             {metrics.total}
           </p>
-          <span className="text-[10px] font-body text-[#849495] block">
+          <span className="text-[10px] font-body text-[#A1A1AA] block">
             Across all competitive brackets
           </span>
         </div>
 
         {/* UPCOMING */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 shadow-xl space-y-1">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-4 shadow-xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider">
+            <span className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider">
               UPCOMING
             </span>
-            <Clock className="w-4 h-4 text-[#fed83a]" />
+            <Clock className="w-4 h-4 text-[#FFB900]" />
           </div>
-          <p className="font-headline text-2xl font-extrabold text-[#fed83a]">
+          <p className="font-headline text-2xl font-extrabold text-[#FFB900]">
             {metrics.upcoming}
           </p>
-          <span className="text-[10px] font-body text-[#849495] block">
+          <span className="text-[10px] font-body text-[#A1A1AA] block">
             Queued for room dispatch
           </span>
         </div>
 
         {/* LIVE */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 shadow-xl space-y-1">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-4 shadow-xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider">
+            <span className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider">
               LIVE
             </span>
             <Activity className="w-4 h-4 text-[#10b981] animate-pulse" />
@@ -852,43 +852,43 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
             <span className="w-2.5 h-2.5 rounded-none bg-[#10b981] animate-pulse" />
             <span>{metrics.live}</span>
           </p>
-          <span className="text-[10px] font-body text-[#849495] block">
+          <span className="text-[10px] font-body text-[#A1A1AA] block">
             Active in custom room lobbies
           </span>
         </div>
 
         {/* COMPLETED */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 shadow-xl space-y-1">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-4 shadow-xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider">
+            <span className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider">
               COMPLETED
             </span>
-            <CheckCircle2 className="w-4 h-4 text-[#849495]" />
+            <CheckCircle2 className="w-4 h-4 text-[#A1A1AA]" />
           </div>
           <p className="font-headline text-2xl font-extrabold text-white">
             {metrics.completed}
           </p>
-          <span className="text-[10px] font-body text-[#849495] block">
+          <span className="text-[10px] font-body text-[#A1A1AA] block">
             Concluded & handed to Results
           </span>
         </div>
       </div>
 
       {/* 3. MATCH QUEUE */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#27272a] pb-4">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#27272A] pb-4">
           <div>
             <h2 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-              <Gamepad2 className="w-4 h-4 text-[#00f2ff]" />
+              <Gamepad2 className="w-4 h-4 text-[#FFB900]" />
               <span>MATCH QUEUE</span>
             </h2>
-            <p className="text-xs text-[#849495] font-body mt-0.5">
+            <p className="text-xs text-[#A1A1AA] font-body mt-0.5">
               Select a match to load its real-time operational deck into the Active Operations workspace.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono text-[#849495]">
+            <span className="text-xs font-mono text-[#A1A1AA]">
               Showing {matchQueue.length} of {tournaments.length} Matches
             </span>
           </div>
@@ -898,7 +898,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#27272a] text-[10px] font-headline font-extrabold text-[#849495] uppercase tracking-wider">
+              <tr className="border-b border-[#27272A] text-[10px] font-headline font-extrabold text-[#A1A1AA] uppercase tracking-wider">
                 <th className="py-3 px-3">MATCH</th>
                 <th className="py-3 px-3">TOURNAMENT</th>
                 <th className="py-3 px-3">GAME / FORMAT</th>
@@ -909,18 +909,18 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                 <th className="py-3 px-3 text-right">ACTION</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#27272a] text-xs font-body">
+            <tbody className="divide-y divide-[#27272A] text-xs font-body">
               {matchQueue.map((item) => (
                 <tr
                   key={`queue-row-${item.id}`}
                   className={`transition-colors ${
                     item.isSelected
-                      ? 'bg-[#00f2ff]/5 hover:bg-[#00f2ff]/10'
-                      : 'hover:bg-[#1c1b1c]'
+                      ? 'bg-[#FFB900]/5 hover:bg-[#FFB900]/10'
+                      : 'hover:bg-[#18181B]'
                   }`}
                 >
                   {/* MATCH */}
-                  <td className="py-3 px-3 font-mono font-bold text-[#00f2ff]">
+                  <td className="py-3 px-3 font-mono font-bold text-[#FFB900]">
                     {item.matchId}
                   </td>
 
@@ -931,10 +931,10 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
 
                   {/* GAME / FORMAT */}
                   <td className="py-3 px-3">
-                    <span className="font-headline font-bold text-[#b9cacb]">
+                    <span className="font-headline font-bold text-[#A1A1AA]">
                       {item.game}
                     </span>
-                    <span className="text-[#849495] text-[11px] block">
+                    <span className="text-[#A1A1AA] text-[11px] block">
                       {item.format}
                     </span>
                   </td>
@@ -945,7 +945,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                   </td>
 
                   {/* SCHEDULE */}
-                  <td className="py-3 px-3 text-[11px] text-[#849495]">
+                  <td className="py-3 px-3 text-[11px] text-[#A1A1AA]">
                     {item.scheduleDisplay}
                   </td>
 
@@ -957,8 +957,8 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                         : item.status === 'Completed'
                         ? 'bg-slate-800 text-slate-300 border-slate-700'
                         : item.status === 'Bracket Locked'
-                        ? 'bg-[#ff5e07]/15 text-[#ff5e07] border-[#ff5e07]/40'
-                        : 'bg-[#fed83a]/15 text-[#fed83a] border-[#fed83a]/40'
+                        ? 'bg-[#FF8C00]/15 text-[#FF8C00] border-[#FF8C00]/40'
+                        : 'bg-[#FFB900]/15 text-[#FFB900] border-[#FFB900]/40'
                     }`}>
                       {item.status}
                     </span>
@@ -969,7 +969,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                     <span className={`px-2 py-0.5 rounded-none text-[10px] font-mono font-bold uppercase border ${
                       item.roomStatus === 'Published'
                         ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
-                        : 'bg-[#1c1b1c] text-[#849495] border-[#27272a]'
+                        : 'bg-[#18181B] text-[#A1A1AA] border-[#27272A]'
                     }`}>
                       {item.roomStatus}
                     </span>
@@ -985,8 +985,8 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                       }}
                       className={`px-3.5 py-1.5 rounded-none text-xs font-headline font-extrabold uppercase transition-all cursor-pointer ${
                         item.isSelected
-                          ? 'bg-[#00f2ff] text-[#00363a] shadow-[0_0_12px_rgba(0,242,255,0.4)]'
-                          : 'bg-[#1c1b1c] hover:bg-[#27272a] text-white border border-[#27272a]'
+                          ? 'bg-[#FFB900] text-[#000000] '
+                          : 'bg-[#18181B] hover:bg-[#27272A] text-white border border-[#27272A]'
                       }`}
                     >
                       CONTROL
@@ -1000,17 +1000,17 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       </div>
 
       {/* 4. ACTIVE MATCH OPERATIONS & MATCH COMMAND */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 shadow-xl space-y-5">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 shadow-xl space-y-5">
         
         {/* 4A. MULTI-ROUND MATCH SELECTOR & ROUND NAVIGATOR (N2.5) */}
-        <div className="space-y-3 border-b border-[#27272a] pb-5">
+        <div className="space-y-3 border-b border-[#27272A] pb-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div className="flex items-center gap-2">
-              <Swords className="w-4 h-4 text-[#00f2ff]" />
+              <Swords className="w-4 h-4 text-[#FFB900]" />
               <span className="text-xs font-headline font-extrabold text-white uppercase tracking-wider">
                 MATCH SELECTOR & ROUND NAVIGATOR
               </span>
-              <span className="px-2 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#1c1b1c] text-[#00f2ff] border border-[#27272a]">
+              <span className="px-2 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#18181B] text-[#FFB900] border border-[#27272A]">
                 {matches.length} {matches.length === 1 ? 'ROUND' : 'ROUNDS'}
               </span>
             </div>
@@ -1020,17 +1020,17 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                 type="button"
                 onClick={() => loadMatches(selectedTourneyId)}
                 disabled={isMatchesLoading}
-                className="px-2.5 py-1.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                className="px-2.5 py-1.5 bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
                 title="Refresh match rounds"
               >
-                <RefreshCw className={`w-3 h-3 ${isMatchesLoading ? 'animate-spin text-[#00f2ff]' : ''}`} />
+                <RefreshCw className={`w-3 h-3 ${isMatchesLoading ? 'animate-spin text-[#FFB900]' : ''}`} />
                 <span className="hidden sm:inline">Refresh</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowScheduleModal(true)}
-                className="px-3 py-1.5 bg-[#00f2ff]/15 hover:bg-[#00f2ff]/25 text-[#00f2ff] border border-[#00f2ff]/40 rounded-none text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_10px_rgba(0,242,255,0.15)] flex items-center gap-1.5 cursor-pointer"
+                className="px-3 py-1.5 bg-[#FFB900]/15 hover:bg-[#FFB900]/25 text-[#FFB900] border border-[#FFB900]/40 rounded-none text-xs font-headline font-extrabold uppercase transition-all  flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{matches.length > 0 ? 'Edit Schedule' : 'Schedule Matches'}</span>
@@ -1040,8 +1040,8 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
 
           {/* Loading state for match list */}
           {isMatchesLoading && (
-            <div className="p-4 bg-[#1c1b1c] rounded-none border border-[#27272a] flex items-center justify-center gap-2 text-xs text-[#849495] font-body">
-              <Loader2 className="w-4 h-4 text-[#00f2ff] animate-spin" />
+            <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] flex items-center justify-center gap-2 text-xs text-[#A1A1AA] font-body">
+              <Loader2 className="w-4 h-4 text-[#FFB900] animate-spin" />
               <span>Loading scheduled tournament matches...</span>
             </div>
           )}
@@ -1061,22 +1061,22 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
 
           {/* Empty state: No matches scheduled yet */}
           {!isMatchesLoading && !matchesError && matches.length === 0 && (
-            <div className="p-6 bg-[#1c1b1c] border border-dashed border-[#27272a] rounded-none text-center space-y-3">
-              <Swords className="w-8 h-8 text-[#849495] mx-auto opacity-50" />
+            <div className="p-6 bg-[#18181B] border border-dashed border-[#27272A] rounded-none text-center space-y-3">
+              <Swords className="w-8 h-8 text-[#A1A1AA] mx-auto opacity-50" />
               <div className="space-y-1">
                 <h4 className="font-headline font-bold text-sm text-white uppercase">
                   No matches scheduled yet
                 </h4>
-                <p className="text-xs text-[#849495] max-w-md mx-auto font-body">
+                <p className="text-xs text-[#A1A1AA] max-w-md mx-auto font-body">
                   This tournament does not have multi-round matches scheduled. Configure match rounds, maps, and start times using the scheduler.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowScheduleModal(true)}
-                className="px-4 py-2 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold text-xs uppercase rounded-none transition-all shadow-[0_0_12px_rgba(0,242,255,0.3)] inline-flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 bg-[#FFB900] hover:bg-[#FFB900]/90 text-[#000000] font-headline font-extrabold text-xs uppercase rounded-none transition-all  inline-flex items-center gap-1.5 cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5 text-[#00363a]" />
+                <Plus className="w-3.5 h-3.5 text-[#000000]" />
                 <span>Schedule Matches</span>
               </button>
             </div>
@@ -1106,14 +1106,14 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                       }}
                       className={`group shrink-0 px-3.5 py-2.5 rounded-none text-left transition-all border cursor-pointer min-h-[44px] flex items-center gap-2.5 ${
                         isSelected
-                          ? 'bg-[#00f2ff]/15 border-[#00f2ff] text-white shadow-[0_0_15px_rgba(0,242,255,0.25)]'
-                          : 'bg-[#1c1b1c] border-[#27272a] text-[#849495] hover:text-white hover:border-[#3f3f46]'
+                          ? 'bg-[#FFB900]/15 border-[#FFB900] text-white '
+                          : 'bg-[#18181B] border-[#27272A] text-[#A1A1AA] hover:text-white hover:border-[#27272A]'
                       }`}
                     >
                       <span className={`px-2 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border ${
                         isSelected
-                          ? 'bg-[#00f2ff] text-[#00363a] border-[#00f2ff]'
-                          : 'bg-[#141416] text-[#849495] border-[#27272a] group-hover:text-white'
+                          ? 'bg-[#FFB900] text-[#000000] border-[#FFB900]'
+                          : 'bg-[#111215] text-[#A1A1AA] border-[#27272A] group-hover:text-white'
                       }`}>
                         M{m.match_number}
                       </span>
@@ -1121,15 +1121,15 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                         <span className="text-xs font-headline font-bold text-white tracking-wide truncate max-w-[120px] sm:max-w-[150px]">
                           {m.round_name || `Round ${m.match_number}`}
                         </span>
-                        <span className="text-[10px] text-[#849495] font-mono flex items-center gap-1">
+                        <span className="text-[10px] text-[#A1A1AA] font-mono flex items-center gap-1">
                           <span>{m.map_name || 'Bermuda'}</span>
                           <span>&bull;</span>
                           <span className={
                             m.status === 'Live' ? 'text-[#10b981] font-bold' :
                             m.status === 'Completed' ? 'text-slate-400' :
-                            m.status === 'Room Ready' ? 'text-[#00f2ff]' :
-                            m.status === 'Check-in Open' ? 'text-[#fed83a]' :
-                            m.status === 'Cancelled' ? 'text-red-400' : 'text-[#849495]'
+                            m.status === 'Room Ready' ? 'text-[#FFB900]' :
+                            m.status === 'Check-in Open' ? 'text-[#FFB900]' :
+                            m.status === 'Cancelled' ? 'text-red-400' : 'text-[#A1A1AA]'
                           }>
                             {m.status || 'Scheduled'}
                           </span>
@@ -1146,70 +1146,70 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                   id={`match-panel-${selectedMatch.id}`}
                   role="tabpanel"
                   aria-labelledby={`match-tab-${selectedMatch.id}`}
-                  className="p-3.5 sm:p-4 bg-[#1c1b1c] border border-[#27272a] rounded-none grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
+                  className="p-3.5 sm:p-4 bg-[#18181B] border border-[#27272A] rounded-none grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
                 >
                   <div className="space-y-0.5">
-                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                    <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                       MATCH & ROUND
                     </span>
                     <p className="text-xs font-headline font-extrabold text-white">
                       Match {String(selectedMatch.match_number).padStart(2, '0')}
                     </p>
-                    <span className="text-[11px] font-medium text-[#00f2ff] block truncate">
+                    <span className="text-[11px] font-medium text-[#FFB900] block truncate">
                       {selectedMatch.round_name || `Round ${selectedMatch.round_number}`}
                     </span>
                   </div>
 
                   <div className="space-y-0.5">
-                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                    <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                       MAP
                     </span>
                     <p className="text-xs font-headline font-bold text-white flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-[#00f2ff]" />
+                      <MapPin className="w-3 h-3 text-[#FFB900]" />
                       <span>{selectedMatch.map_name || 'Bermuda'}</span>
                     </p>
-                    <span className="text-[10px] text-[#849495] block">Official Map</span>
+                    <span className="text-[10px] text-[#A1A1AA] block">Official Map</span>
                   </div>
 
                   <div className="space-y-0.5">
-                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                    <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                       MATCH TYPE
                     </span>
                     <p className="text-xs font-headline font-bold text-white flex items-center gap-1">
-                      <Swords className="w-3 h-3 text-[#fed83a]" />
+                      <Swords className="w-3 h-3 text-[#FFB900]" />
                       <span>{selectedMatch.match_type || 'Battle Royale'}</span>
                     </p>
-                    <span className="text-[10px] text-[#849495] block">
+                    <span className="text-[10px] text-[#A1A1AA] block">
                       {selectedTourney?.format || 'Squad'}
                     </span>
                   </div>
 
                   <div className="space-y-0.5">
-                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                    <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                       SCHEDULED TIME
                     </span>
                     <p className="text-xs font-mono font-bold text-white flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-[#00f2ff]" />
+                      <Clock className="w-3 h-3 text-[#FFB900]" />
                       <span>{formatMatchDateTime(selectedMatch.scheduled_time)}</span>
                     </p>
-                    <span className="text-[10px] text-[#849495] block">Round Start</span>
+                    <span className="text-[10px] text-[#A1A1AA] block">Round Start</span>
                   </div>
 
                   <div className="space-y-0.5">
-                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                    <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                       ROOM RELEASE
                     </span>
-                    <p className="text-xs font-mono font-bold text-[#00f2ff] flex items-center gap-1">
-                      <Radio className="w-3 h-3 text-[#00f2ff]" />
+                    <p className="text-xs font-mono font-bold text-[#FFB900] flex items-center gap-1">
+                      <Radio className="w-3 h-3 text-[#FFB900]" />
                       <span>{selectedMatch.room_release_time ? formatMatchDateTime(selectedMatch.room_release_time) : 'At Check-in'}</span>
                     </p>
-                    <span className="text-[10px] text-[#849495] block">
+                    <span className="text-[10px] text-[#A1A1AA] block">
                       {selectedMatch.room_published ? 'Dispatched' : 'Pending'}
                     </span>
                   </div>
 
                   <div className="space-y-0.5">
-                    <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+                    <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                       STATUS
                     </span>
                     <span className={`inline-block px-2.5 py-0.5 rounded-none text-[10px] font-headline font-extrabold uppercase border mt-0.5 ${
@@ -1218,12 +1218,12 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                         : selectedMatch.status === 'Completed'
                         ? 'bg-slate-800 text-slate-300 border-slate-700'
                         : selectedMatch.status === 'Room Ready'
-                        ? 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff]/50'
+                        ? 'bg-[#FFB900]/20 text-[#FFB900] border-[#FFB900]/50'
                         : selectedMatch.status === 'Check-in Open'
-                        ? 'bg-[#fed83a]/20 text-[#fed83a] border-[#fed83a]/50'
+                        ? 'bg-[#FFB900]/20 text-[#FFB900] border-[#FFB900]/50'
                         : selectedMatch.status === 'Cancelled'
                         ? 'bg-red-950/40 text-red-400 border-red-800'
-                        : 'bg-[#1c1b1c] text-[#849495] border-[#27272a]'
+                        : 'bg-[#18181B] text-[#A1A1AA] border-[#27272A]'
                     }`}>
                       {selectedMatch.status || 'Scheduled'}
                     </span>
@@ -1235,31 +1235,31 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
         </div>
 
         {/* Active Header Row with Semantic Badges */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#27272a] pb-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#27272A] pb-4">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <span className="px-2.5 py-0.5 bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 rounded-none text-[10px] font-headline font-bold uppercase">
+              <span className="px-2.5 py-0.5 bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30 rounded-none text-[10px] font-headline font-bold uppercase">
                 {selectedMatch ? `M${selectedMatch.match_number} • ${selectedMatch.round_name}` : (selectedMatchId || 'NO ROUND')}
               </span>
-              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-white border border-[#27272a] rounded-none text-[10px] font-headline font-bold uppercase">
-                {selectedTourney?.game || 'Free Fire MAX'}
+              <span className="px-2.5 py-0.5 bg-[#18181B] text-white border border-[#27272A] rounded-none text-[10px] font-headline font-bold uppercase">
+                {selectedTourney?.game || 'Free Fire India'}
               </span>
-              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-[#849495] border border-[#27272a] rounded-none text-[10px] font-headline font-bold uppercase">
+              <span className="px-2.5 py-0.5 bg-[#18181B] text-[#A1A1AA] border border-[#27272A] rounded-none text-[10px] font-headline font-bold uppercase">
                 {selectedTourney?.mode ? selectedTourney.mode.toUpperCase() : selectedTourney?.format || 'SQUAD (4P)'}
               </span>
-              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-[#10b981] border border-[#10b981]/30 rounded-none text-[10px] font-mono font-bold uppercase">
+              <span className="px-2.5 py-0.5 bg-[#18181B] text-[#10b981] border border-[#10b981]/30 rounded-none text-[10px] font-mono font-bold uppercase">
                 {registeredSquadsCount} / {totalSquadSlots} SQUADS
               </span>
-              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-[#00f2ff] border border-[#00f2ff]/30 rounded-none text-[10px] font-mono font-bold uppercase">
+              <span className="px-2.5 py-0.5 bg-[#18181B] text-[#FFB900] border border-[#FFB900]/30 rounded-none text-[10px] font-mono font-bold uppercase">
                 {totalPlayersCount} PLAYERS
               </span>
-              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-[#fed83a] border border-[#fed83a]/30 rounded-none text-[10px] font-headline font-bold uppercase">
+              <span className="px-2.5 py-0.5 bg-[#18181B] text-[#FFB900] border border-[#FFB900]/30 rounded-none text-[10px] font-headline font-bold uppercase">
                 PRIZE: {formatTournamentPrize(selectedTourney)}
               </span>
-              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-white border border-[#27272a] rounded-none text-[10px] font-headline font-bold uppercase">
+              <span className="px-2.5 py-0.5 bg-[#18181B] text-white border border-[#27272A] rounded-none text-[10px] font-headline font-bold uppercase">
                 ENTRY: {selectedTourney?.entryFee ? '₹' + selectedTourney.entryFee : 'FREE'}
               </span>
-              <span className="px-2.5 py-0.5 bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 rounded-none text-[10px] font-headline font-bold uppercase">
+              <span className="px-2.5 py-0.5 bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30 rounded-none text-[10px] font-headline font-bold uppercase">
                 STATUS: {selectedTourney?.status || 'OPEN'}
               </span>
             </div>
@@ -1267,37 +1267,37 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
             <h2 className="font-headline text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
               {selectedTourney?.title || 'Active Tournament Operations'}
             </h2>
-            <p className="text-xs text-[#849495] font-body mt-0.5">
+            <p className="text-xs text-[#A1A1AA] font-body mt-0.5">
               Scheduled: {selectedTourney?.startDate || 'Today'} &bull; {selectedTourney?.startTime || '06:00 PM IST'} &bull; Host: {selectedTourney?.organizer || 'MJ ESPORTS Official'}
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
-              <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+              <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                 MATCH STATUS
               </span>
               <span className={`px-3 py-1 rounded-none text-xs font-headline font-extrabold uppercase border inline-block mt-0.5 ${
                 matchStatus === 'Match Live'
                   ? 'bg-[#10b981]/20 text-[#10b981] border-[#10b981]/50 animate-pulse'
                   : matchStatus === 'Paused'
-                  ? 'bg-[#ff5e07]/20 text-[#ff5e07] border-[#ff5e07]/50'
+                  ? 'bg-[#FF8C00]/20 text-[#FF8C00] border-[#FF8C00]/50'
                   : matchStatus === 'Ended'
                   ? 'bg-slate-800 text-slate-300 border-slate-700'
-                  : 'bg-[#fed83a]/20 text-[#fed83a] border-[#fed83a]/50'
+                  : 'bg-[#FFB900]/20 text-[#FFB900] border-[#FFB900]/50'
               }`}>
                 {matchStatus}
               </span>
             </div>
 
             <div className="text-right">
-              <span className="text-[10px] font-headline font-bold text-[#849495] uppercase block">
+              <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase block">
                 ROOM STATUS
               </span>
               <span className={`px-3 py-1 rounded-none text-xs font-headline font-extrabold uppercase border inline-block mt-0.5 ${
                 roomStatus === 'Published'
                   ? 'bg-[#10b981]/20 text-[#10b981] border-[#10b981]/50'
-                  : 'bg-[#ff5e07]/20 text-[#ff5e07] border-[#ff5e07]/50'
+                  : 'bg-[#FF8C00]/20 text-[#FF8C00] border-[#FF8C00]/50'
               }`}>
                 {roomStatus}
               </span>
@@ -1306,13 +1306,13 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
         </div>
 
         {/* MATCH LIFECYCLE ACTION STRIP */}
-        <div className="p-4 bg-[#1c1b1c] border border-[#27272a] rounded-none flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div className="p-4 bg-[#18181B] border border-[#27272A] rounded-none flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <span className="text-xs font-headline font-bold text-white uppercase flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#00f2ff]" />
+              <Zap className="w-4 h-4 text-[#FFB900]" />
               <span>MATCH LIFECYCLE CONTROLS</span>
             </span>
-            <p className="text-[11px] text-[#849495] font-body">
+            <p className="text-[11px] text-[#A1A1AA] font-body">
               {matchStatus === 'Lobby Waiting' && 'Lobby is waiting for player check-in. Start match when all teams are verified.'}
               {matchStatus === 'Match Live' && 'Match is currently LIVE in-game. Live room status broadcasted to players.'}
               {matchStatus === 'Paused' && 'Match playback has been paused by host. Click resume to restore live tracking.'}
@@ -1326,16 +1326,16 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                 <button
                   onClick={handleOpenLobby}
                   disabled={isStatusUpdating}
-                  className="px-4 py-2.5 bg-[#141416] hover:bg-[#27272a] text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2.5 bg-[#111215] hover:bg-[#27272A] text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
                 >
                   Refresh Lobby
                 </button>
                 <button
                   onClick={handleStartMatch}
                   disabled={isStatusUpdating}
-                  className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded-none text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 bg-[#FFB900] hover:bg-[#FFB900]/90 text-[#000000] rounded-none text-xs font-headline font-extrabold uppercase transition-all  flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  <Play className="w-4 h-4 text-[#00363a] fill-current" />
+                  <Play className="w-4 h-4 text-[#000000] fill-current" />
                   <span>Start Match</span>
                 </button>
               </>
@@ -1346,7 +1346,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                 <button
                   onClick={handlePauseMatch}
                   disabled={isStatusUpdating}
-                  className="px-4 py-2.5 bg-[#ff5e07]/20 hover:bg-[#ff5e07]/30 text-[#ff5e07] border border-[#ff5e07]/40 rounded-none text-xs font-headline font-bold uppercase transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2.5 bg-[#FF8C00]/20 hover:bg-[#FF8C00]/30 text-[#FF8C00] border border-[#FF8C00]/40 rounded-none text-xs font-headline font-bold uppercase transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <Pause className="w-3.5 h-3.5" />
                   <span>Pause Match</span>
@@ -1367,9 +1367,9 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                 <button
                   onClick={handleResumeMatch}
                   disabled={isStatusUpdating}
-                  className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded-none text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 bg-[#FFB900] hover:bg-[#FFB900]/90 text-[#000000] rounded-none text-xs font-headline font-extrabold uppercase transition-all  flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
-                  <RotateCcw className="w-4 h-4 text-[#00363a]" />
+                  <RotateCcw className="w-4 h-4 text-[#000000]" />
                   <span>Resume Match</span>
                 </button>
                 <button
@@ -1391,10 +1391,10 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                 {setActiveTab && (
                   <button
                     onClick={() => setActiveTab('results', selectedTourney?.id)}
-                    className="px-5 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded-none text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center gap-2 cursor-pointer"
+                    className="px-5 py-2.5 bg-[#FFB900] hover:bg-[#FFB900]/90 text-[#000000] rounded-none text-xs font-headline font-extrabold uppercase transition-all  flex items-center gap-2 cursor-pointer"
                   >
                     <span>RESULTS CONSOLE &rarr;</span>
-                    <ArrowRight className="w-4 h-4 text-[#00363a]" />
+                    <ArrowRight className="w-4 h-4 text-[#000000]" />
                   </button>
                 )}
               </div>
@@ -1408,36 +1408,36 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* ROOM MANAGEMENT PANEL */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-4 shadow-xl">
-          <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 space-y-4 shadow-xl">
+          <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
             <h3 className="font-headline text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-              <Key className="w-4 h-4 text-[#00f2ff]" />
+              <Key className="w-4 h-4 text-[#FFB900]" />
               <span>ROOM CREDENTIALS & ACCESS</span>
             </h3>
             <span className={`px-2.5 py-0.5 rounded-none text-[10px] font-headline font-bold uppercase border ${
               roomStatus === 'Published'
                 ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
-                : 'bg-[#ff5e07]/15 text-[#ff5e07] border-[#ff5e07]/40'
+                : 'bg-[#FF8C00]/15 text-[#FF8C00] border-[#FF8C00]/40'
             }`}>
               {roomStatus}
             </span>
           </div>
 
-          <div className="p-4 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-3.5">
+          <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] space-y-3.5">
             {/* Room ID (Numbers Only) */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
-                  ROOM ID <span className="text-[#00f2ff] text-[10px]">(NUMBERS ONLY)</span>
+                <label className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider block">
+                  ROOM ID <span className="text-[#FFB900] text-[10px]">(NUMBERS ONLY)</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setRoomIdInput(generateRandomNumericRoomId(10))}
                   disabled={isLocked}
-                  className="text-[10px] text-[#00f2ff] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+                  className="text-[10px] text-[#FFB900] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
                   title="Generate independent random 10-digit numeric ID"
                 >
-                  <Sparkles className="w-3 h-3 text-[#00f2ff]" />
+                  <Sparkles className="w-3 h-3 text-[#FFB900]" />
                   <span>Auto-Gen ID</span>
                 </button>
               </div>
@@ -1450,12 +1450,12 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                   onChange={(e) => setRoomIdInput(sanitizeDigitsOnly(e.target.value, 15))}
                   placeholder="e.g. 5839174261"
                   disabled={isLocked}
-                  className="flex-1 px-3.5 py-2.5 bg-[#141416] border border-[#27272a] rounded-none text-xs font-mono font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff] disabled:opacity-50"
+                  className="flex-1 px-3.5 py-2.5 bg-[#111215] border border-[#27272A] rounded-none text-xs font-mono font-bold text-[#FFB900] focus:outline-none focus:border-[#FFB900] disabled:opacity-50"
                 />
                 {roomIdInput && (
                   <button
                     onClick={() => handleCopy(roomIdInput, 'Room ID')}
-                    className="p-2.5 bg-[#141416] hover:bg-[#27272a] border border-[#27272a] text-[#849495] hover:text-white rounded-none cursor-pointer"
+                    className="p-2.5 bg-[#111215] hover:bg-[#27272A] border border-[#27272A] text-[#A1A1AA] hover:text-white rounded-none cursor-pointer"
                     title="Copy Room ID"
                   >
                     <Copy className="w-4 h-4" />
@@ -1467,17 +1467,17 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
             {/* Room Password (Numbers Only) */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
-                  ROOM PASSWORD <span className="text-[#ff5e07] text-[10px]">(NUMBERS ONLY)</span>
+                <label className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider block">
+                  ROOM PASSWORD <span className="text-[#FF8C00] text-[10px]">(NUMBERS ONLY)</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setRoomPasswordInput(generateRandomNumericRoomPassword(8))}
                   disabled={isLocked}
-                  className="text-[10px] text-[#ff5e07] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+                  className="text-[10px] text-[#FF8C00] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
                   title="Generate independent random 8-digit numeric PIN"
                 >
-                  <Sparkles className="w-3 h-3 text-[#ff5e07]" />
+                  <Sparkles className="w-3 h-3 text-[#FF8C00]" />
                   <span>Auto-Gen PIN</span>
                 </button>
               </div>
@@ -1490,11 +1490,11 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                   onChange={(e) => setRoomPasswordInput(sanitizeDigitsOnly(e.target.value, 10))}
                   placeholder="e.g. 84920173"
                   disabled={isLocked}
-                  className="flex-1 px-3.5 py-2.5 bg-[#141416] border border-[#27272a] rounded-none text-xs font-mono font-bold text-[#ff5e07] focus:outline-none focus:border-[#00f2ff] disabled:opacity-50"
+                  className="flex-1 px-3.5 py-2.5 bg-[#111215] border border-[#27272A] rounded-none text-xs font-mono font-bold text-[#FF8C00] focus:outline-none focus:border-[#FFB900] disabled:opacity-50"
                 />
                 <button
                   onClick={() => setShowPassword(!showPassword)}
-                  className="p-2.5 bg-[#141416] hover:bg-[#27272a] border border-[#27272a] text-[#849495] hover:text-white rounded-none cursor-pointer"
+                  className="p-2.5 bg-[#111215] hover:bg-[#27272A] border border-[#27272A] text-[#A1A1AA] hover:text-white rounded-none cursor-pointer"
                   title={showPassword ? 'Hide Password' : 'Show Password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -1502,7 +1502,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                 {roomPasswordInput && (
                   <button
                     onClick={() => handleCopy(roomPasswordInput, 'Room Password')}
-                    className="p-2.5 bg-[#141416] hover:bg-[#27272a] border border-[#27272a] text-[#849495] hover:text-white rounded-none cursor-pointer"
+                    className="p-2.5 bg-[#111215] hover:bg-[#27272A] border border-[#27272A] text-[#A1A1AA] hover:text-white rounded-none cursor-pointer"
                     title="Copy Password"
                   >
                     <Copy className="w-4 h-4" />
@@ -1511,7 +1511,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               </div>
             </div>
 
-            <p className="text-[11px] text-[#849495] font-body">
+            <p className="text-[11px] text-[#A1A1AA] font-body">
               Credentials are independent numeric codes encrypted and released only to verified squad captains when published.
             </p>
           </div>
@@ -1524,7 +1524,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               loadingText="Saving..."
               disabled={isLocked}
               variant="secondary"
-              className="py-2.5 text-xs font-headline font-bold uppercase rounded-none bg-[#1c1b1c] text-[#849495] hover:text-white border border-[#27272a]"
+              className="py-2.5 text-xs font-headline font-bold uppercase rounded-none bg-[#18181B] text-[#A1A1AA] hover:text-white border border-[#27272A]"
             >
               Save Draft
             </LoadingButton>
@@ -1534,7 +1534,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               loading={isPublishing}
               loadingText="Publishing..."
               disabled={isLocked}
-              className="py-2.5 text-xs font-headline font-extrabold uppercase rounded-none bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a]"
+              className="py-2.5 text-xs font-headline font-extrabold uppercase rounded-none bg-[#FFB900] hover:bg-[#FFB900]/90 text-[#000000]"
             >
               Publish Room
             </LoadingButton>
@@ -1544,7 +1544,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               className={`py-2.5 text-xs font-headline font-bold uppercase rounded-none border transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
                 isLocked
                   ? 'bg-red-950/40 text-red-400 border-red-800'
-                  : 'bg-[#1c1b1c] text-[#10b981] border-[#10b981]/30 hover:bg-[#10b981]/10'
+                  : 'bg-[#18181B] text-[#10b981] border-[#10b981]/30 hover:bg-[#10b981]/10'
               }`}
             >
               {isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
@@ -1554,9 +1554,9 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
         </div>
 
         {/* PLAYER CHECK-IN PANEL */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 space-y-4 shadow-xl flex flex-col justify-between">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 space-y-4 shadow-xl flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+            <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
               <h3 className="font-headline text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
                 <Users className="w-4 h-4 text-[#10b981]" />
                 <span>PLAYER CHECK-IN & READINESS</span>
@@ -1574,27 +1574,27 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
             </div>
 
             <div className="grid grid-cols-3 gap-3 pt-4">
-              <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none text-center space-y-1">
-                <span className="text-[10px] text-[#849495] uppercase block font-headline font-bold">
+              <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none text-center space-y-1">
+                <span className="text-[10px] text-[#A1A1AA] uppercase block font-headline font-bold">
                   TOTAL PLAYERS
                 </span>
                 <p className="font-headline font-extrabold text-white text-lg">
                   {readinessData ? readinessData.total_registered * capInfo.teamSize : totalPlayersCount}
                 </p>
               </div>
-              <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none text-center space-y-1">
-                <span className="text-[10px] text-[#849495] uppercase block font-headline font-bold">
+              <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none text-center space-y-1">
+                <span className="text-[10px] text-[#A1A1AA] uppercase block font-headline font-bold">
                   READY / CHECKED IN
                 </span>
                 <p className="font-headline font-extrabold text-[#10b981] text-lg">
                   {readinessData ? readinessData.total_checked_in * capInfo.teamSize : readyPlayersCount}
                 </p>
               </div>
-              <div className="p-3 bg-[#1c1b1c] border border-[#27272a] rounded-none text-center space-y-1">
-                <span className="text-[10px] text-[#849495] uppercase block font-headline font-bold">
+              <div className="p-3 bg-[#18181B] border border-[#27272A] rounded-none text-center space-y-1">
+                <span className="text-[10px] text-[#A1A1AA] uppercase block font-headline font-bold">
                   VERIFICATION RATE
                 </span>
-                <p className="font-headline font-extrabold text-[#00f2ff] text-lg">
+                <p className="font-headline font-extrabold text-[#FFB900] text-lg">
                   {readinessData ? `${readinessData.readiness_percentage}%` : `${verificationRate}%`}
                 </p>
               </div>
@@ -1607,7 +1607,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               </div>
             )}
 
-            <p className="text-xs text-[#849495] font-body mt-3 leading-relaxed">
+            <p className="text-xs text-[#A1A1AA] font-body mt-3 leading-relaxed">
               Squad rosters and in-game character UIDs are verified against active registrations.
             </p>
           </div>
@@ -1617,7 +1617,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               <button
                 onClick={handleAdminLockRoster}
                 disabled={isLockingRoster}
-                className="w-full py-2.5 bg-[#ff5e07]/20 hover:bg-[#ff5e07]/30 text-[#ff5e07] border border-[#ff5e07]/40 rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-[#FF8C00]/20 hover:bg-[#FF8C00]/30 text-[#FF8C00] border border-[#FF8C00]/40 rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
                 <Lock className="w-3.5 h-3.5" />
                 <span>{isLockingRoster ? 'Locking Roster...' : 'Lock Match Roster (Close Check-In)'}</span>
@@ -1626,7 +1626,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
 
             <button
               onClick={() => setShowRosterDrawer(true)}
-              className="w-full py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-[#18181B] hover:bg-[#27272A] text-[#FFB900] border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-2"
             >
               <Users className="w-3.5 h-3.5" />
               <span>
@@ -1643,27 +1643,27 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* OPERATIONAL TIMELINE */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 space-y-3 shadow-xl">
-          <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 space-y-3 shadow-xl">
+          <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
             <span className="font-headline text-xs font-extrabold text-white uppercase flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#00f2ff]" />
+              <Clock className="w-4 h-4 text-[#FFB900]" />
               <span>OPERATIONAL TIMELINE</span>
             </span>
-            <span className="text-[10px] font-mono text-[#00f2ff] uppercase font-bold">Phase Sequence</span>
+            <span className="text-[10px] font-mono text-[#FFB900] uppercase font-bold">Phase Sequence</span>
           </div>
 
           <div className="space-y-2 text-xs font-body pt-1">
             {timelineStages.map((stage) => (
               <div
                 key={stage.id}
-                className="flex items-center justify-between p-2.5 rounded-none bg-[#1c1b1c] border border-[#27272a]"
+                className="flex items-center justify-between p-2.5 rounded-none bg-[#18181B] border border-[#27272A]"
               >
                 <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-none ${stage.isComplete ? 'bg-[#10b981]' : 'bg-[#849495]'}`} />
-                  <span className="text-[#b9cacb] font-medium">{stage.name}</span>
+                  <span className={`w-2 h-2 rounded-none ${stage.isComplete ? 'bg-[#10b981]' : 'bg-[#A1A1AA]'}`} />
+                  <span className="text-[#A1A1AA] font-medium">{stage.name}</span>
                 </div>
                 <span className={`font-headline font-bold text-[11px] uppercase ${
-                  stage.isComplete ? 'text-[#10b981]' : 'text-[#849495]'
+                  stage.isComplete ? 'text-[#10b981]' : 'text-[#A1A1AA]'
                 }`}>
                   {stage.status}
                 </span>
@@ -1673,18 +1673,18 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
         </div>
 
         {/* EMERGENCY BROADCAST */}
-        <div className="bg-[#141416] border border-[#ff5e07]/40 rounded-none p-5 space-y-3.5 shadow-xl">
-          <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
-            <span className="font-headline text-xs font-extrabold text-[#ff5e07] uppercase flex items-center gap-2">
-              <Radio className="w-4 h-4 text-[#ff5e07]" />
+        <div className="bg-[#111215] border border-[#FF8C00]/40 rounded-none p-5 space-y-3.5 shadow-xl">
+          <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
+            <span className="font-headline text-xs font-extrabold text-[#FF8C00] uppercase flex items-center gap-2">
+              <Radio className="w-4 h-4 text-[#FF8C00]" />
               <span>EMERGENCY BROADCAST</span>
             </span>
-            <span className="px-2 py-0.5 bg-[#ff5e07]/20 text-[#ff5e07] rounded-none text-[9px] font-headline font-bold uppercase">
+            <span className="px-2 py-0.5 bg-[#FF8C00]/20 text-[#FF8C00] rounded-none text-[9px] font-headline font-bold uppercase">
               Host Alert
             </span>
           </div>
 
-          <p className="text-xs text-[#849495] font-body leading-relaxed">
+          <p className="text-xs text-[#A1A1AA] font-body leading-relaxed">
             Dispatch urgent announcement notices directly to squad captains and player match dashboards.
           </p>
 
@@ -1694,12 +1694,12 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               value={broadcastMessage}
               onChange={(e) => setBroadcastMessage(e.target.value)}
               placeholder="e.g. Room remake in 5 mins due to connection drop..."
-              className="w-full px-3.5 py-2.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white placeholder-[#849495] focus:outline-none focus:border-[#ff5e07]"
+              className="w-full px-3.5 py-2.5 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white placeholder-[#A1A1AA] focus:outline-none focus:border-[#FF8C00]"
             />
             <button
               onClick={() => setShowBroadcastConfirm(true)}
               disabled={!broadcastMessage.trim() || isBroadcasting}
-              className="w-full py-2.5 bg-[#ff5e07] hover:bg-[#ff5e07]/90 text-slate-950 font-headline font-extrabold text-xs uppercase rounded-none transition-all cursor-pointer disabled:opacity-40"
+              className="w-full py-2.5 bg-[#FF8C00] hover:bg-[#FF8C00]/90 text-slate-950 font-headline font-extrabold text-xs uppercase rounded-none transition-all cursor-pointer disabled:opacity-40"
             >
               <Send className="w-3.5 h-3.5 inline mr-1.5" />
               <span>Send Emergency Broadcast</span>
@@ -1708,21 +1708,21 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
         </div>
 
         {/* INCIDENT / EVENT LOG & HOST NOTES */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 space-y-3.5 shadow-xl flex flex-col justify-between">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 space-y-3.5 shadow-xl flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+            <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
               <span className="font-headline text-xs font-extrabold text-white uppercase flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-[#00f2ff]" />
+                <AlertTriangle className="w-4 h-4 text-[#FFB900]" />
                 <span>INCIDENT & EVENT LOG</span>
               </span>
-              <span className="text-[10px] font-mono text-[#849495]">{incidentLogs.length} Events</span>
+              <span className="text-[10px] font-mono text-[#A1A1AA]">{incidentLogs.length} Events</span>
             </div>
 
             <div className="space-y-1.5 max-h-36 overflow-y-auto pt-2 font-body text-xs pr-1">
               {incidentLogs.map((log) => (
-                <div key={log.id} className="p-2 bg-[#1c1b1c] border border-[#27272a] rounded-none flex items-center gap-2">
-                  <span className="font-mono text-[10px] text-[#849495] shrink-0">{log.time}</span>
-                  <span className={`text-[11px] truncate ${log.type === 'warning' ? 'text-[#ff5e07] font-bold' : 'text-white'}`}>
+                <div key={log.id} className="p-2 bg-[#18181B] border border-[#27272A] rounded-none flex items-center gap-2">
+                  <span className="font-mono text-[10px] text-[#A1A1AA] shrink-0">{log.time}</span>
+                  <span className={`text-[11px] truncate ${log.type === 'warning' ? 'text-[#FF8C00] font-bold' : 'text-white'}`}>
                     {log.event}
                   </span>
                 </div>
@@ -1731,8 +1731,8 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
           </div>
 
           {/* Host Notes Scratchpad */}
-          <div className="pt-2 border-t border-[#27272a] space-y-1.5">
-            <span className="text-[10px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
+          <div className="pt-2 border-t border-[#27272A] space-y-1.5">
+            <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider block">
               Host Notes (Private)
             </span>
             <input
@@ -1740,7 +1740,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               value={adminNotes}
               onChange={handleHostNotesChange}
               placeholder="Private host operational notes..."
-              className="w-full px-3 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white focus:outline-none focus:border-[#00f2ff]"
+              className="w-full px-3 py-2 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white focus:outline-none focus:border-[#FFB900]"
             />
           </div>
         </div>
@@ -1748,13 +1748,13 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       </div>
 
       {/* 7. RESULTS HANDOFF CTA */}
-      <div className="p-5 sm:p-6 bg-[#141416] border border-[#00f2ff]/30 rounded-none shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-5 sm:p-6 bg-[#111215] border border-[#FFB900]/30 rounded-none shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="space-y-1">
           <h3 className="font-headline text-sm sm:text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-            <Award className="w-4 h-4 text-[#00f2ff]" />
+            <Award className="w-4 h-4 text-[#FFB900]" />
             <span>RESULTS HANDOFF</span>
           </h3>
-          <p className="text-xs text-[#849495] font-body">
+          <p className="text-xs text-[#A1A1AA] font-body">
             Match operations are complete. Submit verified match data to the Results console.
           </p>
         </div>
@@ -1762,10 +1762,10 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
         {setActiveTab && (
           <button
             onClick={() => setActiveTab('results')}
-            className="w-full sm:w-auto px-6 py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] rounded-none text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(0,242,255,0.3)] flex items-center justify-center gap-2 cursor-pointer shrink-0"
+            className="w-full sm:w-auto px-6 py-2.5 bg-[#FFB900] hover:bg-[#FFB900]/90 text-[#000000] rounded-none text-xs font-headline font-extrabold uppercase transition-all  flex items-center justify-center gap-2 cursor-pointer shrink-0"
           >
             <span>OPEN RESULTS CONSOLE</span>
-            <ArrowRight className="w-4 h-4 text-[#00363a]" />
+            <ArrowRight className="w-4 h-4 text-[#000000]" />
           </button>
         )}
       </div>
@@ -1773,7 +1773,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       {/* MODAL 1: END MATCH CONFIRMATION */}
       {showEndMatchModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded-none p-6 max-w-md w-full space-y-4 shadow-2xl">
+          <div className="bg-[#111215] border border-[#27272A] rounded-none p-6 max-w-md w-full space-y-4 shadow-2xl">
             <div className="flex items-center gap-3 text-red-400">
               <div className="w-10 h-10 rounded-none bg-red-950/60 border border-red-500/30 flex items-center justify-center">
                 <Square className="w-5 h-5 text-red-400" />
@@ -1782,19 +1782,19 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                 <h3 className="font-headline font-extrabold text-base uppercase text-white">
                   END LIVE MATCH?
                 </h3>
-                <p className="text-xs text-[#849495] font-body">This concludes real-time room operations.</p>
+                <p className="text-xs text-[#A1A1AA] font-body">This concludes real-time room operations.</p>
               </div>
             </div>
 
-            <p className="text-xs text-[#b9cacb] font-body leading-relaxed">
-              Are you sure you want to end match <span className="font-bold text-white font-headline">"{selectedMatch ? `Match ${selectedMatch.match_number} (${selectedMatch.round_name})` : selectedMatchId}"</span> for <span className="font-bold text-white">{selectedTourney?.title}</span>? This will close live room operations and transition tournament status to <span className="text-[#00f2ff] font-bold">"Results Pending"</span> for score entry and verification.
+            <p className="text-xs text-[#A1A1AA] font-body leading-relaxed">
+              Are you sure you want to end match <span className="font-bold text-white font-headline">"{selectedMatch ? `Match ${selectedMatch.match_number} (${selectedMatch.round_name})` : selectedMatchId}"</span> for <span className="font-bold text-white">{selectedTourney?.title}</span>? This will close live room operations and transition tournament status to <span className="text-[#FFB900] font-bold">"Results Pending"</span> for score entry and verification.
             </p>
 
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setShowEndMatchModal(false)}
                 disabled={isStatusUpdating}
-                className="flex-1 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
+                className="flex-1 py-2.5 bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -1820,33 +1820,33 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
       {/* MODAL 2: EMERGENCY BROADCAST CONFIRMATION */}
       {showBroadcastConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded-none p-6 max-w-md w-full space-y-4 shadow-2xl">
-            <div className="flex items-center gap-3 text-[#ff5e07]">
-              <div className="w-10 h-10 rounded-none bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center">
-                <Radio className="w-5 h-5 text-[#ff5e07]" />
+          <div className="bg-[#111215] border border-[#27272A] rounded-none p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-[#FF8C00]">
+              <div className="w-10 h-10 rounded-none bg-[#FF8C00]/10 border border-[#FF8C00]/30 flex items-center justify-center">
+                <Radio className="w-5 h-5 text-[#FF8C00]" />
               </div>
               <div>
                 <h3 className="font-headline font-extrabold text-base uppercase text-white">
                   CONFIRM EMERGENCY BROADCAST
                 </h3>
-                <p className="text-xs text-[#849495] font-body">Broadcast notice to all squad captains.</p>
+                <p className="text-xs text-[#A1A1AA] font-body">Broadcast notice to all squad captains.</p>
               </div>
             </div>
 
-            <div className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white font-body">
+            <div className="p-3.5 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white font-body">
               "{broadcastMessage}"
             </div>
 
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setShowBroadcastConfirm(false)}
-                className="flex-1 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+                className="flex-1 py-2.5 bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendBroadcast}
-                className="flex-1 py-2.5 bg-[#ff5e07] hover:bg-[#ff5e07]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-colors cursor-pointer"
+                className="flex-1 py-2.5 bg-[#FF8C00] hover:bg-[#FF8C00]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-colors cursor-pointer"
               >
                 Send Broadcast
               </button>
@@ -1862,18 +1862,18 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
           onClick={() => setShowRosterDrawer(false)}
         >
           <div
-            className="w-full max-w-md bg-[#141416] border-l border-[#27272a] h-full p-6 space-y-5 overflow-y-auto shadow-2xl flex flex-col justify-between"
+            className="w-full max-w-md bg-[#111215] border-l border-[#27272A] h-full p-6 space-y-5 overflow-y-auto shadow-2xl flex flex-col justify-between"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+              <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
                 <div>
-                  <span className="font-mono text-xs font-bold text-[#00f2ff] block">ACTIVE MATCH ROSTER</span>
+                  <span className="font-mono text-xs font-bold text-[#FFB900] block">ACTIVE MATCH ROSTER</span>
                   <h3 className="font-headline text-lg font-extrabold text-white uppercase">{selectedTourney?.title}</h3>
                 </div>
                 <button
                   onClick={() => setShowRosterDrawer(false)}
-                  className="p-1.5 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-white cursor-pointer"
+                  className="p-1.5 rounded-none bg-[#18181B] border border-[#27272A] text-[#A1A1AA] hover:text-white cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1882,10 +1882,10 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
               <div className="space-y-2.5 max-h-[70vh] overflow-y-auto pr-1">
                 {tournamentCheckins && tournamentCheckins.length > 0 ? (
                   tournamentCheckins.map((chk) => (
-                    <div key={`chk-${chk.id}`} className="p-3 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-2 text-xs font-body">
+                    <div key={`chk-${chk.id}`} className="p-3 bg-[#18181B] rounded-none border border-[#27272A] space-y-2 text-xs font-body">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-mono text-xs font-black text-[#00f2ff] px-1.5 py-0.5 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30">
+                          <span className="font-mono text-xs font-black text-[#FFB900] px-1.5 py-0.5 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30">
                             {chk.lobby_slot ? `SLOT #${chk.lobby_slot}` : 'NO SLOT'}
                           </span>
                           <span className="font-headline font-bold text-white text-sm truncate max-w-[150px]">
@@ -1903,19 +1903,19 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                         </span>
                       </div>
 
-                      <div className="text-[#849495] text-[11px] space-y-0.5">
+                      <div className="text-[#A1A1AA] text-[11px] space-y-0.5">
                         <div className="flex justify-between">
                           <span>Captain: <strong className="text-white">{chk.captain_name}</strong></span>
-                          <span>Status: <strong className="text-[#00f2ff] font-mono">{chk.status}</strong></span>
+                          <span>Status: <strong className="text-[#FFB900] font-mono">{chk.status}</strong></span>
                         </div>
                         <div className="flex justify-between font-mono text-[10px]">
-                          <span>Check-in UID: <strong className="text-[#00f2ff]">{chk.checkin_uid}</strong></span>
+                          <span>Check-in UID: <strong className="text-[#FFB900]">{chk.checkin_uid}</strong></span>
                           <span>Registered UID: <strong className="text-slate-300">{chk.registered_uid}</strong></span>
                         </div>
                       </div>
 
                       {chk.uid_match_status === 'UID_MISMATCH' && (
-                        <div className="pt-2 border-t border-[#27272a] flex items-center justify-between gap-2">
+                        <div className="pt-2 border-t border-[#27272A] flex items-center justify-between gap-2">
                           <span className="text-[10px] text-amber-300">UID discrepancy detected:</span>
                           <div className="flex gap-1.5">
                             <button
@@ -1937,16 +1937,16 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
                   ))
                 ) : (
                   rosterEntries.map((team, idx) => (
-                    <div key={`roster-item-${team.id || idx}`} className="p-3 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1 text-xs font-body">
+                    <div key={`roster-item-${team.id || idx}`} className="p-3 bg-[#18181B] rounded-none border border-[#27272A] space-y-1 text-xs font-body">
                       <div className="flex justify-between items-center">
                         <span className="font-headline font-bold text-white text-sm">#{idx + 1} {team.name || team.teamName}</span>
                         <span className="px-2 py-0.5 rounded-none text-[9px] font-headline font-bold bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 uppercase">
                           Verified Ready
                         </span>
                       </div>
-                      <div className="text-[#849495] text-[11px] flex justify-between">
+                      <div className="text-[#A1A1AA] text-[11px] flex justify-between">
                         <span>Captain: <strong className="text-white">{team.captain || team.captainName}</strong></span>
-                        <span>UID: <strong className="text-[#00f2ff] font-mono">{team.freeFireUid || team.captain_uid || 'N/A'}</strong></span>
+                        <span>UID: <strong className="text-[#FFB900] font-mono">{team.freeFireUid || team.captain_uid || 'N/A'}</strong></span>
                       </div>
                     </div>
                   ))
@@ -1956,7 +1956,7 @@ export default function MatchControlView({ tournaments = [], setActiveTab, initi
 
             <button
               onClick={() => setShowRosterDrawer(false)}
-              className="w-full py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+              className="w-full py-2.5 bg-[#18181B] hover:bg-[#27272A] text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
             >
               Close Roster Drawer
             </button>

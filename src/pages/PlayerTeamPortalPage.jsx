@@ -40,7 +40,7 @@ import TeamInviteModal from '../components/team/TeamInviteModal'
 
 /**
  * Player Team Management / Squad Portal Page (/profile/team).
- * Primary player dashboard for permanent Free Fire MAX squad management.
+ * Primary player dashboard for permanent Free Fire India squad management.
  * Consumes strictly teamService.js (authoritative N3.2 SECURITY DEFINER RPCs).
  */
 export default function PlayerTeamPortalPage() {
@@ -422,7 +422,7 @@ export default function PlayerTeamPortalPage() {
                     You Are Not Part of a Squad Yet
                   </h1>
                   <p className="text-xs sm:text-sm text-[#A1A1AA] font-body leading-relaxed">
-                    Form a permanent Free Fire MAX squad to compete in tournaments, recruit teammates, and climb the competitive leaderboards together.
+                    Form a permanent Free Fire India squad to compete in tournaments, recruit teammates, and climb the competitive leaderboards together.
                   </p>
                 </div>
 

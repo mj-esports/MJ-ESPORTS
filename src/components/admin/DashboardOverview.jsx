@@ -184,32 +184,32 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
       description: 'Create FF / BGMI Arena',
       icon: PlusCircle,
       onClick: () => setActiveTab('tournaments'),
-      colorClass: 'text-[#00f2ff]',
-      hoverColorClass: 'hover:border-[#00f2ff]/60'
+      colorClass: 'text-[#FFB900]',
+      hoverColorClass: 'hover:border-[#FFB900]/60'
     },
     {
       title: 'Verify Payments',
       description: `${metrics.pendingPayments} Pending Receipts`,
       icon: IndianRupee,
       onClick: () => setActiveTab('payments'),
-      colorClass: 'text-[#fe6b00]',
-      hoverColorClass: 'hover:border-[#fe6b00]/60'
+      colorClass: 'text-[#FF8C00]',
+      hoverColorClass: 'hover:border-[#FF8C00]/60'
     },
     {
       title: 'Send Broadcast',
       description: 'Dispatch Push Notice',
       icon: Bell,
       onClick: () => setActiveTab('notifications'),
-      colorClass: 'text-[#00f2ff]',
-      hoverColorClass: 'hover:border-[#00f2ff]/60'
+      colorClass: 'text-[#FFB900]',
+      hoverColorClass: 'hover:border-[#FFB900]/60'
     },
     {
       title: 'System Audit',
       description: 'Inspect Access Logs',
       icon: Activity,
       onClick: () => setActiveTab('audit'),
-      colorClass: 'text-[#00ff9d]',
-      hoverColorClass: 'hover:border-[#00ff9d]/60'
+      colorClass: 'text-[#10B981]',
+      hoverColorClass: 'hover:border-[#10B981]/60'
     }
   ]
 
@@ -217,7 +217,7 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
     <div className="space-y-6 antialiased">
       
       {fetchError && (
-        <div className="p-4 bg-[#ff3366]/10 border border-[#ff3366]/40 rounded-none flex items-center gap-3 text-[#ff3366] text-xs font-mono">
+        <div className="p-4 bg-[#EF4444]/10 border border-[#EF4444]/40 rounded-none flex items-center gap-3 text-[#EF4444] text-xs font-mono">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{fetchError}</span>
         </div>
@@ -233,10 +233,10 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
           value={metrics.totalUsers}
           subtext="+12.4% THIS MONTH"
           icon={Users}
-          colorClass="text-[#00f2ff]"
-          bgIconClass="bg-[#00f2ff]/10"
-          borderIconClass="border-[#00f2ff]/30"
-          hoverColorClass="hover:border-[#00f2ff]/50"
+          colorClass="text-[#FFB900]"
+          bgIconClass="bg-[#FFB900]/10"
+          borderIconClass="border-[#FFB900]/30"
+          hoverColorClass="hover:border-[#FFB900]/50"
           loading={loading}
         />
 
@@ -245,10 +245,10 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
           value={metrics.totalTournaments}
           subtext={`${metrics.activeTournaments} ACTIVE / LIVE`}
           icon={Trophy}
-          colorClass="text-[#fe6b00]"
-          bgIconClass="bg-[#fe6b00]/10"
-          borderIconClass="border-[#fe6b00]/30"
-          hoverColorClass="hover:border-[#fe6b00]/50"
+          colorClass="text-[#FF8C00]"
+          bgIconClass="bg-[#FF8C00]/10"
+          borderIconClass="border-[#FF8C00]/30"
+          hoverColorClass="hover:border-[#FF8C00]/50"
           loading={loading}
         />
 
@@ -257,10 +257,10 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
           value={metrics.totalRegistrations}
           subtext={`${metrics.pendingPayments} PENDING PAYMENTS`}
           icon={ClipboardList}
-          colorClass="text-[#00f2ff]"
-          bgIconClass="bg-[#00f2ff]/10"
-          borderIconClass="border-[#00f2ff]/30"
-          hoverColorClass="hover:border-[#00f2ff]/50"
+          colorClass="text-[#FFB900]"
+          bgIconClass="bg-[#FFB900]/10"
+          borderIconClass="border-[#FFB900]/30"
+          hoverColorClass="hover:border-[#FFB900]/50"
           loading={loading}
         />
 
@@ -269,10 +269,10 @@ export default function DashboardOverview({ tournaments = [], setActiveTab }) {
           value={`₹${metrics.totalRevenue.toLocaleString()}`}
           subtext="SECURE LEDGER SYNC"
           icon={IndianRupee}
-          colorClass="text-[#00ff9d]"
-          bgIconClass="bg-[#00ff9d]/10"
-          borderIconClass="border-[#00ff9d]/30"
-          hoverColorClass="hover:border-[#00ff9d]/50"
+          colorClass="text-[#10B981]"
+          bgIconClass="bg-[#10B981]/10"
+          borderIconClass="border-[#10B981]/30"
+          hoverColorClass="hover:border-[#10B981]/50"
           loading={loading}
         />
       </div>

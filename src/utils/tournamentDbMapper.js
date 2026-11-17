@@ -85,7 +85,7 @@ export function mapTournamentToDb(t) {
   const title = String(t.title || '').trim() || 'MJ Tournament'
 
   // 2. Game (Required string)
-  const game = String(t.game || 'Free Fire MAX').trim()
+  const game = String(t.game || 'Free Fire India').trim()
 
   // 3. Format (Required string: SOLO (1P), DUO (2P), SQUAD (4P))
   const format = String(t.format || t.match_format || t.matchFormat || 'SQUAD (4P)').trim()
@@ -207,7 +207,7 @@ export function mapPartialTournamentToDb(fields) {
   const payload = {}
 
   if (fields.title !== undefined) payload.title = String(fields.title || '').trim()
-  if (fields.game !== undefined) payload.game = String(fields.game || 'Free Fire MAX').trim()
+  if (fields.game !== undefined) payload.game = String(fields.game || 'Free Fire India').trim()
 
   if (fields.format !== undefined || fields.match_format !== undefined || fields.matchFormat !== undefined) {
     payload.format = String(fields.format || fields.match_format || fields.matchFormat || 'SQUAD (4P)').trim()

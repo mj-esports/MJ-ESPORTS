@@ -139,7 +139,7 @@ export default function TournamentCenterView({
 
   const defaultFormState = {
     title: '',
-    game: 'Free Fire MAX',
+    game: 'Free Fire India',
     mode: 'squad',
     prizePool: '₹0',
     entryFee: 'Free',
@@ -179,14 +179,14 @@ export default function TournamentCenterView({
     const resolvedMode = t.mode
       ? String(t.mode).toLowerCase()
       : (t.team_size === 1 || fmt.includes('solo'))
-      ? 'solo'
-      : (t.team_size === 2 || fmt.includes('duo'))
-      ? 'duo'
-      : 'squad'
+        ? 'solo'
+        : (t.team_size === 2 || fmt.includes('duo'))
+          ? 'duo'
+          : 'squad'
 
     setForm({
       title: t.title || '',
-      game: t.game || 'Free Fire MAX',
+      game: t.game || 'Free Fire India',
       mode: resolvedMode,
       prizePool: formatTournamentPrize(t),
       entryFee: t.entryFee || t.entry_fee || 'Free',
@@ -349,7 +349,7 @@ export default function TournamentCenterView({
 
       const tournamentPayload = {
         title: String(payload.title || '').trim(),
-        game: String(payload.game || 'Free Fire MAX').trim(),
+        game: String(payload.game || 'Free Fire India').trim(),
         mode: String(payload.mode || 'squad').trim(),
         format: formatString,
         prize_pool: resolvedPrize,
@@ -443,31 +443,31 @@ export default function TournamentCenterView({
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
       {/* 1. TOURNAMENTS CONSOLE PAGE HEADER (COMPACT HERO) */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-3 sm:p-4 md:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 w-full box-border">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-3 sm:p-4 md:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 w-full box-border">
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5 text-[11px] font-headline font-bold text-[#00f2ff] uppercase tracking-wider mb-0.5">
+          <div className="flex items-center gap-1.5 text-[11px] font-headline font-bold text-[#FFB900] uppercase tracking-wider mb-0.5">
             <Trophy className="w-3.5 h-3.5 shrink-0" />
             <span>Tournaments Console</span>
           </div>
           <h1 className="font-headline text-lg sm:text-2xl lg:text-3xl font-extrabold text-white uppercase tracking-tight leading-tight">
             Arena Operations
           </h1>
-          <p className="text-[11px] sm:text-xs text-[#849495] font-body mt-0.5 max-w-2xl leading-snug">
+          <p className="text-[11px] sm:text-xs text-[#A1A1AA] font-body mt-0.5 max-w-2xl leading-snug">
             Operational controls & real-time arena management
           </p>
         </div>
 
         <button
           onClick={handleOpenCreateModal}
-          className="px-3.5 py-2 bg-[#00f2ff] hover:bg-[#74f5ff] text-[#00363a] font-headline font-bold rounded-none text-xs uppercase tracking-wider transition-all duration-200 border border-[#00f2ff] shadow-[0_0_10px_rgba(0,242,255,0.2)] flex items-center justify-center gap-1.5 shrink-0 cursor-pointer min-h-[34px] sm:min-h-[38px] self-start sm:self-auto"
+          className="px-3.5 py-2 bg-[#FFB900] hover:bg-[#FFC933] text-[#000000] font-headline font-bold rounded-none text-xs uppercase tracking-wider transition-all duration-200 border border-[#FFB900]  flex items-center justify-center gap-1.5 shrink-0 cursor-pointer min-h-[34px] sm:min-h-[38px] self-start sm:self-auto"
         >
-          <Plus className="w-3.5 h-3.5 text-[#00363a] stroke-[3]" />
+          <Plus className="w-3.5 h-3.5 text-[#000000] stroke-[3]" />
           <span>Create Tournament</span>
         </button>
       </div>
 
       {/* 2. UNIFIED PRIMARY HORIZONTAL NAVIGATION BAR (COMPACT CONTROL BAR 48-56PX) */}
-      <div className="w-full max-w-full min-w-0 box-border bg-[#141416] border border-[#27272a] rounded-none shadow-md overflow-hidden">
+      <div className="w-full max-w-full min-w-0 box-border bg-[#111215] border border-[#27272A] rounded-none shadow-md overflow-hidden">
         <div
           ref={tabContainerRef}
           className="w-full max-w-full min-w-0 box-border overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden overscroll-x-contain touch-pan-x p-1 sm:p-1.5"
@@ -495,11 +495,10 @@ export default function TournamentCenterView({
                   ref={(el) => (tabRefs.current[tab.id] = el)}
                   onClick={() => handleTabClick(tab.id)}
                   style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
-                  className={`px-2.5 sm:px-3.5 py-1.5 rounded-none text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] sm:min-h-[34px] select-none ${
-                    active
-                      ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_8px_rgba(0,242,255,0.25)]'
-                      : 'bg-[#1c1b1c] sm:bg-transparent text-[#849495] hover:text-white hover:bg-[#1c1b1c] border border-[#27272a] sm:border-transparent'
-                  }`}
+                  className={`px-2.5 sm:px-3.5 py-1.5 rounded-none text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] sm:min-h-[34px] select-none ${active
+                    ? 'bg-[#FFB900] text-[#000000] font-extrabold '
+                    : 'bg-[#18181B] sm:bg-transparent text-[#A1A1AA] hover:text-white hover:bg-[#18181B] border border-[#27272A] sm:border-transparent'
+                    }`}
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0" />
                   <span className="whitespace-nowrap shrink-0 select-none inline-block">{tab.label}</span>
@@ -543,35 +542,35 @@ export default function TournamentCenterView({
           {activeOpsTab === 'MATCH_OPERATIONS' && (
             <MatchControlView
               tournaments={tournaments}
-              updateTournamentScores={() => {}}
+              updateTournamentScores={() => { }}
             />
           )}
 
           {activeOpsTab === 'RESULTS' && (
-            <div className="bg-[#141416] border border-[#27272a] rounded-none p-8 text-center space-y-3 font-body">
-              <Award className="w-10 h-10 text-[#fed83a] mx-auto opacity-70" />
+            <div className="bg-[#111215] border border-[#27272A] rounded-none p-8 text-center space-y-3 font-body">
+              <Award className="w-10 h-10 text-[#FFB900] mx-auto opacity-70" />
               <h3 className="text-sm font-headline font-extrabold text-white uppercase tracking-wider">
                 Result Verification Pipeline
               </h3>
-              <p className="text-xs text-[#849495] max-w-md mx-auto">
+              <p className="text-xs text-[#A1A1AA] max-w-md mx-auto">
                 Official match scorecard submission and automated extraction workflow will be integrated in Phase 3.
               </p>
             </div>
           )}
 
           {activeOpsTab === 'HISTORY' && (
-            <div className="bg-[#141416] border border-[#27272a] rounded-none p-6 space-y-4">
-              <h3 className="text-sm font-headline font-extrabold text-white uppercase tracking-wider border-b border-[#27272a] pb-3">
+            <div className="bg-[#111215] border border-[#27272A] rounded-none p-6 space-y-4">
+              <h3 className="text-sm font-headline font-extrabold text-white uppercase tracking-wider border-b border-[#27272A] pb-3">
                 Completed Tournament Archive
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {tournaments.filter(t => t.status === 'Completed' || t.status === 'Prize Distributed').length === 0 ? (
-                  <p className="text-xs text-[#849495] font-body py-4">No completed tournaments found in historical logs.</p>
+                  <p className="text-xs text-[#A1A1AA] font-body py-4">No completed tournaments found in historical logs.</p>
                 ) : (
                   tournaments.filter(t => t.status === 'Completed' || t.status === 'Prize Distributed').map((t) => (
-                    <div key={t.id} className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-body space-y-1">
+                    <div key={t.id} className="p-3.5 bg-[#18181B] border border-[#27272A] rounded-none text-xs font-body space-y-1">
                       <span className="font-headline font-bold text-white block">{t.title}</span>
-                      <span className="text-[#849495]">{t.game} &bull; Prize: {formatTournamentPrize(t)}</span>
+                      <span className="text-[#A1A1AA]">{t.game} &bull; Prize: {formatTournamentPrize(t)}</span>
                     </div>
                   ))
                 )}

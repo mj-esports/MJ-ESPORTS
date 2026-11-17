@@ -17,14 +17,14 @@ export default function Badge({
   }
 
   const variantStyles = {
-    live: 'bg-[#FF6200]/15 text-[#FF6200] border border-[#FF6200]/40 font-headline',
+    live: 'bg-[#FF8C00]/15 text-[#FF8C00] border border-[#FF8C00]/40 font-headline',
     primary: 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30',
-    secondary: 'bg-[#FF6200]/10 text-[#FF6200] border border-[#FF6200]/30',
+    secondary: 'bg-[#FF8C00]/10 text-[#FF8C00] border border-[#FF8C00]/30',
     success: 'bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30',
     warning: 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30',
-    danger: 'bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/30',
-    outline: 'bg-[#111318] text-[#A3A3A3] border border-[#2A2A30]',
-    default: 'bg-[#1B1B1F] text-[#FFFFFF] border border-[#2A2A30]'
+    danger: 'bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30',
+    outline: 'bg-[#111215] text-[#A1A1AA] border border-[#27272A]',
+    default: 'bg-[#18181B] text-[#FFFFFF] border border-[#27272A]'
   }
 
   return (
@@ -34,7 +34,7 @@ export default function Badge({
       } ${variantStyles[variant] || variantStyles.default} ${className}`}
     >
       {variant === 'live' && (
-        <span className="w-1.5 h-1.5 rounded-none bg-[#FF6200] animate-ping" />
+        <span className="w-1.5 h-1.5 rounded-none bg-[#FF8C00] animate-ping" />
       )}
       {Icon && <Icon className="w-3 h-3" />}
       {children}

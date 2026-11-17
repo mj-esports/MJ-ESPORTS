@@ -593,7 +593,7 @@ export default function MatchResultsWorkspaceView({
           id: t.id,
           matchId: `MATCH_${String(idx + 1).padStart(3, '0')}`,
           tournament: t.title,
-          game: t.game || 'Free Fire MAX',
+          game: t.game || 'Free Fire India',
           format: t.format || t.matchFormat || 'Squad (4P)',
           teamsCount: t.registeredTeams || t.registered_teams || 12,
           matchTime: `${t.startDate || 'Today'} ${t.startTime ? '• ' + t.startTime : ''}`,
@@ -635,16 +635,16 @@ export default function MatchResultsWorkspaceView({
     <div className="space-y-6 font-body antialiased">
 
       {/* 1. PAGE HEADER */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-headline font-bold text-[#00f2ff] uppercase tracking-wider mb-1.5">
+          <div className="flex items-center gap-2 text-xs font-headline font-bold text-[#FFB900] uppercase tracking-wider mb-1.5">
             <Award className="w-4 h-4" />
             <span>RESULTS CONSOLE</span>
           </div>
           <h1 className="font-headline text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-tight">
             RESULTS & STANDINGS
           </h1>
-          <p className="text-xs sm:text-sm text-[#849495] font-body mt-1 max-w-2xl">
+          <p className="text-xs sm:text-sm text-[#A1A1AA] font-body mt-1 max-w-2xl">
             Verify completed matches, calculate standings, finalize tournament results and prepare verified winners for payout.
           </p>
         </div>
@@ -652,13 +652,13 @@ export default function MatchResultsWorkspaceView({
         {/* Header Controls: Tournament Selector & Status Filter */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
           <div className="space-y-1">
-            <label className="text-[10px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
+            <label className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider block">
               Active Tournament:
             </label>
             <select
               value={selectedTourneyId}
               onChange={(e) => setSelectedTourneyId(e.target.value)}
-              className="w-full sm:w-auto px-3.5 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-headline font-bold text-[#00f2ff] focus:outline-none focus:border-[#00f2ff] cursor-pointer min-w-[220px]"
+              className="w-full sm:w-auto px-3.5 py-2 bg-[#18181B] border border-[#27272A] rounded-none text-xs font-headline font-bold text-[#FFB900] focus:outline-none focus:border-[#FFB900] cursor-pointer min-w-[220px]"
             >
               {tournaments.map((t) => (
                 <option key={`res-t-${t.id}`} value={t.id}>{t.title}</option>
@@ -667,13 +667,13 @@ export default function MatchResultsWorkspaceView({
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
+            <label className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider block">
               Result Status Filter:
             </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-auto px-3 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-headline font-bold text-white focus:outline-none focus:border-[#00f2ff] cursor-pointer"
+              className="w-full sm:w-auto px-3 py-2 bg-[#18181B] border border-[#27272A] rounded-none text-xs font-headline font-bold text-white focus:outline-none focus:border-[#FFB900] cursor-pointer"
             >
               <option value="ALL">ALL STATUSES</option>
               <option value="PENDING">PENDING ONLY</option>
@@ -687,41 +687,41 @@ export default function MatchResultsWorkspaceView({
       {/* 2. RESULTS OVERVIEW (OPERATIONAL METRICS) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* PENDING REVIEW */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 shadow-xl space-y-1">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-4 shadow-xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider">
+            <span className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider">
               PENDING REVIEW
             </span>
-            <Clock className="w-4 h-4 text-[#fed83a]" />
+            <Clock className="w-4 h-4 text-[#FFB900]" />
           </div>
-          <p className="font-headline text-2xl font-extrabold text-[#fed83a]">
+          <p className="font-headline text-2xl font-extrabold text-[#FFB900]">
             {overviewMetrics.pendingReview}
           </p>
-          <span className="text-[10px] font-body text-[#849495] block">
+          <span className="text-[10px] font-body text-[#A1A1AA] block">
             Awaiting score entry & audit
           </span>
         </div>
 
         {/* IN REVIEW */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 shadow-xl space-y-1">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-4 shadow-xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider">
+            <span className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider">
               IN REVIEW
             </span>
-            <Activity className="w-4 h-4 text-[#00f2ff]" />
+            <Activity className="w-4 h-4 text-[#FFB900]" />
           </div>
-          <p className="font-headline text-2xl font-extrabold text-[#00f2ff]">
+          <p className="font-headline text-2xl font-extrabold text-[#FFB900]">
             {overviewMetrics.inReview}
           </p>
-          <span className="text-[10px] font-body text-[#849495] block">
+          <span className="text-[10px] font-body text-[#A1A1AA] block">
             Actively verifying scoring
           </span>
         </div>
 
         {/* FINALIZED */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 shadow-xl space-y-1">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-4 shadow-xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider">
+            <span className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider">
               FINALIZED
             </span>
             <CheckCircle2 className="w-4 h-4 text-[#10b981]" />
@@ -729,43 +729,43 @@ export default function MatchResultsWorkspaceView({
           <p className="font-headline text-2xl font-extrabold text-[#10b981]">
             {overviewMetrics.finalized}
           </p>
-          <span className="text-[10px] font-body text-[#849495] block">
+          <span className="text-[10px] font-body text-[#A1A1AA] block">
             Published authoritative results
           </span>
         </div>
 
         {/* DISPUTED */}
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-4 shadow-xl space-y-1">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-4 shadow-xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider">
+            <span className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider">
               DISPUTED
             </span>
-            <AlertTriangle className="w-4 h-4 text-[#ff5e07]" />
+            <AlertTriangle className="w-4 h-4 text-[#FF8C00]" />
           </div>
-          <p className="font-headline text-2xl font-extrabold text-[#ff5e07]">
+          <p className="font-headline text-2xl font-extrabold text-[#FF8C00]">
             {overviewMetrics.disputed}
           </p>
-          <span className="text-[10px] font-body text-[#849495] block">
+          <span className="text-[10px] font-body text-[#A1A1AA] block">
             Flagged for review
           </span>
         </div>
       </div>
 
       {/* 3. RESULTS QUEUE */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#27272a] pb-4">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#27272A] pb-4">
           <div>
             <h2 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#00f2ff]" />
+              <Layers className="w-4 h-4 text-[#FFB900]" />
               <span>RESULTS QUEUE</span>
             </h2>
-            <p className="text-xs text-[#849495] font-body mt-0.5">
+            <p className="text-xs text-[#A1A1AA] font-body mt-0.5">
               Select a match to load its scorecard into the Result Verification Workspace.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono text-[#849495]">
+            <span className="text-xs font-mono text-[#A1A1AA]">
               Showing {resultsQueue.length} Matches
             </span>
           </div>
@@ -775,7 +775,7 @@ export default function MatchResultsWorkspaceView({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#27272a] text-[10px] font-headline font-extrabold text-[#849495] uppercase tracking-wider">
+              <tr className="border-b border-[#27272A] text-[10px] font-headline font-extrabold text-[#A1A1AA] uppercase tracking-wider">
                 <th className="py-3 px-3">MATCH</th>
                 <th className="py-3 px-3">TOURNAMENT</th>
                 <th className="py-3 px-3">GAME / FORMAT</th>
@@ -785,34 +785,34 @@ export default function MatchResultsWorkspaceView({
                 <th className="py-3 px-3 text-right">ACTION</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#27272a] text-xs font-body">
+            <tbody className="divide-y divide-[#27272A] text-xs font-body">
               {resultsQueue.map((item) => (
                 <tr
                   key={`res-q-row-${item.id}`}
                   className={`transition-colors ${
                     item.isSelected
-                      ? 'bg-[#00f2ff]/5 hover:bg-[#00f2ff]/10'
-                      : 'hover:bg-[#1c1b1c]'
+                      ? 'bg-[#FFB900]/5 hover:bg-[#FFB900]/10'
+                      : 'hover:bg-[#18181B]'
                   }`}
                 >
-                  <td className="py-3 px-3 font-mono font-bold text-[#00f2ff]">
+                  <td className="py-3 px-3 font-mono font-bold text-[#FFB900]">
                     {item.matchId}
                   </td>
                   <td className="py-3 px-3 font-headline font-bold text-white max-w-[200px] truncate">
                     {item.tournament}
                   </td>
                   <td className="py-3 px-3">
-                    <span className="font-headline font-bold text-[#b9cacb] block">
+                    <span className="font-headline font-bold text-[#A1A1AA] block">
                       {item.game}
                     </span>
-                    <span className="text-[#849495] text-[11px]">
+                    <span className="text-[#A1A1AA] text-[11px]">
                       {item.format}
                     </span>
                   </td>
                   <td className="py-3 px-3 font-mono text-white">
                     {item.teamsCount} Teams
                   </td>
-                  <td className="py-3 px-3 text-[11px] text-[#849495]">
+                  <td className="py-3 px-3 text-[11px] text-[#A1A1AA]">
                     {item.matchTime}
                   </td>
                   <td className="py-3 px-3">
@@ -820,10 +820,10 @@ export default function MatchResultsWorkspaceView({
                       item.resultStatus === 'FINALIZED'
                         ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
                         : item.resultStatus === 'DISPUTED'
-                        ? 'bg-[#ff5e07]/15 text-[#ff5e07] border-[#ff5e07]/40'
+                        ? 'bg-[#FF8C00]/15 text-[#FF8C00] border-[#FF8C00]/40'
                         : item.resultStatus === 'IN REVIEW'
-                        ? 'bg-[#00f2ff]/15 text-[#00f2ff] border-[#00f2ff]/40'
-                        : 'bg-[#fed83a]/15 text-[#fed83a] border-[#fed83a]/40'
+                        ? 'bg-[#FFB900]/15 text-[#FFB900] border-[#FFB900]/40'
+                        : 'bg-[#FFB900]/15 text-[#FFB900] border-[#FFB900]/40'
                     }`}>
                       {item.resultStatus}
                     </span>
@@ -836,8 +836,8 @@ export default function MatchResultsWorkspaceView({
                       }}
                       className={`px-3.5 py-1.5 rounded-none text-xs font-headline font-extrabold uppercase transition-all cursor-pointer ${
                         item.isSelected
-                          ? 'bg-[#00f2ff] text-[#00363a] shadow-[0_0_12px_rgba(0,242,255,0.4)]'
-                          : 'bg-[#1c1b1c] hover:bg-[#27272a] text-white border border-[#27272a]'
+                          ? 'bg-[#FFB900] text-[#000000] '
+                          : 'bg-[#18181B] hover:bg-[#27272A] text-white border border-[#27272A]'
                       }`}
                     >
                       {item.resultStatus === 'FINALIZED' ? 'VIEW' : 'REVIEW'}
@@ -851,22 +851,22 @@ export default function MatchResultsWorkspaceView({
       </div>
 
       {/* 4. RESULT WORKSPACE (ACTIVE MATCH HEADER) */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 shadow-xl space-y-5">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 shadow-xl space-y-5">
         
         {/* Workspace Top Row */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#27272a] pb-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#27272A] pb-4">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <span className="px-2.5 py-0.5 bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 rounded-none text-[10px] font-headline font-bold uppercase">
+              <span className="px-2.5 py-0.5 bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30 rounded-none text-[10px] font-headline font-bold uppercase">
                 MATCH_001
               </span>
-              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-white border border-[#27272a] rounded-none text-[10px] font-headline font-bold uppercase">
-                {selectedTournament?.game || 'Free Fire MAX'}
+              <span className="px-2.5 py-0.5 bg-[#18181B] text-white border border-[#27272A] rounded-none text-[10px] font-headline font-bold uppercase">
+                {selectedTournament?.game || 'Free Fire India'}
               </span>
-              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-[#849495] border border-[#27272a] rounded-none text-[10px] font-headline font-bold uppercase">
+              <span className="px-2.5 py-0.5 bg-[#18181B] text-[#A1A1AA] border border-[#27272A] rounded-none text-[10px] font-headline font-bold uppercase">
                 {selectedTournament?.mode ? selectedTournament.mode.toUpperCase() : selectedTournament?.format || 'SQUAD (4P)'}
               </span>
-              <span className="px-2.5 py-0.5 bg-[#1c1b1c] text-[#10b981] border border-[#10b981]/30 rounded-none text-[10px] font-mono font-bold uppercase">
+              <span className="px-2.5 py-0.5 bg-[#18181B] text-[#10b981] border border-[#10b981]/30 rounded-none text-[10px] font-mono font-bold uppercase">
                 {teams.length} TEAMS IN SCORESHEET
               </span>
             </div>
@@ -874,19 +874,19 @@ export default function MatchResultsWorkspaceView({
             <h2 className="font-headline text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
               {selectedTournament?.title || 'Selected Tournament Result Workspace'}
             </h2>
-            <p className="text-xs text-[#849495] font-body mt-0.5">
+            <p className="text-xs text-[#A1A1AA] font-body mt-0.5">
               Match Status: <strong className="text-white">{selectedTournament?.status || 'Completed'}</strong> &bull; Schedule: {selectedTournament?.startDate || 'Today'} {selectedTournament?.startTime}
             </p>
           </div>
 
           {/* Handoff from Match Control Banner */}
-          <div className="p-3 bg-[#00f2ff]/5 border border-[#00f2ff]/20 rounded-none flex items-center gap-3 shrink-0">
-            <CheckCircle2 className="w-5 h-5 text-[#00f2ff] shrink-0" />
+          <div className="p-3 bg-[#FFB900]/5 border border-[#FFB900]/20 rounded-none flex items-center gap-3 shrink-0">
+            <CheckCircle2 className="w-5 h-5 text-[#FFB900] shrink-0" />
             <div>
               <span className="font-headline text-xs font-bold text-white uppercase tracking-wider block">
                 HANDED OFF FROM MATCH CONTROL
               </span>
-              <span className="text-[11px] text-[#849495] font-body block">
+              <span className="text-[11px] text-[#A1A1AA] font-body block">
                 Live custom room closed &bull; Scoring workspace active
               </span>
             </div>
@@ -894,13 +894,13 @@ export default function MatchResultsWorkspaceView({
         </div>
 
         {/* Workspace Tab Switcher: Score Entry, Provisional Standings, Verification */}
-        <div className="flex items-center gap-2 border-b border-[#27272a] pb-3">
+        <div className="flex items-center gap-2 border-b border-[#27272A] pb-3">
           <button
             onClick={() => setActiveWorkspaceTab('SCORE_ENTRY')}
             className={`px-4 py-2 rounded-none text-xs font-headline font-bold uppercase transition-all cursor-pointer ${
               activeWorkspaceTab === 'SCORE_ENTRY'
-                ? 'bg-[#00f2ff] text-[#00363a] shadow-[0_0_12px_rgba(0,242,255,0.3)]'
-                : 'bg-[#1c1b1c] text-[#849495] hover:text-white border border-[#27272a]'
+                ? 'bg-[#FFB900] text-[#000000] '
+                : 'bg-[#18181B] text-[#A1A1AA] hover:text-white border border-[#27272A]'
             }`}
           >
             1. SCORE ENTRY & VERIFICATION
@@ -910,8 +910,8 @@ export default function MatchResultsWorkspaceView({
             onClick={() => setActiveWorkspaceTab('PROVISIONAL_STANDINGS')}
             className={`px-4 py-2 rounded-none text-xs font-headline font-bold uppercase transition-all cursor-pointer ${
               activeWorkspaceTab === 'PROVISIONAL_STANDINGS'
-                ? 'bg-[#00f2ff] text-[#00363a] shadow-[0_0_12px_rgba(0,242,255,0.3)]'
-                : 'bg-[#1c1b1c] text-[#849495] hover:text-white border border-[#27272a]'
+                ? 'bg-[#FFB900] text-[#000000] '
+                : 'bg-[#18181B] text-[#A1A1AA] hover:text-white border border-[#27272A]'
             }`}
           >
             2. PROVISIONAL STANDINGS PREVIEW
@@ -925,13 +925,13 @@ export default function MatchResultsWorkspaceView({
             {/* Search & Actions Bar */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div className="relative flex-1 max-w-sm">
-                <Search className="w-4 h-4 text-[#849495] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-[#A1A1AA] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Filter team name or captain UID..."
-                  className="w-full pl-9 pr-3.5 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white placeholder-[#849495] focus:outline-none focus:border-[#00f2ff]"
+                  className="w-full pl-9 pr-3.5 py-2 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white placeholder-[#A1A1AA] focus:outline-none focus:border-[#FFB900]"
                 />
               </div>
 
@@ -939,7 +939,7 @@ export default function MatchResultsWorkspaceView({
                 <button
                   onClick={handleMarkAllVerified}
                   disabled={isSelectedFinalized && !isUnlockedForCorrection}
-                  className="px-3.5 py-2 bg-[#1c1b1c] hover:bg-[#27272a] text-[#10b981] border border-[#10b981]/30 rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-3.5 py-2 bg-[#18181B] hover:bg-[#27272A] text-[#10b981] border border-[#10b981]/30 rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
                 >
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Verify All Teams</span>
@@ -951,7 +951,7 @@ export default function MatchResultsWorkspaceView({
                   loadingText="Saving..."
                   disabled={isSelectedFinalized && !isUnlockedForCorrection}
                   variant="secondary"
-                  className="px-4 py-2 bg-[#1c1b1c] text-white hover:bg-[#27272a] border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase"
+                  className="px-4 py-2 bg-[#18181B] text-white hover:bg-[#27272A] border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase"
                 >
                   <Save className="w-3.5 h-3.5 mr-1.5" />
                   <span>Save Draft Scores</span>
@@ -960,10 +960,10 @@ export default function MatchResultsWorkspaceView({
             </div>
 
             {/* Main Scoring Table */}
-            <div className="overflow-x-auto border border-[#27272a] rounded-none">
+            <div className="overflow-x-auto border border-[#27272A] rounded-none">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#1c1b1c] text-[10px] font-headline font-extrabold text-[#849495] uppercase tracking-wider border-b border-[#27272a]">
+                  <tr className="bg-[#18181B] text-[10px] font-headline font-extrabold text-[#A1A1AA] uppercase tracking-wider border-b border-[#27272A]">
                     <th className="py-3 px-3 w-12 text-center">RANK</th>
                     <th className="py-3 px-2 w-14 text-center">SLOT</th>
                     <th className="py-3 px-3">TEAM & CAPTAIN</th>
@@ -977,7 +977,7 @@ export default function MatchResultsWorkspaceView({
                     <th className="py-3 px-3 text-right">VERIFY / FLAG</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#27272a] text-xs font-body bg-[#141416]">
+                <tbody className="divide-y divide-[#27272A] text-xs font-body bg-[#111215]">
                   {filteredTeams.map((team, idx) => {
                     const isTopThree = idx < 3
                     const isFinalized = isSelectedFinalized && !isUnlockedForCorrection
@@ -990,26 +990,26 @@ export default function MatchResultsWorkspaceView({
                             ? 'bg-red-950/20 hover:bg-red-950/30'
                             : team.status === 'VERIFIED'
                             ? 'bg-[#10b981]/5 hover:bg-[#10b981]/10'
-                            : 'hover:bg-[#1c1b1c]'
+                            : 'hover:bg-[#18181B]'
                         }`}
                       >
                         {/* RANK */}
                         <td className="py-3 px-3 text-center">
                           <span className={`inline-flex items-center justify-center w-6 h-6 rounded-none font-headline font-extrabold text-xs ${
                             idx === 0
-                              ? 'bg-[#ffd700]/20 text-[#ffd700] border border-[#ffd700]/50'
+                              ? 'bg-[#FFB900]/20 text-[#FFB900] border border-[#FFB900]/50'
                               : idx === 1
                               ? 'bg-[#c0c0c0]/20 text-[#c0c0c0] border border-[#c0c0c0]/50'
                               : idx === 2
                               ? 'bg-[#cd7f32]/20 text-[#cd7f32] border border-[#cd7f32]/50'
-                              : 'text-[#849495]'
+                              : 'text-[#A1A1AA]'
                           }`}>
                             {idx + 1}
                           </span>
                         </td>
 
                         {/* LOBBY SLOT */}
-                        <td className="py-3 px-2 text-center font-mono font-bold text-[#00f2ff]">
+                        <td className="py-3 px-2 text-center font-mono font-bold text-[#FFB900]">
                           #{team.lobbySlot || idx + 1}
                         </td>
 
@@ -1018,13 +1018,13 @@ export default function MatchResultsWorkspaceView({
                           <span className="font-headline font-bold text-white text-sm block">
                             {team.name}
                           </span>
-                          <span className="text-[11px] text-[#849495]">
+                          <span className="text-[11px] text-[#A1A1AA]">
                             Captain: {team.captain}
                           </span>
                         </td>
 
                         {/* PLAYERS / UID */}
-                        <td className="py-3 px-3 font-mono text-[11px] text-[#00f2ff]">
+                        <td className="py-3 px-3 font-mono text-[11px] text-[#FFB900]">
                           {team.freeFireUid}
                         </td>
 
@@ -1036,7 +1036,7 @@ export default function MatchResultsWorkspaceView({
                             value={team.placementPoints}
                             onChange={(e) => handleScoreChange(team.id, 'placementPoints', e.target.value)}
                             disabled={isFinalized}
-                            className="w-20 px-2.5 py-1.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-mono font-bold text-white text-center focus:outline-none focus:border-[#00f2ff] disabled:opacity-50"
+                            className="w-20 px-2.5 py-1.5 bg-[#18181B] border border-[#27272A] rounded-none text-xs font-mono font-bold text-white text-center focus:outline-none focus:border-[#FFB900] disabled:opacity-50"
                           />
                         </td>
 
@@ -1048,7 +1048,7 @@ export default function MatchResultsWorkspaceView({
                             value={team.kills}
                             onChange={(e) => handleScoreChange(team.id, 'kills', e.target.value)}
                             disabled={isFinalized}
-                            className="w-16 px-2 py-1.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-mono font-bold text-[#ff5e07] text-center focus:outline-none focus:border-[#ff5e07] disabled:opacity-50"
+                            className="w-16 px-2 py-1.5 bg-[#18181B] border border-[#27272A] rounded-none text-xs font-mono font-bold text-[#FF8C00] text-center focus:outline-none focus:border-[#FF8C00] disabled:opacity-50"
                           />
                         </td>
 
@@ -1060,13 +1060,13 @@ export default function MatchResultsWorkspaceView({
                             value={team.bonus}
                             onChange={(e) => handleScoreChange(team.id, 'bonus', e.target.value)}
                             disabled={isFinalized}
-                            className="w-16 px-2 py-1.5 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs font-mono font-bold text-[#fed83a] text-center focus:outline-none focus:border-[#fed83a] disabled:opacity-50"
+                            className="w-16 px-2 py-1.5 bg-[#18181B] border border-[#27272A] rounded-none text-xs font-mono font-bold text-[#FFB900] text-center focus:outline-none focus:border-[#FFB900] disabled:opacity-50"
                           />
                         </td>
 
                         {/* TOTAL POINTS */}
                         <td className="py-3 px-3 text-center">
-                          <span className="font-headline font-extrabold text-base text-[#00f2ff]">
+                          <span className="font-headline font-extrabold text-base text-[#FFB900]">
                             {team.points}
                           </span>
                         </td>
@@ -1079,7 +1079,7 @@ export default function MatchResultsWorkspaceView({
                               <span className={`font-headline font-bold text-xs px-2 py-0.5 rounded-none border inline-block font-mono ${
                                 winnings > 0
                                   ? 'text-[#10b981] bg-[#10b981]/10 border-[#10b981]/30'
-                                  : 'text-[#849495] bg-[#1c1b1c] border-[#27272a]'
+                                  : 'text-[#A1A1AA] bg-[#18181B] border-[#27272A]'
                               }`}>
                                 {winnings > 0 ? `₹${winnings.toLocaleString('en-IN')}` : '₹0'}
                               </span>
@@ -1094,7 +1094,7 @@ export default function MatchResultsWorkspaceView({
                               ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
                               : team.status === 'FLAGGED'
                               ? 'bg-red-950/40 text-red-400 border-red-800'
-                              : 'bg-[#fed83a]/15 text-[#fed83a] border-[#fed83a]/40'
+                              : 'bg-[#FFB900]/15 text-[#FFB900] border-[#FFB900]/40'
                           }`}>
                             {team.status}
                           </span>
@@ -1112,7 +1112,7 @@ export default function MatchResultsWorkspaceView({
                             <button
                               onClick={() => handleVerifyTeam(team.id)}
                               disabled={isFinalized}
-                              className="p-1.5 rounded-none bg-[#1c1b1c] hover:bg-[#10b981]/20 text-[#10b981] border border-[#27272a] hover:border-[#10b981]/40 cursor-pointer disabled:opacity-40"
+                              className="p-1.5 rounded-none bg-[#18181B] hover:bg-[#10b981]/20 text-[#10b981] border border-[#27272A] hover:border-[#10b981]/40 cursor-pointer disabled:opacity-40"
                               title="Mark Verified"
                             >
                               <CheckCircle2 className="w-4 h-4" />
@@ -1121,7 +1121,7 @@ export default function MatchResultsWorkspaceView({
                             <button
                               onClick={() => handleOpenFlagModal(team)}
                               disabled={isFinalized}
-                              className="p-1.5 rounded-none bg-[#1c1b1c] hover:bg-red-950/40 text-red-400 border border-[#27272a] hover:border-red-800 cursor-pointer disabled:opacity-40"
+                              className="p-1.5 rounded-none bg-[#18181B] hover:bg-red-950/40 text-red-400 border border-[#27272A] hover:border-red-800 cursor-pointer disabled:opacity-40"
                               title="Flag Result"
                             >
                               <Flag className="w-4 h-4" />
@@ -1139,38 +1139,38 @@ export default function MatchResultsWorkspaceView({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
               {/* CARD A: SCORING RULES */}
-              <div className="bg-[#1c1b1c] border border-[#27272a] rounded-none p-5 space-y-3.5 shadow-xl">
-                <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+              <div className="bg-[#18181B] border border-[#27272A] rounded-none p-5 space-y-3.5 shadow-xl">
+                <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
                   <h3 className="font-headline text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-[#00f2ff]" />
+                    <Zap className="w-4 h-4 text-[#FFB900]" />
                     <span>CONFIGURED SCORING RULES</span>
                   </h3>
-                  <span className="text-[10px] font-mono text-[#00f2ff] uppercase font-bold">Standard Match Matrix</span>
+                  <span className="text-[10px] font-mono text-[#FFB900] uppercase font-bold">Standard Match Matrix</span>
                 </div>
 
                 <div className="space-y-2 text-xs font-body">
-                  <div className="flex justify-between p-2 rounded-none bg-[#141416] border border-[#27272a]">
-                    <span className="text-[#849495]">Placement Points Scale</span>
+                  <div className="flex justify-between p-2 rounded-none bg-[#111215] border border-[#27272A]">
+                    <span className="text-[#A1A1AA]">Placement Points Scale</span>
                     <span className="text-white font-mono font-bold">1st: 12 &bull; 2nd: 9 &bull; 3rd: 8 &bull; 4th: 7 &bull; 5th: 6</span>
                   </div>
-                  <div className="flex justify-between p-2 rounded-none bg-[#141416] border border-[#27272a]">
-                    <span className="text-[#849495]">Kill Points Rate</span>
-                    <span className="text-[#ff5e07] font-mono font-bold">1 Pt per verified elimination</span>
+                  <div className="flex justify-between p-2 rounded-none bg-[#111215] border border-[#27272A]">
+                    <span className="text-[#A1A1AA]">Kill Points Rate</span>
+                    <span className="text-[#FF8C00] font-mono font-bold">1 Pt per verified elimination</span>
                   </div>
-                  <div className="flex justify-between p-2 rounded-none bg-[#141416] border border-[#27272a]">
-                    <span className="text-[#849495]">Bonus Points</span>
-                    <span className="text-[#fed83a] font-mono font-bold">Objective / Special Host Bonus</span>
+                  <div className="flex justify-between p-2 rounded-none bg-[#111215] border border-[#27272A]">
+                    <span className="text-[#A1A1AA]">Bonus Points</span>
+                    <span className="text-[#FFB900] font-mono font-bold">Objective / Special Host Bonus</span>
                   </div>
-                  <div className="flex justify-between p-2 rounded-none bg-[#141416] border border-[#27272a]">
-                    <span className="text-[#849495]">Calculation Formula</span>
-                    <span className="text-[#00f2ff] font-headline font-bold uppercase">Total = Placement + Kills + Bonus</span>
+                  <div className="flex justify-between p-2 rounded-none bg-[#111215] border border-[#27272A]">
+                    <span className="text-[#A1A1AA]">Calculation Formula</span>
+                    <span className="text-[#FFB900] font-headline font-bold uppercase">Total = Placement + Kills + Bonus</span>
                   </div>
                 </div>
               </div>
 
               {/* CARD B: SCORE VERIFICATION CHECKLIST */}
-              <div className="bg-[#1c1b1c] border border-[#27272a] rounded-none p-5 space-y-3.5 shadow-xl">
-                <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+              <div className="bg-[#18181B] border border-[#27272A] rounded-none p-5 space-y-3.5 shadow-xl">
+                <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
                   <h3 className="font-headline text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-[#10b981]" />
                     <span>SCORE VERIFICATION CHECKLIST</span>
@@ -1178,7 +1178,7 @@ export default function MatchResultsWorkspaceView({
                   <span className={`px-2 py-0.5 rounded-none text-[10px] font-headline font-bold uppercase border ${
                     allChecklistPassed
                       ? 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40'
-                      : 'bg-[#ff5e07]/15 text-[#ff5e07] border-[#ff5e07]/40'
+                      : 'bg-[#FF8C00]/15 text-[#FF8C00] border-[#FF8C00]/40'
                   }`}>
                     {allChecklistPassed ? 'READY FOR FINALIZATION' : 'VERIFICATION REQUIRED'}
                   </span>
@@ -1190,9 +1190,9 @@ export default function MatchResultsWorkspaceView({
                       {c.passed ? (
                         <CheckCircle2 className="w-4 h-4 text-[#10b981] shrink-0" />
                       ) : (
-                        <AlertCircle className="w-4 h-4 text-[#ff5e07] shrink-0" />
+                        <AlertCircle className="w-4 h-4 text-[#FF8C00] shrink-0" />
                       )}
-                      <span className={c.passed ? 'text-[#b9cacb]' : 'text-[#ff5e07] font-medium'}>
+                      <span className={c.passed ? 'text-[#A1A1AA]' : 'text-[#FF8C00] font-medium'}>
                         {c.label}
                       </span>
                     </div>
@@ -1214,72 +1214,72 @@ export default function MatchResultsWorkspaceView({
               
               {/* 2nd Place Silver */}
               {teams[1] && (
-                <div className="p-4 bg-[#1c1b1c] border border-[#c0c0c0]/30 rounded-none text-center space-y-2 shadow-xl">
+                <div className="p-4 bg-[#18181B] border border-[#c0c0c0]/30 rounded-none text-center space-y-2 shadow-xl">
                   <span className="inline-flex items-center justify-center w-8 h-8 rounded-none bg-[#c0c0c0]/20 text-[#c0c0c0] font-headline font-extrabold text-sm border border-[#c0c0c0]/40">
                     2
                   </span>
                   <h4 className="font-headline font-extrabold text-white text-base truncate">{teams[1].name}</h4>
-                  <p className="text-xs text-[#849495]">Captain: {teams[1].captain}</p>
+                  <p className="text-xs text-[#A1A1AA]">Captain: {teams[1].captain}</p>
                   <p className="font-headline text-lg font-extrabold text-[#c0c0c0]">{teams[1].points} PTS</p>
                   <p className="font-headline text-xs font-bold text-[#10b981]">
                     WINNINGS: ₹{calculateTeamWinnings(teams[1], 1, selectedTournament).toLocaleString('en-IN')}
                   </p>
-                  <span className="text-[10px] text-[#849495] block">{teams[1].kills} Kills &bull; {teams[1].placementPoints} Placement</span>
+                  <span className="text-[10px] text-[#A1A1AA] block">{teams[1].kills} Kills &bull; {teams[1].placementPoints} Placement</span>
                 </div>
               )}
 
               {/* 1st Place Gold Champion */}
               {teams[0] && (
-                <div className="p-5 bg-[#1c1b1c] border-2 border-[#ffd700]/50 rounded-none text-center space-y-2.5 shadow-2xl relative order-first sm:order-none">
-                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-none bg-[#ffd700]/20 text-[#ffd700] font-headline font-extrabold text-base border border-[#ffd700]/60 shadow-[0_0_15px_rgba(255,215,0,0.3)]">
+                <div className="p-5 bg-[#18181B] border-2 border-[#FFB900]/50 rounded-none text-center space-y-2.5 shadow-2xl relative order-first sm:order-none">
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-none bg-[#FFB900]/20 text-[#FFB900] font-headline font-extrabold text-base border border-[#FFB900]/60 ">
                     <Crown className="w-5 h-5" />
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-none text-[10px] font-headline font-extrabold bg-[#ffd700]/15 text-[#ffd700] border border-[#ffd700]/40 uppercase block mx-auto w-max">
+                  <span className="px-2.5 py-0.5 rounded-none text-[10px] font-headline font-extrabold bg-[#FFB900]/15 text-[#FFB900] border border-[#FFB900]/40 uppercase block mx-auto w-max">
                     GRAND CHAMPION
                   </span>
                   <h3 className="font-headline font-extrabold text-white text-lg truncate">{teams[0].name}</h3>
-                  <p className="text-xs text-[#849495]">Captain: {teams[0].captain}</p>
-                  <p className="font-headline text-2xl font-extrabold text-[#ffd700]">{teams[0].points} PTS</p>
+                  <p className="text-xs text-[#A1A1AA]">Captain: {teams[0].captain}</p>
+                  <p className="font-headline text-2xl font-extrabold text-[#FFB900]">{teams[0].points} PTS</p>
                   <p className="font-headline text-sm font-extrabold text-[#10b981] bg-[#10b981]/10 px-3 py-1 rounded-none border border-[#10b981]/30 inline-block font-mono">
                     WINNINGS: ₹{calculateTeamWinnings(teams[0], 0, selectedTournament).toLocaleString('en-IN')}
                   </p>
-                  <span className="text-[11px] text-[#849495] block">{teams[0].kills} Kills &bull; {teams[0].placementPoints} Placement</span>
+                  <span className="text-[11px] text-[#A1A1AA] block">{teams[0].kills} Kills &bull; {teams[0].placementPoints} Placement</span>
                 </div>
               )}
 
               {/* 3rd Place Bronze */}
               {teams[2] && (
-                <div className="p-4 bg-[#1c1b1c] border border-[#cd7f32]/30 rounded-none text-center space-y-2 shadow-xl">
+                <div className="p-4 bg-[#18181B] border border-[#cd7f32]/30 rounded-none text-center space-y-2 shadow-xl">
                   <span className="inline-flex items-center justify-center w-8 h-8 rounded-none bg-[#cd7f32]/20 text-[#cd7f32] font-headline font-extrabold text-sm border border-[#cd7f32]/40">
                     3
                   </span>
                   <h4 className="font-headline font-extrabold text-white text-base truncate">{teams[2].name}</h4>
-                  <p className="text-xs text-[#849495]">Captain: {teams[2].captain}</p>
+                  <p className="text-xs text-[#A1A1AA]">Captain: {teams[2].captain}</p>
                   <p className="font-headline text-lg font-extrabold text-[#cd7f32]">{teams[2].points} PTS</p>
                   <p className="font-headline text-xs font-bold text-[#10b981]">
                     WINNINGS: ₹{calculateTeamWinnings(teams[2], 2, selectedTournament).toLocaleString('en-IN')}
                   </p>
-                  <span className="text-[10px] text-[#849495] block">{teams[2].kills} Kills &bull; {teams[2].placementPoints} Placement</span>
+                  <span className="text-[10px] text-[#A1A1AA] block">{teams[2].kills} Kills &bull; {teams[2].placementPoints} Placement</span>
                 </div>
               )}
 
             </div>
 
             {/* Standings Table Header & Download Action */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#27272a] pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#27272A] pb-3">
               <div>
                 <h3 className="font-headline text-base font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-[#ffd700]" />
+                  <Trophy className="w-4 h-4 text-[#FFB900]" />
                   <span>PROVISIONAL STANDINGS</span>
                 </h3>
-                <p className="text-xs text-[#849495] font-body mt-0.5">
+                <p className="text-xs text-[#A1A1AA] font-body mt-0.5">
                   Provisional rankings &bull; Results become authoritative once finalized below.
                 </p>
               </div>
 
               <button
                 onClick={exportCSV}
-                className="px-4 py-2 bg-[#1c1b1c] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-2"
+                className="px-4 py-2 bg-[#18181B] hover:bg-[#27272A] text-[#FFB900] border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>DOWNLOAD CSV</span>
@@ -1287,10 +1287,10 @@ export default function MatchResultsWorkspaceView({
             </div>
 
             {/* Provisional Standings Table */}
-            <div className="overflow-x-auto border border-[#27272a] rounded-none">
+            <div className="overflow-x-auto border border-[#27272A] rounded-none">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#1c1b1c] text-[10px] font-headline font-extrabold text-[#849495] uppercase tracking-wider border-b border-[#27272a]">
+                  <tr className="bg-[#18181B] text-[10px] font-headline font-extrabold text-[#A1A1AA] uppercase tracking-wider border-b border-[#27272A]">
                     <th className="py-3 px-3 w-14 text-center">RANK</th>
                     <th className="py-3 px-3">TEAM</th>
                     <th className="py-3 px-3 text-center">MATCHES</th>
@@ -1302,15 +1302,15 @@ export default function MatchResultsWorkspaceView({
                     <th className="py-3 px-3 text-right">TREND</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#27272a] text-xs font-body bg-[#141416]">
+                <tbody className="divide-y divide-[#27272A] text-xs font-body bg-[#111215]">
                   {teams.map((team, idx) => (
-                    <tr key={`standings-row-${team.id}`} className="hover:bg-[#1c1b1c] transition-colors">
+                    <tr key={`standings-row-${team.id}`} className="hover:bg-[#18181B] transition-colors">
                       <td className="py-3 px-3 text-center font-headline font-bold text-white">
                         #{idx + 1}
                       </td>
                       <td className="py-3 px-3 font-headline font-bold text-white">
                         {team.name}
-                        <span className="text-[11px] font-body text-[#849495] block">
+                        <span className="text-[11px] font-body text-[#A1A1AA] block">
                           Captain: {team.captain}
                         </span>
                       </td>
@@ -1320,13 +1320,13 @@ export default function MatchResultsWorkspaceView({
                       <td className="py-3 px-3 text-center font-mono text-white">
                         {team.placementPoints}
                       </td>
-                      <td className="py-3 px-3 text-center font-mono text-[#ff5e07]">
+                      <td className="py-3 px-3 text-center font-mono text-[#FF8C00]">
                         {team.kills}
                       </td>
-                      <td className="py-3 px-3 text-center font-mono text-[#fed83a]">
+                      <td className="py-3 px-3 text-center font-mono text-[#FFB900]">
                         {team.bonus}
                       </td>
-                      <td className="py-3 px-3 text-center font-headline font-extrabold text-base text-[#00f2ff]">
+                      <td className="py-3 px-3 text-center font-headline font-extrabold text-base text-[#FFB900]">
                         {team.points}
                       </td>
                       <td className="py-3 px-3 text-center font-headline font-extrabold text-xs text-[#10b981] font-mono">
@@ -1338,9 +1338,9 @@ export default function MatchResultsWorkspaceView({
                       <td className="py-3 px-3 text-right">
                         <span className={`px-2 py-0.5 rounded-none text-[10px] font-headline font-bold uppercase border ${
                           idx === 0
-                            ? 'bg-[#ffd700]/15 text-[#ffd700] border-[#ffd700]/40'
+                            ? 'bg-[#FFB900]/15 text-[#FFB900] border-[#FFB900]/40'
                             : idx < 3
-                            ? 'bg-[#00f2ff]/15 text-[#00f2ff] border-[#00f2ff]/40'
+                            ? 'bg-[#FFB900]/15 text-[#FFB900] border-[#FFB900]/40'
                             : 'bg-slate-800 text-slate-300 border-slate-700'
                         }`}>
                           {idx === 0 ? 'CHAMPION' : idx < 3 ? 'PODIUM' : 'RANKED'}
@@ -1358,14 +1358,14 @@ export default function MatchResultsWorkspaceView({
       </div>
 
       {/* 5. FINALIZE RESULT & CORRECTION CONTROLS */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 shadow-xl space-y-5">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#27272a] pb-4">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 shadow-xl space-y-5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#27272A] pb-4">
           <div>
             <h3 className="font-headline text-base sm:text-lg font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-[#10b981]" />
               <span>FINALIZE & PUBLISH RESULTS</span>
             </h3>
-            <p className="text-xs text-[#849495] font-body mt-0.5">
+            <p className="text-xs text-[#A1A1AA] font-body mt-0.5">
               Confirming finalization locks standings and authorizes downstream Finance prize disbursements.
             </p>
           </div>
@@ -1374,7 +1374,7 @@ export default function MatchResultsWorkspaceView({
             {isSelectedFinalized && (
               <button
                 onClick={() => setIsUnlockedForCorrection(!isUnlockedForCorrection)}
-                className="px-4 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#ff5e07] border border-[#ff5e07]/40 rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-[#18181B] hover:bg-[#27272A] text-[#FF8C00] border border-[#FF8C00]/40 rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 {isUnlockedForCorrection ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
                 <span>{isUnlockedForCorrection ? 'Lock Scores' : 'Unlock for Correction'}</span>
@@ -1384,7 +1384,7 @@ export default function MatchResultsWorkspaceView({
             <button
               onClick={() => setShowFinalizeModal(true)}
               disabled={!allChecklistPassed || (isSelectedFinalized && !isUnlockedForCorrection)}
-              className="px-6 py-2.5 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 font-headline font-extrabold text-xs uppercase rounded-none transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 font-headline font-extrabold text-xs uppercase rounded-none transition-all  cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4 text-slate-950" />
               <span>FINALIZE & PUBLISH</span>
@@ -1394,23 +1394,23 @@ export default function MatchResultsWorkspaceView({
 
         {/* Finalization Status Strip */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-1">
-            <span className="text-[10px] font-headline font-bold text-[#849495] uppercase">Result Status</span>
+          <div className="p-3.5 bg-[#18181B] border border-[#27272A] rounded-none space-y-1">
+            <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase">Result Status</span>
             <p className="font-headline font-extrabold text-sm uppercase text-white">
               {isSelectedFinalized ? 'FINALIZED' : isAllVerified ? 'VERIFIED' : 'IN REVIEW'}
             </p>
           </div>
 
-          <div className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-1">
-            <span className="text-[10px] font-headline font-bold text-[#849495] uppercase">Standings Status</span>
+          <div className="p-3.5 bg-[#18181B] border border-[#27272A] rounded-none space-y-1">
+            <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase">Standings Status</span>
             <p className="font-headline font-extrabold text-sm uppercase text-[#10b981]">
               {allChecklistPassed ? 'READY FOR FINALIZATION' : 'CALCULATION PENDING'}
             </p>
           </div>
 
-          <div className="p-3.5 bg-[#1c1b1c] border border-[#27272a] rounded-none space-y-1">
-            <span className="text-[10px] font-headline font-bold text-[#849495] uppercase">Payout Handoff</span>
-            <p className="font-headline font-extrabold text-sm uppercase text-[#00f2ff]">
+          <div className="p-3.5 bg-[#18181B] border border-[#27272A] rounded-none space-y-1">
+            <span className="text-[10px] font-headline font-bold text-[#A1A1AA] uppercase">Payout Handoff</span>
+            <p className="font-headline font-extrabold text-sm uppercase text-[#FFB900]">
               {isSelectedFinalized ? 'READY FOR FINANCE' : 'PENDING FINALIZATION'}
             </p>
           </div>
@@ -1418,18 +1418,18 @@ export default function MatchResultsWorkspaceView({
       </div>
 
       {/* 6. RESULT HISTORY TABLE */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
           <div>
             <h3 className="font-headline text-base font-extrabold text-white uppercase tracking-tight flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#00f2ff]" />
+              <Clock className="w-4 h-4 text-[#FFB900]" />
               <span>RESULT HISTORY</span>
             </h3>
-            <p className="text-xs text-[#849495] font-body mt-0.5">
+            <p className="text-xs text-[#A1A1AA] font-body mt-0.5">
               Historical log of authoritative finalized tournament outcomes.
             </p>
           </div>
-          <span className="text-xs font-mono text-[#849495]">
+          <span className="text-xs font-mono text-[#A1A1AA]">
             {finalizedHistory.length} Finalized Records
           </span>
         </div>
@@ -1437,7 +1437,7 @@ export default function MatchResultsWorkspaceView({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#27272a] text-[10px] font-headline font-extrabold text-[#849495] uppercase tracking-wider">
+              <tr className="border-b border-[#27272A] text-[10px] font-headline font-extrabold text-[#A1A1AA] uppercase tracking-wider">
                 <th className="py-3 px-3">MATCH</th>
                 <th className="py-3 px-3">TOURNAMENT</th>
                 <th className="py-3 px-3">FINALIZED AT</th>
@@ -1446,20 +1446,20 @@ export default function MatchResultsWorkspaceView({
                 <th className="py-3 px-3 text-right">ACTION</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#27272a] text-xs font-body">
+            <tbody className="divide-y divide-[#27272A] text-xs font-body">
               {finalizedHistory.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-4 text-center text-xs text-[#849495] italic font-body">
+                  <td colSpan={6} className="py-4 text-center text-xs text-[#A1A1AA] italic font-body">
                     No finalized results yet. Finalize an active tournament match to record history.
                   </td>
                 </tr>
               ) : (
                 finalizedHistory.map((item) => (
-                  <tr key={`hist-${item.id}`} className="hover:bg-[#1c1b1c] transition-colors">
-                    <td className="py-3 px-3 font-mono font-bold text-[#00f2ff]">{item.matchId}</td>
+                  <tr key={`hist-${item.id}`} className="hover:bg-[#18181B] transition-colors">
+                    <td className="py-3 px-3 font-mono font-bold text-[#FFB900]">{item.matchId}</td>
                     <td className="py-3 px-3 font-headline font-bold text-white">{item.tournament}</td>
-                    <td className="py-3 px-3 text-[#849495]">{item.finalizedAt}</td>
-                    <td className="py-3 px-3 text-[#b9cacb] font-mono">{item.finalizedBy}</td>
+                    <td className="py-3 px-3 text-[#A1A1AA]">{item.finalizedAt}</td>
+                    <td className="py-3 px-3 text-[#A1A1AA] font-mono">{item.finalizedBy}</td>
                     <td className="py-3 px-3">
                       <span className="px-2.5 py-0.5 rounded-none text-[10px] font-headline font-bold bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 uppercase">
                         {item.status}
@@ -1468,7 +1468,7 @@ export default function MatchResultsWorkspaceView({
                     <td className="py-3 px-3 text-right">
                       <button
                         onClick={() => setSelectedTourneyId(item.id)}
-                        className="px-3 py-1 bg-[#1c1b1c] hover:bg-[#27272a] text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+                        className="px-3 py-1 bg-[#18181B] hover:bg-[#27272A] text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
                       >
                         VIEW
                       </button>
@@ -1482,7 +1482,7 @@ export default function MatchResultsWorkspaceView({
       </div>
 
       {/* 7. FINANCE HANDOFF */}
-      <div className="p-5 sm:p-6 bg-[#141416] border border-[#10b981]/30 rounded-none shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-5 sm:p-6 bg-[#111215] border border-[#10b981]/30 rounded-none shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <CreditCard className="w-4 h-4 text-[#10b981]" />
@@ -1497,7 +1497,7 @@ export default function MatchResultsWorkspaceView({
               {isSelectedFinalized ? 'READY FOR FINANCE' : 'PENDING FINALIZATION'}
             </span>
           </div>
-          <p className="text-xs text-[#849495] font-body">
+          <p className="text-xs text-[#A1A1AA] font-body">
             Finalized results are ready for downstream prize and payout processing in the Finance section.
           </p>
         </div>
@@ -1505,7 +1505,7 @@ export default function MatchResultsWorkspaceView({
         {setActiveTab && (
           <button
             onClick={() => setActiveTab('finance')}
-            className="w-full sm:w-auto px-6 py-2.5 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2 cursor-pointer shrink-0"
+            className="w-full sm:w-auto px-6 py-2.5 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-all  flex items-center justify-center gap-2 cursor-pointer shrink-0"
           >
             <span>OPEN FINANCE &rarr;</span>
             <ArrowRight className="w-4 h-4 text-slate-950" />
@@ -1516,7 +1516,7 @@ export default function MatchResultsWorkspaceView({
       {/* MODAL 1: FINALIZE RESULT CONFIRMATION */}
       {showFinalizeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded-none p-6 max-w-md w-full space-y-4 shadow-2xl">
+          <div className="bg-[#111215] border border-[#27272A] rounded-none p-6 max-w-md w-full space-y-4 shadow-2xl">
             <div className="flex items-center gap-3 text-[#10b981]">
               <div className="w-10 h-10 rounded-none bg-[#10b981]/10 border border-[#10b981]/30 flex items-center justify-center">
                 <CheckCircle2 className="w-5 h-5 text-[#10b981]" />
@@ -1525,25 +1525,25 @@ export default function MatchResultsWorkspaceView({
                 <h3 className="font-headline font-extrabold text-base uppercase text-white">
                   FINALIZE RESULT?
                 </h3>
-                <p className="text-xs text-[#849495] font-body">Authoritative tournament result publishing.</p>
+                <p className="text-xs text-[#A1A1AA] font-body">Authoritative tournament result publishing.</p>
               </div>
             </div>
 
-            <p className="text-xs text-[#b9cacb] font-body leading-relaxed">
+            <p className="text-xs text-[#A1A1AA] font-body leading-relaxed">
               Once finalized, this result becomes the authoritative tournament result for <span className="font-bold text-white">{selectedTournament?.title}</span>. Standings will be locked and <span className="text-[#10b981] font-bold">₹{calculateTeamWinnings(teams[0], 0, selectedTournament).toLocaleString('en-IN')}</span> will be queued for Champion <strong className="text-white font-headline">"{teams[0]?.name}"</strong>. Further adjustments require an authorized correction workflow.
             </p>
 
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setShowFinalizeModal(false)}
-                className="flex-1 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+                className="flex-1 py-2.5 bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleFinalizeResults}
                 disabled={isFinalizing}
-                className="flex-1 py-2.5 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-colors cursor-pointer shadow-lg shadow-[#10b981]/30"
+                className="flex-1 py-2.5 bg-[#10b981] hover:bg-[#10b981]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-colors cursor-pointer shadow-lg /30"
               >
                 {isFinalizing ? 'Finalizing...' : 'Confirm Finalization'}
               </button>
@@ -1555,21 +1555,21 @@ export default function MatchResultsWorkspaceView({
       {/* MODAL 2: FLAG RESULT REASON */}
       {flagTargetTeam && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded-none p-6 max-w-md w-full space-y-4 shadow-2xl">
-            <div className="flex items-center gap-3 text-[#ff5e07]">
-              <div className="w-10 h-10 rounded-none bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center">
-                <Flag className="w-5 h-5 text-[#ff5e07]" />
+          <div className="bg-[#111215] border border-[#27272A] rounded-none p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-[#FF8C00]">
+              <div className="w-10 h-10 rounded-none bg-[#FF8C00]/10 border border-[#FF8C00]/30 flex items-center justify-center">
+                <Flag className="w-5 h-5 text-[#FF8C00]" />
               </div>
               <div>
                 <h3 className="font-headline font-extrabold text-base uppercase text-white">
                   FLAG TEAM RESULT
                 </h3>
-                <p className="text-xs text-[#849495] font-body">{flagTargetTeam.name}</p>
+                <p className="text-xs text-[#A1A1AA] font-body">{flagTargetTeam.name}</p>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-headline font-bold text-[#849495] uppercase tracking-wider block">
+              <label className="text-[11px] font-headline font-bold text-[#A1A1AA] uppercase tracking-wider block">
                 Flagging Reason / Dispute Description:
               </label>
               <textarea
@@ -1577,20 +1577,20 @@ export default function MatchResultsWorkspaceView({
                 onChange={(e) => setFlagReason(e.target.value)}
                 placeholder="e.g. Screenshot discrepancy, unauthorized player character UID, or disputed kill count..."
                 rows={3}
-                className="w-full px-3 py-2 bg-[#1c1b1c] border border-[#27272a] rounded-none text-xs text-white placeholder-[#849495] focus:outline-none focus:border-[#ff5e07] resize-none"
+                className="w-full px-3 py-2 bg-[#18181B] border border-[#27272A] rounded-none text-xs text-white placeholder-[#A1A1AA] focus:outline-none focus:border-[#FF8C00] resize-none"
               />
             </div>
 
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setFlagTargetTeam(null)}
-                className="flex-1 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
+                className="flex-1 py-2.5 bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmFlag}
-                className="flex-1 py-2.5 bg-[#ff5e07] hover:bg-[#ff5e07]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-colors cursor-pointer"
+                className="flex-1 py-2.5 bg-[#FF8C00] hover:bg-[#FF8C00]/90 text-slate-950 rounded-none text-xs font-headline font-extrabold uppercase transition-colors cursor-pointer"
               >
                 Confirm Flag
               </button>

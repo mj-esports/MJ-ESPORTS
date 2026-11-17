@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Wallet,
@@ -6,7 +6,6 @@ import {
   PlusCircle,
   RefreshCw,
   Search,
-  Filter,
   AlertCircle,
   X,
   ShieldCheck,
@@ -29,6 +28,8 @@ import {
   generateTopupIdempotencyKey,
   getAuthoritativeWalletBalance,
   subscribeToWalletBalance,
+  createWalletTopupOrder,
+  verifyWalletTopup,
 } from '../services/walletService'
 
 export default function WalletPage() {
@@ -43,7 +44,6 @@ export default function WalletPage() {
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
   const [amountInput, setAmountInput] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState('UPI')
 
   // Withdrawal Modal States
   const [withdrawalPayoutMethod, setWithdrawalPayoutMethod] = useState('UPI') // 'UPI' | 'BANK_TRANSFER'
@@ -64,6 +64,15 @@ export default function WalletPage() {
   const [topupStatus, setTopupStatus] = useState(null) // null | 'PROCESSING' | 'SUCCESS' | 'FAILED'
   const [topupIdempotencyKey, setTopupIdempotencyKey] = useState(null)
   const [walletError, setWalletError] = useState(null)
+  const [famgatewaySession, setFamgatewaySession] = useState(null)
+  const [isVerifyingSession, setIsVerifyingSession] = useState(false)
+  const [showQrCode, setShowQrCode] = useState(false)
+  const [isPollingExpired, setIsPollingExpired] = useState(false)
+  const isPollingInProgressRef = useRef(false)
+  const pollAttemptsRef = useRef(0)
+
+  // Derived active polling state
+  const isPollingActive = Boolean(famgatewaySession?.orderId && isDepositModalOpen && !isPollingExpired)
 
   // Authoritative State: Balances, Ledger & Withdrawals
   const [transactions, setTransactions] = useState([])
@@ -111,7 +120,7 @@ export default function WalletPage() {
         const isCredit = t.direction === 'CREDIT'
         const amt = isCredit ? Math.abs(Number(t.amount)) : -Math.abs(Number(t.amount))
 
-        let categoryLabel = 'TRANSACTION'
+        let categoryLabel
         if (t.transaction_type === 'DEPOSIT') {
           categoryLabel = 'MONEY ADDED'
         } else if (t.transaction_type === 'PRIZE_CREDIT') {
@@ -161,23 +170,21 @@ export default function WalletPage() {
       setIsPageLoading(false)
       setLoadingWithdrawals(false)
     }
-  }, [user?.id])
+  }, [user])
 
   // 2. Fetch Authoritative Prize Earnings (strictly from wallet_ledger PRIZE_CREDIT + CREDIT)
   useEffect(() => {
-    if (!user?.id) {
-      setPrizeEarnings(null)
-      setLoadingPrizeEarnings(false)
-      return
-    }
+    if (!user?.id) return
 
     let isMounted = true
-    setLoadingPrizeEarnings(true)
 
-    async function loadPrizeEarnings() {
-      try {
-        const credits = await fetchAllUserPrizeCredits(user.id)
-        if (isMounted) {
+    queueMicrotask(() => {
+      if (!isMounted) return
+      setLoadingPrizeEarnings(true)
+
+      fetchAllUserPrizeCredits(user.id)
+        .then((credits) => {
+          if (!isMounted) return
           const total = (credits || []).reduce((acc, entry) => {
             if (entry.transaction_type === 'PRIZE_CREDIT' && entry.direction === 'CREDIT') {
               return acc + Number(entry.amount || 0)
@@ -185,28 +192,38 @@ export default function WalletPage() {
             return acc
           }, 0)
           setPrizeEarnings(total)
-        }
-      } catch (err) {
-        console.warn('[WalletPage] loadPrizeEarnings error:', err)
-        if (isMounted) setPrizeEarnings(null)
-      } finally {
-        if (isMounted) setLoadingPrizeEarnings(false)
-      }
-    }
+        })
+        .catch((err) => {
+          console.warn('[WalletPage] loadPrizeEarnings error:', err)
+          if (isMounted) setPrizeEarnings(null)
+        })
+        .finally(() => {
+          if (isMounted) setLoadingPrizeEarnings(false)
+        })
+    })
 
-    loadPrizeEarnings()
     return () => {
       isMounted = false
     }
-  }, [user?.id])
+  }, [user])
 
   // 3. Subscribe to authoritative wallet balance changes
   useEffect(() => {
-    syncWalletData()
+    let isCancelled = false
+
+    queueMicrotask(() => {
+      if (!isCancelled) {
+        syncWalletData()
+      }
+    })
+
     const unsubscribe = subscribeToWalletBalance((newBal) => {
       setDbWalletBalance(newBal)
     })
-    return unsubscribe
+    return () => {
+      isCancelled = true
+      unsubscribe()
+    }
   }, [syncWalletData])
 
   const handleRefreshBalance = () => {
@@ -247,15 +264,144 @@ export default function WalletPage() {
       setTopupIdempotencyKey(idempotencyKey)
     }
 
-    // Online wallet top-up is undergoing maintenance
-    // Players pay tournament entry fees directly via UPI (FamGateway) during slot booking
-    showError(
-      'Online wallet top-up is undergoing maintenance. Please pay entry fees directly via UPI (FamGateway) during tournament slot booking.',
-      'Top-Up Temporarily Unavailable'
-    )
-    setIsSubmittingTopup(false)
-    setTopupStatus(null)
-    return
+    setIsSubmittingTopup(true)
+    setTopupStatus('PROCESSING')
+
+    try {
+      const orderRes = await createWalletTopupOrder(num, idempotencyKey)
+
+      if (!orderRes?.success) {
+        setIsSubmittingTopup(false)
+        setTopupStatus(null)
+        const msg = orderRes?.message || 'Online wallet top-up is temporarily disabled pending compliance review.'
+        showError(msg, orderRes?.error_code === 'WALLET_TOPUP_DISABLED' ? 'Top-Up Temporarily Disabled' : 'Top-Up Failed')
+        return
+      }
+
+      if (orderRes.order_id) {
+        setFamgatewaySession({
+          orderId: orderRes.order_id,
+          amount: orderRes.amount,
+          payableAmount: orderRes.payable_amount || orderRes.amount,
+          upiIntent: orderRes.upi_intent,
+          qrUrl: orderRes.qr_url,
+          checkoutUrl: orderRes.checkout_url,
+        })
+        setTopupStatus('AWAITING_PAYMENT')
+      }
+    } catch (err) {
+      console.error('[WalletPage] Deposit submission error:', err)
+      showError(err.message || 'Unexpected error creating top-up order.', 'Deposit Error')
+      setIsSubmittingTopup(false)
+      setTopupStatus(null)
+    }
+  }
+
+  // 4.1. Bounded Polling for active FamGateway wallet top-up verification (Phase 8J Remediated)
+  useEffect(() => {
+    if (!famgatewaySession?.orderId || !isDepositModalOpen) {
+      pollAttemptsRef.current = 0
+      isPollingInProgressRef.current = false
+      return
+    }
+
+    let isMounted = true
+    pollAttemptsRef.current = 0
+
+    // Maximum allowed duration: 3 minutes (60 attempts at ~3s interval)
+    const MAX_POLL_ATTEMPTS = 60
+    let pollTimerId = null
+    let currentInterval = 3000
+
+    const executePoll = async () => {
+      if (!isMounted || !isDepositModalOpen || !famgatewaySession?.orderId) return
+
+      // Expiry check: Check provider expiry timestamp if available
+      if (famgatewaySession?.expiresAt) {
+        const expiryDate = new Date(famgatewaySession.expiresAt)
+        if (!isNaN(expiryDate.getTime()) && Date.now() > expiryDate.getTime()) {
+          setIsPollingExpired(true)
+          showError('Payment session has expired. Please initiate a new top-up.', 'Session Expired')
+          return
+        }
+      }
+
+      // Max attempts check: Bounded duration cutoff
+      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
+        setIsPollingExpired(true)
+        return
+      }
+
+      // Concurrency guard: Prevent overlapping verification requests
+      if (isPollingInProgressRef.current) {
+        pollTimerId = setTimeout(executePoll, currentInterval)
+        return
+      }
+
+      isPollingInProgressRef.current = true
+      pollAttemptsRef.current += 1
+
+      try {
+        const verifyRes = await verifyWalletTopup({ orderId: famgatewaySession.orderId })
+        if (!isMounted) return
+
+        if (verifyRes?.success && verifyRes?.balance_after !== undefined) {
+          showSuccess(`₹${famgatewaySession.amount} successfully credited to your wallet!`, 'Top-Up Successful')
+          setFamgatewaySession(null)
+          setIsDepositModalOpen(false)
+          setTopupStatus(null)
+          setIsSubmittingTopup(false)
+          setAmountInput('')
+          syncWalletData()
+          return
+        }
+
+        // Backoff handling: If rate-limited (HTTP 429), back off to 6000ms
+        if (verifyRes?.error_code === 'GATEWAY_RATE_LIMITED' || verifyRes?.status === 429) {
+          currentInterval = 6000
+        } else {
+          currentInterval = 3000
+        }
+      } catch (err) {
+        console.warn('[WalletPage Polling]:', err?.message)
+      } finally {
+        isPollingInProgressRef.current = false
+        if (isMounted && isDepositModalOpen) {
+          pollTimerId = setTimeout(executePoll, currentInterval)
+        }
+      }
+    }
+
+    pollTimerId = setTimeout(executePoll, 3000)
+
+    return () => {
+      isMounted = false
+      if (pollTimerId) clearTimeout(pollTimerId)
+      isPollingInProgressRef.current = false
+    }
+  }, [famgatewaySession?.orderId, famgatewaySession?.amount, famgatewaySession?.expiresAt, isDepositModalOpen, showError, showSuccess, syncWalletData])
+
+  const handleManualVerifyTopup = async () => {
+    if (!famgatewaySession?.orderId) return
+    setIsVerifyingSession(true)
+    try {
+      const verifyRes = await verifyWalletTopup({ orderId: famgatewaySession.orderId })
+      if (verifyRes?.success && verifyRes?.balance_after !== undefined) {
+        showSuccess(`₹${famgatewaySession.amount} successfully credited to your wallet!`, 'Top-Up Successful')
+        setFamgatewaySession(null)
+        setIsDepositModalOpen(false)
+        setTopupStatus(null)
+        setIsSubmittingTopup(false)
+        setAmountInput('')
+        syncWalletData()
+      } else {
+        showError(verifyRes?.message || 'Payment not yet confirmed by bank. Please complete payment in your UPI app and retry.', 'Awaiting Confirmation')
+      }
+    } catch (err) {
+      showError(err.message || 'Error checking payment status.', 'Verification Error')
+    } finally {
+      setIsVerifyingSession(false)
+    }
   }
 
   // Helper functions for masking payout details securely
@@ -459,7 +605,7 @@ export default function WalletPage() {
             </div>
 
             <span className="self-start sm:self-auto px-2.5 py-1 rounded-none bg-[#18181B] border border-[#27272A] text-[10px] font-bold text-[#FF8C00] tracking-wider uppercase">
-              FREE FIRE MAX ONLY
+              FREE FIRE INDIA ONLY
             </span>
           </div>
         </section>
@@ -489,7 +635,7 @@ export default function WalletPage() {
         <section aria-label="Available Balance Overview" className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
 
           {/* Primary Balance Card */}
-          <article className="md:col-span-7 bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-7 relative overflow-hidden shadow-lg flex flex-col justify-between">
+          <article className="md:col-span-7 bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-7 relative overflow-hidden  flex flex-col justify-between">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFB900]/5 rounded-none blur-3xl pointer-events-none -z-10"></div>
 
             <div>
@@ -534,14 +680,13 @@ export default function WalletPage() {
             <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6 pt-4 border-t border-[#27272A]">
               <button
                 type="button"
-                onClick={() => {
-                  setAmountInput('')
-                  setIsDepositModalOpen(true)
-                }}
-                className="py-3 bg-[#FFB900] hover:bg-[#FFC933] text-[#000000] font-black uppercase tracking-wider rounded-none text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+                disabled
+                title="Online wallet top-up is temporarily disabled while backend gateway upgrades are deployed."
+                className="py-3 bg-[#18181B] text-[#71717A] border border-[#27272A] font-bold uppercase tracking-wider rounded-none text-xs sm:text-sm flex items-center justify-center gap-2 cursor-not-allowed opacity-60 min-h-[44px]"
               >
                 <PlusCircle className="w-4 h-4 shrink-0" />
                 <span>ADD MONEY</span>
+                <span className="text-[9px] uppercase tracking-wider text-[#A1A1AA] bg-[#27272A] px-1.5 py-0.5 rounded-none font-mono">PAUSED</span>
               </button>
 
               <button
@@ -558,7 +703,7 @@ export default function WalletPage() {
                   setWithdrawalIdempotencyKey(null)
                   setIsWithdrawModalOpen(true)
                 }}
-                className="py-3 bg-[#18181B] hover:bg-[#27272A] text-white hover:text-[#FFB900] border border-[#27272A] hover:border-[#FFB900]/40 font-bold uppercase tracking-wider rounded-none text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+                className="py-3 bg-[#18181B] hover:bg-[#18181B] text-white hover:text-[#FFB900] border border-[#27272A] hover:border-[#FFB900]/40 font-bold uppercase tracking-wider rounded-none text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
               >
                 <ArrowUpRight className="w-4 h-4 shrink-0" />
                 <span>WITHDRAW</span>
@@ -567,7 +712,7 @@ export default function WalletPage() {
           </article>
 
           {/* Single Authoritative Prize Earnings Metric Card */}
-          <article className="md:col-span-5 bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-7 relative overflow-hidden shadow-lg flex flex-col justify-between">
+          <article className="md:col-span-5 bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-7 relative overflow-hidden  flex flex-col justify-between">
             <div className="absolute top-0 right-0 w-48 h-48 bg-[#FFB900]/5 rounded-none blur-3xl pointer-events-none -z-10"></div>
 
             <div>
@@ -587,7 +732,7 @@ export default function WalletPage() {
                   </span>
                 )}
                 <span className="text-[11px] text-[#A1A1AA] block uppercase font-sans tracking-wide">
-                  Confirmed Free Fire MAX Tournament Winnings
+                  Confirmed Free Fire India Tournament Winnings
                 </span>
               </div>
             </div>
@@ -655,7 +800,7 @@ export default function WalletPage() {
                 return (
                   <article
                     key={w.id}
-                    className="p-4 sm:p-5 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FF8C00]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md"
+                    className="p-4 sm:p-5 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FF8C00]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 "
                   >
                     <div className="flex items-start gap-3.5 min-w-0">
                       <div className="w-10 h-10 rounded-none border border-[#FF8C00]/30 bg-[#FF8C00]/10 text-[#FF8C00] flex items-center justify-center shrink-0 mt-0.5">
@@ -758,7 +903,7 @@ export default function WalletPage() {
                   onClick={() => setActiveFilter('ALL')}
                   className={`px-3 py-1.5 rounded-none uppercase transition-all cursor-pointer ${
                     activeFilter === 'ALL'
-                      ? 'bg-[#FFB900] text-[#000000]'
+                      ? 'bg-[#FFB900] text-[#000000] '
                       : 'text-[#A1A1AA] hover:text-white'
                   }`}
                 >
@@ -769,7 +914,7 @@ export default function WalletPage() {
                   onClick={() => setActiveFilter('CREDITS')}
                   className={`px-3 py-1.5 rounded-none uppercase transition-all cursor-pointer ${
                     activeFilter === 'CREDITS'
-                      ? 'bg-[#10B981] text-[#000000]'
+                      ? 'bg-[#10B981] text-[#000000] '
                       : 'text-[#A1A1AA] hover:text-white'
                   }`}
                 >
@@ -780,7 +925,7 @@ export default function WalletPage() {
                   onClick={() => setActiveFilter('DEBITS')}
                   className={`px-3 py-1.5 rounded-none uppercase transition-all cursor-pointer ${
                     activeFilter === 'DEBITS'
-                      ? 'bg-[#EF4444] text-[#000000]'
+                      ? 'bg-[#EF4444] text-[#000000] '
                       : 'text-[#A1A1AA] hover:text-white'
                   }`}
                 >
@@ -817,7 +962,7 @@ export default function WalletPage() {
                 NO TRANSACTIONS YET
               </h3>
               <p className="text-xs text-[#A1A1AA] font-sans max-w-sm mx-auto">
-                Add money or participate in a Free Fire MAX tournament to begin your wallet history.
+                Add money or participate in a Free Fire India tournament to begin your wallet history.
               </p>
             </div>
           ) : filteredTransactions.length === 0 ? (
@@ -836,12 +981,11 @@ export default function WalletPage() {
               {filteredTransactions.map((tx) => {
                 const isCredit = tx.direction === 'CREDIT'
                 const isPrize = tx.type === 'PRIZE_CREDIT'
-                const isRefund = tx.type === 'REFUND'
 
                 return (
                   <article
                     key={tx.id}
-                    className="p-4 sm:p-5 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FFB900]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md"
+                    className="p-4 sm:p-5 rounded-none bg-[#111215] border border-[#27272A] hover:border-[#FFB900]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 "
                   >
                     <div className="flex items-start gap-3.5 min-w-0">
                       <div
@@ -938,149 +1082,238 @@ export default function WalletPage() {
               <X className="w-4 h-4" />
             </button>
 
-            <div className="space-y-1">
-              <span className="text-[10px] font-bold text-[#FFB900] uppercase tracking-wider">
-                ONLINE WALLET TOP-UP
-              </span>
-              <h3 className="text-lg font-black text-white uppercase tracking-wider">
-                ADD MONEY
-              </h3>
-              <p className="text-xs text-[#A1A1AA] font-sans">
-                Top up your wallet balance instantly for tournament registrations. Allowed: ₹1 through ₹200 per transaction. Whole rupees only.
-              </p>
-            </div>
+            {famgatewaySession ? (
+              /* Active FamGateway UPI Top-Up Session */
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-[#FFB900] uppercase tracking-wider">
+                    FAMGATEWAY UPI CHECKOUT
+                  </span>
+                  <h3 className="text-lg font-black text-white uppercase tracking-wider">
+                    COMPLETE UPI PAYMENT
+                  </h3>
+                  <p className="text-xs text-[#A1A1AA] font-sans">
+                    Complete your payment of <strong className="text-white">₹{famgatewaySession.payableAmount || famgatewaySession.amount}</strong> via any UPI app.
+                  </p>
+                </div>
 
-            <form onSubmit={handleDepositSubmit} className="space-y-4">
-              {/* Preset Buttons */}
-              <div className="space-y-1.5">
-                <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
-                  Quick Presets
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[50, 100, 200].map((preset) => (
+                <div className="p-3 bg-[#18181B] border border-[#27272A] space-y-2 text-xs">
+                  <div className="flex justify-between items-center text-[#A1A1AA]">
+                    <span>Order Reference:</span>
+                    <span className="font-mono text-white text-[11px]">{famgatewaySession.orderId}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[#A1A1AA]">
+                    <span>Amount Payable:</span>
+                    <span className="font-mono text-[#FFB900] font-bold text-sm">₹{famgatewaySession.payableAmount || famgatewaySession.amount}</span>
+                  </div>
+                </div>
+
+                {/* Mobile Direct UPI Intent */}
+                {famgatewaySession.upiIntent && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== 'undefined' && famgatewaySession.upiIntent) {
+                        window.location.href = famgatewaySession.upiIntent
+                      }
+                    }}
+                    className="w-full py-3 bg-[#FFB900] hover:bg-[#FFB900] text-[#000000] font-black uppercase text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all"
+                  >
+                    <Zap className="w-4 h-4 shrink-0" />
+                    <span>PAY VIA UPI APP</span>
+                  </button>
+                )}
+
+                {/* Dynamic QR Toggle */}
+                {famgatewaySession.qrUrl && (
+                  <div className="space-y-2 pt-1 border-t border-[#27272A]">
                     <button
-                      key={preset}
                       type="button"
+                      onClick={() => setShowQrCode(!showQrCode)}
+                      className="w-full py-2 bg-[#18181B] border border-[#27272A] hover:border-[#FFB900]/40 text-[#A1A1AA] hover:text-white text-[11px] font-bold uppercase transition-all cursor-pointer"
+                    >
+                      {showQrCode ? 'Hide QR Code' : 'Show UPI QR Code'}
+                    </button>
+                    {showQrCode && (
+                      <div className="flex flex-col items-center justify-center p-3 bg-white rounded-none">
+                        <img
+                          src={famgatewaySession.qrUrl}
+                          alt="FamGateway UPI QR"
+                          className="w-44 h-44 object-contain"
+                        />
+                        <span className="text-[10px] text-black font-mono font-bold mt-1">Scan with any UPI App</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {isPollingExpired ? (
+                  <div className="p-2.5 rounded-none bg-red-950/30 border border-red-700/50 text-red-300 text-xs flex items-center gap-2 font-sans">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                    <span>Payment verification timed out. If money was debited, click "I Have Paid" below or contact support.</span>
+                  </div>
+                ) : isPollingActive ? (
+                  <div className="p-2.5 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 text-[#FFB900] text-xs flex items-center gap-2 font-sans">
+                    <RefreshCw className="w-4 h-4 animate-spin shrink-0" />
+                    <span>Awaiting payment clearance... Polling bank network.</span>
+                  </div>
+                ) : null}
+
+                <div className="flex gap-2 pt-2 border-t border-[#27272A]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFamgatewaySession(null)
+                      setIsDepositModalOpen(false)
+                      setIsSubmittingTopup(false)
+                      setTopupStatus(null)
+                    }}
+                    className="flex-1 py-2 bg-[#18181B] border border-[#27272A] hover:border-red-500 hover:text-red-400 text-xs font-bold uppercase transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleManualVerifyTopup}
+                    disabled={isVerifyingSession}
+                    className="flex-1 py-2 bg-[#FFB900] text-black font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    {isVerifyingSession ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Verifying</span>
+                      </>
+                    ) : (
+                      'I Have Paid'
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleDepositSubmit} className="space-y-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-[#FFB900] uppercase tracking-wider">
+                    ONLINE WALLET TOP-UP
+                  </span>
+                  <h3 className="text-lg font-black text-white uppercase tracking-wider">
+                    ADD MONEY
+                  </h3>
+                  <p className="text-xs text-[#A1A1AA] font-sans">
+                    Top up your wallet balance instantly for tournament registrations. Allowed: ₹1 through ₹200 per transaction. Whole rupees only.
+                  </p>
+                </div>
+
+                {/* Preset Buttons */}
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
+                    Quick Presets
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[50, 100, 200].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        disabled={isSubmittingTopup}
+                        onClick={() => {
+                          setAmountInput(preset.toString())
+                          setTopupIdempotencyKey(null)
+                        }}
+                        className={`py-2 rounded-none text-xs font-bold font-mono transition-all border cursor-pointer disabled:opacity-50 ${
+                          amountInput === preset.toString()
+                            ? 'bg-[#FFB900]/15 border-[#FFB900] text-[#FFB900]'
+                            : 'bg-[#18181B] border-[#27272A] text-white hover:border-[#FFB900]/40'
+                        }`}
+                      >
+                        +₹{preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom Input */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-[10px]">
+                    <label className="uppercase font-bold text-[#A1A1AA]">
+                      Top-Up Amount (INR)
+                    </label>
+                    <span className="text-[#FFB900] font-mono">
+                      Limit: ₹1 - ₹200
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white font-bold text-sm">
+                      ₹
+                    </span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="200"
+                      step="1"
+                      value={amountInput}
                       disabled={isSubmittingTopup}
-                      onClick={() => {
-                        setAmountInput(preset.toString())
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '')
+                        setAmountInput(val)
                         setTopupIdempotencyKey(null)
                       }}
-                      className={`py-2 rounded-none text-xs font-bold font-mono transition-all border cursor-pointer disabled:opacity-50 ${
-                        amountInput === preset.toString()
-                          ? 'bg-[#FFB900]/15 border-[#FFB900] text-[#FFB900]'
-                          : 'bg-[#18181B] border-[#27272A] text-white hover:border-[#FFB900]/40'
-                      }`}
-                    >
-                      +₹{preset}
-                    </button>
-                  ))}
+                      placeholder="Enter amount (1-200)"
+                      required
+                      className="w-full bg-[#18181B] border border-[#27272A] rounded-none pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#FFB900] focus:outline-none font-mono disabled:opacity-50"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Custom Input */}
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center text-[10px]">
-                  <label className="uppercase font-bold text-[#A1A1AA]">
-                    Top-Up Amount (INR)
+                {/* Payment Gateway Options */}
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
+                    Payment Gateway
                   </label>
-                  <span className="text-[#FFB900] font-mono">
-                    Limit: ₹1 - ₹200
-                  </span>
+                  <div className="p-2.5 bg-[#18181B] border border-[#27272A] text-xs flex items-center justify-between">
+                    <span className="text-[#A1A1AA]">Provider:</span>
+                    <span className="text-[#FFB900] font-bold uppercase">FamGateway UPI</span>
+                  </div>
                 </div>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white font-bold text-sm">
-                    ₹
-                  </span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="200"
-                    step="1"
-                    value={amountInput}
-                    disabled={isSubmittingTopup}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/[^0-9]/g, '')
-                      setAmountInput(val)
+
+                {/* Status Indicator during Payment */}
+                {topupStatus === 'PROCESSING' && (
+                  <div className="p-2.5 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 text-[#FFB900] text-xs flex items-center gap-2 font-sans">
+                    <RefreshCw className="w-4 h-4 animate-spin shrink-0" />
+                    <span>INITIALIZING TOP-UP: Connecting to payment gateway...</span>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-3 border-t border-[#27272A]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDepositModalOpen(false)
                       setTopupIdempotencyKey(null)
+                      setIsSubmittingTopup(false)
+                      setTopupStatus(null)
                     }}
-                    placeholder="Enter amount (1-200)"
-                    required
-                    className="w-full bg-[#18181B] border border-[#27272A] rounded-none pl-8 pr-4 py-2.5 text-sm text-white focus:border-[#FFB900] focus:outline-none font-mono disabled:opacity-50"
-                  />
+                    disabled={isSubmittingTopup}
+                    className="flex-1 py-2.5 bg-[#18181B] border border-[#27272A] hover:border-red-500 hover:text-red-400 rounded-none text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingTopup || !amountInput}
+                    className="flex-1 py-2.5 bg-[#FFB900] hover:bg-[#FFB900] text-[#000000] rounded-none text-xs font-black uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isSubmittingTopup ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>PROCESSING</span>
+                      </>
+                    ) : (
+                      `PROCEED (₹${amountInput || 0})`
+                    )}
+                  </button>
                 </div>
-              </div>
-
-              {/* Payment Gateway Options */}
-              <div className="space-y-1.5">
-                <label className="block text-[10px] uppercase font-bold text-[#A1A1AA]">
-                  Payment Method
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {['UPI', 'CARD', 'NETBANK'].map((method) => (
-                    <button
-                      key={method}
-                      type="button"
-                      onClick={() => setPaymentMethod(method)}
-                      disabled={isSubmittingTopup}
-                      className={`py-2 text-[10px] font-bold uppercase rounded-none border transition-all cursor-pointer disabled:opacity-50 ${
-                        paymentMethod === method
-                          ? 'bg-[#FFB900]/10 border-[#FFB900] text-[#FFB900]'
-                          : 'bg-[#18181B] border-[#27272A] text-[#A1A1AA] hover:text-white'
-                      }`}
-                    >
-                      {method === 'UPI' ? 'UPI / QR' : method === 'CARD' ? 'Card' : 'NetBanking'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Status Indicator during Payment */}
-              {topupStatus === 'PROCESSING' && (
-                <div className="p-2.5 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 text-[#FFB900] text-xs flex items-center gap-2 font-sans">
-                  <RefreshCw className="w-4 h-4 animate-spin shrink-0" />
-                  <span>PAYMENT PROCESSING: Authoritative ledger verification in progress...</span>
-                </div>
-              )}
-
-              {topupStatus === 'FAILED' && (
-                <div className="p-2.5 rounded-none bg-red-950/30 border border-red-900/40 text-red-400 text-xs flex items-center gap-2 font-sans">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>PAYMENT FAILED: Transaction was not credited.</span>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex gap-3 pt-3 border-t border-[#27272A]">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsDepositModalOpen(false)
-                    setTopupIdempotencyKey(null)
-                    setIsSubmittingTopup(false)
-                    setTopupStatus(null)
-                  }}
-                  disabled={isSubmittingTopup}
-                  className="flex-1 py-2.5 bg-[#18181B] border border-[#27272A] hover:border-red-500 hover:text-red-400 rounded-none text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmittingTopup || !amountInput}
-                  className="flex-1 py-2.5 bg-[#FFB900] hover:bg-[#FFC933] text-[#000000] rounded-none text-xs font-black uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isSubmittingTopup ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>PROCESSING</span>
-                    </>
-                  ) : (
-                    `PAY ₹${amountInput || 0}`
-                  )}
-                </button>
-              </div>
-            </form>
+              </form>
+            )}
           </div>
         </div>
       )}
@@ -1129,7 +1362,7 @@ export default function WalletPage() {
                   disabled={isSubmittingWithdrawal}
                   className={`py-2.5 px-3 rounded-none border text-xs font-bold font-mono uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     withdrawalPayoutMethod === 'UPI'
-                      ? 'bg-[#FFB900]/15 border-[#FFB900] text-[#FFB900]'
+                      ? 'bg-[#FFB900]/15 border-[#FFB900] text-[#FFB900] '
                       : 'bg-[#18181B] border-[#27272A] text-[#A1A1AA] hover:text-white'
                   }`}
                 >
@@ -1143,7 +1376,7 @@ export default function WalletPage() {
                   disabled={isSubmittingWithdrawal}
                   className={`py-2.5 px-3 rounded-none border text-xs font-bold font-mono uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     withdrawalPayoutMethod === 'BANK_TRANSFER'
-                      ? 'bg-[#FFB900]/15 border-[#FFB900] text-[#FFB900]'
+                      ? 'bg-[#FFB900]/15 border-[#FFB900] text-[#FFB900] '
                       : 'bg-[#18181B] border-[#27272A] text-[#A1A1AA] hover:text-white'
                   }`}
                 >
@@ -1316,7 +1549,7 @@ export default function WalletPage() {
                 <button
                   type="submit"
                   disabled={isSubmittingWithdrawal || !withdrawAmountInput || parseInt(withdrawAmountInput, 10) < 100 || parseInt(withdrawAmountInput, 10) > authoritativeBalance}
-                  className="flex-1 py-2.5 bg-[#FF8C00] hover:bg-[#FFA033] text-[#000000] rounded-none text-xs font-black uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 bg-[#FF8C00] hover:bg-[#FF8C00] text-white rounded-none text-xs font-black uppercase transition-all  cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isSubmittingWithdrawal ? (
                     <>

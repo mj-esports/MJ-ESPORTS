@@ -76,7 +76,7 @@ export default function StatisticsPage() {
     }
   }, [user?.id, profile?.verification_status])
 
-  // 2. Player Identity Details (Free Fire MAX only)
+  // 2. Player Identity Details (Free Fire India only)
   const meta = user?.user_metadata || {}
   const displayName = meta.username || profile?.username || meta.full_name || user?.email?.split('@')[0] || 'Player'
   const freeFireUid = meta.freeFireUid || meta.game_uid || profile?.game_uid || ''
@@ -286,7 +286,7 @@ export default function StatisticsPage() {
 
       return {
         id: t.id,
-        title: t.title || 'Free Fire MAX Tournament',
+        title: t.title || 'Free Fire India Tournament',
         format: t.format || 'Squad',
         rank: typeof rank === 'number' ? `#${rank}` : rank,
         isWinner: rank === 1,
@@ -332,7 +332,7 @@ export default function StatisticsPage() {
           </Link>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 text-[#FFB900] text-[10px] font-mono font-bold uppercase tracking-widest">
             <Gamepad2 className="w-3 h-3 text-[#FFB900]" />
-            <span>FREE FIRE MAX</span>
+            <span>FREE FIRE INDIA</span>
           </span>
         </div>
 
@@ -523,7 +523,7 @@ export default function StatisticsPage() {
                   No Placements Logged Yet
                 </p>
                 <p className="text-[11px] text-[#A1A1AA] font-sans">
-                  Complete Free Fire MAX tournaments to record placement telemetry.
+                  Complete Free Fire India tournaments to record placement telemetry.
                 </p>
               </div>
             ) : (

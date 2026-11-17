@@ -4,45 +4,45 @@ import { CheckCircle2, AlertCircle, AlertTriangle, Info, WifiOff, RefreshCw, X, 
 const TOAST_STYLES = {
   success: {
     icon: CheckCircle2,
-    bg: 'bg-[#111318]/95',
-    border: 'border-[#10b981]',
-    accent: 'text-[#10b981]',
-    shadow: 'shadow-[0_0_20px_rgba(16,185,129,0.3)]',
+    bg: 'bg-[#111215]/95',
+    border: 'border-[#10B981]',
+    accent: 'text-[#10B981]',
+    shadow: '',
   },
   error: {
     icon: XCircle,
-    bg: 'bg-[#111318]/95',
-    border: 'border-[#FF0000]',
-    accent: 'text-[#FF0000]',
-    shadow: 'shadow-[0_0_20px_rgba(255,0,0,0.3)]',
+    bg: 'bg-[#111215]/95',
+    border: 'border-[#EF4444]',
+    accent: 'text-[#EF4444]',
+    shadow: '',
   },
   warning: {
     icon: AlertTriangle,
-    bg: 'bg-[#111318]/95',
-    border: 'border-[#FF6200]',
-    accent: 'text-[#FF6200]',
-    shadow: 'shadow-[0_0_20px_rgba(255,98,0,0.3)]',
+    bg: 'bg-[#111215]/95',
+    border: 'border-[#FF8C00]',
+    accent: 'text-[#FF8C00]',
+    shadow: '',
   },
   info: {
     icon: Info,
-    bg: 'bg-[#111318]/95',
+    bg: 'bg-[#111215]/95',
     border: 'border-[#FFB900]',
     accent: 'text-[#FFB900]',
-    shadow: 'shadow-[0_0_20px_rgba(255,185,0,0.3)]',
+    shadow: '',
   },
   offline: {
     icon: WifiOff,
-    bg: 'bg-[#111318]/95',
-    border: 'border-[#FF6200]',
-    accent: 'text-[#FF6200]',
-    shadow: 'shadow-[0_0_20px_rgba(255,98,0,0.3)]',
+    bg: 'bg-[#111215]/95',
+    border: 'border-[#FF8C00]',
+    accent: 'text-[#FF8C00]',
+    shadow: '',
   },
   network: {
     icon: XCircle,
-    bg: 'bg-[#111318]/95',
-    border: 'border-[#FF0000]',
-    accent: 'text-[#FF0000]',
-    shadow: 'shadow-[0_0_20px_rgba(255,0,0,0.3)]',
+    bg: 'bg-[#111215]/95',
+    border: 'border-[#EF4444]',
+    accent: 'text-[#EF4444]',
+    shadow: '',
   },
 }
 
@@ -68,7 +68,7 @@ export default function Toast({
 
   return (
     <div
-      className={`max-w-sm w-full backdrop-blur-xl border ${style.border} ${style.bg} ${style.shadow} p-4 rounded-none flex items-start gap-3 transition-all duration-300 text-xs shadow-2xl relative overflow-hidden animate-toast-mobile sm:animate-toast-desktop`}
+      className={`max-w-sm w-full backdrop-blur-xl border ${style.border} ${style.bg} p-4 rounded-none flex items-start gap-3 transition-all duration-300 text-xs shadow-2xl relative overflow-hidden animate-toast-mobile sm:animate-toast-desktop`}
       role="status"
       aria-live="polite"
     >
@@ -86,7 +86,7 @@ export default function Toast({
         {onRetry && (
           <button
             onClick={onRetry}
-            className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-none bg-[#1B1B1F] border ${style.border} ${style.accent} hover:brightness-125 font-bold text-[10px] uppercase tracking-wider transition-all`}
+            className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-none bg-[#18181B] border ${style.border} ${style.accent} hover:brightness-125 font-bold text-[10px] uppercase tracking-wider transition-all`}
           >
             <RefreshCw className="w-3 h-3 animate-spin-slow" />
             <span>{retryText}</span>
@@ -97,7 +97,7 @@ export default function Toast({
       {onClose && (
         <button
           onClick={onClose}
-          className="p-1 rounded-none text-[#A3A3A3] hover:text-white transition-colors shrink-0"
+          className="p-1 rounded-none text-[#A1A1AA] hover:text-white transition-colors shrink-0"
           aria-label="Dismiss Toast Notification"
         >
           <X className="w-4 h-4" />

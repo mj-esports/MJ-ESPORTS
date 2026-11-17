@@ -87,7 +87,7 @@ export default function TournamentHistoryPage() {
     }
   }, [user?.id, profile?.verification_status])
 
-  // 2. User Identity Details (Strictly Free Fire MAX only)
+  // 2. User Identity Details (Strictly Free Fire India only)
   const meta = user?.user_metadata || {}
   const displayName = meta.username || profile?.username || meta.full_name || user?.email?.split('@')[0] || 'Player'
   const freeFireUid = meta.freeFireUid || meta.game_uid || profile?.game_uid || ''
@@ -475,7 +475,7 @@ export default function TournamentHistoryPage() {
           </Link>
 
           <span className="px-2 py-0.5 rounded-none text-[10px] font-extrabold uppercase tracking-widest bg-[#18181B] text-[#FF8C00] border border-[#27272A]">
-            FREE FIRE MAX
+            FREE FIRE INDIA
           </span>
         </div>
 
@@ -518,12 +518,12 @@ export default function TournamentHistoryPage() {
               </div>
             </div>
 
-            {/* Free Fire MAX Identity Pill */}
+            {/* Free Fire India Identity Pill */}
             <div className="flex items-center gap-2 bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-xs shrink-0">
               <div className="w-2 h-2 rounded-none bg-[#FFB900]" />
               <div className="flex flex-col">
                 <span className="text-[9px] text-[#A1A1AA] uppercase font-bold tracking-wider">
-                  FF MAX UID
+                  FF INDIA UID
                 </span>
                 <span className="text-white font-bold font-mono tracking-wider">
                   {freeFireUid || 'Not Linked'}
@@ -533,7 +533,7 @@ export default function TournamentHistoryPage() {
                 <button
                   type="button"
                   onClick={handleCopyUid}
-                  title="Copy Free Fire MAX UID"
+                  title="Copy Free Fire India UID"
                   className="ml-1 p-1 hover:text-[#FFB900] text-[#A1A1AA] transition-colors cursor-pointer"
                   aria-label="Copy UID"
                 >
@@ -676,7 +676,7 @@ export default function TournamentHistoryPage() {
               NO TOURNAMENT HISTORY
             </h2>
             <p className="text-xs text-[#A1A1AA] font-sans max-w-sm mx-auto">
-              Join a Free Fire MAX tournament to build your competitive record.
+              Join a Free Fire India tournament to build your competitive record.
             </p>
             <div className="pt-2">
               <Link
@@ -744,7 +744,7 @@ export default function TournamentHistoryPage() {
                           {t.title}
                         </h2>
                         <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold bg-[#FF8C00]/10 text-[#FF8C00] border border-[#FF8C00]/20 uppercase">
-                          FREE FIRE MAX
+                          FREE FIRE INDIA
                         </span>
                         {t.format && (
                           <span className="px-1.5 py-0.5 rounded-none text-[9px] font-bold bg-[#18181B] text-[#A1A1AA] border border-[#27272A] uppercase">

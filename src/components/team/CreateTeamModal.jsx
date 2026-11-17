@@ -3,7 +3,7 @@ import { X, Shield, AlertCircle, Loader2, Sparkles, Gamepad2, Info } from 'lucid
 import { createPlayerTeam } from '../../services/teamService'
 
 /**
- * Modal dialog for creating a permanent Free Fire MAX player squad.
+ * Modal dialog for creating a permanent Free Fire India player squad.
  * Caller is authoritatively designated as Captain by the backend RPC.
  */
 export default function CreateTeamModal({ isOpen, onClose, onSuccess, defaultGameUid = '' }) {
@@ -59,9 +59,9 @@ export default function CreateTeamModal({ isOpen, onClose, onSuccess, defaultGam
 
     const cleanUid = gameUid.trim()
     if (!cleanUid) {
-      errors.gameUid = 'Free Fire MAX Character UID is required.'
+      errors.gameUid = 'Free Fire India Character UID is required.'
     } else if (!/^[0-9]{10}$/.test(cleanUid)) {
-      errors.gameUid = 'Free Fire MAX UID must be exactly 10 digits.'
+      errors.gameUid = 'Free Fire India UID must be exactly 10 digits.'
     }
 
     setValidationErrors(errors)
@@ -163,9 +163,8 @@ export default function CreateTeamModal({ isOpen, onClose, onSuccess, defaultGam
                 if (validationErrors.name) setValidationErrors((prev) => ({ ...prev, name: null }))
               }}
               placeholder="e.g. Phoenix Rising"
-              className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#18181B] rounded-none border text-sm text-white placeholder-[#A1A1AA]/60 focus:outline-none focus:ring-1 focus:ring-[#FFB900] transition-all ${
-                validationErrors.name ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272A] focus:border-[#FFB900]'
-              }`}
+              className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#18181B] rounded-none border text-sm text-white placeholder-[#A1A1AA]/60 focus:outline-none focus:ring-1 focus:ring-[#FFB900] transition-all ${validationErrors.name ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272A] focus:border-[#FFB900]'
+                }`}
             />
             {validationErrors.name ? (
               <p className="text-[11px] text-red-400">{validationErrors.name}</p>
@@ -192,9 +191,8 @@ export default function CreateTeamModal({ isOpen, onClose, onSuccess, defaultGam
                   if (validationErrors.tag) setValidationErrors((prev) => ({ ...prev, tag: null }))
                 }}
                 placeholder="e.g. PHX"
-                className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#18181B] rounded-none border text-sm text-white uppercase font-mono placeholder-[#A1A1AA]/60 focus:outline-none focus:ring-1 focus:ring-[#FFB900] transition-all ${
-                  validationErrors.tag ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272A] focus:border-[#FFB900]'
-                }`}
+                className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#18181B] rounded-none border text-sm text-white uppercase font-mono placeholder-[#A1A1AA]/60 focus:outline-none focus:ring-1 focus:ring-[#FFB900] transition-all ${validationErrors.tag ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272A] focus:border-[#FFB900]'
+                  }`}
               />
               {validationErrors.tag ? (
                 <p className="text-[11px] text-red-400">{validationErrors.tag}</p>
@@ -203,7 +201,7 @@ export default function CreateTeamModal({ isOpen, onClose, onSuccess, defaultGam
               )}
             </div>
 
-            {/* Free Fire MAX UID */}
+            {/* Free Fire India UID */}
             <div className="space-y-1.5">
               <label htmlFor="game-uid" className="block text-xs font-headline font-bold uppercase tracking-wider text-[#A1A1AA]">
                 Captain FF UID <span className="text-[#FFB900]">*</span>
@@ -222,9 +220,8 @@ export default function CreateTeamModal({ isOpen, onClose, onSuccess, defaultGam
                   if (validationErrors.gameUid) setValidationErrors((prev) => ({ ...prev, gameUid: null }))
                 }}
                 placeholder="10-digit Character UID"
-                className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#18181B] rounded-none border text-sm text-white font-mono placeholder-[#A1A1AA]/60 focus:outline-none focus:ring-1 focus:ring-[#FFB900] transition-all ${
-                  validationErrors.gameUid ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272A] focus:border-[#FFB900]'
-                }`}
+                className={`w-full min-h-[44px] px-3.5 py-2.5 bg-[#18181B] rounded-none border text-sm text-white font-mono placeholder-[#A1A1AA]/60 focus:outline-none focus:ring-1 focus:ring-[#FFB900] transition-all ${validationErrors.gameUid ? 'border-red-500/70 focus:border-red-500' : 'border-[#27272A] focus:border-[#FFB900]'
+                  }`}
               />
               {validationErrors.gameUid ? (
                 <p className="text-[11px] text-red-400">{validationErrors.gameUid}</p>

@@ -81,7 +81,7 @@ export default function AchievementsPage() {
     }
   }, [user?.id, profile?.verification_status])
 
-  // 2. Player Identity (Strictly Free Fire MAX only)
+  // 2. Player Identity (Strictly Free Fire India only)
   const meta = user?.user_metadata || {}
   const displayName = meta.username || profile?.username || meta.full_name || user?.email?.split('@')[0] || 'Player'
   const freeFireUid = meta.freeFireUid || meta.game_uid || profile?.game_uid || ''
@@ -184,7 +184,7 @@ export default function AchievementsPage() {
       {
         id: 'winner-winner',
         title: 'Booyah Champion',
-        description: 'Win a Free Fire MAX tournament.',
+        description: 'Win a Free Fire India tournament.',
         icon: Trophy,
         color: 'text-[#FFB900] border-[#FFB900]/30 bg-[#FFB900]/10',
         unlocked: championshipsCount >= 1,
@@ -196,7 +196,7 @@ export default function AchievementsPage() {
       {
         id: 'survivalist',
         title: 'Survivalist',
-        description: 'Complete your first Free Fire MAX tournament.',
+        description: 'Complete your first Free Fire India tournament.',
         icon: Timer,
         color: 'text-[#10B981] border-[#10B981]/30 bg-[#10B981]/10',
         unlocked: completedTournamentsCount >= 1,
@@ -208,7 +208,7 @@ export default function AchievementsPage() {
       {
         id: 'fair-play',
         title: 'Veteran Competitor',
-        description: 'Complete 5 Free Fire MAX tournaments.',
+        description: 'Complete 5 Free Fire India tournaments.',
         icon: ShieldCheck,
         color: 'text-[#FFB900] border-[#FFB900]/30 bg-[#FFB900]/10',
         unlocked: completedTournamentsCount >= 5,
@@ -333,7 +333,7 @@ export default function AchievementsPage() {
           </Link>
 
           <span className="px-2 py-0.5 rounded-none text-[10px] font-extrabold uppercase tracking-widest bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/20">
-            FREE FIRE MAX
+            FREE FIRE INDIA
           </span>
         </div>
 
@@ -376,12 +376,12 @@ export default function AchievementsPage() {
               </div>
             </div>
 
-            {/* Free Fire MAX Identity Pill */}
+            {/* Free Fire India Identity Pill */}
             <div className="flex items-center gap-2 bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-xs shrink-0">
               <div className="w-2 h-2 rounded-none bg-[#FFB900] " />
               <div className="flex flex-col">
                 <span className="text-[9px] text-[#A1A1AA] uppercase font-bold tracking-wider">
-                  FF MAX UID
+                  FF INDIA UID
                 </span>
                 <span className="text-white font-bold font-mono tracking-wider">
                   {freeFireUid || 'Not Linked'}
@@ -391,7 +391,7 @@ export default function AchievementsPage() {
                 <button
                   type="button"
                   onClick={handleCopyUid}
-                  title="Copy Free Fire MAX UID"
+                  title="Copy Free Fire India UID"
                   className="ml-1 p-1 hover:text-[#FFB900] text-[#A1A1AA] transition-colors cursor-pointer"
                   aria-label="Copy UID"
                 >
@@ -512,7 +512,7 @@ export default function AchievementsPage() {
                 NO CROWNS EARNED YET
               </h3>
               <p className="text-[11px] text-[#A1A1AA] font-sans max-w-sm mx-auto">
-                Complete Free Fire MAX tournament milestones to earn your first competitive badge.
+                Complete Free Fire India tournament milestones to earn your first competitive badge.
               </p>
             </div>
           )}
@@ -578,7 +578,7 @@ export default function AchievementsPage() {
             </h2>
             <p className="text-xs text-[#A1A1AA] font-sans max-w-sm mx-auto">
               {filterTab === 'UNLOCKED'
-                ? 'Participate in Free Fire MAX tournaments to unlock competitive badges.'
+                ? 'Participate in Free Fire India tournaments to unlock competitive badges.'
                 : 'All available competitive milestones have been completed!'}
             </p>
             {filterTab !== 'ALL' && (

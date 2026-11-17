@@ -85,9 +85,9 @@ export default function AdminAuditLogsView() {
       case 'CRITICAL':
         return 'bg-[#ef4444]/10 text-[#ef4444] border-[#ef4444]/40'
       case 'WARNING':
-        return 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40'
+        return 'bg-[#FF8C00]/10 text-[#FF8C00] border-[#FF8C00]/40'
       default:
-        return 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40'
+        return 'bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/40'
     }
   }
 
@@ -110,22 +110,22 @@ export default function AdminAuditLogsView() {
     <div className="space-y-6">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-4 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#18181B]/60 backdrop-blur-md border border-[#27272A] rounded-none p-4 shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff]">
+          <div className="w-10 h-10 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 flex items-center justify-center text-[#FFB900]">
             <Shield className="w-5 h-5" />
           </div>
           <div>
             <h2 className="font-headline text-base font-black text-white uppercase tracking-wider">
               Administrative Audit Telemetry
             </h2>
-            <p className="text-xs text-[#a1a1aa] font-mono">Immutable audit record of all administrative actions & security events</p>
+            <p className="text-xs text-[#A1A1AA] font-mono">Immutable audit record of all administrative actions & security events</p>
           </div>
         </div>
 
         <button
           onClick={exportAuditCSV}
-          className="px-4 py-2 bg-[#09090b] hover:bg-[#27272a] text-[#00f2ff] border border-[#27272a] hover:border-[#00f2ff] rounded-none text-xs font-mono font-bold uppercase transition-all flex items-center justify-center gap-2 min-h-[44px]"
+          className="px-4 py-2 bg-[#000000] hover:bg-[#27272A] text-[#FFB900] border border-[#27272A] hover:border-[#FFB900] rounded-none text-xs font-mono font-bold uppercase transition-all flex items-center justify-center gap-2 min-h-[44px]"
         >
           <ArrowDownToLine className="w-4 h-4" />
           <span>Export Audit CSV</span>
@@ -133,15 +133,15 @@ export default function AdminAuditLogsView() {
       </div>
 
       {/* Filters Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#18181b]/60 p-4 rounded-none border border-[#27272a]">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#18181B]/60 p-4 rounded-none border border-[#27272A]">
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-[#a1a1aa] absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#A1A1AA] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search audit actions or admins..."
-            className="w-full bg-[#09090b] border border-[#27272a] rounded-none pl-9 pr-3 py-2 text-xs text-white placeholder-[#71717a] focus:border-[#00f2ff] focus:outline-none font-mono h-[38px]"
+            className="w-full bg-[#000000] border border-[#27272A] rounded-none pl-9 pr-3 py-2 text-xs text-white placeholder-[#71717A] focus:border-[#FFB900] focus:outline-none font-mono h-[38px]"
           />
         </div>
 
@@ -149,7 +149,7 @@ export default function AdminAuditLogsView() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-[#09090b] border border-[#27272a] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono h-[38px] w-full sm:w-auto"
+            className="bg-[#000000] border border-[#27272A] rounded-none px-3 py-2 text-xs text-white focus:border-[#FFB900] focus:outline-none font-mono h-[38px] w-full sm:w-auto"
           >
             <option value="ALL">All Categories</option>
             <option value="MATCH">Match Ops</option>
@@ -160,7 +160,7 @@ export default function AdminAuditLogsView() {
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="bg-[#09090b] border border-[#27272a] rounded-none px-3 py-2 text-xs text-white focus:border-[#00f2ff] focus:outline-none font-mono h-[38px] w-full sm:w-auto"
+            className="bg-[#000000] border border-[#27272A] rounded-none px-3 py-2 text-xs text-white focus:border-[#FFB900] focus:outline-none font-mono h-[38px] w-full sm:w-auto"
           >
             <option value="ALL">All Severities</option>
             <option value="INFO">Info</option>
@@ -187,7 +187,7 @@ export default function AdminAuditLogsView() {
           {filteredLogs.map((log) => (
             <div
               key={log.id}
-              className="bg-[#18181b]/60 border border-[#27272a] hover:border-[#00f2ff]/40 rounded-none p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all shadow-md font-mono"
+              className="bg-[#18181B]/60 border border-[#27272A] hover:border-[#FFB900]/40 rounded-none p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all shadow-md font-mono"
             >
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -195,16 +195,16 @@ export default function AdminAuditLogsView() {
                     {log.severity}
                   </span>
                   <span className="font-extrabold text-xs text-white uppercase">{log.action}</span>
-                  <span className="text-[10px] text-[#a1a1aa]">&bull; {log.category}</span>
+                  <span className="text-[10px] text-[#A1A1AA]">&bull; {log.category}</span>
                 </div>
-                <p className="text-xs text-[#a1a1aa] leading-relaxed">{log.details}</p>
-                <div className="flex items-center gap-4 text-[10px] text-[#71717a] pt-1">
+                <p className="text-xs text-[#A1A1AA] leading-relaxed">{log.details}</p>
+                <div className="flex items-center gap-4 text-[10px] text-[#71717A] pt-1">
                   <span className="flex items-center gap-1">
-                    <User className="w-3 h-3 text-[#00f2ff]" />
+                    <User className="w-3 h-3 text-[#FFB900]" />
                     {log.admin}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-[#a1a1aa]" />
+                    <Clock className="w-3 h-3 text-[#A1A1AA]" />
                     {log.timestamp}
                   </span>
                   <span>IP: {log.ip}</span>
@@ -212,7 +212,7 @@ export default function AdminAuditLogsView() {
               </div>
 
               <div className="shrink-0">
-                <span className="text-[10px] text-[#00ff9d] font-bold bg-[#00ff9d]/10 border border-[#00ff9d]/30 px-2.5 py-1 rounded-none">
+                <span className="text-[10px] text-[#10B981] font-bold bg-[#10B981]/10 border border-[#10B981]/30 px-2.5 py-1 rounded-none">
                   LOGGED
                 </span>
               </div>

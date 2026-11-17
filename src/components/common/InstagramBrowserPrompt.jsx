@@ -152,7 +152,7 @@ export default function InstagramBrowserPrompt() {
       <div className="w-full max-w-md bg-[#07090c] border border-[#FFB900]/70 rounded-none shadow-[0_0_35px_rgba(255,185,0,0.25)] p-5 text-white relative overflow-hidden flex flex-col gap-4">
         {/* Top Decorative Tech Accent */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#FFB900] to-transparent" />
-        
+
         {/* Header Section */}
         <div className="flex items-start justify-between gap-3 pt-1">
           <div className="space-y-1">
@@ -296,3 +296,4 @@ export default function InstagramBrowserPrompt() {
     </div>
   )
 }
+

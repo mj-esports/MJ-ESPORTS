@@ -232,9 +232,9 @@ export default function ReportsView({ tournaments = [] }) {
     <div className="space-y-6">
       
       {/* 1. MODULE HEADER & CSV EXPORT TOOLBAR */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3a494b]/60 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#27272A]/60 pb-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-xs font-mono font-bold uppercase">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 text-[#FFB900] text-xs font-mono font-bold uppercase">
             <FileText className="w-3.5 h-3.5" />
             <span>BUSINESS & OPERATIONAL REPORTS ENGINE</span>
           </div>
@@ -245,7 +245,7 @@ export default function ReportsView({ tournaments = [] }) {
 
         <button
           onClick={handleExportCSV}
-          className="px-4 py-2.5 bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] font-extrabold text-xs uppercase tracking-wider rounded-none shadow-[0_0_15px_rgba(0,242,255,0.4)] transition-all flex items-center gap-2 shrink-0 min-h-[40px]"
+          className="px-4 py-2.5 bg-[#FFB900] hover:bg-[#FFB900] text-[#000000] font-extrabold text-xs uppercase tracking-wider rounded-none  transition-all flex items-center gap-2 shrink-0 min-h-[40px]"
         >
           <Download className="w-4 h-4" />
           <span>Export {activeCategory} Report (CSV)</span>
@@ -255,7 +255,7 @@ export default function ReportsView({ tournaments = [] }) {
       {alert && <AuthAlert type={alert.type} message={alert.message} />}
 
       {/* 2. CATEGORY SELECTION TABS */}
-      <div className="flex border-b border-[#3a494b]/60 overflow-x-auto text-xs font-bold uppercase tracking-wider scrollbar-hide">
+      <div className="flex border-b border-[#27272A]/60 overflow-x-auto text-xs font-bold uppercase tracking-wider scrollbar-hide">
         {[
           { id: 'TOURNAMENTS', label: 'Tournament Reports', icon: Trophy },
           { id: 'PLAYERS', label: 'Player Reports', icon: Users },
@@ -271,8 +271,8 @@ export default function ReportsView({ tournaments = [] }) {
               onClick={() => setActiveCategory(tab.id)}
               className={`px-4 py-2.5 border-b-2 transition-all shrink-0 flex items-center gap-2 font-mono ${
                 isActive
-                  ? 'border-[#00f2ff] text-[#00f2ff] bg-[#00f2ff]/10 font-extrabold'
-                  : 'border-transparent text-[#8e9dae] hover:text-white'
+                  ? 'border-[#FFB900] text-[#FFB900] bg-[#FFB900]/10 font-extrabold'
+                  : 'border-transparent text-[#A1A1AA] hover:text-white'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -283,20 +283,20 @@ export default function ReportsView({ tournaments = [] }) {
       </div>
 
       {/* 3. REPORT DATASET TABLE / EXACT REQUIRED EMPTY STATE */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none overflow-hidden shadow-2xl">
+      <div className="bg-[#111215] border border-[#27272A]/60 rounded-none overflow-hidden shadow-2xl">
         {loading ? (
-          <div className="p-12 text-center text-[#8e9dae] space-y-2">
-            <div className="w-6 h-6 border-2 border-[#00f2ff] border-t-transparent rounded-none animate-spin mx-auto mb-2"></div>
+          <div className="p-12 text-center text-[#A1A1AA] space-y-2">
+            <div className="w-6 h-6 border-2 border-[#FFB900] border-t-transparent rounded-none animate-spin mx-auto mb-2"></div>
             <span>Compiling operational reports from database...</span>
           </div>
         ) : activeDatasetCount === 0 ? (
           <div className="p-12 text-center space-y-3">
-            <FileText className="w-12 h-12 text-[#00f2ff] mx-auto opacity-50 animate-pulse" />
+            <FileText className="w-12 h-12 text-[#FFB900] mx-auto opacity-50 animate-pulse" />
             <div className="space-y-1 max-w-md mx-auto">
               <h3 className="font-display-lg text-base sm:text-lg font-bold text-white uppercase tracking-wider">
                 No completed tournaments available.
               </h3>
-              <p className="text-xs text-[#8e9dae]">
+              <p className="text-xs text-[#A1A1AA]">
                 Reports will appear after tournament activity.
               </p>
             </div>
@@ -307,7 +307,7 @@ export default function ReportsView({ tournaments = [] }) {
             {activeCategory === 'TOURNAMENTS' && (
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
+                  <tr className="bg-[#000000] border-b border-[#27272A]/60 font-label-caps text-[#A1A1AA]">
                     <th className="p-3.5 pl-4">Tournament Title</th>
                     <th className="p-3.5">Game & Format</th>
                     <th className="p-3.5">Date</th>
@@ -316,16 +316,16 @@ export default function ReportsView({ tournaments = [] }) {
                     <th className="p-3.5 text-right pr-4">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#3a494b]/40">
+                <tbody className="divide-y divide-[#27272A]/40">
                   {tournamentReports.map((t) => (
-                    <tr key={`tr-${t.id}`} className="hover:bg-[#1d232c] transition-colors">
+                    <tr key={`tr-${t.id}`} className="hover:bg-[#18181B] transition-colors">
                       <td className="p-3.5 pl-4 font-extrabold text-white">{t.title}</td>
-                      <td className="p-3.5 text-[#00f2ff] font-bold">{t.game} ({t.format})</td>
-                      <td className="p-3.5 font-mono text-[#8e9dae]">{t.date}</td>
+                      <td className="p-3.5 text-[#FFB900] font-bold">{t.game} ({t.format})</td>
+                      <td className="p-3.5 font-mono text-[#A1A1AA]">{t.date}</td>
                       <td className="p-3.5 text-center font-mono font-bold text-white">{t.registeredTeams} Squads / {t.registeredPlayers} Players</td>
-                      <td className="p-3.5 text-center font-bold text-[#00ff9d]">{t.winner}</td>
+                      <td className="p-3.5 text-center font-bold text-[#10B981]">{t.winner}</td>
                       <td className="p-3.5 text-right pr-4">
-                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40">
+                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/40">
                           {t.status}
                         </span>
                       </td>
@@ -339,7 +339,7 @@ export default function ReportsView({ tournaments = [] }) {
             {activeCategory === 'PLAYERS' && (
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
+                  <tr className="bg-[#000000] border-b border-[#27272A]/60 font-label-caps text-[#A1A1AA]">
                     <th className="p-3.5 pl-4">Player Handle</th>
                     <th className="p-3.5">Email</th>
                     <th className="p-3.5">Game Character UID</th>
@@ -349,17 +349,17 @@ export default function ReportsView({ tournaments = [] }) {
                     <th className="p-3.5 text-right pr-4">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#3a494b]/40">
+                <tbody className="divide-y divide-[#27272A]/40">
                   {playerReports.map((p) => (
-                    <tr key={`pr-${p.id}`} className="hover:bg-[#1d232c] transition-colors">
+                    <tr key={`pr-${p.id}`} className="hover:bg-[#18181B] transition-colors">
                       <td className="p-3.5 pl-4 font-extrabold text-white">{p.username}</td>
-                      <td className="p-3.5 text-[#8e9dae] font-mono">{p.email}</td>
-                      <td className="p-3.5 font-mono text-[#00f2ff] font-bold">{p.gameUid}</td>
+                      <td className="p-3.5 text-[#A1A1AA] font-mono">{p.email}</td>
+                      <td className="p-3.5 font-mono text-[#FFB900] font-bold">{p.gameUid}</td>
                       <td className="p-3.5 text-center font-mono text-white">{p.matchesPlayed}</td>
-                      <td className="p-3.5 text-center font-mono font-bold text-[#00ff9d]">{p.wins}</td>
-                      <td className="p-3.5 text-center font-mono font-bold text-[#fe6b00]">{p.kills}</td>
+                      <td className="p-3.5 text-center font-mono font-bold text-[#10B981]">{p.wins}</td>
+                      <td className="p-3.5 text-center font-mono font-bold text-[#FF8C00]">{p.kills}</td>
                       <td className="p-3.5 text-right pr-4">
-                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40">
+                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#10B981]/10 text-[#10B981] border-[#10B981]/40">
                           {p.status}
                         </span>
                       </td>
@@ -373,7 +373,7 @@ export default function ReportsView({ tournaments = [] }) {
             {activeCategory === 'TEAMS' && (
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
+                  <tr className="bg-[#000000] border-b border-[#27272A]/60 font-label-caps text-[#A1A1AA]">
                     <th className="p-3.5 pl-4">Team Name</th>
                     <th className="p-3.5">Captain</th>
                     <th className="p-3.5 text-center">Members</th>
@@ -382,16 +382,16 @@ export default function ReportsView({ tournaments = [] }) {
                     <th className="p-3.5 text-right pr-4">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#3a494b]/40">
+                <tbody className="divide-y divide-[#27272A]/40">
                   {teamReports.map((tm) => (
-                    <tr key={`tmr-${tm.id}`} className="hover:bg-[#1d232c] transition-colors">
+                    <tr key={`tmr-${tm.id}`} className="hover:bg-[#18181B] transition-colors">
                       <td className="p-3.5 pl-4 font-extrabold text-white">{tm.name}</td>
-                      <td className="p-3.5 text-[#00f2ff] font-bold">{tm.captain}</td>
+                      <td className="p-3.5 text-[#FFB900] font-bold">{tm.captain}</td>
                       <td className="p-3.5 text-center font-mono text-white">{tm.membersCount} Players</td>
                       <td className="p-3.5 text-center font-mono text-white">{tm.matchesPlayed}</td>
-                      <td className="p-3.5 text-center font-mono font-bold text-[#00ff9d]">{tm.wins}</td>
+                      <td className="p-3.5 text-center font-mono font-bold text-[#10B981]">{tm.wins}</td>
                       <td className="p-3.5 text-right pr-4">
-                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40">
+                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#10B981]/10 text-[#10B981] border-[#10B981]/40">
                           {tm.status}
                         </span>
                       </td>
@@ -405,7 +405,7 @@ export default function ReportsView({ tournaments = [] }) {
             {activeCategory === 'MATCHES' && (
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
+                  <tr className="bg-[#000000] border-b border-[#27272A]/60 font-label-caps text-[#A1A1AA]">
                     <th className="p-3.5 pl-4">Match ID</th>
                     <th className="p-3.5">Tournament Title</th>
                     <th className="p-3.5">Game</th>
@@ -414,16 +414,16 @@ export default function ReportsView({ tournaments = [] }) {
                     <th className="p-3.5 text-right pr-4">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#3a494b]/40">
+                <tbody className="divide-y divide-[#27272A]/40">
                   {matchReports.map((mr) => (
-                    <tr key={`mr-${mr.id}`} className="hover:bg-[#1d232c] transition-colors">
-                      <td className="p-3.5 pl-4 font-mono font-extrabold text-[#00f2ff]">{mr.matchNumber}</td>
+                    <tr key={`mr-${mr.id}`} className="hover:bg-[#18181B] transition-colors">
+                      <td className="p-3.5 pl-4 font-mono font-extrabold text-[#FFB900]">{mr.matchNumber}</td>
                       <td className="p-3.5 font-bold text-white">{mr.tournamentTitle}</td>
-                      <td className="p-3.5 text-[#8e9dae] font-semibold">{mr.game}</td>
-                      <td className="p-3.5 text-center font-mono font-bold text-[#00ff9d]">{mr.roomPublished}</td>
-                      <td className="p-3.5 text-center font-bold text-[#fe6b00]">{mr.winner}</td>
+                      <td className="p-3.5 text-[#A1A1AA] font-semibold">{mr.game}</td>
+                      <td className="p-3.5 text-center font-mono font-bold text-[#10B981]">{mr.roomPublished}</td>
+                      <td className="p-3.5 text-center font-bold text-[#FF8C00]">{mr.winner}</td>
                       <td className="p-3.5 text-right pr-4">
-                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40">
+                        <span className="px-2.5 py-0.5 rounded-none text-[10px] font-mono font-extrabold uppercase border bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/40">
                           {mr.status}
                         </span>
                       </td>
@@ -437,7 +437,7 @@ export default function ReportsView({ tournaments = [] }) {
             {activeCategory === 'FINANCE' && (
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-[#07090c] border-b border-[#3a494b]/60 font-label-caps text-[#8e9dae]">
+                  <tr className="bg-[#000000] border-b border-[#27272A]/60 font-label-caps text-[#A1A1AA]">
                     <th className="p-3.5 pl-4">Tournament Title</th>
                     <th className="p-3.5">Entry Fee</th>
                     <th className="p-3.5 text-center">Registered Squads</th>
@@ -445,14 +445,14 @@ export default function ReportsView({ tournaments = [] }) {
                     <th className="p-3.5 text-right pr-4">Total Revenue Collected</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#3a494b]/40">
+                <tbody className="divide-y divide-[#27272A]/40">
                   {financeReports.map((fr) => (
-                    <tr key={`fr-${fr.id}`} className="hover:bg-[#1d232c] transition-colors">
+                    <tr key={`fr-${fr.id}`} className="hover:bg-[#18181B] transition-colors">
                       <td className="p-3.5 pl-4 font-extrabold text-white">{fr.tournamentTitle}</td>
-                      <td className="p-3.5 text-[#00f2ff] font-bold">{fr.entryFee}</td>
+                      <td className="p-3.5 text-[#FFB900] font-bold">{fr.entryFee}</td>
                       <td className="p-3.5 text-center font-mono font-bold text-white">{fr.registeredTeams} Squads</td>
-                      <td className="p-3.5 text-center font-mono text-[#ffb693] font-bold">{fr.prizePool}</td>
-                      <td className="p-3.5 text-right pr-4 font-mono font-extrabold text-[#00ff9d] text-sm">
+                      <td className="p-3.5 text-center font-mono text-[#FF8C00] font-bold">{fr.prizePool}</td>
+                      <td className="p-3.5 text-right pr-4 font-mono font-extrabold text-[#10B981] text-sm">
                         {fr.totalRevenue}
                       </td>
                     </tr>

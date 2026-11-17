@@ -340,7 +340,7 @@ export default function DashboardPage() {
             <div className="flex justify-center gap-3 font-mono text-xl font-bold text-white">
               <div className="flex flex-col"><span className="text-[#FF8C00]">02</span><span className="text-[9px] text-[#A1A1AA]">HRS</span></div>
               <span className="text-[#A1A1AA]/50">:</span>
-              <div className="flex flex-col"><span>45</span><span className="text-[9px] text-[#A1A1AA]">MIN</span></div>
+              <div className="flex flex-col"><span>45</span><span class="text-[9px] text-[#A1A1AA]">MIN</span></div>
               <span className="text-[#A1A1AA]/50">:</span>
               <div className="flex flex-col"><span>12</span><span className="text-[9px] text-[#A1A1AA]">SEC</span></div>
             </div>

@@ -1,4 +1,4 @@
-export const SUPPORTED_GAMES = ['Free Fire MAX']
+export const SUPPORTED_GAMES = ['Free Fire India']
 
 export const INITIAL_TOURNAMENTS = []
 export const MOCK_LEADERBOARD = []

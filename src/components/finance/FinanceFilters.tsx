@@ -42,7 +42,7 @@ export const FinanceFilters: React.FC<FinanceFiltersProps> = ({ filters, setFilt
         className="bg-[#07090c] border border-[#3a494b] text-white text-xs py-2 px-3 rounded focus:outline-none focus:border-[#00f2ff] font-mono uppercase"
       >
         <option value="ALL">ALL GAMES</option>
-        <option value="Free Fire">FREE FIRE MAX</option>
+        <option value="Free Fire">FREE FIRE INDIA</option>
         <option value="BGMI">BGMI MOBILE</option>
       </select>
 

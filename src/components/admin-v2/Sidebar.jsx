@@ -39,11 +39,14 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) 
         {/* Brand Logo Header */}
         <div className="h-16 px-6 flex items-center justify-between border-b border-slate-800/60">
           <div className="flex items-center gap-3">
-            <img
-              src="/mj-esports-logo.png"
-              alt="MJ ESPORTS"
-              className="h-10 w-10 rounded-none object-contain shrink-0 shadow-[0_0_12px_rgba(0,242,255,0.25)]"
-            />
+            <picture className="shrink-0 flex items-center justify-center">
+              <source type="image/webp" srcSet="/mj-esports-logo.webp" />
+              <img
+                src="/mj-esports-logo.png"
+                alt="MJ ESPORTS"
+                className="h-10 w-10 rounded-none object-contain shrink-0"
+              />
+            </picture>
             <div>
               <h1 className="font-extrabold text-lg text-white tracking-wider font-mono">
                 MJ <span className="text-cyan-400">ESPORTS</span>

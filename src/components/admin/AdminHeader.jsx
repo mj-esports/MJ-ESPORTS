@@ -67,7 +67,7 @@ export default function AdminHeader({
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-[#141416]/95 backdrop-blur-xl border-b border-[#27272a] h-16 px-3 sm:px-6 flex items-center justify-between shadow-md max-w-full box-border">
+    <header className="sticky top-0 z-40 bg-[#111215]/95 backdrop-blur-xl border-b border-[#27272A] h-16 px-3 sm:px-6 flex items-center justify-between shadow-md max-w-full box-border">
 
       {/* Left: Mobile Toggle, Brand Logo & Command Center Title */}
       <div className="flex items-center gap-2 sm:gap-4 min-w-0">
@@ -75,7 +75,7 @@ export default function AdminHeader({
         {onOpenMobileSidebar && (
           <button
             onClick={onOpenMobileSidebar}
-            className="lg:hidden p-2 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-[#00f2ff] hover:border-[#00f2ff]/40 focus:outline-none transition-all cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center shrink-0"
+            className="lg:hidden p-2 rounded-none bg-[#18181B] border border-[#27272A] text-[#A1A1AA] hover:text-[#FFB900] hover:border-[#FFB900]/40 focus:outline-none transition-all cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center shrink-0"
             aria-label="Open Admin Navigation Drawer"
           >
             <Menu className="w-5 h-5" />
@@ -84,26 +84,29 @@ export default function AdminHeader({
 
         {/* Brand Logo */}
         <Link to="/admin" className="flex items-center gap-2 group shrink-0" aria-label="MJ ESPORTS Admin Console">
-          <img
-            src="/mj-esports-logo.png"
-            alt="MJ ESPORTS"
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-none object-contain shrink-0 group-hover:scale-105 transition-transform"
-          />
+          <picture className="shrink-0 flex items-center justify-center">
+            <source type="image/webp" srcSet="/mj-esports-logo.webp" />
+            <img
+              src="/mj-esports-logo.png"
+              alt="MJ ESPORTS"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-none object-contain shrink-0 group-hover:scale-105 transition-transform"
+            />
+          </picture>
           <div className="block min-w-0">
             <span className="font-headline font-extrabold text-xs sm:text-sm tracking-wider text-white uppercase block leading-none truncate">
-              MJ <span className="text-[#00f2ff]">ESPORTS</span>
+              MJ <span className="text-[#FFB900]">ESPORTS</span>
             </span>
-            <span className="text-[8px] sm:text-[9px] uppercase font-label-bold text-[#849495] tracking-wider block mt-0.5 leading-none truncate">
+            <span className="text-[8px] sm:text-[9px] uppercase font-label-bold text-[#A1A1AA] tracking-wider block mt-0.5 leading-none truncate">
               ADMIN CONSOLE
             </span>
           </div>
         </Link>
 
-        <div className="h-5 w-[1px] bg-[#27272a] hidden md:block shrink-0"></div>
+        <div className="h-5 w-[1px] bg-[#27272A] hidden md:block shrink-0"></div>
 
         {/* Security Indicator */}
-        <div className="hidden sm:flex items-center gap-1.5 text-[#00f2ff] select-none shrink-0" title="Admin Control Console Active">
-          <Shield className="w-3.5 h-3.5 text-[#00f2ff] shrink-0" />
+        <div className="hidden sm:flex items-center gap-1.5 text-[#FFB900] select-none shrink-0" title="Admin Control Console Active">
+          <Shield className="w-3.5 h-3.5 text-[#FFB900] shrink-0" />
         </div>
       </div>
 
@@ -112,13 +115,13 @@ export default function AdminHeader({
 
         {/* Global Admin Search (Hidden on tiny mobile screens) */}
         <div className="relative hidden md:block w-44 lg:w-60">
-          <Search className="w-3.5 h-3.5 text-[#849495] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-3.5 h-3.5 text-[#A1A1AA] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder="Search console..."
-            className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-none pl-8 pr-3 py-1.5 text-xs text-white placeholder-[#849495] focus:border-[#00f2ff] focus:outline-none transition-colors h-[34px] font-body"
+            className="w-full bg-[#18181B] border border-[#27272A] rounded-none pl-8 pr-3 py-1.5 text-xs text-white placeholder-[#A1A1AA] focus:border-[#FFB900] focus:outline-none transition-colors h-[34px] font-body"
           />
         </div>
 
@@ -135,42 +138,42 @@ export default function AdminHeader({
             aria-expanded={showProfileMenu}
             aria-haspopup="true"
             aria-label="Admin account menu"
-            className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-none bg-[#1c1b1c] border transition-all cursor-pointer min-h-[36px] ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-none bg-[#18181B] border transition-all cursor-pointer min-h-[36px] ${
               showProfileMenu
-                ? 'border-[#00f2ff]/60 bg-[#201f20]'
-                : 'border-[#27272a] hover:border-[#00f2ff]/40'
+                ? 'border-[#FFB900]/60 bg-[#18181B]'
+                : 'border-[#27272A] hover:border-[#FFB900]/40'
             }`}
           >
-            <div className="w-5 h-5 rounded-none bg-[#00f2ff]/20 border border-[#00f2ff] overflow-hidden flex items-center justify-center shrink-0">
+            <div className="w-5 h-5 rounded-none bg-[#FFB900]/20 border border-[#FFB900] overflow-hidden flex items-center justify-center shrink-0">
               {adminAvatarUrl ? (
                 <img src={adminAvatarUrl} alt={adminName} className="w-full h-full object-cover" />
               ) : (
-                <User className="w-3 h-3 text-[#00f2ff]" />
+                <User className="w-3 h-3 text-[#FFB900]" />
               )}
             </div>
             <span className="text-white font-headline text-xs truncate max-w-[60px] sm:max-w-[100px] hidden xs:inline">{adminName}</span>
-            <span className="px-1.5 py-0.5 text-[8px] font-headline font-extrabold bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/30 rounded-none uppercase tracking-wider shrink-0">
+            <span className="px-1.5 py-0.5 text-[8px] font-headline font-extrabold bg-[#FFB900]/15 text-[#FFB900] border border-[#FFB900]/30 rounded-none uppercase tracking-wider shrink-0">
               ADMIN
             </span>
-            <ChevronDown className={`w-3 h-3 text-[#849495] transition-transform duration-200 shrink-0 ${showProfileMenu ? 'rotate-180 text-[#00f2ff]' : ''}`} />
+            <ChevronDown className={`w-3 h-3 text-[#A1A1AA] transition-transform duration-200 shrink-0 ${showProfileMenu ? 'rotate-180 text-[#FFB900]' : ''}`} />
           </button>
 
           {showProfileMenu && (
             <div
-              className="absolute right-0 mt-2 w-56 sm:w-64 bg-[#141416] border border-[#27272a] rounded-none shadow-2xl py-2 z-50 animate-fadeIn text-xs"
+              className="absolute right-0 mt-2 w-56 sm:w-64 bg-[#111215] border border-[#27272A] rounded-none shadow-2xl py-2 z-50 animate-fadeIn text-xs"
               role="menu"
               aria-orientation="vertical"
               aria-label="Admin profile options"
             >
               {/* Admin identity summary */}
-              <div className="px-4 py-2.5 border-b border-[#27272a]">
+              <div className="px-4 py-2.5 border-b border-[#27272A]">
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-bold text-white truncate font-headline text-xs">{adminName}</p>
-                  <span className="px-1.5 py-0.5 text-[8px] font-headline font-extrabold bg-[#00f2ff]/15 text-[#00f2ff] border border-[#00f2ff]/30 rounded-none uppercase tracking-wider shrink-0">
+                  <span className="px-1.5 py-0.5 text-[8px] font-headline font-extrabold bg-[#FFB900]/15 text-[#FFB900] border border-[#FFB900]/30 rounded-none uppercase tracking-wider shrink-0">
                     ADMIN
                   </span>
                 </div>
-                <p className="text-[11px] text-[#849495] truncate font-body mt-0.5">{adminEmail}</p>
+                <p className="text-[11px] text-[#A1A1AA] truncate font-body mt-0.5">{adminEmail}</p>
               </div>
 
               <div className="p-1 space-y-0.5">
@@ -178,14 +181,14 @@ export default function AdminHeader({
                 <Link
                   to="/"
                   onClick={() => setShowProfileMenu(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-none text-[#e5e2e3] hover:text-[#00f2ff] hover:bg-[#1c1b1c] font-headline font-bold text-xs transition-colors group cursor-pointer"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-none text-[#FFFFFF] hover:text-[#FFB900] hover:bg-[#18181B] font-headline font-bold text-xs transition-colors group cursor-pointer"
                   id="admin-open-user-portal"
                   role="menuitem"
                 >
-                  <Home className="w-4 h-4 text-[#00f2ff] group-hover:scale-110 transition-transform shrink-0" />
+                  <Home className="w-4 h-4 text-[#FFB900] group-hover:scale-110 transition-transform shrink-0" />
                   <div className="flex flex-col">
                     <span>Open User Portal</span>
-                    <span className="text-[10px] text-[#849495] font-normal font-body">Switch to player-facing arena</span>
+                    <span className="text-[10px] text-[#A1A1AA] font-normal font-body">Switch to player-facing arena</span>
                   </div>
                 </Link>
 
@@ -193,17 +196,17 @@ export default function AdminHeader({
                 <Link
                   to="/admin/settings"
                   onClick={() => setShowProfileMenu(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-none text-[#b9cacb] hover:text-white hover:bg-[#1c1b1c] font-headline font-medium text-xs transition-colors group cursor-pointer"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-none text-[#A1A1AA] hover:text-white hover:bg-[#18181B] font-headline font-medium text-xs transition-colors group cursor-pointer"
                   id="admin-settings-link"
                   role="menuitem"
                 >
-                  <Settings className="w-4 h-4 text-[#849495] group-hover:text-white group-hover:scale-110 transition-transform shrink-0" />
+                  <Settings className="w-4 h-4 text-[#A1A1AA] group-hover:text-white group-hover:scale-110 transition-transform shrink-0" />
                   <span>Admin Settings</span>
                 </Link>
               </div>
 
               {/* Divider */}
-              <div className="border-t border-[#27272a] my-1" />
+              <div className="border-t border-[#27272A] my-1" />
 
               {/* 3. Sign Out */}
               <div className="p-1">
@@ -229,7 +232,7 @@ export default function AdminHeader({
         {/* Direct Logout Button */}
         <button
           onClick={handleLogout}
-          className="p-2 rounded-none bg-[#1c1b1c] border border-[#27272a] text-[#849495] hover:text-red-400 hover:border-red-900/40 transition-colors hidden sm:flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px] shrink-0"
+          className="p-2 rounded-none bg-[#18181B] border border-[#27272A] text-[#A1A1AA] hover:text-red-400 hover:border-red-900/40 transition-colors hidden sm:flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px] shrink-0"
           title="Logout Session"
         >
           <LogOut className="w-4 h-4" />

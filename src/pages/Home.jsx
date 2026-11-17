@@ -114,7 +114,7 @@ export default function Home() {
 
           {/* Hero Tagline: Maximum 2 balanced lines on mobile, 15-16px, tighter 1.36 leading, reduced gap to CTA */}
           <p className="font-body text-[#A1A1AA] text-[14px] xs:text-[15px] sm:text-[16px] md:text-[17px] max-w-2xl mx-auto mb-3 sm:mb-4 md:mb-5 font-normal leading-[1.36] sm:leading-[1.4] text-center px-1">
-            Every Match Counts. Every Kill Matters. Compete in India's premier Free Fire MAX esports tournament arena.
+            Every Match Counts. Every Kill Matters. Compete in India's premier Free Fire India esports tournament arena.
           </p>
 
           {/* Single Prominent Primary Action Button: TOURNAMENTS */}
@@ -238,7 +238,7 @@ export default function Home() {
                         <div className="absolute inset-0 bg-gradient-to-t from-[#111215] via-[#111215]/40 to-transparent"></div>
                         <div className="absolute bottom-2 left-2.5 flex items-center gap-1.5">
                           <span className="px-2 py-0.5 bg-[#FFB900]/15 text-[#FFB900] border border-[#FFB900]/30 text-[11px] sm:text-[12px] font-label-bold uppercase rounded-none tracking-wider">
-                            {t.game || 'Free Fire MAX'}
+                            {t.game || 'Free Fire India'}
                           </span>
                           {t.mode && (
                             <span className="px-1.5 py-0.5 bg-[#18181B]/90 text-[#A1A1AA] border border-[#27272A] text-[11px] font-label-bold uppercase rounded-none">

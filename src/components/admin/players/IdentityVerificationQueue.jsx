@@ -149,22 +149,22 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
     <div className="space-y-5 font-mono">
 
       {/* Header Banner & Filters */}
-      <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#111215] border border-[#27272A]/60 rounded-none p-4 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-[#00f2ff]" />
+            <ShieldCheck className="w-5 h-5 text-[#FFB900]" />
             <h3 className="font-headline text-sm font-bold text-white uppercase tracking-wide">
               PLAYER IDENTITY EVIDENCE AUDIT CONSOLE
             </h3>
           </div>
-          <p className="text-xs text-[#8e9dae] mt-0.5">
+          <p className="text-xs text-[#A1A1AA] mt-0.5">
             Audit player Free Fire profile screenshot proofs linking UID and exact IGN before tournament participation.
           </p>
         </div>
 
         {/* Filter Pills & Sync Button */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-[#07090c] p-1 rounded-none border border-[#3a494b]">
+          <div className="flex items-center bg-[#000000] p-1 rounded-none border border-[#27272A]">
             {[
               { id: 'PENDING', label: 'Pending Review', count: evidenceList.filter((e) => e.status === 'PENDING').length },
               { id: 'VERIFIED', label: 'Verified', count: evidenceList.filter((e) => e.status === 'VERIFIED').length },
@@ -176,12 +176,12 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
                 onClick={() => setFilterStatus(f.id)}
                 className={`px-3 py-1.5 rounded-none text-[10px] font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
                   filterStatus === f.id
-                    ? 'bg-[#00f2ff] text-black shadow-md'
-                    : 'text-[#8e9dae] hover:text-white'
+                    ? 'bg-[#FFB900] text-black shadow-md'
+                    : 'text-[#A1A1AA] hover:text-white'
                 }`}
               >
                 <span>{f.label}</span>
-                <span className={`px-1 py-0.2 rounded-none text-[9px] ${filterStatus === f.id ? 'bg-black text-[#00f2ff]' : 'bg-[#151a21] text-[#8e9dae]'}`}>
+                <span className={`px-1 py-0.2 rounded-none text-[9px] ${filterStatus === f.id ? 'bg-black text-[#FFB900]' : 'bg-[#111215] text-[#A1A1AA]'}`}>
                   {f.count}
                 </span>
               </button>
@@ -190,7 +190,7 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
 
           <button
             onClick={fetchEvidence}
-            className="p-2 bg-[#07090c] hover:bg-[#1d232c] text-[#00f2ff] border border-[#3a494b] rounded-none transition-all cursor-pointer"
+            className="p-2 bg-[#000000] hover:bg-[#18181B] text-[#FFB900] border border-[#27272A] rounded-none transition-all cursor-pointer"
             title="Refresh Evidence Queue"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -200,47 +200,47 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
 
       {/* Main Evidence Grid */}
       {filteredEvidence.length === 0 ? (
-        <div className="p-12 bg-[#151a21] border border-[#3a494b]/60 rounded-none text-center space-y-2">
-          <CheckCircle2 className="w-10 h-10 text-[#00ff9d] mx-auto opacity-80" />
+        <div className="p-12 bg-[#111215] border border-[#27272A]/60 rounded-none text-center space-y-2">
+          <CheckCircle2 className="w-10 h-10 text-[#10B981] mx-auto opacity-80" />
           <h4 className="font-headline text-sm font-bold text-white uppercase">No Evidence Records in this Category</h4>
-          <p className="text-xs text-[#8e9dae]">All player profile evidence in "{filterStatus}" state has been processed.</p>
+          <p className="text-xs text-[#A1A1AA]">All player profile evidence in "{filterStatus}" state has been processed.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {filteredEvidence.map((item) => (
             <div
               key={`ev-card-${item.id}`}
-              className="bg-[#151a21] border border-[#3a494b]/60 hover:border-[#00f2ff]/50 rounded-none p-5 shadow-xl transition-all space-y-4 flex flex-col justify-between"
+              className="bg-[#111215] border border-[#27272A]/60 hover:border-[#FFB900]/50 rounded-none p-5 shadow-xl transition-all space-y-4 flex flex-col justify-between"
             >
               <div className="space-y-3">
                 
                 {/* Header: Player Info + Status Badge */}
-                <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
+                <div className="flex items-center justify-between border-b border-[#27272A]/60 pb-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-none bg-[#07090c] border border-[#00f2ff]/40 flex items-center justify-center text-[#00f2ff] font-bold text-xs">
+                    <div className="w-8 h-8 rounded-none bg-[#000000] border border-[#FFB900]/40 flex items-center justify-center text-[#FFB900] font-bold text-xs">
                       {(item.canonical_ign || item.username || 'P')[0].toUpperCase()}
                     </div>
                     <div>
                       <span className="font-bold text-white text-xs block">{item.canonical_ign || item.username}</span>
-                      <span className="text-[10px] text-[#8e9dae]">{item.email || 'Registered User'}</span>
+                      <span className="text-[10px] text-[#A1A1AA]">{item.email || 'Registered User'}</span>
                     </div>
                   </div>
 
                   <div>
                     {item.status === 'VERIFIED' && (
-                      <span className="px-2.5 py-1 rounded-none text-[10px] font-bold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 uppercase flex items-center gap-1">
+                      <span className="px-2.5 py-1 rounded-none text-[10px] font-bold bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30 uppercase flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3" />
                         Verified
                       </span>
                     )}
                     {item.status === 'PENDING' && (
-                      <span className="px-2.5 py-1 rounded-none text-[10px] font-bold bg-[#fe6b00]/10 text-[#fe6b00] border border-[#fe6b00]/30 uppercase flex items-center gap-1">
+                      <span className="px-2.5 py-1 rounded-none text-[10px] font-bold bg-[#FF8C00]/10 text-[#FF8C00] border border-[#FF8C00]/30 uppercase flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         Pending Audit
                       </span>
                     )}
                     {(item.status === 'REJECTED' || item.status === 'REQUIRES_REUPLOAD') && (
-                      <span className="px-2.5 py-1 rounded-none text-[10px] font-bold bg-[#ff4655]/10 text-[#ff4655] border border-[#ff4655]/30 uppercase flex items-center gap-1">
+                      <span className="px-2.5 py-1 rounded-none text-[10px] font-bold bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/30 uppercase flex items-center gap-1">
                         <AlertTriangle className="w-3 h-3" />
                         {item.status === 'REQUIRES_REUPLOAD' ? 'Re-upload' : 'Rejected'}
                       </span>
@@ -253,32 +253,32 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
                   
                   {/* 1. Registered Database Identity (4 Cols) */}
                   {/* 1. Registered Player Data (6 Cols) */}
-                  <div className="md:col-span-6 bg-[#07090c] p-3.5 rounded-none border border-[#3a494b] space-y-2.5">
-                    <span className="text-[9px] text-[#00f2ff] font-bold uppercase block tracking-wider">
+                  <div className="md:col-span-6 bg-[#000000] p-3.5 rounded-none border border-[#27272A] space-y-2.5">
+                    <span className="text-[9px] text-[#FFB900] font-bold uppercase block tracking-wider">
                       PLAYER IDENTITY DETAILS
                     </span>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">
-                        <span className="text-[9px] text-[#8e9dae] uppercase block">Game UID</span>
-                        <span className="font-bold text-[#00ff9d] font-mono text-sm block">{item.game_uid}</span>
+                        <span className="text-[9px] text-[#A1A1AA] uppercase block">Game UID</span>
+                        <span className="font-bold text-[#10B981] font-mono text-sm block">{item.game_uid}</span>
                       </div>
                       <div className="space-y-1">
-                        <span className="text-[9px] text-[#8e9dae] uppercase block">Platform Username</span>
+                        <span className="text-[9px] text-[#A1A1AA] uppercase block">Platform Username</span>
                         <span className="font-bold text-white text-sm block truncate">{item.username || 'Player'}</span>
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[9px] text-[#8e9dae] uppercase block">Exact Canonical IGN</span>
+                      <span className="text-[9px] text-[#A1A1AA] uppercase block">Exact Canonical IGN</span>
                       <span className="font-bold text-white font-mono block break-all">{item.canonical_ign || item.username}</span>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[9px] text-[#8e9dae] uppercase block">Normalized Key</span>
-                      <span className="text-[10px] text-[#8e9dae] font-mono block">{item.normalized_ign || (item.canonical_ign || '').toLowerCase()}</span>
+                      <span className="text-[9px] text-[#A1A1AA] uppercase block">Normalized Key</span>
+                      <span className="text-[10px] text-[#A1A1AA] font-mono block">{item.normalized_ign || (item.canonical_ign || '').toLowerCase()}</span>
                     </div>
                   </div>
 
                   {/* 2. Original Uploaded Screenshot Proof (6 Cols) */}
-                  <div className="md:col-span-6 bg-[#07090c] p-2.5 rounded-none border border-[#3a494b] flex flex-col justify-between relative group">
+                  <div className="md:col-span-6 bg-[#000000] p-2.5 rounded-none border border-[#27272A] flex flex-col justify-between relative group">
                     <div className="aspect-video w-full rounded-none overflow-hidden bg-black flex items-center justify-center relative">
                       {item.signedUrl ? (
                         <img
@@ -287,7 +287,7 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="text-center p-2 text-[#8e9dae]">
+                        <div className="text-center p-2 text-[#A1A1AA]">
                           <FileImage className="w-5 h-5 mx-auto opacity-60" />
                           <span className="text-[9px] block">No image</span>
                         </div>
@@ -299,14 +299,14 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
                         }}
                         className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-1 text-xs font-bold uppercase cursor-pointer"
                       >
-                        <ZoomIn className="w-4 h-4 text-[#00f2ff]" />
+                        <ZoomIn className="w-4 h-4 text-[#FFB900]" />
                         <span>Inspect Full Screenshot</span>
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between pt-1.5 px-1 text-[9px] text-[#8e9dae]">
+                    <div className="flex items-center justify-between pt-1.5 px-1 text-[9px] text-[#A1A1AA]">
                       <span>Uploaded {new Date(item.created_at).toLocaleDateString()}</span>
-                      <span className="text-[#00f2ff] font-bold">Screenshot Evidence</span>
+                      <span className="text-[#FFB900] font-bold">Screenshot Evidence</span>
                     </div>
                   </div>
 
@@ -314,7 +314,7 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
 
                 {/* Display Rejection Reason if any */}
                 {item.rejection_reason && (
-                  <div className="p-2.5 bg-[#ff4655]/10 border border-[#ff4655]/30 rounded-none text-[11px] text-[#ff4655]">
+                  <div className="p-2.5 bg-[#EF4444]/10 border border-[#EF4444]/30 rounded-none text-[11px] text-[#EF4444]">
                     <strong>Rejection Reason:</strong> {item.rejection_reason}
                   </div>
                 )}
@@ -322,11 +322,11 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 border-t border-[#3a494b]/60 flex items-center gap-2">
+              <div className="pt-3 border-t border-[#27272A]/60 flex items-center gap-2">
                 <button
                   onClick={() => handleVerify(item)}
                   disabled={isSubmitting}
-                  className="flex-1 py-2 bg-[#00ff9d] hover:bg-[#00ff9d]/90 text-black text-xs font-black uppercase tracking-wider rounded-none transition-all shadow-[0_0_12px_rgba(0,255,157,0.3)] flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="flex-1 py-2 bg-[#10B981] hover:bg-[#10B981]/90 text-black text-xs font-black uppercase tracking-wider rounded-none transition-all  flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>Verify Evidence</span>
@@ -335,7 +335,7 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
                 <button
                   onClick={() => handleOpenReject(item, 'REJECTED')}
                   disabled={isSubmitting}
-                  className="px-3.5 py-2 bg-[#ff4655]/10 hover:bg-[#ff4655]/20 text-[#ff4655] border border-[#ff4655]/30 rounded-none text-xs font-bold uppercase transition-all cursor-pointer"
+                  className="px-3.5 py-2 bg-[#EF4444]/10 hover:bg-[#EF4444]/20 text-[#EF4444] border border-[#EF4444]/30 rounded-none text-xs font-bold uppercase transition-all cursor-pointer"
                 >
                   Reject
                 </button>
@@ -343,7 +343,7 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
                 <button
                   onClick={() => handleOpenReject(item, 'REQUIRES_REUPLOAD')}
                   disabled={isSubmitting}
-                  className="px-3 py-2 bg-[#fe6b00]/10 hover:bg-[#fe6b00]/20 text-[#fe6b00] border border-[#fe6b00]/30 rounded-none text-xs font-bold uppercase transition-all cursor-pointer"
+                  className="px-3 py-2 bg-[#FF8C00]/10 hover:bg-[#FF8C00]/20 text-[#FF8C00] border border-[#FF8C00]/30 rounded-none text-xs font-bold uppercase transition-all cursor-pointer"
                   title="Require Player to Re-upload Proof"
                 >
                   Re-upload
@@ -358,28 +358,28 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
       {/* FULL SCREENSHOT INSPECTION MODAL (ZOOM) */}
       {isZoomOpen && selectedProof && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn">
-          <div className="bg-[#151a21] border border-[#3a494b] rounded-none max-w-4xl w-full p-6 space-y-4 shadow-2xl relative">
+          <div className="bg-[#111215] border border-[#27272A] rounded-none max-w-4xl w-full p-6 space-y-4 shadow-2xl relative">
             <button
               onClick={() => {
                 setIsZoomOpen(false)
                 setSelectedProof(null)
               }}
-              className="absolute top-4 right-4 p-2 rounded-none bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white cursor-pointer"
+              className="absolute top-4 right-4 p-2 rounded-none bg-[#000000] border border-[#27272A] text-[#A1A1AA] hover:text-white cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center justify-between border-b border-[#3a494b]/60 pb-3">
+            <div className="flex items-center justify-between border-b border-[#27272A]/60 pb-3">
               <div>
                 <h4 className="font-headline text-base font-bold text-white uppercase flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-[#00f2ff]" />
+                  <ShieldCheck className="w-5 h-5 text-[#FFB900]" />
                   <span>Evidence Inspection: {selectedProof.canonical_ign || selectedProof.username}</span>
                 </h4>
-                <p className="text-xs text-[#8e9dae]">Registered Game UID: {selectedProof.game_uid}</p>
+                <p className="text-xs text-[#A1A1AA]">Registered Game UID: {selectedProof.game_uid}</p>
               </div>
             </div>
 
-            <div className="max-h-[70vh] overflow-auto rounded-none border border-[#3a494b] bg-black p-2 flex items-center justify-center">
+            <div className="max-h-[70vh] overflow-auto rounded-none border border-[#27272A] bg-black p-2 flex items-center justify-center">
               <img
                 src={selectedProof.signedUrl}
                 alt="Full Free Fire Profile Proof Screenshot"
@@ -388,14 +388,14 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
             </div>
 
             <div className="flex items-center justify-between pt-2">
-              <span className="text-xs text-[#8e9dae]">Inspect UID and IGN matches against registered profile.</span>
+              <span className="text-xs text-[#A1A1AA]">Inspect UID and IGN matches against registered profile.</span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
                     handleVerify(selectedProof)
                     setIsZoomOpen(false)
                   }}
-                  className="px-4 py-2 bg-[#00ff9d] text-black rounded-none text-xs font-black uppercase hover:bg-[#00ff9d]/90 cursor-pointer"
+                  className="px-4 py-2 bg-[#10B981] text-black rounded-none text-xs font-black uppercase hover:bg-[#10B981]/90 cursor-pointer"
                 >
                   Verify Now
                 </button>
@@ -404,7 +404,7 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
                     setIsZoomOpen(false)
                     handleOpenReject(selectedProof, 'REJECTED')
                   }}
-                  className="px-4 py-2 bg-[#ff4655]/10 border border-[#ff4655]/30 text-[#ff4655] rounded-none text-xs font-bold uppercase hover:bg-[#ff4655]/20 cursor-pointer"
+                  className="px-4 py-2 bg-[#EF4444]/10 border border-[#EF4444]/30 text-[#EF4444] rounded-none text-xs font-bold uppercase hover:bg-[#EF4444]/20 cursor-pointer"
                 >
                   Reject Proof
                 </button>
@@ -417,35 +417,35 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
       {/* REJECTION REASON MODAL */}
       {isRejectModalOpen && rejectionTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-          <div className="bg-[#151a21] border border-[#ff4655]/40 rounded-none max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+          <div className="bg-[#111215] border border-[#EF4444]/40 rounded-none max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
             <button
               onClick={() => {
                 setIsRejectModalOpen(false)
                 setRejectionTarget(null)
               }}
-              className="absolute top-4 right-4 p-2 rounded-none bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white cursor-pointer"
+              className="absolute top-4 right-4 p-2 rounded-none bg-[#000000] border border-[#27272A] text-[#A1A1AA] hover:text-white cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="border-b border-[#3a494b]/60 pb-3 space-y-1">
-              <h4 className="font-headline text-base font-bold text-[#ff4655] uppercase flex items-center gap-2">
+            <div className="border-b border-[#27272A]/60 pb-3 space-y-1">
+              <h4 className="font-headline text-base font-bold text-[#EF4444] uppercase flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5" />
                 <span>{rejectionActionType === 'REQUIRES_REUPLOAD' ? 'Request Re-upload' : 'Reject Profile Evidence'}</span>
               </h4>
-              <p className="text-xs text-[#8e9dae]">
+              <p className="text-xs text-[#A1A1AA]">
                 Player: <strong className="text-white">{rejectionTarget.canonical_ign || rejectionTarget.username}</strong> (UID: {rejectionTarget.game_uid})
               </p>
             </div>
 
             <div className="space-y-3 text-xs">
-              <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">Select Rejection / Feedback Reason</label>
+              <label className="text-[11px] font-bold text-[#A1A1AA] uppercase block">Select Rejection / Feedback Reason</label>
               
               <div className="space-y-1.5">
                 {STANDARD_REASONS.map((reason, idx) => (
                   <label
                     key={`std-rsn-${idx}`}
-                    className="flex items-start gap-2.5 p-2.5 rounded-none bg-[#07090c] border border-[#3a494b] hover:border-[#00f2ff]/40 cursor-pointer text-[#8e9dae] hover:text-white"
+                    className="flex items-start gap-2.5 p-2.5 rounded-none bg-[#000000] border border-[#27272A] hover:border-[#FFB900]/40 cursor-pointer text-[#A1A1AA] hover:text-white"
                   >
                     <input
                       type="radio"
@@ -460,25 +460,25 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
               </div>
 
               <div className="space-y-1 pt-1">
-                <label className="text-[11px] font-bold text-[#8e9dae] uppercase block">Custom Note to Player</label>
+                <label className="text-[11px] font-bold text-[#A1A1AA] uppercase block">Custom Note to Player</label>
                 <textarea
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                   rows={2}
-                  className="w-full bg-[#07090c] border border-[#3a494b] focus:border-[#ff4655] rounded-none p-2.5 text-xs text-white focus:outline-none"
+                  className="w-full bg-[#000000] border border-[#27272A] focus:border-[#EF4444] rounded-none p-2.5 text-xs text-white focus:outline-none"
                   placeholder="Provide specific feedback..."
                 ></textarea>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#3a494b]/60">
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#27272A]/60">
               <button
                 type="button"
                 onClick={() => {
                   setIsRejectModalOpen(false)
                   setRejectionTarget(null)
                 }}
-                className="px-4 py-2 bg-[#07090c] border border-[#3a494b] text-[#8e9dae] hover:text-white rounded-none text-xs font-bold uppercase cursor-pointer"
+                className="px-4 py-2 bg-[#000000] border border-[#27272A] text-[#A1A1AA] hover:text-white rounded-none text-xs font-bold uppercase cursor-pointer"
               >
                 Cancel
               </button>
@@ -487,7 +487,7 @@ export default function IdentityVerificationQueue({ users = [], onUpdateStatus, 
                 type="button"
                 onClick={handleConfirmRejection}
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-[#ff4655] text-white rounded-none text-xs font-extrabold uppercase hover:bg-[#ff4655]/90 transition-all shadow-[0_0_12px_rgba(255,70,85,0.3)] cursor-pointer"
+                className="px-4 py-2 bg-[#EF4444] text-white rounded-none text-xs font-extrabold uppercase hover:bg-[#EF4444]/90 transition-all  cursor-pointer"
               >
                 {isSubmitting ? 'Saving...' : 'Confirm Decision'}
               </button>

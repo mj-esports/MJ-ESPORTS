@@ -48,58 +48,58 @@ export default function MatchControlCommandCenter({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
         
         {/* Total Matches */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
+        <div className="bg-[#111215] border border-[#27272A]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Total Matches</span>
-            <Layers className="w-4 h-4 text-[#8e9dae]" />
+            <span className="text-[#A1A1AA] uppercase font-bold text-[10px]">Total Matches</span>
+            <Layers className="w-4 h-4 text-[#A1A1AA]" />
           </div>
           <span className="font-display-lg text-2xl font-extrabold text-white block">{stats.total}</span>
-          <span className="text-[10px] text-[#8e9dae] block">Total Tournament Operations</span>
+          <span className="text-[10px] text-[#A1A1AA] block">Total Tournament Operations</span>
         </div>
 
         {/* Upcoming Matches */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
+        <div className="bg-[#111215] border border-[#27272A]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Upcoming Matches</span>
-            <Clock className="w-4 h-4 text-[#00f2ff]" />
+            <span className="text-[#A1A1AA] uppercase font-bold text-[10px]">Upcoming Matches</span>
+            <Clock className="w-4 h-4 text-[#FFB900]" />
           </div>
-          <span className="font-display-lg text-2xl font-extrabold text-[#00f2ff] block">{stats.upcoming}</span>
-          <span className="text-[10px] text-[#00f2ff]/80 block">Registration / Scheduled Phase</span>
+          <span className="font-display-lg text-2xl font-extrabold text-[#FFB900] block">{stats.upcoming}</span>
+          <span className="text-[10px] text-[#FFB900]/80 block">Registration / Scheduled Phase</span>
         </div>
 
         {/* Live Matches */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
+        <div className="bg-[#111215] border border-[#27272A]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Live Matches</span>
-            <Radio className="w-4 h-4 text-[#fe6b00] animate-pulse" />
+            <span className="text-[#A1A1AA] uppercase font-bold text-[10px]">Live Matches</span>
+            <Radio className="w-4 h-4 text-[#FF8C00] animate-pulse" />
           </div>
-          <span className="font-display-lg text-2xl font-extrabold text-[#fe6b00] block">{stats.live}</span>
-          <span className="text-[10px] text-[#fe6b00]/80 block">Active Lobbies & In-Game Ops</span>
+          <span className="font-display-lg text-2xl font-extrabold text-[#FF8C00] block">{stats.live}</span>
+          <span className="text-[10px] text-[#FF8C00]/80 block">Active Lobbies & In-Game Ops</span>
         </div>
 
         {/* Completed Matches */}
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
+        <div className="bg-[#111215] border border-[#27272A]/60 rounded-none p-4 space-y-1 shadow-xl relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-[#8e9dae] uppercase font-bold text-[10px]">Completed Matches</span>
-            <CheckCircle2 className="w-4 h-4 text-[#00ff9d]" />
+            <span className="text-[#A1A1AA] uppercase font-bold text-[10px]">Completed Matches</span>
+            <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
           </div>
-          <span className="font-display-lg text-2xl font-extrabold text-[#00ff9d] block">{stats.completed}</span>
-          <span className="text-[10px] text-[#00ff9d]/80 block">Verified Scores & Results</span>
+          <span className="font-display-lg text-2xl font-extrabold text-[#10B981] block">{stats.completed}</span>
+          <span className="text-[10px] text-[#10B981]/80 block">Verified Scores & Results</span>
         </div>
 
       </div>
 
       {/* 2. LIVE OPERATIONS PANEL */}
       {selectedTourney ? (
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-5 sm:p-6 space-y-5 shadow-2xl relative overflow-hidden">
+        <div className="bg-[#111215] border border-[#27272A]/60 rounded-none p-5 sm:p-6 space-y-5 shadow-2xl relative overflow-hidden">
           {/* Top Banner Tag */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#3a494b]/60 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#27272A]/60 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-none bg-[#00f2ff]/10 border border-[#00f2ff]/40 flex items-center justify-center font-mono text-xs font-extrabold text-[#00f2ff] shrink-0">
+              <div className="w-10 h-10 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/40 flex items-center justify-center font-mono text-xs font-extrabold text-[#FFB900] shrink-0">
                 #001
               </div>
               <div>
-                <span className="text-[10px] font-mono font-bold text-[#8e9dae] uppercase block">ACTIVE MATCH OPERATIONAL CONTROL</span>
+                <span className="text-[10px] font-mono font-bold text-[#A1A1AA] uppercase block">ACTIVE MATCH OPERATIONAL CONTROL</span>
                 <h3 className="font-display-lg text-lg font-extrabold text-white uppercase tracking-tight">
                   {selectedTourney.title}
                 </h3>
@@ -110,10 +110,10 @@ export default function MatchControlCommandCenter({
               {/* Match Status Badge */}
               <span className={`px-2.5 py-1 rounded-none text-xs font-mono font-extrabold uppercase border ${
                 selectedTourney.status === 'Live Now' || selectedTourney.status === 'Live'
-                  ? 'bg-[#fe6b00]/10 text-[#fe6b00] border-[#fe6b00]/40 animate-pulse'
+                  ? 'bg-[#FF8C00]/10 text-[#FF8C00] border-[#FF8C00]/40 animate-pulse'
                   : selectedTourney.status === 'Completed'
-                  ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
-                  : 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40'
+                  ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/40'
+                  : 'bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/40'
               }`}>
                 ● Status: {selectedTourney.status}
               </span>
@@ -121,7 +121,7 @@ export default function MatchControlCommandCenter({
               {/* Room Dispatch State Badge */}
               <span className={`px-2.5 py-1 rounded-none text-xs font-mono font-extrabold uppercase border flex items-center gap-1 ${
                 roomPublished
-                  ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/40'
+                  ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/40'
                   : 'bg-amber-500/10 text-amber-400 border-amber-500/40'
               }`}>
                 {roomPublished ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
@@ -132,37 +132,37 @@ export default function MatchControlCommandCenter({
 
           {/* Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/40 space-y-1">
-              <span className="text-[10px] text-[#8e9dae] font-bold uppercase block">Game & Format</span>
+            <div className="p-3 bg-[#000000] rounded-none border border-[#27272A]/40 space-y-1">
+              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase block">Game & Format</span>
               <span className="font-extrabold text-white block">{selectedTourney.game} ({selectedTourney.format})</span>
-              <span className="text-[#00f2ff] font-mono text-[10px]">Map / Mode Verified</span>
+              <span className="text-[#FFB900] font-mono text-[10px]">Map / Mode Verified</span>
             </div>
 
-            <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/40 space-y-1">
-              <span className="text-[10px] text-[#8e9dae] font-bold uppercase block">Participating Teams</span>
-              <span className="font-extrabold text-[#00ff9d] block">
+            <div className="p-3 bg-[#000000] rounded-none border border-[#27272A]/40 space-y-1">
+              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase block">Participating Teams</span>
+              <span className="font-extrabold text-[#10B981] block">
                 {selectedTourney.registeredTeams ?? selectedTourney.registered_teams ?? 0} / {selectedTourney.maxTeams ?? selectedTourney.max_teams ?? 12} {getTournamentMode(selectedTourney).teamUnit}
               </span>
-              <span className="text-[#8e9dae] font-mono text-[10px]">Rosters Checked & Ready</span>
+              <span className="text-[#A1A1AA] font-mono text-[10px]">Rosters Checked & Ready</span>
             </div>
 
-            <div className="p-3 bg-[#07090c] rounded-none border border-[#3a494b]/40 space-y-1">
-              <span className="text-[10px] text-[#8e9dae] font-bold uppercase block">Room ID & Password</span>
+            <div className="p-3 bg-[#000000] rounded-none border border-[#27272A]/40 space-y-1">
+              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase block">Room ID & Password</span>
               <span className="font-mono text-white font-extrabold block">
                 {activeRoomId || selectedTourney?.roomId || selectedTourney?.room_id || 'Not Assigned'}
               </span>
-              <span className="text-[10px] text-[#fe6b00] font-mono">
+              <span className="text-[10px] text-[#FF8C00] font-mono">
                 {roomPublished ? 'Live on Player Dashboard' : 'Hidden from Competitors'}
               </span>
             </div>
           </div>
 
           {/* Admin Command Action Toolbar */}
-          <div className="pt-2 border-t border-[#3a494b]/60 flex flex-wrap items-center justify-between gap-3">
+          <div className="pt-2 border-t border-[#27272A]/60 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <button
                 onClick={onOpenMatch}
-                className="px-4 py-2 bg-[#fe6b00] hover:bg-[#ff8533] text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-none shadow-[0_0_12px_rgba(254,107,0,0.4)] transition-all flex items-center gap-1.5 min-h-[38px]"
+                className="px-4 py-2 bg-[#FF8C00] hover:bg-[#FF8C00] text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-none  transition-all flex items-center gap-1.5 min-h-[38px]"
               >
                 <Play className="w-4 h-4 fill-current" />
                 <span>Open Match Lobby</span>
@@ -170,7 +170,7 @@ export default function MatchControlCommandCenter({
 
               <button
                 onClick={() => onNavigateSubTab('ROOM_MANAGEMENT')}
-                className="px-4 py-2 bg-[#07090c] hover:bg-[#1d232c] border border-[#00f2ff]/50 text-[#00f2ff] font-extrabold text-xs uppercase tracking-wider rounded-none transition-all flex items-center gap-1.5 min-h-[38px]"
+                className="px-4 py-2 bg-[#000000] hover:bg-[#18181B] border border-[#FFB900]/50 text-[#FFB900] font-extrabold text-xs uppercase tracking-wider rounded-none transition-all flex items-center gap-1.5 min-h-[38px]"
               >
                 <Key className="w-4 h-4" />
                 <span>Manage Room Credentials</span>
@@ -179,7 +179,7 @@ export default function MatchControlCommandCenter({
 
             <button
               onClick={() => onNavigateSubTab('RESULTS')}
-              className="px-4 py-2 bg-[#00f2ff] hover:bg-[#33f5ff] text-[#00363a] font-extrabold text-xs uppercase tracking-wider rounded-none shadow-[0_0_12px_rgba(0,242,255,0.4)] transition-all flex items-center gap-1.5 min-h-[38px]"
+              className="px-4 py-2 bg-[#FFB900] hover:bg-[#FFB900] text-[#000000] font-extrabold text-xs uppercase tracking-wider rounded-none  transition-all flex items-center gap-1.5 min-h-[38px]"
             >
               <Edit3 className="w-4 h-4" />
               <span>Update Match Results</span>
@@ -187,12 +187,12 @@ export default function MatchControlCommandCenter({
           </div>
         </div>
       ) : (
-        <div className="bg-[#151a21] border border-[#3a494b]/60 rounded-none p-12 text-center space-y-3 shadow-xl">
-          <Gamepad2 className="w-12 h-12 text-[#00f2ff] mx-auto opacity-50 animate-pulse" />
+        <div className="bg-[#111215] border border-[#27272A]/60 rounded-none p-12 text-center space-y-3 shadow-xl">
+          <Gamepad2 className="w-12 h-12 text-[#FFB900] mx-auto opacity-50 animate-pulse" />
           <h3 className="font-display-lg text-base font-bold text-white uppercase tracking-wider">
             No Active Match Operations Selected
           </h3>
-          <p className="text-xs text-[#8e9dae] max-w-md mx-auto">
+          <p className="text-xs text-[#A1A1AA] max-w-md mx-auto">
             Select a tournament from the dropdown above or create a new match lobby to initialize real-time match command controls.
           </p>
         </div>

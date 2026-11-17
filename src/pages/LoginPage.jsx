@@ -29,7 +29,7 @@ export default function LoginPage() {
   const [alert, setAlert] = useState(null)
   const [turnstileToken, setTurnstileToken] = useState(null)
   const [turnstileKey, setTurnstileKey] = useState(0)
-  
+
   // Dynamic statistics from Supabase
   const [stats, setStats] = useState({
     activePlayers: 0,
@@ -229,16 +229,16 @@ export default function LoginPage() {
   return (
     <div className="w-full flex justify-center items-center min-w-0">
       {/* Centered Auth Card with subtle HUD Corner Accents */}
-      <div className="w-full max-w-md md:max-w-4xl bg-[#111318] border border-[#2A2A30] rounded-none overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col md:flex-row relative min-w-0">
-        
+      <div className="w-full max-w-md md:max-w-4xl bg-[#111215] border border-[#27272A] rounded-none overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col md:flex-row relative min-w-0">
+
         {/* Subtle Tech Corner Brackets */}
-        <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#00f2ff]/60 pointer-events-none z-20" />
-        <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#00f2ff]/60 pointer-events-none z-20" />
-        <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#00f2ff]/60 pointer-events-none z-20" />
-        <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#00f2ff]/60 pointer-events-none z-20" />
+        <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#FFB900]/60 pointer-events-none z-20" />
+        <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#FFB900]/60 pointer-events-none z-20" />
+        <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#FFB900]/60 pointer-events-none z-20" />
+        <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#FFB900]/60 pointer-events-none z-20" />
 
         {/* Left Column: Brand Visual (Desktop >= md) */}
-        <div className="hidden md:flex md:w-[46%] relative overflow-hidden bg-[#0a0b0e] flex-col justify-between p-8 lg:p-10 border-r border-[#2A2A30]">
+        <div className="hidden md:flex md:w-[46%] relative overflow-hidden bg-[#000000] flex-col justify-between p-8 lg:p-10 border-r border-[#27272A]">
           {/* Background Ambient Glow & Lighting Effects */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             <div
@@ -248,18 +248,21 @@ export default function LoginPage() {
               }}
             />
             {/* Darker, higher-contrast gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#06090e]/95 via-[#0a0f18]/85 to-[#111318]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#070a0f] via-transparent to-[#070a0f]/90" />
-            <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-[#FFB900]/10 rounded-none blur-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#000000]/95 via-[#111215]/85 to-[#111215]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-transparent to-[#000000]/90" />
+            <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-[#FFB900]/5 rounded-none blur-3xl pointer-events-none" />
           </div>
 
           {/* Left Column Top: Official Logo & Branding */}
           <div className="relative z-10 space-y-6">
-            <img
-              src="/mj-esports-logo.png"
-              alt="MJ ESPORTS"
-              className="w-16 h-16 rounded-none object-contain shadow-[0_0_20px_rgba(255,185,0,0.25)]"
-            />
+            <picture className="inline-block">
+              <source type="image/webp" srcSet="/mj-esports-logo.webp" />
+              <img
+                src="/mj-esports-logo.png"
+                alt="MJ ESPORTS"
+                className="w-16 h-16 rounded-none object-contain border border-[#27272A]"
+              />
+            </picture>
 
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -270,14 +273,14 @@ export default function LoginPage() {
               <h1 className="font-headline text-3xl font-extrabold tracking-tight text-white uppercase italic">
                 MJ <span className="text-[#FFB900]">ESPORTS</span>
               </h1>
-              <p className="text-xs text-[#A3A3A3] leading-relaxed font-body">
-                India's premier high-stakes tournament platform for Free Fire MAX squads. Compete, dominate, and claim verified cash payouts.
+              <p className="text-xs text-[#A1A1AA] leading-relaxed font-body">
+                India's premier high-stakes tournament platform for Free Fire India squads. Compete, dominate, and claim verified cash payouts.
               </p>
             </div>
           </div>
 
           {/* Left Column Bottom: Real Stats OR High-Value Feature Statements */}
-          <div className="relative z-10 pt-8 border-t border-[#2A2A30]">
+          <div className="relative z-10 pt-8 border-t border-[#27272A]">
             {stats.hasRealData ? (
               /* Display Live Dynamic Stats when non-zero real data exists */
               <div className="flex items-center justify-between gap-4">
@@ -285,14 +288,14 @@ export default function LoginPage() {
                   <span className="font-headline text-lg font-extrabold text-[#10b981]">
                     {loadingStats ? '...' : stats.activePlayers.toLocaleString()}
                   </span>
-                  <span className="font-mono text-[9px] text-[#A3A3A3] uppercase tracking-wider">Registered Players</span>
+                  <span className="font-mono text-[9px] text-[#A1A1AA] uppercase tracking-wider">Registered Players</span>
                 </div>
-                <div className="w-px h-8 bg-[#2A2A30]"></div>
+                <div className="w-px h-8 bg-[#27272A]"></div>
                 <div className="flex flex-col">
                   <span className="font-headline text-lg font-extrabold text-[#FFB900]">
                     {loadingStats ? '...' : stats.totalPrizePool}
                   </span>
-                  <span className="font-mono text-[9px] text-[#A3A3A3] uppercase tracking-wider">Tournaments Pool</span>
+                  <span className="font-mono text-[9px] text-[#A1A1AA] uppercase tracking-wider">Tournaments Pool</span>
                 </div>
               </div>
             ) : (
@@ -316,12 +319,12 @@ export default function LoginPage() {
         </div>
 
         {/* Right Column: Refined Gaming Auth Form */}
-        <div className="w-full md:w-[54%] p-5 sm:p-8 lg:p-10 flex flex-col justify-between bg-[#111318] min-w-0">
+        <div className="w-full md:w-[54%] p-5 sm:p-8 lg:p-10 flex flex-col justify-between bg-[#111215] min-w-0">
           <div className="space-y-5 sm:space-y-6">
-            
+
             {/* Header & Protocol Indicator */}
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-[#A3A3A3] uppercase tracking-widest pb-1 border-b border-[#2A2A30]">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-[#A1A1AA] uppercase tracking-widest pb-1 border-b border-[#27272A]">
                 <span>PLAYER ACCESS</span>
                 <span className="flex items-center gap-1.5 text-[#FFB900]">
                   <span className="w-1.5 h-1.5 rounded-none bg-[#FFB900] animate-pulse" />
@@ -331,7 +334,7 @@ export default function LoginPage() {
               <h2 className="font-headline text-xl sm:text-2xl font-black text-white uppercase tracking-tight pt-2">
                 WELCOME BACK
               </h2>
-              <p className="text-xs text-[#A3A3A3] font-body">
+              <p className="text-xs text-[#A1A1AA] font-body">
                 Sign in to manage tournament slots, room credentials, and prize winnings.
               </p>
             </div>
@@ -356,7 +359,7 @@ export default function LoginPage() {
 
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <label htmlFor="password" className="font-label-bold text-[11px] font-bold text-[#A3A3A3] uppercase tracking-wider block">
+                  <label htmlFor="password" className="font-label-bold text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wider block">
                     Password <span className="text-[#FFB900]">*</span>
                   </label>
                   <button
@@ -403,7 +406,7 @@ export default function LoginPage() {
                 loadingText="Signing In..."
                 icon={LogIn}
                 size="lg"
-                className="w-full text-xs sm:text-sm py-3.5 mt-2 bg-[#FFB900] hover:bg-[#FFA500] text-[#000000] font-headline font-bold uppercase tracking-wider rounded-none shadow-[0_0_15px_rgba(255,185,0,0.35)] hover:shadow-[0_0_24px_rgba(255,185,0,0.5)] transition-all cursor-pointer"
+                className="w-full text-xs sm:text-sm py-3.5 mt-2 bg-[#FFB900] hover:bg-[#FFC933] text-[#000000] font-headline font-bold uppercase tracking-wider rounded-none transition-all cursor-pointer"
               >
                 Sign In
               </LoadingButton>
@@ -411,11 +414,11 @@ export default function LoginPage() {
 
             {/* Technical HUD Separator */}
             <div className="flex items-center gap-3 pt-1">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2A2A30] to-[#2A2A30]"></div>
-              <span className="font-mono text-[10px] font-extrabold text-[#A3A3A3] uppercase tracking-widest px-1">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#27272A] to-[#27272A]"></div>
+              <span className="font-mono text-[10px] font-extrabold text-[#A1A1AA] uppercase tracking-widest px-1">
                 OR
               </span>
-              <div className="h-px flex-1 bg-gradient-to-l from-transparent via-[#2A2A30] to-[#2A2A30]"></div>
+              <div className="h-px flex-1 bg-gradient-to-l from-transparent via-[#27272A] to-[#27272A]"></div>
             </div>
 
             {/* Horizontal Dark Gaming Google Sign-In Button */}
@@ -423,7 +426,7 @@ export default function LoginPage() {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isGoogleSubmitting || isSubmitting}
-              className="w-full flex items-center justify-center gap-3 py-3 px-4 min-h-[46px] bg-[#1B1B1F] hover:bg-[#22252e] active:bg-[#141416] border border-[#2A2A30] hover:border-[#FFB900]/50 text-[#e5e2e3] hover:text-white rounded-none font-headline text-xs sm:text-sm font-bold uppercase tracking-wider shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-3 py-3 px-4 min-h-[46px] bg-[#18181B] hover:bg-[#27272A] active:bg-[#111215] border border-[#27272A] hover:border-[#FFB900]/50 text-[#e5e2e3] hover:text-white rounded-none font-headline text-xs sm:text-sm font-bold uppercase tracking-wider shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGoogleSubmitting ? (
                 <div className="flex items-center gap-2.5">
@@ -458,7 +461,7 @@ export default function LoginPage() {
           </div>
 
           {/* Footer Link */}
-          <div className="pt-6 mt-4 border-t border-[#2A2A30] text-center text-xs text-[#A3A3A3]">
+          <div className="pt-6 mt-4 border-t border-[#27272A] text-center text-xs text-[#A1A1AA]">
             Don't have an account?{' '}
             <Link
               to="/register"
@@ -476,12 +479,12 @@ export default function LoginPage() {
       {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-[#141416] border border-[#27272a] rounded-none max-w-sm w-full p-6 space-y-4 shadow-2xl relative">
-            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t-2 border-l-2 border-[#00f2ff]/70" />
-            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t-2 border-r-2 border-[#00f2ff]/70" />
-            
+          <div className="bg-[#111215] border border-[#27272A] rounded-none max-w-sm w-full p-6 space-y-4 shadow-2xl relative">
+            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t-2 border-l-2 border-[#FFB900]/70" />
+            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t-2 border-r-2 border-[#FFB900]/70" />
+
             <h3 className="font-headline text-base font-bold text-white uppercase flex items-center gap-2">
-              <KeyRound className="w-4 h-4 text-[#00f2ff]" />
+              <KeyRound className="w-4 h-4 text-[#FFB900]" />
               <span>Reset Password</span>
             </h3>
             {forgotSent ? (
@@ -495,14 +498,14 @@ export default function LoginPage() {
                     setShowForgotModal(false)
                     setForgotSent(false)
                   }}
-                  className="w-full py-2.5 text-xs font-bold bg-[#1c1b1c] hover:bg-[#27272a] text-[#e5e2e3] border border-[#27272a] rounded-none min-h-[44px] uppercase cursor-pointer"
+                  className="w-full py-2.5 text-xs font-bold bg-[#18181B] hover:bg-[#27272A] text-[#e5e2e3] border border-[#27272A] rounded-none min-h-[44px] uppercase cursor-pointer"
                 >
                   Close
                 </button>
               </div>
             ) : (
               <form onSubmit={handleForgotPasswordSubmit} noValidate className="space-y-4">
-                <p className="text-xs text-[#849495] leading-relaxed">
+                <p className="text-xs text-[#A1A1AA] leading-relaxed">
                   Enter your registered email address to receive password reset instructions.
                 </p>
                 <FormInput
@@ -522,7 +525,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(false)}
-                    className="flex-1 py-2.5 text-xs font-bold bg-[#1c1b1c] text-[#849495] hover:text-white border border-[#27272a] rounded-none hover:bg-[#27272a] transition-colors min-h-[44px] uppercase cursor-pointer"
+                    className="flex-1 py-2.5 text-xs font-bold bg-[#18181B] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none hover:bg-[#27272A] transition-colors min-h-[44px] uppercase cursor-pointer"
                   >
                     Cancel
                   </button>

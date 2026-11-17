@@ -147,7 +147,7 @@ export function calculateTournamentRevenues(
     return {
       id: t.id,
       title: t.title || 'Tournament',
-      game: (t.game || 'Free Fire MAX').includes('Free Fire') ? 'Free Fire MAX' : 'BGMI Mobile',
+      game: (t.game || 'Free Fire India').includes('Free Fire') ? 'Free Fire India' : 'BGMI Mobile',
       entryFee,
       maxSlots,
       registeredPlayers,

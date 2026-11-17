@@ -71,7 +71,7 @@ export default function TeamOverviewCard({
             {/* Online/Verified Node */}
             <div
               className="absolute -bottom-1 -right-1 w-5 h-5 rounded-none bg-[#0e1017] border-2 border-[#00f2ff] flex items-center justify-center text-[#00f2ff]"
-              title="Verified Free Fire MAX Squad"
+              title="Verified Free Fire India Squad"
             >
               <Shield className="w-2.5 h-2.5" />
             </div>

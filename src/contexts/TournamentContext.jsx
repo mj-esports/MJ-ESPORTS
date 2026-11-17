@@ -18,6 +18,8 @@ import {
 } from '../utils/validationUtils'
 import { notifyWalletBalanceUpdated, fetchUserWallet } from '../services/walletService'
 import { cancelTournamentWithRefund } from '../services/tournamentPaymentService'
+import { getNextLifecycleStage, isValidLifecycleTransition } from '../constants/tournamentLifecycle.js'
+import { TOURNAMENT_SUMMARY_COLUMNS, TOURNAMENT_DETAIL_COLUMNS } from '../constants/tournamentColumns.js'
 
 export {
   mapTournamentFromDb,
@@ -27,10 +29,6 @@ export {
 }
 
 const TournamentContext = createContext(null)
-
-// Lightweight summary columns for tournament listings and cards (omits heavy description, rules, and teams_list)
-const TOURNAMENT_SUMMARY_COLUMNS =
-  'id, title, game, format, prize_pool, entry_fee, max_teams, registered_teams, start_date, start_time, status, organizer, room_status, room_last_updated, room_published_by, winner_team, winner_captain, created_at, updated_at'
 
 const CACHE_TTL_MS = 60 * 1000 // 60-second in-memory freshness window
 
@@ -180,12 +178,12 @@ export function TournamentProvider({ children }) {
         try {
           const { data, error } = await supabase
             .from('tournaments')
-            .select('*')
+            .select(TOURNAMENT_DETAIL_COLUMNS)
             .eq('id', idStr)
             .maybeSingle()
 
           if (error) {
-            console.warn(`[fetchTournamentById] Error fetching tournament ${idStr}:`, error.message)
+            console.error(`[fetchTournamentById] Error fetching tournament ${idStr}:`, error.message || error)
             return existingInState || null
           }
 

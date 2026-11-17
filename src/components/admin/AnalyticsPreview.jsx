@@ -3,14 +3,14 @@ import { Activity } from 'lucide-react'
 
 export default function AnalyticsPreview() {
   return (
-    <div className="bg-[#18181b]/60 backdrop-blur-md border border-[#27272a] rounded-none p-5 space-y-4 shadow-xl">
-      <div className="flex items-center gap-2 border-b border-[#27272a] pb-3">
-        <Activity className="w-4 h-4 text-[#00f2ff]" />
+    <div className="bg-[#18181B]/60 backdrop-blur-md border border-[#27272A] rounded-none p-5 space-y-4 shadow-xl">
+      <div className="flex items-center gap-2 border-b border-[#27272A] pb-3">
+        <Activity className="w-4 h-4 text-[#FFB900]" />
         <h3 className="font-headline text-sm font-bold text-white uppercase tracking-wider">
           Telemetry & Traffic
         </h3>
       </div>
-      <div className="py-6 text-center text-[#a1a1aa] font-mono text-xs">
+      <div className="py-6 text-center text-[#A1A1AA] font-mono text-xs">
         No analytics data available.
       </div>
     </div>

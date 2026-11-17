@@ -14,24 +14,24 @@ export default function ToggleSwitch({
 }) {
   const colorStyles = {
     amber: {
-      active: 'bg-[#FFB900] shadow-[0_0_12px_rgba(255,185,0,0.4)]',
+      active: 'bg-[#FFB900]',
       border: 'border-[#FFB900]/40',
       text: 'text-[#FFB900]'
     },
     cyan: {
-      active: 'bg-[#FFB900] shadow-[0_0_12px_rgba(255,185,0,0.4)]',
+      active: 'bg-[#FFB900]',
       border: 'border-[#FFB900]/40',
       text: 'text-[#FFB900]'
     },
     green: {
-      active: 'bg-[#10b981] shadow-[0_0_12px_rgba(16,185,129,0.4)]',
-      border: 'border-[#10b981]/40',
-      text: 'text-[#10b981]'
+      active: 'bg-[#10B981]',
+      border: 'border-[#10B981]/40',
+      text: 'text-[#10B981]'
     },
     orange: {
-      active: 'bg-[#FF6200] shadow-[0_0_12px_rgba(255,98,0,0.4)]',
-      border: 'border-[#FF6200]/40',
-      text: 'text-[#FF6200]'
+      active: 'bg-[#FF8C00]',
+      border: 'border-[#FF8C00]/40',
+      text: 'text-[#FF8C00]'
     }
   }
 
@@ -53,27 +53,25 @@ export default function ToggleSwitch({
     <div className="space-y-1">
       <div
         onClick={handleToggle}
-        className={`flex items-center justify-between p-3 rounded-none border transition-all cursor-pointer ${
-          disabled ? 'opacity-50 cursor-not-allowed' : ''
-        } ${
-          checked
-            ? 'bg-[#111318] border-[#FFB900]/50 shadow-[0_0_15px_rgba(255,185,0,0.08)]'
-            : 'bg-[#000000] border-[#2A2A30] hover:border-[#FFB900]/50'
-        }`}
+        className={`flex items-center justify-between p-3 rounded-none border transition-all cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : ''
+          } ${checked
+            ? 'bg-[#111215] border-[#FFB900]/50'
+            : 'bg-[#000000] border-[#27272A] hover:border-[#FFB900]/50'
+          }`}
       >
         <div className="space-y-0.5 pr-3">
           <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider">
             <span>{label}</span>
-            {required && <span className="text-[#FF0000]">*</span>}
+            {required && <span className="text-[#EF4444]">*</span>}
           </div>
           {description && (
-            <p className="text-[11px] text-[#A3A3A3] leading-relaxed">
+            <p className="text-[11px] text-[#A1A1AA] leading-relaxed">
               {description}
             </p>
           )}
         </div>
 
-        {/* Cyberpunk Toggle Button */}
+        {/* Toggle Button */}
         <button
           type="button"
           role="switch"
@@ -83,20 +81,18 @@ export default function ToggleSwitch({
             e.stopPropagation()
             handleToggle()
           }}
-          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-none border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-            checked ? activeTheme.active : 'bg-[#2A2A30]'
-          }`}
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-none border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${checked ? activeTheme.active : 'bg-[#27272A]'
+            }`}
         >
           <span
-            className={`pointer-events-none inline-block h-5 w-5 transform rounded-none bg-black shadow-md ring-0 transition duration-200 ease-in-out ${
-              checked ? 'translate-x-5 bg-black' : 'translate-x-0 bg-[#A3A3A3]'
-            }`}
+            className={`pointer-events-none inline-block h-5 w-5 transform rounded-none bg-black shadow-md ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-5 bg-black' : 'translate-x-0 bg-[#A1A1AA]'
+              }`}
           />
         </button>
       </div>
 
       {error && (
-        <p className="text-[11px] text-[#FF0000] font-medium pl-1" role="alert">
+        <p className="text-[11px] text-[#EF4444] font-medium pl-1" role="alert">
           {error}
         </p>
       )}

@@ -122,12 +122,12 @@ export default function TournamentOperationsWorkspace({
 
   if (!tournament) {
     return (
-      <div className="p-8 bg-[#141416] border border-[#27272a] rounded-none text-center space-y-3 font-body">
-        <Trophy className="w-8 h-8 text-[#849495] mx-auto opacity-50" />
-        <p className="text-xs text-[#849495]">No tournament selected for operations workspace.</p>
+      <div className="p-8 bg-[#111215] border border-[#27272A] rounded-none text-center space-y-3 font-body">
+        <Trophy className="w-8 h-8 text-[#A1A1AA] mx-auto opacity-50" />
+        <p className="text-xs text-[#A1A1AA]">No tournament selected for operations workspace.</p>
         <button
           onClick={onBackToRoster}
-          className="px-4 py-2 bg-[#1c1b1c] hover:bg-[#27272a] border border-[#27272a] text-[#00f2ff] rounded-none text-xs font-headline font-bold uppercase transition-colors"
+          className="px-4 py-2 bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-[#FFB900] rounded-none text-xs font-headline font-bold uppercase transition-colors"
         >
           Back to Tournaments
         </button>
@@ -237,12 +237,12 @@ export default function TournamentOperationsWorkspace({
     <div className="space-y-6 font-body antialiased">
 
       {/* 1. TOP MANAGEMENT HEADER & QUICK ACTION BAR */}
-      <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 sm:p-6 shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#27272a] pb-4">
+      <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 sm:p-6 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#27272A] pb-4">
           <div className="flex items-center gap-3">
             <button
               onClick={onBackToRoster}
-              className="p-2 bg-[#1c1b1c] hover:bg-[#27272a] border border-[#27272a] text-[#849495] hover:text-white rounded-none transition-colors cursor-pointer"
+              className="p-2 bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-[#A1A1AA] hover:text-white rounded-none transition-colors cursor-pointer"
               title="Return to Tournaments"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -255,8 +255,8 @@ export default function TournamentOperationsWorkspace({
                 </h1>
                 <AdminStatusBadge status={tournament.status || 'OPEN'} size="sm" />
               </div>
-              <p className="text-xs text-[#849495] font-body mt-0.5">
-                {tournament.game || 'Free Fire MAX'} &bull; {tournament.format || modeInfo.label} &bull; ID: {String(tournament.id).substring(0, 8)}
+              <p className="text-xs text-[#A1A1AA] font-body mt-0.5">
+                {tournament.game || 'Free Fire India'} &bull; {tournament.format || modeInfo.label} &bull; ID: {String(tournament.id).substring(0, 8)}
               </p>
             </div>
           </div>
@@ -266,9 +266,9 @@ export default function TournamentOperationsWorkspace({
             {onEditTournament && (
               <button
                 onClick={() => onEditTournament(tournament)}
-                className="px-3 py-2 bg-[#1c1b1c] hover:bg-[#27272a] text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-3 py-2 bg-[#18181B] hover:bg-[#27272A] text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer"
               >
-                <Edit3 className="w-3.5 h-3.5 text-[#00f2ff]" />
+                <Edit3 className="w-3.5 h-3.5 text-[#FFB900]" />
                 <span>Edit</span>
               </button>
             )}
@@ -276,11 +276,10 @@ export default function TournamentOperationsWorkspace({
             <button
               onClick={handleToggleRegistration}
               disabled={isTogglingReg}
-              className={`px-3 py-2 border rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer ${
-                isRegOpen
-                  ? 'bg-amber-950/40 text-[#fed83a] border-amber-500/40 hover:bg-amber-900/40'
-                  : 'bg-[#00f2ff]/10 text-[#00f2ff] border-[#00f2ff]/40 hover:bg-[#00f2ff]/20'
-              }`}
+              className={`px-3 py-2 border rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer ${isRegOpen
+                ? 'bg-amber-950/40 text-[#FFB900] border-amber-500/40 hover:bg-amber-900/40'
+                : 'bg-[#FFB900]/10 text-[#FFB900] border-[#FFB900]/40 hover:bg-[#FFB900]/20'
+                }`}
             >
               {isRegOpen ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
               <span>{isRegOpen ? 'Close Registration' : 'Open Registration'}</span>
@@ -288,7 +287,7 @@ export default function TournamentOperationsWorkspace({
 
             <button
               onClick={() => setActiveOpsSection('MATCH_CONTROL')}
-              className="px-3.5 py-2 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded-none text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+              className="px-3.5 py-2 bg-[#FFB900] hover:bg-[#FFB900]/90 text-[#000000] font-headline font-extrabold rounded-none text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
               <Swords className="w-3.5 h-3.5" />
               <span>Match Control</span>
@@ -297,10 +296,10 @@ export default function TournamentOperationsWorkspace({
             {tournament.status !== 'Cancelled' && tournament.status !== 'Completed' && (
               <button
                 onClick={() => setShowCancelModal(true)}
-                className="px-3 py-2 bg-red-950/30 hover:bg-red-900/40 text-[#ff5e07] border border-[#ff5e07]/40 rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-3 py-2 bg-red-950/30 hover:bg-red-900/40 text-[#FF8C00] border border-[#FF8C00]/40 rounded-none text-xs font-headline font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer"
                 title="Cancel tournament and refund paid registrations to wallet"
               >
-                <Ban className="w-3.5 h-3.5 text-[#ff5e07]" />
+                <Ban className="w-3.5 h-3.5 text-[#FF8C00]" />
                 <span>Cancel Arena</span>
               </button>
             )}
@@ -310,45 +309,45 @@ export default function TournamentOperationsWorkspace({
         {/* 2. SUMMARY METRICS (5 CARDS) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {/* Registered Teams */}
-          <div className="bg-[#1c1b1c] border border-[#27272a] rounded-none p-3">
-            <span className="text-[10px] text-[#849495] font-label-bold uppercase block">Registered</span>
+          <div className="bg-[#18181B] border border-[#27272A] rounded-none p-3">
+            <span className="text-[10px] text-[#A1A1AA] font-label-bold uppercase block">Registered</span>
             <div className="space-y-0.5 mt-1">
               <span className="font-headline font-bold text-white text-base sm:text-lg block">
                 {regTeams} / {maxTeams} {modeInfo.teamUnit}
               </span>
-              <div className="w-full h-1.5 bg-[#27272a] rounded-none overflow-hidden border border-[#3f3f46]/50 mt-1">
-                <div className="h-full bg-[#00f2ff]" style={{ width: `${Math.min(fillPct, 100)}%` }} />
+              <div className="w-full h-1.5 bg-[#27272A] rounded-none overflow-hidden border border-[#27272A]/50 mt-1">
+                <div className="h-full bg-[#FFB900]" style={{ width: `${Math.min(fillPct, 100)}%` }} />
               </div>
             </div>
           </div>
 
           {/* Player Capacity */}
-          <div className="bg-[#1c1b1c] border border-[#27272a] rounded-none p-3">
-            <span className="text-[10px] text-[#849495] font-label-bold uppercase block">Players</span>
-            <span className="font-headline font-bold text-[#00f2ff] text-base sm:text-lg block mt-1">
+          <div className="bg-[#18181B] border border-[#27272A] rounded-none p-3">
+            <span className="text-[10px] text-[#A1A1AA] font-label-bold uppercase block">Players</span>
+            <span className="font-headline font-bold text-[#FFB900] text-base sm:text-lg block mt-1">
               {filledPlayers} / {totalPlayers}
             </span>
           </div>
 
           {/* Prize Pool */}
-          <div className="bg-[#1c1b1c] border border-[#27272a] rounded-none p-3">
-            <span className="text-[10px] text-[#849495] font-label-bold uppercase block">Prize Pool</span>
-            <span className="font-headline font-bold text-[#fed83a] text-base sm:text-lg block mt-1">
+          <div className="bg-[#18181B] border border-[#27272A] rounded-none p-3">
+            <span className="text-[10px] text-[#A1A1AA] font-label-bold uppercase block">Prize Pool</span>
+            <span className="font-headline font-bold text-[#FFB900] text-base sm:text-lg block mt-1">
               {prizeDisplay}
             </span>
           </div>
 
           {/* Entry Fee */}
-          <div className="bg-[#1c1b1c] border border-[#27272a] rounded-none p-3">
-            <span className="text-[10px] text-[#849495] font-label-bold uppercase block">Entry Fee</span>
+          <div className="bg-[#18181B] border border-[#27272A] rounded-none p-3">
+            <span className="text-[10px] text-[#A1A1AA] font-label-bold uppercase block">Entry Fee</span>
             <span className="font-headline font-bold text-[#10b981] text-base sm:text-lg block mt-1">
               {feeDisplay}
             </span>
           </div>
 
           {/* Start Date */}
-          <div className="bg-[#1c1b1c] border border-[#27272a] rounded-none p-3 col-span-2 sm:col-span-1">
-            <span className="text-[10px] text-[#849495] font-label-bold uppercase block">Start Date</span>
+          <div className="bg-[#18181B] border border-[#27272A] rounded-none p-3 col-span-2 sm:col-span-1">
+            <span className="text-[10px] text-[#A1A1AA] font-label-bold uppercase block">Start Date</span>
             <span className="font-headline font-bold text-white text-xs sm:text-sm block mt-1 truncate">
               {tournament.startDate || tournament.start_date || 'TBD'}
             </span>
@@ -356,7 +355,7 @@ export default function TournamentOperationsWorkspace({
         </div>
 
         {/* 3. MODULAR OPERATIONS SECTION TABS (RESPONSIVE HORIZONTAL STRIP) */}
-        <div className="w-full max-w-full min-w-0 box-border overflow-hidden bg-[#141416] border border-[#27272a] rounded-none p-1 sm:p-1.5 shadow-md">
+        <div className="w-full max-w-full min-w-0 box-border overflow-hidden bg-[#111215] border border-[#27272A] rounded-none p-1 sm:p-1.5 shadow-md">
           <div
             ref={sectionTabContainerRef}
             className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full max-w-full min-w-0 box-border flex-nowrap px-0.5 py-0.5 scroll-smooth overscroll-x-contain"
@@ -376,11 +375,10 @@ export default function TournamentOperationsWorkspace({
                   key={tab.id}
                   ref={(el) => (sectionTabRefs.current[tab.id] = el)}
                   onClick={() => handleSectionClick(tab.id)}
-                  className={`px-2.5 sm:px-3.5 py-1.5 rounded-none text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] sm:min-h-[34px] select-none ${
-                    active
-                      ? 'bg-[#00f2ff] text-[#00363a] font-extrabold shadow-[0_0_8px_rgba(0,242,255,0.25)]'
-                      : 'bg-[#1c1b1c] sm:bg-transparent text-[#849495] hover:text-white hover:bg-[#1c1b1c] border border-[#27272a] sm:border-transparent'
-                  }`}
+                  className={`px-2.5 sm:px-3.5 py-1.5 rounded-none text-[11px] sm:text-xs font-headline font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] sm:min-h-[34px] select-none ${active
+                    ? 'bg-[#FFB900] text-[#000000] font-extrabold '
+                    : 'bg-[#18181B] sm:bg-transparent text-[#A1A1AA] hover:text-white hover:bg-[#18181B] border border-[#27272A] sm:border-transparent'
+                    }`}
                 >
                   <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   <span>{tab.label}</span>
@@ -407,13 +405,13 @@ export default function TournamentOperationsWorkspace({
       {activeOpsSection === 'MATCH_CONTROL' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Room Credentials Card */}
-          <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+          <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
               <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                <Key className="w-4 h-4 text-[#00f2ff]" />
+                <Key className="w-4 h-4 text-[#FFB900]" />
                 <span>Custom Room Credentials</span>
               </h3>
-              <span className="px-2 py-0.5 bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/30 text-[9px] font-headline font-bold rounded-none uppercase">
+              <span className="px-2 py-0.5 bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/30 text-[9px] font-headline font-bold rounded-none uppercase">
                 {roomStatus}
               </span>
             </div>
@@ -421,15 +419,15 @@ export default function TournamentOperationsWorkspace({
             <div className="space-y-3 text-xs">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[10px] text-[#849495] font-headline font-bold uppercase">
-                    Custom Room ID <span className="text-[#00f2ff]">(NUMBERS ONLY)</span>
+                  <label className="block text-[10px] text-[#A1A1AA] font-headline font-bold uppercase">
+                    Custom Room ID <span className="text-[#FFB900]">(NUMBERS ONLY)</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => setRoomId(generateRandomNumericRoomId(10))}
-                    className="text-[10px] text-[#00f2ff] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer"
+                    className="text-[10px] text-[#FFB900] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer"
                   >
-                    <Sparkles className="w-3 h-3 text-[#00f2ff]" />
+                    <Sparkles className="w-3 h-3 text-[#FFB900]" />
                     <span>Auto-Gen ID</span>
                   </button>
                 </div>
@@ -440,21 +438,21 @@ export default function TournamentOperationsWorkspace({
                   value={roomId}
                   onChange={(e) => setRoomId(sanitizeDigitsOnly(e.target.value, 15))}
                   placeholder="e.g. 5839174261"
-                  className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-none px-3 py-2 text-white font-mono focus:border-[#00f2ff] focus:outline-none"
+                  className="w-full bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-white font-mono focus:border-[#FFB900] focus:outline-none"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[10px] text-[#849495] font-headline font-bold uppercase">
-                    Room Password <span className="text-[#ff5e07]">(NUMBERS ONLY)</span>
+                  <label className="block text-[10px] text-[#A1A1AA] font-headline font-bold uppercase">
+                    Room Password <span className="text-[#FF8C00]">(NUMBERS ONLY)</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => setRoomPassword(generateRandomNumericRoomPassword(8))}
-                    className="text-[10px] text-[#ff5e07] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer"
+                    className="text-[10px] text-[#FF8C00] hover:text-white font-mono flex items-center gap-1 transition-colors cursor-pointer"
                   >
-                    <Sparkles className="w-3 h-3 text-[#ff5e07]" />
+                    <Sparkles className="w-3 h-3 text-[#FF8C00]" />
                     <span>Auto-Gen PIN</span>
                   </button>
                 </div>
@@ -465,14 +463,14 @@ export default function TournamentOperationsWorkspace({
                   value={roomPassword}
                   onChange={(e) => setRoomPassword(sanitizeDigitsOnly(e.target.value, 10))}
                   placeholder="e.g. 84920173"
-                  className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-none px-3 py-2 text-white font-mono focus:border-[#00f2ff] focus:outline-none"
+                  className="w-full bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-white font-mono focus:border-[#FFB900] focus:outline-none"
                 />
               </div>
 
               <button
                 onClick={handleSaveRoomDetails}
                 disabled={isSavingRoom}
-                className="w-full py-2.5 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded-none text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50"
+                className="w-full py-2.5 bg-[#FFB900] hover:bg-[#FFB900]/90 text-[#000000] font-headline font-extrabold rounded-none text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50"
               >
                 {isSavingRoom ? 'Publishing...' : 'Save & Publish Room Credentials'}
               </button>
@@ -480,13 +478,13 @@ export default function TournamentOperationsWorkspace({
           </div>
 
           {/* Live Match State Controls */}
-          <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+          <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
               <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                <Radio className="w-4 h-4 text-[#ff5e07]" />
+                <Radio className="w-4 h-4 text-[#FF8C00]" />
                 <span>Live Match State Controls</span>
               </h3>
-              <span className="px-2 py-0.5 bg-[#ff5e07]/10 text-[#ff5e07] border border-[#ff5e07]/30 text-[9px] font-headline font-bold rounded-none uppercase">
+              <span className="px-2 py-0.5 bg-[#FF8C00]/10 text-[#FF8C00] border border-[#FF8C00]/30 text-[9px] font-headline font-bold rounded-none uppercase">
                 STATE: {matchStatus}
               </span>
             </div>
@@ -504,7 +502,7 @@ export default function TournamentOperationsWorkspace({
               <button
                 onClick={() => handleUpdateMatchState('PAUSED', 'Live Now')}
                 disabled={isUpdatingMatch || matchStatus === 'PAUSED'}
-                className="p-3 bg-[#ff5e07]/10 hover:bg-[#ff5e07]/20 border border-[#ff5e07]/40 text-[#ff5e07] rounded-none font-headline font-bold uppercase transition-all flex items-center justify-center gap-2 disabled:opacity-40 cursor-pointer"
+                className="p-3 bg-[#FF8C00]/10 hover:bg-[#FF8C00]/20 border border-[#FF8C00]/40 text-[#FF8C00] rounded-none font-headline font-bold uppercase transition-all flex items-center justify-center gap-2 disabled:opacity-40 cursor-pointer"
               >
                 <Pause className="w-4 h-4" />
                 <span>Pause Match</span>
@@ -513,7 +511,7 @@ export default function TournamentOperationsWorkspace({
               <button
                 onClick={() => handleUpdateMatchState('LOBBY', 'Registration Open')}
                 disabled={isUpdatingMatch || matchStatus === 'LOBBY'}
-                className="p-3 bg-[#00f2ff]/10 hover:bg-[#00f2ff]/20 border border-[#00f2ff]/40 text-[#00f2ff] rounded-none font-headline font-bold uppercase transition-all flex items-center justify-center gap-2 disabled:opacity-40 cursor-pointer"
+                className="p-3 bg-[#FFB900]/10 hover:bg-[#FFB900]/20 border border-[#FFB900]/40 text-[#FFB900] rounded-none font-headline font-bold uppercase transition-all flex items-center justify-center gap-2 disabled:opacity-40 cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>Resume Lobby</span>
@@ -534,12 +532,12 @@ export default function TournamentOperationsWorkspace({
 
       {/* SECTION C: RESULTS PIPELINE */}
       {activeOpsSection === 'RESULTS' && (
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-6 shadow-xl text-center space-y-3 font-body">
-          <Award className="w-10 h-10 text-[#fed83a] mx-auto opacity-70" />
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-6 shadow-xl text-center space-y-3 font-body">
+          <Award className="w-10 h-10 text-[#FFB900] mx-auto opacity-70" />
           <h3 className="font-headline text-sm font-extrabold text-white uppercase tracking-wider">
             Match Result Verification Pipeline
           </h3>
-          <p className="text-xs text-[#849495] max-w-md mx-auto">
+          <p className="text-xs text-[#A1A1AA] max-w-md mx-auto">
             Match scorecards, kills tally, placement points, and MVP recognition are managed through Match Operations.
           </p>
         </div>
@@ -547,25 +545,25 @@ export default function TournamentOperationsWorkspace({
 
       {/* SECTION D: PRIZE & PAYOUT */}
       {activeOpsSection === 'PRIZE_PAYOUT' && (
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 space-y-4 shadow-xl">
-          <div className="border-b border-[#27272a] pb-3">
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 space-y-4 shadow-xl">
+          <div className="border-b border-[#27272A] pb-3">
             <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-              <CircleDollarSign className="w-4 h-4 text-[#fed83a]" />
+              <CircleDollarSign className="w-4 h-4 text-[#FFB900]" />
               <span>Prize Distribution & Financial Summary</span>
             </h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-body">
-            <div className="p-4 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1">
-              <span className="text-[10px] text-[#849495] uppercase font-headline font-bold">Total Pool</span>
-              <span className="font-headline font-extrabold text-lg text-[#fed83a] block">{prizeDisplay}</span>
+            <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] space-y-1">
+              <span className="text-[10px] text-[#A1A1AA] uppercase font-headline font-bold">Total Pool</span>
+              <span className="font-headline font-extrabold text-lg text-[#FFB900] block">{prizeDisplay}</span>
             </div>
-            <div className="p-4 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1">
-              <span className="text-[10px] text-[#849495] uppercase font-headline font-bold">Entry Fee</span>
+            <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] space-y-1">
+              <span className="text-[10px] text-[#A1A1AA] uppercase font-headline font-bold">Entry Fee</span>
               <span className="font-headline font-extrabold text-lg text-[#10b981] block">{feeDisplay}</span>
             </div>
-            <div className="p-4 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1">
-              <span className="text-[10px] text-[#849495] uppercase font-headline font-bold">Payout Status</span>
+            <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] space-y-1">
+              <span className="text-[10px] text-[#A1A1AA] uppercase font-headline font-bold">Payout Status</span>
               <span className="font-headline font-extrabold text-sm text-white block">
                 {tournament.status === 'Completed' ? 'Pending Distribution' : 'Locked Until Completion'}
               </span>
@@ -576,14 +574,14 @@ export default function TournamentOperationsWorkspace({
 
       {/* SECTION E: ACTIVITY AUDIT STREAM */}
       {activeOpsSection === 'ACTIVITY' && (
-        <div className="bg-[#141416] border border-[#27272a] rounded-none p-5 space-y-3 shadow-xl">
-          <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2 border-b border-[#27272a] pb-3">
-            <Activity className="w-4 h-4 text-[#00f2ff]" />
+        <div className="bg-[#111215] border border-[#27272A] rounded-none p-5 space-y-3 shadow-xl">
+          <h3 className="font-headline text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2 border-b border-[#27272A] pb-3">
+            <Activity className="w-4 h-4 text-[#FFB900]" />
             <span>Tournament Operational Logs</span>
           </h3>
-          <div className="p-4 bg-[#1c1b1c] rounded-none border border-[#27272a] text-xs text-[#849495] font-body space-y-1">
+          <div className="p-4 bg-[#18181B] rounded-none border border-[#27272A] text-xs text-[#A1A1AA] font-body space-y-1">
             <p>Created: <span className="text-white">{tournament.created_at ? new Date(tournament.created_at).toLocaleString() : 'Recent'}</span></p>
-            <p>Current Lifecycle: <span className="text-[#00f2ff] font-bold">{tournament.status}</span></p>
+            <p>Current Lifecycle: <span className="text-[#FFB900] font-bold">{tournament.status}</span></p>
           </div>
         </div>
       )}
@@ -591,17 +589,17 @@ export default function TournamentOperationsWorkspace({
       {/* CONFIRMATION & SUMMARY MODAL FOR TOURNAMENT CANCELLATION */}
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#141416] border border-[#27272a] rounded-none p-6 max-w-lg w-full space-y-4 shadow-2xl">
+          <div className="bg-[#111215] border border-[#27272A] rounded-none p-6 max-w-lg w-full space-y-4 shadow-2xl">
             {/* Modal Header */}
-            <div className="flex items-center gap-3 text-[#ff5e07]">
-              <div className="w-10 h-10 rounded-none bg-[#ff5e07]/10 border border-[#ff5e07]/30 flex items-center justify-center shrink-0">
-                <Ban className="w-5 h-5 text-[#ff5e07]" />
+            <div className="flex items-center gap-3 text-[#FF8C00]">
+              <div className="w-10 h-10 rounded-none bg-[#FF8C00]/10 border border-[#FF8C00]/30 flex items-center justify-center shrink-0">
+                <Ban className="w-5 h-5 text-[#FF8C00]" />
               </div>
               <div>
                 <h3 className="font-headline font-extrabold text-sm sm:text-base uppercase text-white tracking-wide">
                   {cancelSummary ? 'Cancellation Summary' : 'Cancel Tournament Arena?'}
                 </h3>
-                <p className="text-xs text-[#849495] font-body">
+                <p className="text-xs text-[#A1A1AA] font-body">
                   {cancelSummary
                     ? 'Official settlement and wallet refund report'
                     : '100% Entry fee wallet refund will be issued'}
@@ -612,23 +610,23 @@ export default function TournamentOperationsWorkspace({
             {/* Modal Body: Active Confirmation */}
             {!cancelSummary ? (
               <div className="space-y-3.5 text-xs font-body">
-                <div className="p-3 bg-[#1c1b1c] rounded-none border border-[#27272a] space-y-1.5">
-                  <div className="flex justify-between text-[#849495]">
+                <div className="p-3 bg-[#18181B] rounded-none border border-[#27272A] space-y-1.5">
+                  <div className="flex justify-between text-[#A1A1AA]">
                     <span>Tournament Arena:</span>
                     <strong className="text-white font-headline">{tournament.title}</strong>
                   </div>
-                  <div className="flex justify-between text-[#849495]">
+                  <div className="flex justify-between text-[#A1A1AA]">
                     <span>Entry Fee / Slot:</span>
                     <strong className="text-[#10b981] font-mono">{feeDisplay}</strong>
                   </div>
-                  <div className="flex justify-between text-[#849495]">
+                  <div className="flex justify-between text-[#A1A1AA]">
                     <span>Registered Squads:</span>
                     <strong className="text-white font-mono">{regTeams} squads</strong>
                   </div>
                 </div>
 
-                <div className="p-3.5 bg-[#ff5e07]/5 border border-[#ff5e07]/20 rounded-none space-y-2 text-[#b9cacb] leading-relaxed">
-                  <span className="font-headline font-bold text-[#ff5e07] block uppercase text-[11px] tracking-wider">
+                <div className="p-3.5 bg-[#FF8C00]/5 border border-[#FF8C00]/20 rounded-none space-y-2 text-[#A1A1AA] leading-relaxed">
+                  <span className="font-headline font-bold text-[#FF8C00] block uppercase text-[11px] tracking-wider">
                     Official Cancellation Terms:
                   </span>
                   <ul className="list-disc pl-4 space-y-1 text-[11px]">
@@ -641,7 +639,7 @@ export default function TournamentOperationsWorkspace({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-label-bold uppercase text-[#849495] mb-1">
+                  <label className="block text-[11px] font-label-bold uppercase text-[#A1A1AA] mb-1">
                     Cancellation Reason (Visible to Players):
                   </label>
                   <input
@@ -649,7 +647,7 @@ export default function TournamentOperationsWorkspace({
                     value={cancelReason}
                     onChange={(e) => setCancelReason(e.target.value)}
                     placeholder="e.g. Tournament Cancelled by Organizer"
-                    className="w-full bg-[#1c1b1c] border border-[#27272a] rounded-none px-3 py-2 text-xs text-white placeholder-[#849495] focus:outline-none focus:border-[#ff5e07]"
+                    className="w-full bg-[#18181B] border border-[#27272A] rounded-none px-3 py-2 text-xs text-white placeholder-[#A1A1AA] focus:outline-none focus:border-[#FF8C00]"
                   />
                 </div>
 
@@ -657,14 +655,14 @@ export default function TournamentOperationsWorkspace({
                   <button
                     onClick={handleCloseCancelModal}
                     disabled={isCancelling}
-                    className="flex-1 py-2.5 bg-[#1c1b1c] hover:bg-[#27272a] text-[#849495] hover:text-white border border-[#27272a] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase transition-colors cursor-pointer disabled:opacity-50"
                   >
                     Keep Tournament
                   </button>
                   <button
                     onClick={handleConfirmCancel}
                     disabled={isCancelling}
-                    className="flex-1 py-2.5 bg-[#ff5e07] hover:bg-[#ff7a33] text-white rounded-none text-xs font-headline font-bold uppercase transition-all cursor-pointer shadow-lg shadow-[#ff5e07]/30 flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-[#FF8C00] hover:bg-[#FF8C00] text-white rounded-none text-xs font-headline font-bold uppercase transition-all cursor-pointer shadow-lg /30 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isCancelling ? (
                       <>
@@ -683,23 +681,23 @@ export default function TournamentOperationsWorkspace({
             ) : (
               /* Modal Body: Post-Cancellation Summary Report */
               <div className="space-y-4 text-xs font-body">
-                <div className="p-4 bg-[#1c1b1c] rounded-none border border-[#10b981]/30 space-y-2">
+                <div className="p-4 bg-[#18181B] rounded-none border border-[#10b981]/30 space-y-2">
                   <div className="flex items-center gap-2 text-[#10b981] font-headline font-bold uppercase text-xs">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Cancellation & Refund Completed</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="p-2.5 bg-[#141416] rounded-none border border-[#27272a]">
-                      <span className="text-[10px] text-[#849495] block uppercase font-label-bold">Squads Refunded</span>
+                    <div className="p-2.5 bg-[#111215] rounded-none border border-[#27272A]">
+                      <span className="text-[10px] text-[#A1A1AA] block uppercase font-label-bold">Squads Refunded</span>
                       <strong className="text-sm font-headline text-white">{cancelSummary.refunded_count ?? 0} squads</strong>
                     </div>
-                    <div className="p-2.5 bg-[#141416] rounded-none border border-[#27272a]">
-                      <span className="text-[10px] text-[#849495] block uppercase font-label-bold">Total Wallet Disbursed</span>
+                    <div className="p-2.5 bg-[#111215] rounded-none border border-[#27272A]">
+                      <span className="text-[10px] text-[#A1A1AA] block uppercase font-label-bold">Total Wallet Disbursed</span>
                       <strong className="text-sm font-headline text-[#10b981]">₹{cancelSummary.total_refund_amount ?? 0}</strong>
                     </div>
                   </div>
                   {Number(cancelSummary.skipped_count || 0) > 0 && (
-                    <p className="text-[11px] text-[#849495] pt-1">
+                    <p className="text-[11px] text-[#A1A1AA] pt-1">
                       {cancelSummary.skipped_count} free or unverified registration(s) skipped without wallet charge.
                     </p>
                   )}
@@ -708,7 +706,7 @@ export default function TournamentOperationsWorkspace({
                 <div className="flex justify-end pt-2">
                   <button
                     onClick={handleCloseCancelModal}
-                    className="px-6 py-2 bg-[#00f2ff] hover:bg-[#00f2ff]/90 text-[#00363a] font-headline font-extrabold rounded-none text-xs uppercase tracking-wider transition-all cursor-pointer shadow-sm"
+                    className="px-6 py-2 bg-[#FFB900] hover:bg-[#FFB900]/90 text-[#000000] font-headline font-extrabold rounded-none text-xs uppercase tracking-wider transition-all cursor-pointer shadow-sm"
                   >
                     Done
                   </button>

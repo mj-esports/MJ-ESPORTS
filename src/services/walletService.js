@@ -216,7 +216,11 @@ export async function createWalletTopupOrder(amount, clientIdempotencyKey) {
 
     if (error) {
       console.error('[walletService] create-wallet-topup-order error:', error)
-      return { success: false, message: error.message || 'Failed to create top-up order.' }
+      return { success: false, error_code: error.code || 'FUNCTION_ERROR', message: error.message || 'Failed to create top-up order.' }
+    }
+
+    if (data?.error) {
+      return { success: false, error_code: data.error_code || 'GATEWAY_ERROR', message: data.error }
     }
 
     return data || { success: false, message: 'No response data from server.' }
@@ -229,7 +233,7 @@ export async function createWalletTopupOrder(amount, clientIdempotencyKey) {
 /**
  * Verify payment signature and execute atomic settlement via Edge Function
  */
-export async function verifyWalletTopup({ orderId, paymentId, signature }) {
+export async function verifyWalletTopup({ orderId, paymentId = null, signature = null }) {
   if (!isSupabaseConfigured) {
     return { success: false, error_code: 'NOT_CONFIGURED', message: 'Supabase is not configured.' }
   }
@@ -245,7 +249,11 @@ export async function verifyWalletTopup({ orderId, paymentId, signature }) {
 
     if (error) {
       console.error('[walletService] verify-wallet-topup error:', error)
-      return { success: false, message: error.message || 'Payment verification failed.' }
+      return { success: false, error_code: error.code || 'FUNCTION_ERROR', message: error.message || 'Payment verification failed.' }
+    }
+
+    if (data?.error) {
+      return { success: false, error_code: data.error_code || 'VERIFICATION_ERROR', message: data.error }
     }
 
     if (data?.success && data?.balance_after !== undefined) {

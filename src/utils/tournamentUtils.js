@@ -147,7 +147,7 @@ export function calculateTotalPlayerSlots(tournament) {
 
 /**
  * Authoritative default game and mode capacity configuration.
- * Free Fire MAX: 50 room capacity (Squad: 12 squads = 48 players, Duo: 25 duos = 50 players, Solo: 50 players)
+ * Free Fire India: 50 room capacity (Squad: 12 squads = 48 players, Duo: 25 duos = 50 players, Solo: 50 players)
  * 
  * @param {string} [game] 
  * @param {string} [mode] 

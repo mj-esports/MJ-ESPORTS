@@ -1,7 +1,7 @@
 import React from 'react'
 
 /**
- * Free Fire MAX themed SVG/CSS Loading Spinner Component
+ * Free Fire India themed SVG/CSS Loading Spinner Component
  * Sizes: sm (16px), md (20px), lg (24px), xl (32px)
  * Variants: amber (#FFB900), orange (#FF6200), emerald (#10b981), rose (#FF0000), dark (#000000), white (#ffffff)
  */
@@ -21,9 +21,9 @@ export default function LoadingSpinner({
   const colorClasses = {
     amber: 'border-[#FFB900] border-t-transparent',
     cyan: 'border-[#FFB900] border-t-transparent',
-    orange: 'border-[#FF6200] border-t-transparent',
+    orange: 'border-[#FF8C00] border-t-transparent',
     emerald: 'border-[#10b981] border-t-transparent',
-    rose: 'border-[#FF0000] border-t-transparent',
+    rose: 'border-[#ef4444] border-t-transparent',
     dark: 'border-[#000000] border-t-transparent',
     white: 'border-white border-t-transparent',
   }
