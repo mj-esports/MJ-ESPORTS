@@ -81,6 +81,7 @@ function getNotificationIcon(type) {
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileNotifOpen, setMobileNotifOpen] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -212,9 +213,9 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Lock body scroll when mobile menu is open
+  // Lock body scroll when mobile menu or logout confirm dialog is open
   useEffect(() => {
-    if (mobileMenuOpen) {
+    if (mobileMenuOpen || showLogoutConfirm) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -222,12 +223,15 @@ export default function Navbar() {
     return () => {
       document.body.style.overflow = ''
     }
-  }, [mobileMenuOpen])
+  }, [mobileMenuOpen, showLogoutConfirm])
 
-  // Close mobile drawer and dropdowns on Escape key press
+  // Close mobile drawer, confirmation dialog, and dropdowns on Escape key press
   useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === 'Escape') {
+        if (!isSigningOut) {
+          setShowLogoutConfirm(false)
+        }
         setMobileMenuOpen(false)
         setUserDropdownOpen(false)
         setNotificationsOpen(false)
@@ -236,14 +240,15 @@ export default function Navbar() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [isSigningOut])
 
-  // Auto-close mobile menu and dropdowns on route navigation
+  // Auto-close mobile menu, confirmation dialog, and dropdowns on route navigation
   useEffect(() => {
     setMobileMenuOpen(false)
     setUserDropdownOpen(false)
     setNotificationsOpen(false)
     setMobileNotifOpen(false)
+    setShowLogoutConfirm(false)
   }, [location.pathname])
 
   const navLinks = [
@@ -255,7 +260,8 @@ export default function Navbar() {
 
   const isActive = (path) => location.pathname === path
 
-  const handleSignOut = async () => {
+  const handleSignOut = async (redirectTo = '/login') => {
+    const destination = typeof redirectTo === 'string' ? redirectTo : '/login'
     setIsSigningOut(true)
     try {
       const res = await signOut()
@@ -263,6 +269,7 @@ export default function Navbar() {
       setMobileMenuOpen(false)
       setNotificationsOpen(false)
       setMobileNotifOpen(false)
+      setShowLogoutConfirm(false)
       setNotifications([])
       setProfileAvatar(null)
       setProfileUsername(null)
@@ -272,7 +279,11 @@ export default function Navbar() {
       } else {
         showSuccess('Logged out successfully.', 'Session Closed')
       }
-      navigate('/')
+      if (destination === '/') {
+        navigate('/')
+      } else {
+        navigate(destination)
+      }
     } catch (err) {
       showError(err.message || 'Logout sequence failed. Please try again.', 'Logout Error')
     } finally {
@@ -351,7 +362,7 @@ export default function Navbar() {
           {/* Logo (LEFT) */}
           <Link
             to="/"
-            className="flex items-center gap-2 sm:gap-3 group shrink min-w-0 flex-1 max-w-[calc(100%-52px)] md:flex-initial md:max-w-none md:justify-self-start"
+            className={`flex items-center gap-2 sm:gap-3 group shrink min-w-0 flex-1 ${isAuthenticated ? 'max-w-[calc(100%-108px)]' : 'max-w-[calc(100%-56px)]'} md:flex-initial md:max-w-none md:justify-self-start`}
             aria-label="MJ ESPORTS Home"
           >
             <picture className="shrink-0 flex items-center justify-center">
@@ -576,7 +587,7 @@ export default function Navbar() {
 
                       <button
                         type="button"
-                        onClick={handleSignOut}
+                        onClick={() => handleSignOut('/')}
                         disabled={isSigningOut}
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-none text-[#A1A1AA] hover:text-white hover:bg-[#18181B] transition-colors uppercase tracking-wider font-bold text-xs cursor-pointer group disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label="Log Out of MJ ESPORTS"
@@ -602,9 +613,26 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Trigger */}
-          <div className="flex md:hidden items-center shrink-0 ml-2">
+          {/* Mobile Header Action Controls & Menu Trigger */}
+          <div className="flex md:hidden items-center gap-2 shrink-0 ml-2">
+            {/* Dedicated Mobile Header Logout Button (Authenticated Only) */}
+            {isAuthenticated && (
+              <button
+                type="button"
+                onClick={() => setShowLogoutConfirm(true)}
+                disabled={isSigningOut}
+                className="p-2 rounded-none bg-[#111215] border border-[#27272A] text-[#FFB900] hover:text-white hover:border-[#FFB900] focus:outline-none focus:ring-2 focus:ring-[#FFB900] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0 active:scale-95 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Log Out of MJ ESPORTS"
+                title="Log Out"
+                id="mobile-header-logout-btn"
+              >
+                <LogOut className="w-5 h-5 text-[#FFB900] shrink-0" />
+              </button>
+            )}
+
+            {/* Mobile Hamburger Menu Trigger */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-none bg-[#111215] border border-[#27272A] text-[#FFB900] hover:text-white hover:border-[#FFB900] focus:outline-none focus:ring-2 focus:ring-[#FFB900] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0 active:scale-95 shadow-md"
               aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
@@ -961,8 +989,8 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => {
-                    handleSignOut()
                     setMobileMenuOpen(false)
+                    setShowLogoutConfirm(true)
                   }}
                   disabled={isSigningOut}
                   className="w-full py-3 text-xs font-bold text-white bg-[#111215] hover:bg-[#18181B] hover:text-[#FFB900] rounded-none border border-[#27272A] hover:border-[#FFB900]/40 flex items-center justify-center gap-2 min-h-[44px] uppercase font-headline cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
@@ -975,6 +1003,68 @@ export default function Navbar() {
             )}
           </div>
         </>
+      )}
+
+      {/* Logout Confirmation Dialog (Mobile & Modal) */}
+      {showLogoutConfirm && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => {
+            if (!isSigningOut) setShowLogoutConfirm(false)
+          }}
+          aria-hidden="true"
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="logout-dialog-title"
+            aria-describedby="logout-dialog-desc"
+            className="bg-[#111215] border border-[#27272A] shadow-2xl rounded-none w-full max-w-sm p-5 space-y-4 animate-in zoom-in-95 duration-200 select-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Dialog Header */}
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-none bg-[#FFB900]/10 border border-[#FFB900]/30 flex items-center justify-center shrink-0">
+                <LogOut className="w-5 h-5 text-[#FFB900]" />
+              </div>
+              <div>
+                <h3 id="logout-dialog-title" className="text-sm font-headline font-bold text-white uppercase tracking-wider">
+                  Confirm Logout
+                </h3>
+                <span className="text-[10px] text-[#A1A1AA] font-mono uppercase block">
+                  Session Termination
+                </span>
+              </div>
+            </div>
+
+            {/* Dialog Body */}
+            <p id="logout-dialog-desc" className="text-xs text-[#A1A1AA] font-sans leading-relaxed">
+              Are you sure you want to log out?
+            </p>
+
+            {/* Dialog Action Buttons */}
+            <div className="flex items-center gap-2.5 pt-2 border-t border-[#27272A]">
+              <button
+                type="button"
+                onClick={() => setShowLogoutConfirm(false)}
+                disabled={isSigningOut}
+                className="flex-1 py-2.5 px-4 bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white border border-[#27272A] rounded-none text-xs font-headline font-bold uppercase tracking-wider transition-colors cursor-pointer min-h-[44px] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSignOut('/login')}
+                disabled={isSigningOut}
+                className="flex-1 py-2.5 px-4 bg-[#FFB900] hover:bg-[#FFA500] text-[#000000] border border-[#FFB900] rounded-none text-xs font-headline font-bold uppercase tracking-wider transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group font-black"
+              >
+                <LogOut className="w-4 h-4 text-[#000000] shrink-0" />
+                <span>{isSigningOut ? 'Logging Out...' : 'Log Out'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </nav>
   )

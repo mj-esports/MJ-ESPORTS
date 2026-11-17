@@ -57,6 +57,26 @@ runTest('Navbar mobile drawer renders "Log Out" with LogOut icon and brand desig
 })
 
 // Test 3: Settings Page Logout UI & State
+// Test 3: Dedicated Mobile Header Logout Button
+runTest('Navbar mobile header exposes dedicated Logout button beside hamburger for authenticated users', () => {
+  assert(navbarContent.includes('id="mobile-header-logout-btn"'), 'Must have dedicated mobile header logout button with id="mobile-header-logout-btn"')
+  assert(navbarContent.includes('flex md:hidden items-center gap-2'), 'Must align controls horizontally on the right side of header')
+  assert(navbarContent.includes('setShowLogoutConfirm(true)'), 'Mobile header button must open confirmation dialog')
+  assert(navbarContent.includes('min-h-[44px] min-w-[44px]'), 'Mobile header button must match 44px touch target dimensions')
+  assert(navbarContent.includes('bg-[#111215] border border-[#27272A] text-[#FFB900]'), 'Mobile header button must follow brand design system')
+  assert(navbarContent.includes('max-w-[calc(100%-108px)]'), 'Header logo container must prevent overflow on narrow viewports (320px, 360px, etc.)')
+})
+
+// Test 4: Logout Confirmation Dialog
+runTest('Logout confirmation dialog prompts "Are you sure you want to log out?" with Cancel and Log Out actions', () => {
+  assert(navbarContent.includes('Are you sure you want to log out?'), 'Confirmation dialog must ask exact prompt text')
+  assert(navbarContent.includes('setShowLogoutConfirm(false)'), 'Cancel button must dismiss confirmation dialog')
+  assert(navbarContent.includes("handleSignOut('/login')"), 'Log Out confirmation action must redirect to /login')
+  assert(navbarContent.includes('Confirm Logout'), 'Dialog must have clear title')
+  assert(navbarContent.includes('disabled={isSigningOut}'), 'Dialog buttons must be disabled while logout is processing')
+})
+
+// Test 5: Settings Page Logout UI & State
 runTest('SettingsPage renders "Log Out" with loading state and brand design', () => {
   assert(settingsContent.includes('const [isSigningOut, setIsSigningOut] = useState(false)'), 'SettingsPage must track isSigningOut state')
   assert(settingsContent.includes("isSigningOut ? 'Logging Out...' : 'Log Out'"), 'SettingsPage must show "Log Out" and "Logging Out..." state')
@@ -66,6 +86,7 @@ runTest('SettingsPage renders "Log Out" with loading state and brand design', ()
 })
 
 // Test 4: Real Supabase SignOut Integration
+// Test 6: Real Supabase SignOut Integration
 runTest('AuthService & AuthContext invoke real Supabase auth.signOut()', () => {
   assert(authServiceContent.includes('supabase.auth.signOut('), 'authService must call real Supabase auth.signOut()')
   assert(authServiceContent.includes('serverRevoked = true'), 'authService must confirm server-side revocation on success')
@@ -77,20 +98,24 @@ runTest('AuthService & AuthContext invoke real Supabase auth.signOut()', () => {
 })
 
 // Test 5: Client-Side State and Cache Clearance
+// Test 7: Client-Side State and Cache Clearance
 runTest('Navbar handleSignOut clears all user-specific state and cached data', () => {
   assert(navbarContent.includes('setNotifications([])'), 'handleSignOut must clear notifications array')
   assert(navbarContent.includes('setProfileAvatar(null)'), 'handleSignOut must reset profile avatar')
   assert(navbarContent.includes('setProfileUsername(null)'), 'handleSignOut must reset profile username')
   assert(navbarContent.includes('setNavWalletBalance(null)'), 'handleSignOut must reset wallet balance')
   assert(navbarContent.includes("navigate('/')"), 'handleSignOut must redirect to public homepage')
+  assert(navbarContent.includes('setShowLogoutConfirm(false)'), 'handleSignOut must reset confirmation dialog')
+  assert(navbarContent.includes('navigate(destination)'), 'handleSignOut must redirect upon session termination')
   assert(navbarContent.includes("showSuccess('Logged out successfully.', 'Session Closed')"), 'handleSignOut must show success toast')
 })
 
 // Test 6: Route Protection Verification
+// Test 8: Route Protection Verification
 runTest('ProtectedRoute blocks all unauthenticated portal routes', () => {
   assert(protectedRouteContent.includes('if (!user)'), 'ProtectedRoute must check if user is null')
   assert(protectedRouteContent.includes('<Navigate to={redirectTo}'), 'ProtectedRoute must redirect unauthenticated visitors to login')
-  
+
   // Verify all protected routes in AppRoutes
   const protectedRoutes = [
     'dashboard',
@@ -109,6 +134,7 @@ runTest('ProtectedRoute blocks all unauthenticated portal routes', () => {
 })
 
 // Test 7: Admin Isolation and Independent Guarding
+// Test 9: Admin Isolation and Independent Guarding
 runTest('Admin routes remain strictly guarded and isolated from user logout', () => {
   assert(adminRouteContent.includes('if (!isAuthenticated || !user)'), 'AdminRoute must reject anonymous users')
   assert(adminRouteContent.includes('if (!isAdmin)'), 'AdminRoute must reject non-admin users with 403')

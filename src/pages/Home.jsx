@@ -102,9 +102,9 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 text-center px-3 sm:px-4 max-w-3xl mx-auto flex flex-col items-center">
-          {/* Hero Greeting */}
+          {/* Hero Greeting (Authenticated Welcome or Public Brand Tag) */}
           <span className="px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-none bg-[#111215] border border-[#FFB900]/30 text-[#FFB900] text-xs sm:text-sm font-label-bold tracking-wide mb-2 sm:mb-2.5 inline-flex items-center justify-center gap-2">
-            👋 Welcome back, {displayName}
+            {user ? `👋 Welcome back, ${displayName}` : '⚔️ Free Fire India Arena'}
           </span>
 
           {/* Hero Title (Mobile: 36-40px, Desktop: 48-60px) */}
