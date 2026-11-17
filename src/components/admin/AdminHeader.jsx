@@ -11,7 +11,7 @@ export default function AdminHeader({
 }) {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
-  const { showSuccess, showError } = useToast()
+  const { showSuccess, showError, showWarning } = useToast()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -47,8 +47,12 @@ export default function AdminHeader({
     if (isLoggingOut) return
     setIsLoggingOut(true)
     try {
-      await signOut()
-      showSuccess('Admin logged out successfully.', 'Session Closed')
+      const res = await signOut()
+      if (res && res.serverRevoked === false) {
+        showWarning('Admin logged out locally. Server session revocation could not be confirmed.', 'Offline Logout')
+      } else {
+        showSuccess('Admin logged out successfully.', 'Session Closed')
+      }
       navigate('/login')
     } catch (err) {
       console.error('Logout error:', err)

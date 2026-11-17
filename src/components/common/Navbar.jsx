@@ -90,7 +90,7 @@ export default function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, profile, isAuthenticated, isAdmin, signOut } = useAuth()
-  const { showSuccess, showError } = useToast()
+  const { showSuccess, showError, showWarning } = useToast()
 
   const dropdownRef = useRef(null)
   const notifRef = useRef(null)
@@ -258,12 +258,23 @@ export default function Navbar() {
   const handleSignOut = async () => {
     setIsSigningOut(true)
     try {
-      await signOut()
+      const res = await signOut()
       setUserDropdownOpen(false)
-      showSuccess('Disconnected safely from mainframe.', 'Signed Out')
+      setMobileMenuOpen(false)
+      setNotificationsOpen(false)
+      setMobileNotifOpen(false)
+      setNotifications([])
+      setProfileAvatar(null)
+      setProfileUsername(null)
+      setNavWalletBalance(null)
+      if (res && res.serverRevoked === false) {
+        showWarning('Logged out locally. Server-side session revocation could not be confirmed.', 'Offline Logout')
+      } else {
+        showSuccess('Logged out successfully.', 'Session Closed')
+      }
       navigate('/')
     } catch (err) {
-      showError(err.message || 'Logout sequence failed.')
+      showError(err.message || 'Logout sequence failed. Please try again.', 'Logout Error')
     } finally {
       setIsSigningOut(false)
     }
@@ -564,12 +575,14 @@ export default function Navbar() {
                       <div className="border-t border-[#27272A] my-1"></div>
 
                       <button
+                        type="button"
                         onClick={handleSignOut}
                         disabled={isSigningOut}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-none text-[#FF0000] hover:bg-[#FF0000]/10 transition-colors uppercase tracking-wider font-bold cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-none text-[#A1A1AA] hover:text-white hover:bg-[#18181B] transition-colors uppercase tracking-wider font-bold text-xs cursor-pointer group disabled:opacity-50 disabled:cursor-not-allowed"
+                        aria-label="Log Out of MJ ESPORTS"
                       >
-                        <LogOut className="w-4 h-4" />
-                        <span>{isSigningOut ? 'Disconnecting...' : 'Sign Out'}</span>
+                        <LogOut className="w-4 h-4 text-[#FF8C00] group-hover:text-[#FFB900] transition-colors shrink-0" />
+                        <span>{isSigningOut ? 'Logging Out...' : 'Log Out'}</span>
                       </button>
 
                     </div>
@@ -822,6 +835,20 @@ export default function Navbar() {
                       <span>My Team</span>
                     </Link>
 
+                    {/* Settings */}
+                    <Link
+                      to="/settings"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
+                        isActive('/settings')
+                          ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
+                          : 'text-[#A1A1AA] hover:bg-[#18181B] hover:text-white'
+                      }`}
+                    >
+                      <Settings className="w-4.5 h-4.5 text-[#FFB900]" />
+                      <span>Settings</span>
+                    </Link>
+
                     {/* 8. Notifications Tray */}
                     <div className="rounded-none border border-[#27272A] bg-[#18181B] overflow-hidden my-1">
                       <button
@@ -938,10 +965,11 @@ export default function Navbar() {
                     setMobileMenuOpen(false)
                   }}
                   disabled={isSigningOut}
-                  className="w-full py-3 text-xs font-bold text-[#FF0000] bg-[#111215] hover:bg-[#FF0000]/10 rounded-none border border-[#27272A] hover:border-[#FF0000]/40 flex items-center justify-center gap-2 min-h-[44px] uppercase font-headline cursor-pointer transition-colors"
+                  className="w-full py-3 text-xs font-bold text-white bg-[#111215] hover:bg-[#18181B] hover:text-[#FFB900] rounded-none border border-[#27272A] hover:border-[#FFB900]/40 flex items-center justify-center gap-2 min-h-[44px] uppercase font-headline cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+                  aria-label="Log Out of MJ ESPORTS"
                 >
-                  <LogOut className="w-4 h-4 text-[#FF0000]" />
-                  <span>{isSigningOut ? 'Disconnecting...' : 'Logout'}</span>
+                  <LogOut className="w-4 h-4 text-[#FF8C00] group-hover:text-[#FFB900] transition-colors shrink-0" />
+                  <span>{isSigningOut ? 'Logging Out...' : 'Log Out'}</span>
                 </button>
               </div>
             )}

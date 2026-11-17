@@ -281,17 +281,22 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const signOut = async () => {
+  const signOut = async (options) => {
     setRoleLoading(true)
-    await apiSignOut()
-    setUser(null)
-    userRef.current = null
-    setSession(null)
-    setRole(null)
-    roleRef.current = null
-    setProfile(null)
-    setRoleLoading(false)
-    setLoading(false)
+    let signOutResult = null
+    try {
+      signOutResult = await apiSignOut(options)
+    } finally {
+      setUser(null)
+      userRef.current = null
+      setSession(null)
+      setRole(null)
+      roleRef.current = null
+      setProfile(null)
+      setRoleLoading(false)
+      setLoading(false)
+    }
+    return signOutResult
   }
 
   const value = {

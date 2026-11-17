@@ -279,17 +279,54 @@ export async function updateUserPassword(newPassword) {
 
 /**
  * Sign out current user
+ * @param {Object} [options] - Supabase sign out options (e.g. { scope: 'local' | 'global' | 'others' })
+ * @returns {Promise<{ success: boolean, serverRevoked: boolean, error: Error | null, warning: string | null }>}
  */
-export async function signOut() {
+export async function signOut(options) {
+  let serverRevoked = false
+  let serverError = null
+
   if (isSupabaseConfigured) {
     try {
-      await supabase.auth.signOut()
+      const { error } = await supabase.auth.signOut(options)
+      if (error) {
+        serverError = error
+        console.warn('[Supabase SignOut Warning]: Server-side sign out returned error:', error.message)
+      } else {
+        serverRevoked = true
+      }
     } catch (err) {
-      console.warn('[Supabase SignOut Warning]:', err.message)
+      serverError = err
+      console.warn('[Supabase SignOut Warning]: Exception during server sign out:', err.message)
+    }
+  } else {
+    // In mock/development mode where Supabase is not configured, local mock is authoritative
+    serverRevoked = true
+  }
+
+  // Fallback cleanup: Always purge Supabase auth token keys from localStorage if any remain,
+  // preventing the current browser from continuing to use the session even if network failed
+  if (typeof localStorage !== 'undefined') {
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i)
+        if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
+          localStorage.removeItem(k)
+        }
+      }
+    } catch (storageErr) {
+      console.warn('[Storage Cleanup Warning]:', storageErr)
     }
   }
 
+  // Purge mock session tokens
   removeStorageItem('mj_esports_mock_user')
   removeStorageItem('mj_esports_mock_session')
-  return { success: true }
+
+  return {
+    success: true, // Local session cleared successfully
+    serverRevoked, // True only if Supabase confirmed server-side revocation
+    error: serverError, // Server error or null if confirmed
+    warning: serverRevoked ? null : 'Server-side session revocation could not be confirmed.',
+  }
 }

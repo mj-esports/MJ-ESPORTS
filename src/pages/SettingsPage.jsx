@@ -33,7 +33,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 export default function SettingsPage() {
   const { user, profile, updateUserPassword, signOut } = useAuth()
-  const { showSuccess, showError, showInfo } = useToast()
+  const { showSuccess, showError, showWarning, showInfo } = useToast()
   const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useState('general')
@@ -161,13 +161,21 @@ export default function SettingsPage() {
   }
 
   // Real Sign Out Handler
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const handleSignOutCurrentDevice = async () => {
+    setIsSigningOut(true)
     try {
-      await signOut()
-      showSuccess('Logged out successfully.', 'Session Closed')
+      const res = await signOut({ scope: 'local' })
+      if (res && res.serverRevoked === false) {
+        showWarning('Logged out locally. Server-side session revocation could not be confirmed.', 'Offline Logout')
+      } else {
+        showSuccess('Logged out successfully.', 'Session Closed')
+      }
       navigate('/')
     } catch (err) {
       showError(err.message || 'Failed to log out.', 'Error')
+    } finally {
+      setIsSigningOut(false)
     }
   }
 
@@ -520,10 +528,12 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={handleSignOutCurrentDevice}
-                        className="px-3 py-1.5 bg-[#27272A] hover:bg-red-950/40 text-red-400 border border-red-900/40 rounded-none text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5"
+                        disabled={isSigningOut}
+                        className="px-3 py-1.5 bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] hover:text-[#FFB900] border border-[#27272A] hover:border-[#FFB900]/40 rounded-none text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed group"
+                        aria-label="Log Out of current device"
                       >
-                        <LogOut className="w-3.5 h-3.5" />
-                        <span>Sign Out</span>
+                        <LogOut className="w-3.5 h-3.5 text-[#FF8C00] group-hover:text-[#FFB900] transition-colors shrink-0" />
+                        <span>{isSigningOut ? 'Logging Out...' : 'Log Out'}</span>
                       </button>
                     </div>
 
