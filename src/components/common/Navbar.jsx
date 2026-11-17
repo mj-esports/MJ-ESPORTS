@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
-  Menu,
-  X,
   User,
   LogOut,
   Shield,
@@ -11,13 +9,7 @@ import {
   Wallet,
   Bell,
   ChevronDown,
-  BookOpen,
-  Home,
   Trophy,
-  Gamepad2,
-  BarChart3,
-  LogIn,
-  UserPlus,
   Key,
   AlertTriangle,
   Info,
@@ -79,8 +71,6 @@ function getNotificationIcon(type) {
 }
 
 export default function Navbar() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [mobileNotifOpen, setMobileNotifOpen] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
@@ -213,9 +203,9 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Lock body scroll when mobile menu or logout confirm dialog is open
+  // Lock body scroll when logout confirmation dialog is open
   useEffect(() => {
-    if (mobileMenuOpen || showLogoutConfirm) {
+    if (showLogoutConfirm) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -223,31 +213,27 @@ export default function Navbar() {
     return () => {
       document.body.style.overflow = ''
     }
-  }, [mobileMenuOpen, showLogoutConfirm])
+  }, [showLogoutConfirm])
 
-  // Close mobile drawer, confirmation dialog, and dropdowns on Escape key press
+  // Close confirmation dialog and dropdowns on Escape key press
   useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === 'Escape') {
         if (!isSigningOut) {
           setShowLogoutConfirm(false)
         }
-        setMobileMenuOpen(false)
         setUserDropdownOpen(false)
         setNotificationsOpen(false)
-        setMobileNotifOpen(false)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isSigningOut])
 
-  // Auto-close mobile menu, confirmation dialog, and dropdowns on route navigation
+  // Auto-close confirmation dialog and dropdowns on route navigation
   useEffect(() => {
-    setMobileMenuOpen(false)
     setUserDropdownOpen(false)
     setNotificationsOpen(false)
-    setMobileNotifOpen(false)
     setShowLogoutConfirm(false)
   }, [location.pathname])
 
@@ -266,9 +252,7 @@ export default function Navbar() {
     try {
       const res = await signOut()
       setUserDropdownOpen(false)
-      setMobileMenuOpen(false)
       setNotificationsOpen(false)
-      setMobileNotifOpen(false)
       setShowLogoutConfirm(false)
       setNotifications([])
       setProfileAvatar(null)
@@ -306,8 +290,6 @@ export default function Navbar() {
 
     // 2. Close dropdowns/tray
     setNotificationsOpen(false)
-    setMobileNotifOpen(false)
-    setMobileMenuOpen(false)
 
     // 3. Navigate if link is provided and safe
     if (notif.link && typeof notif.link === 'string') {
@@ -362,7 +344,7 @@ export default function Navbar() {
           {/* Logo (LEFT) */}
           <Link
             to="/"
-            className={`flex items-center gap-2 sm:gap-3 group shrink min-w-0 flex-1 ${isAuthenticated ? 'max-w-[calc(100%-108px)]' : 'max-w-[calc(100%-56px)]'} md:flex-initial md:max-w-none md:justify-self-start`}
+            className={`flex items-center gap-2 sm:gap-3 group shrink min-w-0 flex-1 ${isAuthenticated ? 'max-w-[calc(100%-56px)]' : 'max-w-full'} md:flex-initial md:max-w-none md:justify-self-start`}
             aria-label="MJ ESPORTS Home"
           >
             <picture className="shrink-0 flex items-center justify-center">
@@ -613,10 +595,9 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Header Action Controls & Menu Trigger */}
-          <div className="flex md:hidden items-center gap-2 shrink-0 ml-2">
-            {/* Dedicated Mobile Header Logout Button (Authenticated Only) */}
-            {isAuthenticated && (
+          {/* Dedicated Mobile Header Logout Button (RIGHT - Mobile Only, Authenticated Only) */}
+          {isAuthenticated && (
+            <div className="flex md:hidden items-center shrink-0 ml-2">
               <button
                 type="button"
                 onClick={() => setShowLogoutConfirm(true)}
@@ -628,382 +609,11 @@ export default function Navbar() {
               >
                 <LogOut className="w-5 h-5 text-[#FFB900] shrink-0" />
               </button>
-            )}
-
-            {/* Mobile Hamburger Menu Trigger */}
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-none bg-[#111215] border border-[#27272A] text-[#FFB900] hover:text-white hover:border-[#FFB900] focus:outline-none focus:ring-2 focus:ring-[#FFB900] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0 active:scale-95 shadow-md"
-              aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
-              aria-expanded={mobileMenuOpen}
-              aria-controls="mobile-navigation-drawer"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-[#FFB900]" />}
-            </button>
-          </div>
+            </div>
+          )}
 
         </div>
       </div>
-
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <>
-          {/* Backdrop overlay - clicking outside closes drawer */}
-          <div
-            className="fixed inset-0 top-16 sm:top-20 z-40 bg-black/75 backdrop-blur-sm md:hidden animate-in fade-in duration-200"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
-
-          {/* Drawer Panel */}
-          <div
-            id="mobile-navigation-drawer"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Mobile Navigation Menu"
-            className="fixed inset-y-0 right-0 top-16 sm:top-20 z-50 w-full max-w-sm bg-[#111215]/98 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] space-y-4 md:hidden overflow-y-auto animate-in slide-in-from-right duration-200 border-l border-[#27272A] shadow-2xl"
-          >
-            <div className="space-y-4 overflow-y-auto pr-0.5">
-              {/* Authenticated User Overview Card */}
-              {isAuthenticated ? (
-                <div className="p-3.5 rounded-none bg-[#18181B] border border-[#27272A] flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-none bg-[#FFB900]/20 border border-[#FFB900]/40 overflow-hidden flex items-center justify-center shrink-0">
-                      {userAvatarUrl && !avatarError ? (
-                        <img
-                          src={userAvatarUrl}
-                          alt={`${userDisplayName} profile photo`}
-                          className="w-full h-full object-cover rounded-none"
-                          onError={() => setAvatarError(true)}
-                        />
-                      ) : (
-                        <span className="text-sm font-headline font-bold text-[#FFB900] uppercase leading-none select-none" aria-hidden="true">
-                          {userInitial}
-                        </span>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-sm font-bold text-white block truncate font-headline">{userDisplayName}</span>
-                      <div className="text-[10.5px] font-mono font-bold block uppercase mt-0.5">
-                        {isWalletLoading ? (
-                           <span className="inline-flex items-center gap-1.5 text-[#A1A1AA]">
-                            <span>Wallet:</span>
-                            <span className="inline-block w-8 h-3.5 bg-[#27272A] animate-pulse rounded-none my-0.5"></span>
-                          </span>
-                        ) : navWalletBalance === null ? (
-                          <span className="text-[#A1A1AA]">Wallet unavailable</span>
-                        ) : (
-                          <span className="text-[#10b981]">Wallet Balance: ₹{Math.floor(navWalletBalance)}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {isAdmin && (
-                    <span className="text-[9px] font-extrabold bg-[#FF8C00] text-slate-950 px-2 py-0.5 rounded-none uppercase font-headline shrink-0">
-                      ADMIN
-                    </span>
-                  )}
-                </div>
-              ) : (
-                /* Logged-Out Visitor Action Buttons */
-                <div className="flex gap-2.5">
-                  <Link
-                    to="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex-1 py-2.5 px-3 border border-[#27272A] hover:border-[#FFB900]/40 text-[#FFFFFF] rounded-none text-center text-xs font-headline font-bold uppercase min-h-[44px] flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <LogIn className="w-4 h-4 text-[#FFB900]" />
-                    <span>Login</span>
-                  </Link>
-                  <Link
-                    to="/register"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex-1 py-2.5 px-3 bg-[#FFB900] hover:bg-[#FFA500] text-[#000000] rounded-none text-center text-xs font-headline font-bold uppercase min-h-[44px] flex items-center justify-center gap-2 transition-all active:scale-95"
-                  >
-                    <UserPlus className="w-4 h-4 text-[#000000]" />
-                    <span>Register</span>
-                  </Link>
-                </div>
-              )}
-
-              {/* Navigation Links */}
-              <div className="flex flex-col space-y-1 text-xs font-headline">
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#A1A1AA] px-2 mb-1">
-                  {isAuthenticated ? 'Arena Navigation' : 'Public Directory'}
-                </span>
-
-                {/* 1. Home */}
-                <Link
-                  to="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
-                    isActive('/')
-                      ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
-                      : 'text-[#A1A1AA] hover:bg-[#18181B] hover:text-white'
-                  }`}
-                >
-                  <Home className="w-4.5 h-4.5 text-[#FFB900]" />
-                  <span>Home</span>
-                </Link>
-
-                {/* 2. Tournaments */}
-                <Link
-                  to="/tournaments"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
-                    isActive('/tournaments')
-                      ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
-                      : 'text-[#A1A1AA] hover:bg-[#18181B] hover:text-white'
-                  }`}
-                >
-                  <Trophy className="w-4.5 h-4.5 text-[#FF8C00]" />
-                  <span>Tournaments</span>
-                </Link>
-
-                {/* 3. My Matches (Authenticated Only) */}
-                {isAuthenticated && (
-                  <Link
-                    to="/profile/history"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
-                      isActive('/profile/history')
-                        ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
-                        : 'text-[#A1A1AA] hover:bg-[#18181B] hover:text-white'
-                    }`}
-                  >
-                    <Gamepad2 className="w-4.5 h-4.5 text-[#FFB900]" />
-                    <span>My Matches</span>
-                  </Link>
-                )}
-
-                {/* 4. Leaderboard */}
-                <Link
-                  to="/leaderboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
-                    isActive('/leaderboard')
-                      ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
-                      : 'text-[#A1A1AA] hover:bg-[#18181B] hover:text-white'
-                  }`}
-                >
-                  <BarChart3 className="w-4.5 h-4.5 text-[#FFB900]" />
-                  <span>Leaderboard</span>
-                </Link>
-
-                {/* 5. Wallet (Authenticated Only) */}
-                {isAuthenticated && (
-                  <Link
-                    to="/wallet"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`px-3.5 py-2.5 rounded-none flex items-center justify-between min-h-[44px] uppercase tracking-wider transition-colors ${
-                      isActive('/wallet')
-                        ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
-                        : 'text-[#A1A1AA] hover:bg-[#18181B] hover:text-white'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Wallet className={`w-4.5 h-4.5 ${isActive('/wallet') ? 'text-[#FFB900]' : 'text-[#10b981]'}`} />
-                      <span>Wallet</span>
-                    </div>
-                    {isWalletLoading || navWalletBalance === null ? (
-                      <span className="inline-block w-8 h-3.5 bg-[#27272A] animate-pulse rounded-none my-0.5"></span>
-                    ) : (
-                      <span className="text-xs font-mono font-bold text-[#FFB900] bg-[#FFB900]/10 px-2 py-0.5 rounded-none border border-[#FFB900]/20">
-                        ₹{Math.floor(navWalletBalance)}
-                      </span>
-                    )}
-                  </Link>
-                )}
-
-                {/* 6. Rulebook & Info */}
-                <Link
-                  to="/about"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
-                    isActive('/about')
-                      ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
-                      : 'text-[#A1A1AA] hover:bg-[#18181B] hover:text-white'
-                  }`}
-                >
-                  <BookOpen className="w-4.5 h-4.5 text-[#FFB900]" />
-                  <span>Rulebook & Info</span>
-                </Link>
-
-                {/* Authenticated Actions */}
-                {isAuthenticated && (
-                  <>
-                    <div className="border-t border-[#27272A] my-1.5"></div>
-
-                    {/* 7. Profile */}
-                    <Link
-                      to="/profile"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
-                        isActive('/profile')
-                          ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
-                          : 'text-[#A1A1AA] hover:bg-[#18181B] hover:text-white'
-                      }`}
-                    >
-                      <User className="w-4.5 h-4.5 text-[#FFB900]" />
-                      <span>Profile</span>
-                    </Link>
-
-                    {/* My Team */}
-                    <Link
-                      to="/profile/team"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
-                        isActive('/profile/team')
-                          ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
-                          : 'text-[#A1A1AA] hover:bg-[#18181B] hover:text-white'
-                      }`}
-                    >
-                      <Users className="w-4.5 h-4.5 text-[#FFB900]" />
-                      <span>My Team</span>
-                    </Link>
-
-                    {/* Settings */}
-                    <Link
-                      to="/settings"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`px-3.5 py-2.5 rounded-none flex items-center gap-3 min-h-[44px] uppercase tracking-wider transition-colors ${
-                        isActive('/settings')
-                          ? 'bg-[#FFB900]/10 text-[#FFB900] border border-[#FFB900]/40 font-bold'
-                          : 'text-[#A1A1AA] hover:bg-[#18181B] hover:text-white'
-                      }`}
-                    >
-                      <Settings className="w-4.5 h-4.5 text-[#FFB900]" />
-                      <span>Settings</span>
-                    </Link>
-
-                    {/* 8. Notifications Tray */}
-                    <div className="rounded-none border border-[#27272A] bg-[#18181B] overflow-hidden my-1">
-                      <button
-                        type="button"
-                        onClick={() => setMobileNotifOpen(!mobileNotifOpen)}
-                        className="w-full px-3.5 py-2.5 flex items-center justify-between min-h-[44px] text-xs font-headline uppercase tracking-wider text-[#A1A1AA] hover:text-white transition-colors cursor-pointer"
-                        aria-expanded={mobileNotifOpen}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Bell className="w-4.5 h-4.5 text-[#FFB900]" />
-                          <span>Notifications</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {unreadNotificationsCount > 0 ? (
-                            <span className="min-w-[18px] h-4.5 rounded-none bg-[#FF0000] text-[9px] font-black text-white flex items-center justify-center px-1.5 animate-pulse">
-                              {unreadNotificationsCount}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-[#A1A1AA] font-mono lowercase">0 unread</span>
-                          )}
-                          <ChevronDown className={`w-3.5 h-3.5 text-[#A1A1AA] transition-transform duration-200 ${mobileNotifOpen ? 'rotate-180' : ''}`} />
-                        </div>
-                      </button>
-
-                      {mobileNotifOpen && (
-                        <div className="border-t border-[#27272A] p-3 space-y-2.5 bg-[#111215]">
-                          <div className="flex items-center justify-between pb-1 border-b border-[#27272A]/60">
-                            <span className="text-[10px] font-mono text-[#A1A1AA] uppercase font-bold">
-                              Alerts ({unreadNotificationsCount} unread)
-                            </span>
-                            {unreadNotificationsCount > 0 && (
-                              <button
-                                type="button"
-                                onClick={handleMarkAllRead}
-                                className="text-[9px] text-[#FFB900] hover:underline uppercase font-bold cursor-pointer font-mono"
-                              >
-                                Mark Read
-                              </button>
-                            )}
-                          </div>
-
-                          <div className="max-h-56 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
-                            {notifications.length === 0 ? (
-                              <div className="py-3 text-center text-[#A1A1AA] text-[11px] font-sans">
-                                No notifications on log.
-                              </div>
-                            ) : (
-                              notifications.slice(0, 8).map((n) => (
-                                <button
-                                  key={`mobile-notif-${n.id}`}
-                                  type="button"
-                                  onClick={() => handleNotificationClick(n)}
-                                  className={`w-full text-left p-2 rounded-none border text-[11px] leading-relaxed transition-all cursor-pointer ${
-                                    n.is_read
-                                      ? 'bg-[#18181B]/40 border-[#27272A]/60 text-[#A1A1AA] hover:bg-[#18181B]'
-                                      : 'bg-[#FFB900]/5 border-[#FFB900]/30 text-white hover:bg-[#FFB900]/10'
-                                  }`}
-                                >
-                                  <div className="flex items-start gap-2">
-                                    <div className="mt-0.5">
-                                      {getNotificationIcon(n.type)}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex justify-between items-start font-bold gap-2">
-                                        <span className="truncate">{n.title}</span>
-                                        <div className="flex items-center gap-1.5 shrink-0">
-                                          <span className="text-[9px] text-[#A1A1AA] font-normal">
-                                            {formatRelativeTime(n.created_at)}
-                                          </span>
-                                          {!n.is_read && (
-                                            <span className="w-1.5 h-1.5 rounded-none bg-[#FFB900] shrink-0"></span>
-                                          )}
-                                        </div>
-                                      </div>
-                                      <p className="text-[10px] text-[#A1A1AA] mt-0.5 font-sans line-clamp-2">{n.message}</p>
-                                    </div>
-                                  </div>
-                                </button>
-                              ))
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Admin Dashboard (Admin Only) */}
-                    {isAdmin && (
-                      <Link
-                        to="/admin"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="px-3.5 py-2.5 rounded-none flex items-center justify-between text-[#FF8C00] bg-[#FF8C00]/10 border border-[#FF8C00]/25 min-h-[44px] uppercase tracking-wider font-bold transition-colors hover:bg-[#FF8C00]/20"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Shield className="w-4.5 h-4.5 text-[#FF8C00]" />
-                          <span>Admin Dashboard</span>
-                        </div>
-                        <span className="text-[9px] font-extrabold bg-[#FF8C00] text-slate-950 px-1.5 py-0.5 rounded-none">
-                          ACCESS
-                        </span>
-                      </Link>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Drawer Footer: Logout (Authenticated Only) */}
-            {isAuthenticated && (
-              <div className="pt-2 border-t border-[#27272A]">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    setShowLogoutConfirm(true)
-                  }}
-                  disabled={isSigningOut}
-                  className="w-full py-3 text-xs font-bold text-white bg-[#111215] hover:bg-[#18181B] hover:text-[#FFB900] rounded-none border border-[#27272A] hover:border-[#FFB900]/40 flex items-center justify-center gap-2 min-h-[44px] uppercase font-headline cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
-                  aria-label="Log Out of MJ ESPORTS"
-                >
-                  <LogOut className="w-4 h-4 text-[#FF8C00] group-hover:text-[#FFB900] transition-colors shrink-0" />
-                  <span>{isSigningOut ? 'Logging Out...' : 'Log Out'}</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </>
-      )}
 
       {/* Logout Confirmation Dialog (Mobile & Modal) */}
       {showLogoutConfirm && (

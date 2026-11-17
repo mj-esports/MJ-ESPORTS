@@ -47,24 +47,21 @@ runTest('Navbar desktop dropdown renders "Log Out" with LogOut icon and sharp st
   assert(!navbarContent.includes("text-[#FF0000] hover:bg-[#FF0000]/10"), 'Desktop dropdown must not use harsh red #FF0000')
 })
 
-// Test 2: Mobile Navigation Drawer Logout UI
-runTest('Navbar mobile drawer renders "Log Out" with LogOut icon and brand design system', () => {
-  // Mobile drawer footer section
-  const mobileFooterRegex = /\{isAuthenticated && \(\s*<div className="pt-2 border-t border-\[#27272A\]">[\s\S]*?Log Out[\s\S]*?<\/button>\s*<\/div>\s*\)\}/
-  assert(mobileFooterRegex.test(navbarContent), 'Mobile drawer footer must conditionally render Log Out for authenticated users')
-  assert(navbarContent.includes('bg-[#111215] hover:bg-[#18181B] hover:text-[#FFB900]'), 'Mobile drawer button must follow MJ ESPORTS brand palette (charcoal & restrained amber)')
-  assert(navbarContent.includes('min-h-[44px]'), 'Mobile drawer logout button must have at least 44px touch target')
+// Test 2: Mobile Navigation Drawer & Hamburger Removal Verification
+runTest('Mobile navigation drawer and hamburger menu are removed in favor of primary BottomNavigation and dedicated Logout', () => {
+  assert(!navbarContent.includes('mobile-navigation-drawer'), 'Mobile navigation drawer must be completely removed')
+  assert(!navbarContent.includes('setMobileMenuOpen'), 'Drawer-specific setMobileMenuOpen state must be removed')
+  assert(!navbarContent.includes('<Menu className'), 'Three-line hamburger icon must be completely removed')
 })
 
-// Test 3: Settings Page Logout UI & State
 // Test 3: Dedicated Mobile Header Logout Button
-runTest('Navbar mobile header exposes dedicated Logout button beside hamburger for authenticated users', () => {
+runTest('Navbar mobile header exposes dedicated Logout button as the sole right control for authenticated users', () => {
   assert(navbarContent.includes('id="mobile-header-logout-btn"'), 'Must have dedicated mobile header logout button with id="mobile-header-logout-btn"')
-  assert(navbarContent.includes('flex md:hidden items-center gap-2'), 'Must align controls horizontally on the right side of header')
+  assert(navbarContent.includes('flex md:hidden items-center shrink-0 ml-2'), 'Must align Logout control on the right side of mobile header')
   assert(navbarContent.includes('setShowLogoutConfirm(true)'), 'Mobile header button must open confirmation dialog')
   assert(navbarContent.includes('min-h-[44px] min-w-[44px]'), 'Mobile header button must match 44px touch target dimensions')
   assert(navbarContent.includes('bg-[#111215] border border-[#27272A] text-[#FFB900]'), 'Mobile header button must follow brand design system')
-  assert(navbarContent.includes('max-w-[calc(100%-108px)]'), 'Header logo container must prevent overflow on narrow viewports (320px, 360px, etc.)')
+  assert(navbarContent.includes('max-w-[calc(100%-56px)]'), 'Header logo container must prevent overflow on narrow viewports (320px, 360px, etc.)')
 })
 
 // Test 4: Logout Confirmation Dialog

@@ -3,7 +3,7 @@ import path from 'path'
 import assert from 'assert'
 
 console.log('================================================================================')
-console.log('MJ ESPORTS — RENDERED MOBILE HEADER & AUTHENTICATION AUDIT')
+console.log('MJ ESPORTS — RENDERED MOBILE HEADER SIMPLIFICATION AUDIT')
 console.log('================================================================================\n')
 
 let passedTests = 0
@@ -35,19 +35,19 @@ runTest('Homepage hero greeting does not falsely welcome unauthenticated guests 
   )
 })
 
-// Test 2: Mobile Header Container Structure (Three Core Elements)
-runTest('Mobile header defines exact container structure: LEFT logo and RIGHT [Logout] [Hamburger]', () => {
+// Test 2: Mobile Header Container Structure (LEFT logo and RIGHT sole Logout)
+runTest('Mobile header defines simplified container structure: LEFT logo and RIGHT sole Logout (no hamburger)', () => {
   // Check outer mobile flex row container
   assert(navbarContent.includes('flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr]'), 'Header row must use flex justify-between on mobile')
   
   // Check mobile controls container
-  const controlsMatch = navbarContent.match(/<div className="flex md:hidden items-center gap-2 shrink-0 ml-2">([\s\S]*?)<\/div>/)
-  assert(controlsMatch, 'Must find mobile right-side container with flex md:hidden items-center gap-2 shrink-0 ml-2')
+  const controlsMatch = navbarContent.match(/<div className="flex md:hidden items-center shrink-0 ml-2">([\s\S]*?)<\/div>/)
+  assert(controlsMatch, 'Must find mobile right-side container with flex md:hidden items-center shrink-0 ml-2')
   
   const controlsInner = controlsMatch[1]
-  // Both logout and hamburger must be inside this single right-aligned container
+  // Only logout must be inside this right-aligned container
   assert(controlsInner.includes('id="mobile-header-logout-btn"'), 'Dedicated Logout button must be inside mobile header container')
-  assert(controlsInner.includes('aria-controls="mobile-navigation-drawer"'), 'Hamburger menu button must be inside mobile header container')
+  assert(!controlsInner.includes('aria-controls="mobile-navigation-drawer"'), 'Hamburger menu button must NOT be in mobile header container')
 })
 
 // Helper to cleanly extract an exact element around a needle
@@ -63,14 +63,14 @@ function extractElement(content, needle, tag) {
   return content.substring(startIdx, endIdx + closeTag.length)
 }
 
-// Test 3: Side-by-Side Coexistence for Authenticated Users
-runTest('When authenticated, both dedicated Logout button and hamburger menu are rendered simultaneously', () => {
+// Test 3: Sole Dedicated Logout Button on Mobile Header
+runTest('When authenticated, dedicated Logout button is rendered as sole header action on mobile', () => {
   const logoutBtnMarkup = extractElement(navbarContent, 'id="mobile-header-logout-btn"', 'button')
   const hamburgerBtnMarkup = extractElement(navbarContent, 'aria-controls="mobile-navigation-drawer"', 'button')
   assert(logoutBtnMarkup, 'Dedicated Logout button markup must be present')
-  assert(hamburgerBtnMarkup, 'Hamburger menu button markup must be present')
+  assert(!hamburgerBtnMarkup, 'Hamburger menu button markup must be completely absent')
 
-  // Dedicated Logout button must NOT be inside the drawer, it must be in the top nav header
+  // Dedicated Logout button must NOT be full width
   assert(!logoutBtnMarkup.includes('w-full'), 'Mobile header logout button must be compact icon button, not full width')
   assert(logoutBtnMarkup.includes('shrink-0'), 'Mobile header logout button must have shrink-0')
 })
@@ -80,15 +80,12 @@ runTest('When unauthenticated, the dedicated Logout button is strictly not rende
   assert(navbarContent.includes('{isAuthenticated && ('), 'Mobile header logout button must be strictly conditional on isAuthenticated')
 })
 
-// Test 5: Hamburger Open / Close State Decoupling
-runTest('Opening/closing hamburger menu does not hide or dismount the dedicated Logout button', () => {
-  // Mobile header controls container is rendered outside and before {mobileMenuOpen && (...)} drawer
-  const headerControlsIndex = navbarContent.indexOf('id="mobile-header-logout-btn"')
-  const mobileDrawerIndex = navbarContent.indexOf('{mobileMenuOpen && (')
-  assert(headerControlsIndex < mobileDrawerIndex, 'Header controls must be rendered in the sticky nav header, completely outside and above the mobile drawer condition')
-  
-  // Hamburger button toggles icon between Menu and X, but does not affect Logout button state
-  assert(navbarContent.includes("{mobileMenuOpen ? <X className=\"w-5 h-5 text-white\" /> : <Menu className=\"w-5 h-5 text-[#FFB900]\" />}"), 'Hamburger button switches to X icon when open and Menu icon when closed')
+// Test 5: Hamburger Menu and Drawer Removal
+runTest('Hamburger menu, mobile drawer, and drawer states are completely removed from Navbar', () => {
+  assert(!navbarContent.includes('mobileMenuOpen'), 'mobileMenuOpen state must not exist in Navbar')
+  assert(!navbarContent.includes('mobile-navigation-drawer'), 'mobile-navigation-drawer must not exist in Navbar')
+  assert(!navbarContent.includes('<Menu'), 'Menu icon must not be rendered')
+  assert(!navbarContent.includes('<X className="w-5 h-5 text-white"'), 'X drawer icon must not be rendered')
 })
 
 // Test 6: Mobile Touch Target & Sharp Edge Cyberpunk Styling
@@ -105,16 +102,14 @@ runTest('Dedicated Logout button strictly obeys 44px touch targets and sharp edg
 // Test 7: Viewport Width & Horizontal Overflow Verification (320px, 360px, 390px, 430px)
 const viewports = [320, 360, 390, 430]
 viewports.forEach((vp) => {
-  runTest(`Viewport ${vp}px: Guarantees zero horizontal overflow with both buttons visible`, () => {
+  runTest(`Viewport ${vp}px: Guarantees zero horizontal overflow with single logout button`, () => {
     const paddingX = 32 // px-4 (16px left + 16px right)
     const availableWidth = vp - paddingX
     
-    // Right Controls
+    // Right Controls: only Logout button (44px) + margin (8px) = 52px
     const logoutBtnWidth = 44
-    const gapBetween = 8
-    const hamburgerBtnWidth = 44
     const marginControls = 8 // ml-2
-    const totalControlsWidth = logoutBtnWidth + gapBetween + hamburgerBtnWidth + marginControls // 104px
+    const totalControlsWidth = logoutBtnWidth + marginControls // 52px
     
     // Available for Logo Link
     const remainingForLogo = availableWidth - totalControlsWidth
@@ -125,7 +120,7 @@ viewports.forEach((vp) => {
     const logoImgTotal = logoImgWidth + logoImgGap // 40px
     const textAvailableBudget = remainingForLogo - logoImgTotal
     
-    assert(textAvailableBudget >= 120, `At ${vp}px, text container budget must be >= 120px (actual: ${textAvailableBudget}px)`)
+    assert(textAvailableBudget >= 180, `At ${vp}px, text container budget must be >= 180px (actual: ${textAvailableBudget}px)`)
     assert(totalControlsWidth + remainingForLogo <= availableWidth, `Total content must not exceed available width ${availableWidth}px`)
   })
 })

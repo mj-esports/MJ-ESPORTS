@@ -3,7 +3,7 @@ import path from 'path'
 import assert from 'assert'
 
 console.log('====================================================')
-console.log('MJ ESPORTS — Mobile Header Logout Button QA Suite')
+console.log('MJ ESPORTS — Mobile Header Simplification QA Suite')
 console.log('====================================================\n')
 
 let passedTests = 0
@@ -24,16 +24,17 @@ function runTest(name, fn) {
 const navbarPath = path.resolve('src/components/common/Navbar.jsx')
 const navbarContent = fs.readFileSync(navbarPath, 'utf8')
 
-// Test 1: Mobile Header Button Placement & Hierarchy
-runTest('Logout button is positioned immediately beside hamburger menu on mobile', () => {
+// Test 1: Mobile Header Simplification & Hamburger Removal
+runTest('Mobile header exposes dedicated Logout button as sole right control with hamburger completely removed', () => {
   assert(navbarContent.includes('id="mobile-header-logout-btn"'), 'Must have id="mobile-header-logout-btn"')
-  const mobileHeaderControlsRegex = /<div className="flex md:hidden items-center gap-2 shrink-0 ml-2">[\s\S]*?id="mobile-header-logout-btn"[\s\S]*?<button[\s\S]*?aria-controls="mobile-navigation-drawer"/
-  assert(mobileHeaderControlsRegex.test(navbarContent), 'Logout button must be in same horizontal flex container immediately preceding hamburger button')
+  assert(navbarContent.includes('<div className="flex md:hidden items-center shrink-0 ml-2">'), 'Must have right-side mobile header controls container')
+  assert(!navbarContent.includes('aria-controls="mobile-navigation-drawer"'), 'Hamburger button aria-controls must be removed')
+  assert(!navbarContent.includes('<Menu className'), 'Three-line hamburger icon must be completely removed')
 })
 
 // Test 2: Authentication Guard
 runTest('Logout button is strictly guarded by isAuthenticated', () => {
-  const authGuardRegex = /\{isAuthenticated && \(\s*<button[\s\S]*?id="mobile-header-logout-btn"/
+  const authGuardRegex = /\{isAuthenticated && \(\s*<div className="flex md:hidden items-center shrink-0 ml-2">\s*<button[\s\S]*?id="mobile-header-logout-btn"/
   assert(authGuardRegex.test(navbarContent), 'Mobile header logout button must be conditionally rendered only for authenticated users')
 })
 
@@ -62,19 +63,19 @@ runTest('Confirmation dialog features exact prompt text, Cancel, and Log Out act
 
 // Test 5: Responsive Width & Overflow Protection (320px, 360px, 390px, 430px)
 runTest('Header layout enforces responsive boundaries for narrow mobile viewports', () => {
-  assert(navbarContent.includes('max-w-[calc(100%-108px)]'), 'Must bound logo container width when authenticated')
+  assert(navbarContent.includes('max-w-[calc(100%-56px)]'), 'Must bound logo container width to 100%-56px when authenticated')
   assert(navbarContent.includes('truncate'), 'Brand and tournament titles must have truncate classes to prevent line wraps')
   
-  // Numerical verification for 320px viewport
+  // Numerical verification for 320px viewport with single 44px logout button + 8px margin
   const viewport320 = 320
   const paddingX = 32 // px-4 on left and right = 16*2
   const availableContentWidth = viewport320 - paddingX // 288px
-  const controlsWidth = 44 + 8 + 44 + 8 // 104px (logout 44 + gap 8 + hamburger 44 + ml 8)
-  const remainingForLogo = availableContentWidth - controlsWidth // 184px
+  const controlsWidth = 44 + 8 // 52px (logout 44 + ml 8)
+  const remainingForLogo = availableContentWidth - controlsWidth // 236px
   const logoImageAndGap = 32 + 8 // 40px
-  const textWidthBudget = remainingForLogo - logoImageAndGap // 144px
+  const textWidthBudget = remainingForLogo - logoImageAndGap // 196px
   
-  assert(textWidthBudget >= 120, 'At 320px width, brand text container has at least 120px safe width budget for truncated text')
+  assert(textWidthBudget >= 180, 'At 320px width, brand text container has at least 180px safe width budget for truncated text')
 })
 
 // Test 6: Desktop Dropdown Preservation
@@ -83,10 +84,11 @@ runTest('Desktop profile dropdown logout functionality remains preserved', () =>
   assert(navbarContent.includes('handleSignOut'), 'Desktop dropdown calls handleSignOut')
 })
 
-// Test 7: Mobile Drawer Logout Consistency
-runTest('Mobile drawer logout button also triggers the confirmation dialog', () => {
-  const drawerFooterRegex = /\{isAuthenticated && \(\s*<div className="pt-2 border-t border-\[#27272A\]">[\s\S]*?setShowLogoutConfirm\(true\)[\s\S]*?<\/button>\s*<\/div>\s*\)\}/
-  assert(drawerFooterRegex.test(navbarContent), 'Drawer logout button must close drawer and open confirmation dialog')
+// Test 7: Mobile Drawer Removal Verification
+runTest('Mobile navigation drawer and drawer states are completely removed', () => {
+  assert(!navbarContent.includes('mobile-navigation-drawer'), 'Mobile drawer id must be completely removed')
+  assert(!navbarContent.includes('mobileMenuOpen'), 'mobileMenuOpen state must be completely removed')
+  assert(!navbarContent.includes('mobileNotifOpen'), 'mobileNotifOpen state must be completely removed')
 })
 
 console.log('\n----------------------------------------------------')
@@ -96,5 +98,5 @@ console.log('----------------------------------------------------')
 if (failedTests > 0) {
   process.exit(1)
 } else {
-  console.log('ALL MOBILE HEADER LOGOUT TESTS PASSED SUCCESSFULLY!')
+  console.log('ALL MOBILE HEADER SIMPLIFICATION TESTS PASSED SUCCESSFULLY!')
 }
